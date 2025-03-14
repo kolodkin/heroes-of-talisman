@@ -1,4 +1,4 @@
-from fastapi import APIRouter, FastAPI, WebSocket, HTTPException
+from fastapi import APIRouter, FastAPI, WebSocket, HTTPException, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.responses import PlainTextResponse
@@ -74,15 +74,20 @@ async def check_game_name(game: Game):
     return {"isUnique": is_unique}
 
 
-@app.websocket("/ws/{game_id}")
-async def websocket_endpoint(websocket: WebSocket, game_id: str):
+@app.websocket("/ws/{game_name}")
+async def websocket_endpoint(websocket: WebSocket, game_name: str):
+    username = websocket.query_params.get("username")
     await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        # Process the received data and update the game state in Redis
-        # await redis_client.set(game_id, data)
-        # Broadcast the updated game state to all connected clients
-        await websocket.send_text(data)
+    print(f"Connection to game {game_name} established for user {username}")
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await websocket.send_text(f"{username}: {data}")
+    except WebSocketDisconnect:
+        print(f"Client {username} disconnected from game {game_name}")
+    finally:
+        # Perform any cleanup actions here
+        print(f"Connection to game {game_name} closed for user {username}")
 
 
 app.include_router(router, prefix="/api/games", tags=["games"])
