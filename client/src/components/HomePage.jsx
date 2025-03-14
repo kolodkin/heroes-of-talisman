@@ -6,17 +6,40 @@ const HomePage = () => {
     const [name, setName] = useState('');
     const [newGameName, setNewGameName] = useState('');
 
+    const getGames = async () => {
+        const response = await fetch('/api/games');
+        const games = await response.json();
+        console.log('Games:', games);
+        setGames(games);
+    }
+
+    const addNewGame = async (newGameName) => {
+        const response = await fetch('/api/games', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: newGameName }),
+        });
+        const msg = await response.json();
+        console.log('New game:', msg);
+        await getGames();
+    }
+
+    const deleteGame = async (gameName) => {
+        const response = await fetch('/api/games/' + gameName, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const msg = await response.json();
+        console.log('Delete game:', msg);
+        await getGames();
+    }
+
     useEffect(() => {
-        // Fetch active games from the server
-        // fetch('/api/games')
-        //   .then(response => response.json())
-        //   .then(data => setGames(data))
-        //   .catch(error => console.error('Error fetching games:', error));
-        setGames([
-            { id: 1, name: 'Game 1' },
-            { id: 2, name: 'Game 2' },
-            { id: 3, name: 'Game 3' },
-        ])
+        getGames();
     }, []);
 
     const handleNameChange = (event) => {
@@ -27,11 +50,13 @@ const HomePage = () => {
         setNewGameName(event.target.value);
     };
 
-    const addNewGame = () => {
-        const newGame = { id: games.length + 1, name: newGameName };
-        setGames([...games, newGame]);
-        setNewGameName('');
-    };
+    const handleNewGame = (event) => {
+        addNewGame(newGameName);
+    }
+
+    const handleDeleteGame = (gameName) => {
+        deleteGame(gameName);
+    }
 
     const joinGame = (gameId) => {
         console.log(`Joining game with ID: ${gameId}`);
@@ -53,17 +78,17 @@ const HomePage = () => {
                         Add New Game:
                         <input type="text" value={newGameName} onChange={handleNewGameNameChange} />
                     </label>
-                    <button onClick={addNewGame}>+</button>
+                    <button onClick={handleNewGame}>+</button>
                 </div>
                 <h2>Join A Game:</h2>
                 <ul>
-                    {games.map(game => (
-                        <li key={game.id}>
-                            <button onClick={() => joinGame(game.id)}>{game.name}</button>
+                    {games.map((game, index) => (
+                        <li key={index} className="game-list-item">
+                            <button onClick={() => joinGame(index + 1)}>{game}</button>
+                            <button className="game-list-delete" onClick={() => handleDeleteGame(game)}>🗑️</button>
                         </li>
                     ))}
                 </ul>
-
             </div>
         </div>
     );

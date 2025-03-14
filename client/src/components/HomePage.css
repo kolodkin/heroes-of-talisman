@@ -79,3 +79,11 @@ li button {
 li button:hover {
     background-color: #444444;
 }
+
+.game-list-item {
+    display: flex;
+}
+
+.game-list-delete {
+    width: 3.5em;
+}
