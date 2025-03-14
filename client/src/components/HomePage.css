@@ -1,4 +1,7 @@
 .homepage {
+  background-color: #121212;
+  color: #ffffff;
+  min-height: 100vh;
   padding: 20px;
   font-family: Arial, sans-serif;
 }
@@ -20,14 +23,38 @@ input[type="text"] {
   margin-left: 10px;
 }
 
+button {
+  background-color: #444444;
+  color: #ffffff;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #555555;
+}
+
 ul {
   list-style-type: none;
   padding: 0;
 }
 
 li {
-  background-color: #333333;
   margin: 5px 0;
+}
+
+li button {
+  width: 100%;
+  background-color: #333333;
+  color: #ffffff;
+  border: none;
   padding: 10px;
   border-radius: 5px;
+  cursor: pointer;
+}
+
+li button:hover {
+  background-color: #444444;
 }
