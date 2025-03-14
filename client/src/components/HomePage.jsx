@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './HomePage.css';
+import { toast } from 'react-toastify';
 
 const HomePage = () => {
     const [games, setGames] = useState([]);
@@ -23,6 +24,9 @@ const HomePage = () => {
         });
         const msg = await response.json();
         console.log('New game:', msg);
+        if (!response.ok) {
+            toast.error(msg.detail);
+        }
         await getGames();
     }
 
@@ -35,6 +39,10 @@ const HomePage = () => {
         });
         const msg = await response.json();
         console.log('Delete game:', msg);
+        if (!response.ok) {
+            toast.error(msg.message);
+        }
+
         await getGames();
     }
 
@@ -52,6 +60,7 @@ const HomePage = () => {
 
     const handleNewGame = (event) => {
         addNewGame(newGameName);
+
     }
 
     const handleDeleteGame = (gameName) => {

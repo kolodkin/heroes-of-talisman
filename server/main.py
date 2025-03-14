@@ -41,10 +41,15 @@ class Game(BaseModel):
 
 @router.post("/")
 async def add_game(game: Game):
+    if len(game.name) == 0:
+        raise HTTPException(status_code=400, detail="Game name cannot be empty")
+
     if await redis_client.exists(f"game:{game.name}"):
         raise HTTPException(status_code=400, detail="Game name already exists")
+
     await redis_client.rpush("games", game.name)
     await redis_client.set(f"game:{game.name}", 1)
+
     return {"message": "Game added successfully"}
 
 
