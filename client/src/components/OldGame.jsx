@@ -36,6 +36,8 @@ const defaultGame = {
 const Game = () => {
     const { gameName, username } = useParams();
     const [game, setGame] = useState(defaultGame);
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState('');
     const socketRef = useRef(null);
 
     useEffect(() => {
@@ -75,7 +77,16 @@ const Game = () => {
         <div>
             <h1>Game: {gameName}</h1>
             <div>
+                {messages.map((msg, index) => (
+                    <div key={index}>{msg}</div>
+                ))}
             </div>
+            <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+            />
+            <button onClick={sendMessage}>Send</button>
         </div>
     );
 };
