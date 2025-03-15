@@ -12,7 +12,7 @@ createRoot(document.getElementById('root')).render(
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="game/:gameName/:username" element={<Game />} />
+                <Route path="games/:gameName/:username" element={<Game />} />
             </Routes>
         </BrowserRouter>
         <ToastContainer />

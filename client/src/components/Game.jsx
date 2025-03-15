@@ -11,7 +11,7 @@ const charachterName = {
 }
 
 const defaultGame = {
-    players: {
+    'players': {
         'אדם': {
             'cards': [],
             'characters': {
@@ -96,7 +96,7 @@ const Game = () => {
 
     useEffect(() => {
         const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-        socketRef.current = new WebSocket(`${protocol}://${window.location.host}/ws/${gameName}?username=${username}`);
+        socketRef.current = new WebSocket(`${protocol}://${window.location.host}/ws/${gameName}/${username}`);
         const socket = socketRef.current;
 
         socket.onmessage = (event) => {
