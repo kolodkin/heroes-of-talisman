@@ -12,41 +12,72 @@ const charachterName = {
 
 const defaultGame = {
     players: {
-        'adam': {
+        'אדם': {
             'cards': [],
-            'knight': {
-                'health': 2,
-                'max_health': 2,
-                'level': 1,
-                'skills': {},
-                'dice': 1,
-            },
-            'archer': {
-                'health': 3,
-                'max_health': 3,
-                'level': 1,
-                'skills': {},
-                'dice': 1,
-            },
-            'mage': {
-                'health': 2,
-                'max_health': 2,
-                'level': 1,
-                'skills': {},
-                'dice': 1,
-            },
+            'characters': {
+                'knight': {
+                    'health': 2,
+                    'max_health': 2,
+                    'level': 1,
+                    'skills': {},
+                    'dice': 1,
+                },
+
+                'archer': {
+                    'health': 3,
+                    'max_health': 3,
+                    'level': 1,
+                    'skills': {},
+                    'dice': 1,
+                },
+                'mage': {
+                    'health': 2,
+                    'max_health': 2,
+                    'level': 1,
+                    'skills': {},
+                    'dice': 1,
+                },
+            }
+        },
+        'מרק': {
+            'cards': [],
+            'characters': {
+                'knight': {
+                    'health': 2,
+                    'max_health': 2,
+                    'level': 1,
+                    'skills': {},
+                    'dice': 1,
+                },
+
+                'archer': {
+                    'health': 3,
+                    'max_health': 3,
+                    'level': 1,
+                    'skills': {},
+                    'dice': 1,
+                },
+                'mage': {
+                    'health': 2,
+                    'max_health': 2,
+                    'level': 1,
+                    'skills': {},
+                    'dice': 1,
+                },
+            }
         }
     },
 }
 
-const Board = ({ username, characters }) => {
+const Board = ({ username, userData }) => {
+    const { characters } = userData;
     return (
         <div className='player-board'>
             <div className='player-info'>
                 <h2>{username}</h2>
             </div>
             <div className="characters">
-                {characters.map((character, index) => (
+                {Object.keys(characters).map((character, index) => (
                     <div className='charachter' key={index}>
                         <img src={`/images/${character}.png`} alt={character} style={{ width: '100px', height: '100px' }} />
                         <p>{charachterName[character]}</p>
@@ -101,7 +132,11 @@ const Game = () => {
             <div className='action-board'>
                 <h1>Game: {gameName}</h1>
             </div>
-            <Board username={username} characters={['knight', 'archer', 'mage']} />
+            <div className="players">
+                {Object.entries(game.players).map(([username, userData]) => (
+                    <Board key={username} username={username} userData={userData} />
+                ))}
+            </div>
         </div>
     );
 };
