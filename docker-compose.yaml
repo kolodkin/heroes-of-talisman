@@ -42,7 +42,7 @@ services:
   redis:
     # https://hub.docker.com/_/redis
     image: redis:7.4.2
-    restart: always
+    restart: unless-stopped
     ports:
       - 6379:6379
     command: redis-server --loglevel warning
@@ -51,15 +51,19 @@ services:
     # volumes:
     #   - redis:/data
 
-  # www-dev:
-  #   image: node:${MY_NODE}
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ~/.npm:/.npm
-  #     - ./:/app
-  #   working_dir: /app
-  #   user: ${MY_UID}:${MY_GID}
-  #   command: ["/bin/bash", "-c", "cd client && npm run dev"]
+  www-dev:
+    image: node:${MY_NODE}
+    restart: unless-stopped
+    ports:
+      - 5173:5173
+    volumes:
+      - ~/.npm:/.npm
+      - ./:/app
+    working_dir: /app
+    user: ${MY_UID}:${MY_GID}
+    environment:
+      - VITE_HOST=0.0.0.0
+    command: ["/bin/bash", "-c", "cd client && npm run hdev"]
 
 # volumes:
 #   postgres:
