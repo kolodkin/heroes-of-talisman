@@ -1,4 +1,3 @@
-// filepath: /home/mark/workspace/heroes-of-talisman/client/src/components/Game.js
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -90,26 +89,43 @@ const Board = ({ username, userData }) => {
 
 
 const Game = () => {
-    const { gameName, username } = useParams();
+    const navparams = useParams();
+    const { gameName, username } = navparams;
     const [game, setGame] = useState(defaultGame);
     const socketRef = useRef(null);
+    const isFirstRender = useRef(true);
 
     useEffect(() => {
+        // handle strict mode re-render
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        console.log('useEffect called');
         const protocol = window.location.protocol === "https:" ? "wss" : "ws";
         socketRef.current = new WebSocket(`${protocol}://${window.location.host}/ws/${gameName}/${username}`);
         const socket = socketRef.current;
 
         socket.onmessage = (event) => {
-            const message = event.data;
-            setMessages((prevMessages) => [...prevMessages, message]);
+            console.log('message', event.data);
         };
 
         socket.onopen = () => {
-            toast('Connected to the game!');
+            const msg = 'Connected to the game!';
+            console.log(msg);
+            toast(msg);
         };
 
         socket.onclose = () => {
-            toast('Disconnected from the game.');
+            const msg = 'Disconnected from the game.';
+            console.log(msg);
+            toast(msg);
+        };
+
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            toast('WebSocket error occurred.');
         };
 
         return () => {
