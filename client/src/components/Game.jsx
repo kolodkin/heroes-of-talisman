@@ -2,7 +2,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import './Game.css';
+
+const charachterName = {
+    'knight': 'אביר',
+    'archer': 'קשת',
+    'mage': 'קוסם',
+}
 
 const defaultGame = {
     players: {
@@ -32,6 +38,25 @@ const defaultGame = {
         }
     },
 }
+
+const Board = ({ username, characters }) => {
+    return (
+        <div className='player-board'>
+            <div className='player-info'>
+                <h2>{username}</h2>
+            </div>
+            <div className="characters">
+                {characters.map((character, index) => (
+                    <div className='charachter' key={index}>
+                        <img src={`/images/${character}.png`} alt={character} style={{ width: '100px', height: '100px' }} />
+                        <p>{charachterName[character]}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 
 const Game = () => {
     const { gameName, username } = useParams();
@@ -72,10 +97,11 @@ const Game = () => {
     };
 
     return (
-        <div>
-            <h1>Game: {gameName}</h1>
-            <div>
+        <div className='game'>
+            <div className='action-board'>
+                <h1>Game: {gameName}</h1>
             </div>
+            <Board username={username} characters={['knight', 'archer', 'mage']} />
         </div>
     );
 };
