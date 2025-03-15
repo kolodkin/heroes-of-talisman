@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import './HomePage.css';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
     const [games, setGames] = useState([]);
-    const [name, setName] = useState('');
+    const [username, setUserName] = useState(localStorage.getItem('username') || '');
     const [newGameName, setNewGameName] = useState('');
+    const navigate = useNavigate();
 
     const getGames = async () => {
-        const response = await fetch('/api/games');
+        const response = await fetch('/api/games/');
         const games = await response.json();
         console.log('Games:', games);
         setGames(games);
     }
 
     const addNewGame = async (newGameName) => {
-        const response = await fetch('/api/games', {
+        const response = await fetch('/api/games/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -51,7 +53,9 @@ const HomePage = () => {
     }, []);
 
     const handleNameChange = (event) => {
-        setName(event.target.value);
+        const newUsername = event.target.value;
+        setUserName(newUsername);
+        localStorage.setItem('username', newUsername);
     };
 
     const handleNewGameNameChange = (event) => {
@@ -60,16 +64,14 @@ const HomePage = () => {
 
     const handleNewGame = (event) => {
         addNewGame(newGameName);
-
     }
 
     const handleDeleteGame = (gameName) => {
         deleteGame(gameName);
     }
 
-    const joinGame = (gameId) => {
-        console.log(`Joining game with ID: ${gameId}`);
-        // Implement the logic to join the game
+    const joinGame = (gameName) => {
+        navigate(`/games/${gameName}/${username}`);
     };
 
     return (
@@ -79,7 +81,7 @@ const HomePage = () => {
                 <div className="input-container">
                     <label>
                         Enter your name:
-                        <input type="text" value={name} onChange={handleNameChange} />
+                        <input type="text" value={username} onChange={handleNameChange} />
                     </label>
                 </div>
                 <div className="input-container">
@@ -93,7 +95,7 @@ const HomePage = () => {
                 <ul>
                     {games.map((game, index) => (
                         <li key={index} className="game-list-item">
-                            <button onClick={() => joinGame(index + 1)}>{game}</button>
+                            <button onClick={() => joinGame(game)}>{game}</button>
                             <button className="game-list-delete" onClick={() => handleDeleteGame(game)}>🗑️</button>
                         </li>
                     ))}

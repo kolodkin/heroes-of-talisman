@@ -4,6 +4,12 @@ from pydantic import BaseModel
 from fastapi.responses import PlainTextResponse
 import uvicorn
 from redis.asyncio import Redis
+import logging
+import json
+
+from .game_engine import __DEFAULT_GAME__
+
+logger = logging.getLogger("uvicorn")
 
 app = FastAPI()
 router = APIRouter()
@@ -48,7 +54,7 @@ async def add_game(game: Game):
         raise HTTPException(status_code=400, detail="Game name already exists")
 
     await redis_client.rpush("games", game.name)
-    await redis_client.set(f"game:{game.name}", 1)
+    await redis_client.set(f"game:{game.name}", json.dumps(__DEFAULT_GAME__))
 
     return {"message": "Game added successfully"}
 
@@ -74,20 +80,22 @@ async def check_game_name(game: Game):
     return {"isUnique": is_unique}
 
 
-@app.websocket("/ws/{game_name}")
-async def websocket_endpoint(websocket: WebSocket, game_name: str):
-    username = websocket.query_params.get("username")
+@app.websocket("/ws/{game_name}/{username}")
+async def websocket_endpoint(websocket: WebSocket, game_name: str, username: str):
+    if not await redis_client.exists(f"game:{game_name}"):
+        raise HTTPException(status_code=404, detail="Game not found")
+
     await websocket.accept()
-    print(f"Connection to game {game_name} established for user {username}")
+    logger.info(f"Connection to game {game_name} established for user {username}")
     try:
         while True:
             data = await websocket.receive_text()
             await websocket.send_text(f"{username}: {data}")
     except WebSocketDisconnect:
-        print(f"Client {username} disconnected from game {game_name}")
+        logger.info(f"Client {username} disconnected from game {game_name}")
     finally:
         # Perform any cleanup actions here
-        print(f"Connection to game {game_name} closed for user {username}")
+        logger.info(f"Connection to game {game_name} closed for user {username}")
 
 
 app.include_router(router, prefix="/api/games", tags=["games"])
