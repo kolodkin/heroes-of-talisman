@@ -105,6 +105,8 @@ const Game = () => {
         console.log('useEffect called');
         const protocol = window.location.protocol === "https:" ? "wss" : "ws";
         socketRef.current = new WebSocket(`${protocol}://${window.location.host}/ws/${gameName}/${username}`);
+        // socketRef.current = new WebSocket(`/ws`);
+        // socketRef.current = new WebSocket(`ws://localhost:8080/ws/${gameName}/${username}`);
         const socket = socketRef.current;
 
         socket.onmessage = (event) => {
