@@ -3,10 +3,34 @@ import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './Game.css';
 
-const charachterName = {
+const charachterNames = {
     'knight': 'אביר',
     'archer': 'קשת',
     'mage': 'קוסם',
+}
+
+const charachtersInfo = {
+    'knight': {
+        'health': 2,
+        'max_health': 2,
+        'level': 1,
+        'skills': {},
+        'dice': 2,
+    },
+    'archer': {
+        'health': 3,
+        'max_health': 3,
+        'level': 1,
+        'skills': {},
+        'dice': 1,
+    },
+    'mage': {
+        'health': 2,
+        'max_health': 2,
+        'level': 1,
+        'skills': {},
+        'dice': 1,
+    },
 }
 
 const defaultGame = {
@@ -15,26 +39,10 @@ const defaultGame = {
             'cards': [],
             'characters': {
                 'knight': {
-                    'health': 2,
-                    'max_health': 2,
-                    'level': 1,
-                    'skills': {},
-                    'dice': 1,
                 },
-
                 'archer': {
-                    'health': 3,
-                    'max_health': 3,
-                    'level': 1,
-                    'skills': {},
-                    'dice': 1,
                 },
                 'mage': {
-                    'health': 2,
-                    'max_health': 2,
-                    'level': 1,
-                    'skills': {},
-                    'dice': 1,
                 },
             }
         },
@@ -42,26 +50,10 @@ const defaultGame = {
             'cards': [],
             'characters': {
                 'knight': {
-                    'health': 2,
-                    'max_health': 2,
-                    'level': 1,
-                    'skills': {},
-                    'dice': 1,
                 },
-
                 'archer': {
-                    'health': 3,
-                    'max_health': 3,
-                    'level': 1,
-                    'skills': {},
-                    'dice': 1,
                 },
                 'mage': {
-                    'health': 2,
-                    'max_health': 2,
-                    'level': 1,
-                    'skills': {},
-                    'dice': 1,
                 },
             }
         }
@@ -78,15 +70,21 @@ const DiceIcon = ({ size, color, fill }) => (
     </svg>
 );
 
-const CharachterCard = ({ character, dice }) => (
-    <div className='charachter'>
-        <img src={`/images/${character}.png`} alt={character} style={{ width: '100px', height: '100px' }} />
-        <p>{charachterName[character]}</p>
-        <div className='dice'>
-            <DiceIcon color="white" fill="black" size={"20px"} />
+const CharachterCard = ({ name, character }) => {
+    const nameStr = charachterNames[name];
+    const info = charachtersInfo[name];
+
+    return (
+        <div className='charachter'>
+            <img src={`/images/${name}.png`} alt={name} style={{ width: '100px', height: '100px' }} />
+            <p>{nameStr}</p>
+            <div className='flex space-x-1'>
+                {[...Array(info.dice).keys()].map((i) => (<DiceIcon color="white" fill="black" size={"20px"} key={i} />))}
+            </div>
         </div>
-    </div>
-)
+
+    )
+}
 
 const Board = ({ username, userData }) => {
     const { characters } = userData;
@@ -96,8 +94,8 @@ const Board = ({ username, userData }) => {
                 <h2>{username}</h2>
             </div>
             <div className="characters">
-                {Object.keys(characters).map((character, index) => (
-                    <CharachterCard key={index} character={character} dice={characters[character].dice} />
+                {Object.entries(characters).map(([name, character]) => (
+                    <CharachterCard key={name} name={name} character={character} />
                 ))}
             </div>
         </div>
