@@ -15,6 +15,7 @@ const charachtersInfo = {
         'max_health': 2,
         'skills': {},
         'dice': 2,
+        'attack': 1,
     },
     'archer-1': {
         'health': 3,
@@ -85,6 +86,8 @@ const HeartIcon = ({ size, color }) => (
     </svg>
 );
 
+const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : '');
+
 const CharachterCard = ({ name, character }) => {
     const nameStr = charachterNames[name];
     const info = charachtersInfo[`${name}-${character.level}`];
@@ -95,6 +98,7 @@ const CharachterCard = ({ name, character }) => {
             <p className="align-text-center w-full">{nameStr} דרגה {character.level}</p>
             <div className='flex space-x-1'>
                 {[...Array(info.dice).keys()].map((i) => (<DiceIcon color="white" fill="black" size={"20px"} key={i} />))}
+                <span>{signStr(info.attack)}</span>
             </div>
             <div className='flex items-center'>
                 {/* {[...Array(character.health).keys()].map((i) => (<HeartIcon color="red" size={"20px"} key={i} />))} */}
