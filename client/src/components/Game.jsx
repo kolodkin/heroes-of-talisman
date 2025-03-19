@@ -10,24 +10,21 @@ const charachterNames = {
 }
 
 const charachtersInfo = {
-    'knight': {
+    'knight-1': {
         'health': 2,
         'max_health': 2,
-        'level': 1,
         'skills': {},
         'dice': 2,
     },
-    'archer': {
+    'archer-1': {
         'health': 3,
         'max_health': 3,
-        'level': 1,
         'skills': {},
         'dice': 1,
     },
-    'mage': {
+    'mage-1': {
         'health': 2,
         'max_health': 2,
-        'level': 1,
         'skills': {},
         'dice': 1,
     },
@@ -39,10 +36,16 @@ const defaultGame = {
             'cards': [],
             'characters': {
                 'knight': {
+                    'health': 2,
+                    'level': 1,
                 },
                 'archer': {
+                    'health': 2,
+                    'level': 1,
                 },
                 'mage': {
+                    'health': 1,
+                    'level': 1,
                 },
             }
         },
@@ -50,10 +53,16 @@ const defaultGame = {
             'cards': [],
             'characters': {
                 'knight': {
+                    'health': 2,
+                    'level': 1,
                 },
                 'archer': {
+                    'health': 3,
+                    'level': 1,
                 },
                 'mage': {
+                    'health': 2,
+                    'level': 1,
                 },
             }
         }
@@ -70,19 +79,29 @@ const DiceIcon = ({ size, color, fill }) => (
     </svg>
 );
 
+const HeartIcon = ({ size, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+    </svg>
+);
+
 const CharachterCard = ({ name, character }) => {
     const nameStr = charachterNames[name];
-    const info = charachtersInfo[name];
+    const info = charachtersInfo[`${name}-${character.level}`];
 
     return (
         <div className='charachter'>
             <img src={`/images/${name}.png`} alt={name} style={{ width: '100px', height: '100px' }} />
-            <p>{nameStr}</p>
+            <p className="align-text-center w-full">{nameStr} דרגה {character.level}</p>
             <div className='flex space-x-1'>
                 {[...Array(info.dice).keys()].map((i) => (<DiceIcon color="white" fill="black" size={"20px"} key={i} />))}
             </div>
+            <div className='flex items-center'>
+                {/* {[...Array(character.health).keys()].map((i) => (<HeartIcon color="red" size={"20px"} key={i} />))} */}
+                <HeartIcon color="red" size={"20px"} />
+                <span>[{character.health}/{info.max_health}]</span>
+            </div>
         </div>
-
     )
 }
 
@@ -91,7 +110,7 @@ const Board = ({ username, userData }) => {
     return (
         <div className='player-board'>
             <div className='player-info'>
-                <h2>{username}</h2>
+                <p className='text-2xl'>{username}</p>
             </div>
             <div className="characters">
                 {Object.entries(characters).map(([name, character]) => (

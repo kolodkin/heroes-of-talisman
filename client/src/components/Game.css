@@ -47,8 +47,8 @@
 .player-board .characters {
     display: flex;
     flex-direction: row;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: start;
 }
 
 .player-board .charachter:not(:last-child) {
@@ -58,13 +58,14 @@
 .player-board .charachter {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: start;
     justify-content: center;
     padding: 10px;
     border: 1px solid black;
     border-radius: 10px;
     background-color: rgba(255, 255, 255, 0.2);
 }
+
 
 .player-board>.charachter>p {
     padding: 0;
