@@ -68,6 +68,26 @@ const defaultGame = {
     },
 }
 
+const DiceIcon = ({ size, color, fill }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} xmlns="http://www.w3.org/2000/svg">
+        <rect width="24" height="24" rx="4" />
+        <circle cx="8" cy="8" r="1.5" fill={color} />
+        <circle cx="16" cy="8" r="1.5" fill={color} />
+        <circle cx="8" cy="16" r="1.5" fill={color} />
+        <circle cx="16" cy="16" r="1.5" fill={color} />
+    </svg>
+);
+
+const CharachterCard = ({ character, dice }) => (
+    <div className='charachter'>
+        <img src={`/images/${character}.png`} alt={character} style={{ width: '100px', height: '100px' }} />
+        <p>{charachterName[character]}</p>
+        <div className='dice'>
+            <DiceIcon color="white" fill="black" size={"20px"} />
+        </div>
+    </div>
+)
+
 const Board = ({ username, userData }) => {
     const { characters } = userData;
     return (
@@ -77,10 +97,7 @@ const Board = ({ username, userData }) => {
             </div>
             <div className="characters">
                 {Object.keys(characters).map((character, index) => (
-                    <div className='charachter' key={index}>
-                        <img src={`/images/${character}.png`} alt={character} style={{ width: '100px', height: '100px' }} />
-                        <p>{charachterName[character]}</p>
-                    </div>
+                    <CharachterCard key={index} character={character} dice={characters[character].dice} />
                 ))}
             </div>
         </div>
