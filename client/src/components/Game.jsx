@@ -127,11 +127,14 @@ const Game = () => {
         };
     }, [gameName, username]);
 
-    const sendMessage = () => {
+    const sendAction = (action, data = {}) => {
         const socket = socketRef.current;
-        if (socket && input) {
-            socket.send(input);
-            setInput('');
+        if (socket) {
+            socket.send(JSON.stringify({
+                action,
+                username,
+                ...data
+            }));
         }
     };
 
@@ -139,12 +142,13 @@ const Game = () => {
         // Implement disconnect logic here
         console.log(`${username} disconnected`);
         toast(`${username} disconnected`);
+        sendAction('leave');
     };
 
     return (
         <div className='game'>
             <div className='action-board relative'>
-                <div className='absolute top-0 end-0'>
+                <div className='absolute top-2 end-2'>
                     <div className='disconnect-button' onClick={handleLeave} title="צא מהמשחק"><span>X</span></div>
                 </div>
 
