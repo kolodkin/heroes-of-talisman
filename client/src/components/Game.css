@@ -73,15 +73,15 @@
 
 .disconnect-button {
     background-color: transparent;
-    color: black;
-    border: 2px solid black;
+    border: 2px solid lightgray;
     border-radius: 50%;
     width: 30px;
     height: 30px;
     text-align: center;
     cursor: pointer;
+    color: lightgray;
 }
 
 .disconnect-button:hover {
-    background-color: lightgray;
+    background-color: darkslategray;
 }
