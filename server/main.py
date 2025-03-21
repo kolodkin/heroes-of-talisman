@@ -81,6 +81,10 @@ async def check_game_name(game: Game):
     return {"isUnique": is_unique}
 
 
+# async def actions_loop():
+#     while True:
+
+
 @app.websocket("/ws/{game_name}/{username}")
 async def websocket_endpoint(websocket: WebSocket, game_name: str, username: str):
     if not await redis_client.exists(f"game:{game_name}"):
