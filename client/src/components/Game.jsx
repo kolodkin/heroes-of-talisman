@@ -59,6 +59,7 @@ const CharachterCard = ({ name, character }) => {
 
 const Board = ({ username, userData }) => {
     const { characters } = userData;
+
     return (
         <div className='player-board'>
             <div className='player-info'>
@@ -134,9 +135,19 @@ const Game = () => {
         }
     };
 
+    const handleLeave = () => {
+        // Implement disconnect logic here
+        console.log(`${username} disconnected`);
+        toast(`${username} disconnected`);
+    };
+
     return (
         <div className='game'>
-            <div className='action-board'>
+            <div className='action-board relative'>
+                <div className='absolute top-0 end-0'>
+                    <div className='disconnect-button' onClick={handleLeave} title="צא מהמשחק"><span>X</span></div>
+                </div>
+
                 <h1>Game: {gameName}</h1>
             </div>
             <div className="players">
