@@ -66,8 +66,22 @@
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-
 .player-board>.charachter>p {
     padding: 0;
     margin: 0.8em;
+}
+
+.disconnect-button {
+    background-color: transparent;
+    color: black;
+    border: 2px solid black;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.disconnect-button:hover {
+    background-color: lightgray;
 }
