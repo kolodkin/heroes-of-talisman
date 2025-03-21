@@ -9,66 +9,15 @@ const charachterNames = {
     'mage': 'קוסם',
 }
 
-const charachtersInfo = {
-    'knight-1': {
-        'health': 2,
-        'max_health': 2,
-        'skills': {},
-        'dice': 2,
-        'attack': 1,
-    },
-    'archer-1': {
-        'health': 3,
-        'max_health': 3,
-        'skills': {},
-        'dice': 1,
-    },
-    'mage-1': {
-        'health': 2,
-        'max_health': 2,
-        'skills': {},
-        'dice': 1,
-    },
-}
 
 const defaultGame = {
-    'players': {
-        'אדם': {
-            'cards': [],
-            'characters': {
-                'knight': {
-                    'health': 2,
-                    'level': 1,
-                },
-                'archer': {
-                    'health': 2,
-                    'level': 1,
-                },
-                'mage': {
-                    'health': 1,
-                    'level': 1,
-                },
-            }
-        },
-        'מרק': {
-            'cards': [],
-            'characters': {
-                'knight': {
-                    'health': 2,
-                    'level': 1,
-                },
-                'archer': {
-                    'health': 3,
-                    'level': 1,
-                },
-                'mage': {
-                    'health': 2,
-                    'level': 1,
-                },
-            }
-        }
-    },
+    'players': {},
 }
+
+const connect = (username) => ({
+    'action': 'connect',
+    'username': username,
+})
 
 const DiceIcon = ({ size, color, fill }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} xmlns="http://www.w3.org/2000/svg">
@@ -90,20 +39,19 @@ const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : '');
 
 const CharachterCard = ({ name, character }) => {
     const nameStr = charachterNames[name];
-    const info = charachtersInfo[`${name}-${character.level}`];
 
     return (
         <div className='charachter'>
             <img src={`/images/${name}.png`} alt={name} style={{ width: '100px', height: '100px' }} />
             <p className="align-text-center w-full">{nameStr} דרגה {character.level}</p>
-            <div className='flex space-x-1'>
-                {[...Array(info.dice).keys()].map((i) => (<DiceIcon color="white" fill="black" size={"20px"} key={i} />))}
-                <span>{signStr(info.attack)}</span>
+            <div className='flex items-center space-x-1'>
+                {[...Array(character.dice).keys()].map((i) => (<DiceIcon color="white" fill="black" size={"20px"} key={i} />))}
+                <span>{signStr(character.attack)}</span>
             </div>
             <div className='flex items-center'>
                 {/* {[...Array(character.health).keys()].map((i) => (<HeartIcon color="red" size={"20px"} key={i} />))} */}
                 <HeartIcon color="red" size={"20px"} />
-                <span>[{character.health}/{info.max_health}]</span>
+                <span>[{character.health}/{character.max_health}]</span>
             </div>
         </div>
     )
@@ -149,12 +97,15 @@ const Game = () => {
 
         socket.onmessage = (event) => {
             console.log('message', event.data);
+            setGame(JSON.parse(event.data));
+
         };
 
         socket.onopen = () => {
             const msg = 'Connected to the game!';
             console.log(msg);
             toast(msg);
+            socket.send(JSON.stringify(connect(username)));
         };
 
         socket.onclose = () => {
