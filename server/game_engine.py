@@ -37,14 +37,8 @@ class GameEngine:
         # load game
         self._game = game
 
-    @staticmethod
-    async def from_redis(gamename: str, username: str, redis: Redis) -> "GameEngine":
-        game = await redis.get(f"game:{gamename}")
-        if game is None:
-            raise GameException("Game not found")
-
-        game = json.loads(game)
-        return GameEngine(gamename, username, game)
+    def dumps(self):
+        return json.dumps(self.game)
 
     @property
     def gamename(self):
@@ -97,17 +91,17 @@ class GameEngine:
 
     async def action(self, action: dict):
         if action["action"] == "connect":
-            await self.connect()
+            self.connect()
         elif action["action"] == "leave":
-            await self.leave()
+            self.leave()
         else:
             raise GameException("Invalid action")
 
-    async def connect(self):
+    def connect(self):
         if self.username not in self.players:
             self.add_new_player(self.username)
 
-    async def leave(self):
+    def leave(self):
         if self.username not in self.players:
             raise GameException("Player not in game")
 
