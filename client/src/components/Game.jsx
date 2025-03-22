@@ -16,7 +16,6 @@ const defaultGame = {
 
 const connect = (username) => ({
     'action': 'connect',
-    'username': username,
 })
 
 const DiceIcon = ({ size, color, fill }) => (
@@ -82,6 +81,11 @@ const Game = () => {
     const socketRef = useRef(null);
     const isFirstRender = useRef(true);
 
+    const notify = (msg) => {
+        console.log(msg);
+        toast(msg);
+    }
+
     useEffect(() => {
         // handle strict mode re-render
         if (isFirstRender.current) {
@@ -103,21 +107,17 @@ const Game = () => {
         };
 
         socket.onopen = () => {
-            const msg = 'Connected to the game!';
-            console.log(msg);
-            toast(msg);
-            socket.send(JSON.stringify(connect(username)));
+            notify('Connected to the game!');
+            sendAction('connect');
         };
 
         socket.onclose = () => {
-            const msg = 'Disconnected from the game.';
-            console.log(msg);
-            toast(msg);
+            notify('Disconnected from the game.');
         };
 
         socket.onerror = (error) => {
             console.error('WebSocket error:', error);
-            toast('WebSocket error occurred.');
+            toast.error('WebSocket error occurred.');
         };
 
         return () => {
@@ -131,8 +131,8 @@ const Game = () => {
         const socket = socketRef.current;
         if (socket) {
             socket.send(JSON.stringify({
-                action,
                 username,
+                action,
                 ...data
             }));
         }
@@ -141,7 +141,7 @@ const Game = () => {
     const handleLeave = () => {
         // Implement disconnect logic here
         console.log(`${username} disconnected`);
-        toast(`${username} disconnected`);
+        toast(`${username} leaft game`);
         sendAction('leave');
     };
 
