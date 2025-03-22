@@ -1,14 +1,16 @@
 import logging
 import json
+from http import HTTPStatus
 
 from fastapi import APIRouter, FastAPI, WebSocket, HTTPException, WebSocketDisconnect
+
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.responses import PlainTextResponse
 import uvicorn
 from redis.asyncio import Redis
 
-from .game_engine import __DEFAULT_GAME__, GameEngine
+from .game_engine import __DEFAULT_GAME__, GameEngine, GameException
 
 logger = logging.getLogger("uvicorn")
 
@@ -69,7 +71,7 @@ async def get_games():
 @router.delete("/{game_name}")
 async def delete_game(game_name: str):
     if not await redis_client.exists(f"game:{game_name}"):
-        raise HTTPException(status_code=404, detail="Game not found")
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
     await redis_client.lrem("games", 0, game_name)
     await redis_client.delete(f"game:{game_name}")
     return {"message": "Game deleted successfully"}
@@ -91,26 +93,30 @@ async def websocket_endpoint(websocket: WebSocket, game_name: str, username: str
         raise HTTPException(status_code=404, detail="Game not found")
 
     await websocket.accept()
+
     logger.info(f"Connection to game {game_name} established for user {username}")
     try:
+        game_engine = await GameEngine.from_redis(game_name, username, redis_client)
         while True:
             action = await websocket.receive_text()
             action = json.loads(action)
             logger.info(f"Received action: {action}")
 
-            game = await redis_client.get(f"game:{game_name}")
-            game = json.loads(game)
-            game_engine = GameEngine(game_name, game)
-            if action["action"] == "connect":
-                await game_engine.connect(username)
-            elif action["action"] == "leave":
-                await game_engine.leave(username)
-            else:
-                raise HTTPException(status_code=400, detail="Invalid action")
+            try:
+                await game_engine.action(action)
+            except GameException as e:
+                raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=f"Invalid action: {e}")
+            except Exception as e:
+                raise HTTPException(
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                    detail=f"Unexpeced Exception: {e.__class__.__name__}:{e}",
+                )
+
             logger.info(f"Sending game state to user {username}")
             await redis_client.set(f"game:{game_name}", json.dumps(game_engine.game))
             await websocket.send_json(game_engine.game)
     except WebSocketDisconnect:
+        game_engine.disconnect(username)
         logger.info(f"Client {username} disconnected from game {game_name}")
     finally:
         # Perform any cleanup actions here
