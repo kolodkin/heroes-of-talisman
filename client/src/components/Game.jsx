@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './Game.css';
 
@@ -76,6 +76,7 @@ const Board = ({ username, userData }) => {
 
 const Game = () => {
     const navparams = useParams();
+    const navigate = useNavigate();
     const { gameName, username } = navparams;
     const [game, setGame] = useState(defaultGame);
     const socketRef = useRef(null);
@@ -143,6 +144,7 @@ const Game = () => {
         console.log(`${username} disconnected`);
         toast(`${username} leaft game`);
         sendAction('leave');
+        navigate('/');
     };
 
     return (

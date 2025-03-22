@@ -114,5 +114,4 @@ class GameEngine:
         self.players.pop(self.username)
 
     async def disconnect(self):
-        if self.username in self.players:
-            self.players[self.username]["status"] = "disconnected"
+        self.player["status"] = "disconnected"
