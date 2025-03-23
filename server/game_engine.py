@@ -1,8 +1,5 @@
 import json
 
-from redis.asyncio import Redis
-
-
 class GameException(Exception):
     pass
 
@@ -89,13 +86,13 @@ class GameEngine:
             },
         }
 
-    async def action(self, action: dict):
-        if action["action"] == "connect":
-            self.connect()
-        elif action["action"] == "leave":
-            self.leave()
-        else:
+    async def action(self, action: dict, *args, **kwargs):
+        if not hasattr(self, action["action"]):
             raise GameException("Invalid action")
+
+        func = getattr(self, action["action"])
+        func(*args, **kwargs)
+        return self.game
 
     def connect(self):
         if self.username not in self.players:

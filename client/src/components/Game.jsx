@@ -14,10 +14,6 @@ const defaultGame = {
     'players': {},
 }
 
-const connect = (username) => ({
-    'action': 'connect',
-})
-
 const DiceIcon = ({ size, color, fill }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} xmlns="http://www.w3.org/2000/svg">
         <rect width="24" height="24" rx="4" />
@@ -77,7 +73,7 @@ const Board = ({ username, userData }) => {
 const Game = () => {
     const navparams = useParams();
     const navigate = useNavigate();
-    const { gameName, username } = navparams;
+    const { gameName: gamename, username } = navparams;
     const [game, setGame] = useState(defaultGame);
     const socketRef = useRef(null);
     const isFirstRender = useRef(true);
@@ -94,9 +90,8 @@ const Game = () => {
             return;
         }
 
-        console.log('useEffect called');
         const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-        socketRef.current = new WebSocket(`${protocol}://${window.location.host}/ws/${gameName}/${username}`);
+        socketRef.current = new WebSocket(`${protocol}://${window.location.host}/ws/${gamename}/${username}`);
         const socket = socketRef.current;
 
         socket.onmessage = (event) => {
@@ -124,7 +119,7 @@ const Game = () => {
             socketRef.current?.close();
             socketRef.current = null;
         };
-    }, [gameName, username]);
+    }, [gamename, username]);
 
     const sendAction = (action, data = {}) => {
         const socket = socketRef.current;
@@ -148,11 +143,10 @@ const Game = () => {
     return (
         <div className='game'>
             <div className='action-board relative'>
-                <div className='absolute top-2 end-2'>
+                <div className='absolute top-2 end-2 flex space-x-2'>
+                    <p className='text-xl'>{username} @ {gamename}</p>
                     <div className='disconnect-button' onClick={handleLeave} title="צא מהמשחק"><span>X</span></div>
                 </div>
-
-                <h1>Game: {gameName}</h1>
             </div>
             <div className="players">
                 {Object.entries(game.players).map(([username, userData]) => (

@@ -50,15 +50,15 @@ class Game(BaseModel):
 
 
 @router.post("/")
-async def add_game(game: Game):
-    if len(game.name) == 0:
+async def add_game(new_game: Game):
+    if len(new_game.name) == 0:
         raise HTTPException(status_code=400, detail="Game name cannot be empty")
 
-    if await redis_client.exists(f"game:{game.name}"):
-        raise HTTPException(status_code=400, detail="Game name already exists")
+    if await redis_client.exists(f"game:{new_game.name}"):
+        raise HTTPException(status_code=400, detail="Game already exists")
 
-    await redis_client.rpush("games", game.name)
-    await redis_client.set(f"game:{game.name}", json.dumps(__DEFAULT_GAME__))
+    await redis_client.rpush("games", new_game.name)
+    await redis_client.set(f"game:{new_game.name}", json.dumps(__DEFAULT_GAME__))
 
     return {"message": "Game added successfully"}
 
@@ -162,7 +162,7 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
         )
     except WebSocketDisconnect:
         game_engine = await from_redis(redis_client, redis_meta)
-        game_engine.disconnect(username)
+        game_engine.action({"action": "disconnect"})
         await redis_client.set(redis_meta.key, game_engine.dumps())
         logger.info(f"Client '{username}' disconnected from game '{gamename}'")
     finally:
