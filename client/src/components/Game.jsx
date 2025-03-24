@@ -3,38 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './Game.css';
 
-const lang = {
-    playing: 'משחק',
-    waiting_his_turn: 'ממתין לתורו',
-    stargesNames: {
-        'character_select': 'בחירת דמות',
-        'card_draw': 'שליפת קלפים',
-        'use_skill': 'שימוש בכישור',
-        'battle': 'קרב',
-    },
-    charachterNames: {
-        'knight': 'אביר',
-        'archer': 'קשת',
-        'mage': 'קוסם',
-    }
-}
+import { DiceIcon, HeartIcon } from './Icons';
+import CharacterSelect from './CharachterSelect';
+import lang from './he'
 
 
-const DiceIcon = ({ size, color, fill }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} xmlns="http://www.w3.org/2000/svg">
-        <rect width="24" height="24" rx="4" />
-        <circle cx="8" cy="8" r="1.5" fill={color} />
-        <circle cx="16" cy="8" r="1.5" fill={color} />
-        <circle cx="8" cy="16" r="1.5" fill={color} />
-        <circle cx="16" cy="16" r="1.5" fill={color} />
-    </svg>
-);
 
-const HeartIcon = ({ size, color }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={color} xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-    </svg>
-);
+
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : '');
 
@@ -77,15 +52,6 @@ const CharachterCard = ({ name, character }) => {
     )
 }
 
-const CharacterSelect = ({ characters, handleSelect }) => {
-    return (
-        <div className='character-select'>
-            {Object.entries(characters).map(([name, character]) => (
-                <CharachterCard key={name} name={name} character={character} />
-            ))}
-        </div>
-    )
-}
 
 const ActionBoard = ({ username, gamename, game, handleLeave }) => {
     const { stage } = game;
@@ -96,11 +62,11 @@ const ActionBoard = ({ username, gamename, game, handleLeave }) => {
     }
 
     let content;
-    // switch (stage) {
-    //     case 'character_select':
-    //         content = <CharacterSelect characters={game.players[username].characters} handleSelect={handleSelect} />
-    //         break
-    // }
+    switch (stage) {
+        case 'character_select':
+            content = <CharacterSelect characters={game.players[username].characters} handleSelect={handleSelect} />
+            break
+    }
 
     return (
         <div className='action-board relative p-4'>
@@ -109,7 +75,7 @@ const ActionBoard = ({ username, gamename, game, handleLeave }) => {
                 <div className='disconnect-button' onClick={handleLeave} title="צא מהמשחק"><span>X</span></div>
             </div>
             <div className='stage'>
-                <p className='text-3xl'>{stageName}</p>
+                <p className='text-3xl mb-3'>{stageName}</p>
                 {content}
             </div>
         </div>
