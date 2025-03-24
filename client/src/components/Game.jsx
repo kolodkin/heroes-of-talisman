@@ -20,12 +20,6 @@ const lang = {
 }
 
 
-const defaultGame = {
-    'players': {},
-    'playing': null,
-    'stage': null,
-}
-
 const DiceIcon = ({ size, color, fill }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} xmlns="http://www.w3.org/2000/svg">
         <rect width="24" height="24" rx="4" />
@@ -86,6 +80,9 @@ const CharachterCard = ({ name, character }) => {
 const CharacterSelect = ({ characters, handleSelect }) => {
     return (
         <div className='character-select'>
+            {Object.entries(characters).map(([name, character]) => (
+                <CharachterCard key={name} name={name} character={character} />
+            ))}
         </div>
     )
 }
@@ -93,6 +90,17 @@ const CharacterSelect = ({ characters, handleSelect }) => {
 const ActionBoard = ({ username, gamename, game, handleLeave }) => {
     const { stage } = game;
     const stageName = lang.stargesNames[stage];
+
+    const handleSelect = (character) => {
+        console.log('selected', character);
+    }
+
+    let content;
+    // switch (stage) {
+    //     case 'character_select':
+    //         content = <CharacterSelect characters={game.players[username].characters} handleSelect={handleSelect} />
+    //         break
+    // }
 
     return (
         <div className='action-board relative p-4'>
@@ -102,6 +110,7 @@ const ActionBoard = ({ username, gamename, game, handleLeave }) => {
             </div>
             <div className='stage'>
                 <p className='text-3xl'>{stageName}</p>
+                {content}
             </div>
         </div>
     )
@@ -111,7 +120,7 @@ const Game = () => {
     const navparams = useParams();
     const navigate = useNavigate();
     const { gameName: gamename, username } = navparams;
-    const [game, setGame] = useState(defaultGame);
+    const [game, setGame] = useState(null);
     const socketRef = useRef(null);
     const isFirstRender = useRef(true);
 
@@ -184,6 +193,10 @@ const Game = () => {
         sendAction('leave');
         navigate('/');
     };
+
+    if (!game) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className='game'>
