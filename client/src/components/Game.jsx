@@ -3,15 +3,27 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import './Game.css';
 
-const charachterNames = {
-    'knight': 'אביר',
-    'archer': 'קשת',
-    'mage': 'קוסם',
+const lang = {
+    playing: 'משחק',
+    waiting_his_turn: 'ממתין לתורו',
+    stargesNames: {
+        'character_select': 'בחירת דמות',
+        'card_draw': 'שליפת קלפים',
+        'use_skill': 'שימוש בכישור',
+        'battle': 'קרב',
+    },
+    charachterNames: {
+        'knight': 'אביר',
+        'archer': 'קשת',
+        'mage': 'קוסם',
+    }
 }
 
 
 const defaultGame = {
     'players': {},
+    'playing': null,
+    'stage': null,
 }
 
 const DiceIcon = ({ size, color, fill }) => (
@@ -32,8 +44,27 @@ const HeartIcon = ({ size, color }) => (
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : '');
 
+
+const Board = ({ username, userData, playing }) => {
+    const { characters } = userData;
+
+    return (
+        <div className={`player-board ${playing ? 'playing' : ''}`}>
+            <div className='player-info'>
+                <p className='text-2xl'>{username}</p>
+                <p>({playing ? lang.playing : lang.waiting_his_turn})</p>
+            </div>
+            <div className="characters">
+                {Object.entries(characters).map(([name, character]) => (
+                    <CharachterCard key={name} name={name} character={character} />
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const CharachterCard = ({ name, character }) => {
-    const nameStr = charachterNames[name];
+    const nameStr = lang.charachterNames[name];
 
     return (
         <div className='charachter'>
@@ -52,23 +83,29 @@ const CharachterCard = ({ name, character }) => {
     )
 }
 
-const Board = ({ username, userData }) => {
-    const { characters } = userData;
+const CharacterSelect = ({ characters, handleSelect }) => {
+    return (
+        <div className='character-select'>
+        </div>
+    )
+}
+
+const ActionBoard = ({ username, gamename, game, handleLeave }) => {
+    const { stage } = game;
+    const stageName = lang.stargesNames[stage];
 
     return (
-        <div className='player-board'>
-            <div className='player-info'>
-                <p className='text-2xl'>{username}</p>
+        <div className='action-board relative p-4'>
+            <div className='absolute top-2 end-2 flex space-x-2'>
+                <p className='text-xl'>{username} @ {gamename}</p>
+                <div className='disconnect-button' onClick={handleLeave} title="צא מהמשחק"><span>X</span></div>
             </div>
-            <div className="characters">
-                {Object.entries(characters).map(([name, character]) => (
-                    <CharachterCard key={name} name={name} character={character} />
-                ))}
+            <div className='stage'>
+                <p className='text-3xl'>{stageName}</p>
             </div>
         </div>
-    );
-};
-
+    )
+}
 
 const Game = () => {
     const navparams = useParams();
@@ -90,14 +127,22 @@ const Game = () => {
             return;
         }
 
+        // todo: implement reconnect logic
         const protocol = window.location.protocol === "https:" ? "wss" : "ws";
         socketRef.current = new WebSocket(`${protocol}://${window.location.host}/ws/${gamename}/${username}`);
         const socket = socketRef.current;
 
         socket.onmessage = (event) => {
             console.log('message', event.data);
-            setGame(JSON.parse(event.data));
-
+            const data = JSON.parse(event.data);
+            // handle error message
+            if (data.error) {
+                console.error(data.error);
+                toast.error(data.error);
+            }
+            else if (data.event === 'game_update') {
+                setGame(data.game);
+            }
         };
 
         socket.onopen = () => {
@@ -142,15 +187,10 @@ const Game = () => {
 
     return (
         <div className='game'>
-            <div className='action-board relative'>
-                <div className='absolute top-2 end-2 flex space-x-2'>
-                    <p className='text-xl'>{username} @ {gamename}</p>
-                    <div className='disconnect-button' onClick={handleLeave} title="צא מהמשחק"><span>X</span></div>
-                </div>
-            </div>
+            <ActionBoard username={username} gamename={gamename} game={game} handleLeave={handleLeave} />
             <div className="players">
                 {Object.entries(game.players).map(([username, userData]) => (
-                    <Board key={username} username={username} userData={userData} />
+                    <Board key={username} username={username} userData={userData} playing={username == game.playing} />
                 ))}
             </div>
         </div>
