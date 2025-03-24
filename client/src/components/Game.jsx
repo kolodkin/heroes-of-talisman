@@ -8,7 +8,8 @@ import CharacterSelect from './CharachterSelect';
 import lang from './he'
 
 
-
+const MAX_RECONNECT_RETRIES = 5;
+const RECONNECT_TIMEOUT_MS = 300;
 
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : '');
@@ -55,7 +56,7 @@ const CharachterCard = ({ name, character }) => {
 
 const ActionBoard = ({ username, gamename, game, handleLeave }) => {
     const { stage } = game;
-    const stageName = lang.stargesNames[stage];
+    const stageName = lang.stageTitleNames[stage];
 
     const handleSelect = (character) => {
         console.log('selected', character);
@@ -89,10 +90,16 @@ const Game = () => {
     const [game, setGame] = useState(null);
     const socketRef = useRef(null);
     const isFirstRender = useRef(true);
+    const connectTimeout = useRef(null);
 
     const notify = (msg) => {
         console.log(msg);
         toast(msg);
+    }
+
+    const enotify = (msg) => {
+        console.error(msg);
+        toast.error(msg);
     }
 
     useEffect(() => {
@@ -102,42 +109,61 @@ const Game = () => {
             return;
         }
 
-        // todo: implement reconnect logic
-        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-        socketRef.current = new WebSocket(`${protocol}://${window.location.host}/ws/${gamename}/${username}`);
-        const socket = socketRef.current;
-
-        socket.onmessage = (event) => {
-            console.log('message', event.data);
-            const data = JSON.parse(event.data);
-            // handle error message
-            if (data.error) {
-                console.error(data.error);
-                toast.error(data.error);
+        const connectSocket = (retries = 0) => {
+            if (retries >= MAX_RECONNECT_RETRIES) {
+                enotify('Failed to connect to the game. Please try again later.');
+                return
             }
-            else if (data.event === 'game_update') {
-                setGame(data.game);
-            }
+
+            const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+            socketRef.current = new WebSocket(`${protocol}://${window.location.host}/ws/${gamename}/${username}`);
+            const socket = socketRef.current;
+
+            socket.onmessage = (event) => {
+                console.log('message', event.data);
+                const data = JSON.parse(event.data);
+                // handle error message
+                if (data.error) {
+                    console.error(data.error);
+                    toast.error(data.error);
+                }
+                else if (data.event === 'game_update') {
+                    setGame(data.game);
+                }
+            };
+
+            socket.onopen = () => {
+                notify('Connected to the game!');
+                if (connectTimeout.current) {
+                    clearTimeout(connectTimeout.current);
+                }
+
+                sendAction('connect');
+            };
+
+            socket.onclose = () => {
+                if (retries == 0) {
+                    enotify('Disconnected from the game.');
+                }
+
+                connectTimeout = setTimeout(() => connectSocket(retries + 1), RECONNECT_TIMEOUT_MS); // Attempt to reconnect after 200ms
+            };
+
+            socket.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                // toast.error('WebSocket error occurred.');
+            };
         };
 
-        socket.onopen = () => {
-            notify('Connected to the game!');
-            sendAction('connect');
-        };
-
-        socket.onclose = () => {
-            notify('Disconnected from the game.');
-        };
-
-        socket.onerror = (error) => {
-            console.error('WebSocket error:', error);
-            toast.error('WebSocket error occurred.');
-        };
+        connectSocket();
 
         return () => {
             console.log('Unmounting Game component');
             socketRef.current?.close();
             socketRef.current = null;
+            if (connectTimeout.current) {
+                clearTimeout(connectTimeout.current);
+            }
         };
     }, [gamename, username]);
 

@@ -1,11 +1,11 @@
 const lang = {
     playing: 'משחק',
     waiting_his_turn: 'ממתין לתורו',
-    stargesNames: {
-        'character_select': 'בחירת דמות',
-        'card_draw': 'שליפת קלפים',
-        'use_skill': 'שימוש בכישור',
-        'battle': 'קרב',
+    stageTitleNames: {
+        'character_select': 'בחר דמות',
+        'card_draw': 'שלוף קלף',
+        'use_skill': 'בחר יכולת והשתמש בה או דלג',
+        'battle': 'בחר דמות יריב לתקוף או דלג',
     },
     charachterNames: {
         'knight': 'אביר',
