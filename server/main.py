@@ -69,12 +69,12 @@ async def get_games():
     return [game.decode("utf-8") for game in games]
 
 
-@router.delete("/{game_name}")
-async def delete_game(game_name: str):
-    if not await redis_client.exists(f"game:{game_name}"):
+@router.delete("/{gamename}")
+async def delete_game(gamename: str):
+    if not await redis_client.exists(f"game:{gamename}"):
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
-    await redis_client.lrem("games", 0, game_name)
-    await redis_client.delete(f"game:{game_name}")
+    await redis_client.lrem("games", 0, gamename)
+    await redis_client.delete(f"game:{gamename}")
     return {"message": "Game deleted successfully"}
 
 
@@ -118,7 +118,12 @@ async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta):
             data = json.loads(message["data"])
             if data["event"] == "game_update":
                 game_engine = await from_redis(redis_client, redis_meta)
-                await websocket.send_json(game_engine.game)
+                await websocket.send_json(
+                    {
+                        "event": "game_update",
+                        "game": game_engine.game,
+                    }
+                )
             else:
                 logger.warning(f"Unknown event: {data}")
 

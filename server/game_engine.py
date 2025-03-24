@@ -1,10 +1,24 @@
 import json
 
+
 class GameException(Exception):
     pass
 
 
-__DEFAULT_GAME__ = {"players": {}}
+class UserMessage(GameException):
+    pass
+
+
+__MAX_PLAYERS__ = 4
+
+__DEFAULT_GAME__ = {
+    "stage": None,  # None -> [character_select] -> [card_draw] -> [use_skill] -> [battle] -> |
+    #                                      |                                                      |
+    #                                      <------------------------------------------------------|
+    "playing": None,  # username
+    "players": {},
+}
+
 
 TraitDB = {
     "knight-1": {
@@ -58,6 +72,14 @@ class GameEngine:
         return self.game["players"]
 
     @property
+    def playing(self):
+        return self.game["playing"]
+
+    @property
+    def stage(self):
+        return self.game["stage"]
+
+    @property
     def player(self):
         if self.username not in self.players:
             raise GameException("Player not in game")
@@ -87,22 +109,34 @@ class GameEngine:
         }
 
     async def action(self, action: dict, *args, **kwargs):
-        if not hasattr(self, action["action"]):
+        if not hasattr(self, f'action_{action["action"]}'):
             raise GameException("Invalid action")
 
-        func = getattr(self, action["action"])
+        func = getattr(self, f'action_{action["action"]}')
+        if not callable(func):
+            raise GameException("Invalid action")
+
         func(*args, **kwargs)
         return self.game
 
-    def connect(self):
+    def action_connect(self):
+        # add player if not in game
         if self.username not in self.players:
+            if len(self.players) >= __MAX_PLAYERS__:
+                raise UserMessage("Game is full")
             self.add_new_player(self.username)
 
-    def leave(self):
+        if self.playing is None:
+            # game not started, set playing to current player and initial stage
+            if self.stage is None:
+                self.game["stage"] = "character_select"
+            self.game["playing"] = self.username
+
+    def action_leave(self):
         if self.username not in self.players:
             raise GameException("Player not in game")
 
         self.players.pop(self.username)
 
-    async def disconnect(self):
+    def action_disconnect(self):
         self.player["status"] = "disconnected"

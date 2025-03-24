@@ -44,6 +44,10 @@
     margin-inline-end: 10px;
 }
 
+.player-board.playing {
+    border: 2px solid lightcyan;
+}
+
 .player-board .characters {
     display: flex;
     flex-direction: row;
