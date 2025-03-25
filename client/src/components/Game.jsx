@@ -6,6 +6,7 @@ import './Game.css';
 import { DiceIcon, HeartIcon } from './Icons';
 import CharacterSelect from './CharachterSelect';
 import lang from './he'
+import { toast } from 'react-toastify';
 
 
 const MAX_RECONNECT_RETRIES = 5;
@@ -128,8 +129,13 @@ const Game = () => {
                 const data = JSON.parse(event.data);
                 // handle error message
                 if (data.error) {
-                    console.error(data.error);
-                    toast.error(data.error);
+                    console.error(data.class || 'error', data.error);
+                    if (data.class == 'ReportedException') {
+                        toast.error(data.error);
+                    }
+                    else {
+                        toast.error('Server Error. If this error persists, please contact the administrator.');
+                    }
                 }
                 else if (data.event === 'game_update') {
                     setGame(data.game);
