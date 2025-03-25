@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { notify, enotify } from '../utils/notify';
 import './Game.css';
 
 import { DiceIcon, HeartIcon } from './Icons';
@@ -54,20 +54,29 @@ const CharachterCard = ({ name, character }) => {
 }
 
 
-const ActionBoard = ({ username, gamename, game, handleLeave }) => {
-    const { stage } = game;
-    const stageName = lang.stageTitleNames[stage];
+const ActionBoard = ({ username, gamename, game, sendAction }) => {
+    const navigate = useNavigate();
 
-    const handleSelect = (character) => {
-        console.log('selected', character);
-    }
+    const { stage } = game;
+    const stageName = lang.stageNames[stage];
+    const stageTitle = lang.stageTitleNames[stage];
+
+
+    const handleLeave = () => {
+        console.log(`${username} disconnected`);
+        toast(`${username} leaft game`);
+        sendAction('leave');
+        navigate('/');
+    };
+
 
     let content;
     switch (stage) {
         case 'character_select':
-            content = <CharacterSelect characters={game.players[username].characters} handleSelect={handleSelect} />
+            content = <CharacterSelect characters={game.players[username].characters} sendAction={sendAction} />
             break
     }
+
 
     return (
         <div className='action-board relative p-4'>
@@ -76,7 +85,12 @@ const ActionBoard = ({ username, gamename, game, handleLeave }) => {
                 <div className='disconnect-button' onClick={handleLeave} title="צא מהמשחק"><span>X</span></div>
             </div>
             <div className='stage'>
-                <p className='text-3xl mb-3'>{stageName}</p>
+                <p className='text-2xl mb-5'>
+                    {game.playing !== username ?
+                        `${lang.action_board.wait_your_turn} (${stageName} - ${game.playing})`
+                        : stageTitle
+                    }
+                </p>
                 {content}
             </div>
         </div>
@@ -85,22 +99,12 @@ const ActionBoard = ({ username, gamename, game, handleLeave }) => {
 
 const Game = () => {
     const navparams = useParams();
-    const navigate = useNavigate();
     const { gameName: gamename, username } = navparams;
     const [game, setGame] = useState(null);
     const socketRef = useRef(null);
     const isFirstRender = useRef(true);
     const connectTimeout = useRef(null);
 
-    const notify = (msg) => {
-        console.log(msg);
-        toast(msg);
-    }
-
-    const enotify = (msg) => {
-        console.error(msg);
-        toast.error(msg);
-    }
 
     useEffect(() => {
         // handle strict mode re-render
@@ -178,13 +182,6 @@ const Game = () => {
         }
     };
 
-    const handleLeave = () => {
-        // Implement disconnect logic here
-        console.log(`${username} disconnected`);
-        toast(`${username} leaft game`);
-        sendAction('leave');
-        navigate('/');
-    };
 
     if (!game) {
         return <div>Loading...</div>;
@@ -192,7 +189,7 @@ const Game = () => {
 
     return (
         <div className='game'>
-            <ActionBoard username={username} gamename={gamename} game={game} handleLeave={handleLeave} />
+            <ActionBoard username={username} gamename={gamename} game={game} sendAction={sendAction} />
             <div className="players">
                 {Object.entries(game.players).map(([username, userData]) => (
                     <Board key={username} username={username} userData={userData} playing={username == game.playing} />
