@@ -1,5 +1,5 @@
 const lang = {
-    playing: 'משחק',
+    active: 'משחק',
     waiting_his_turn: 'ממתין לתורו',
     stageNames: {
         'character_select': 'בחירת דמות',

@@ -11,7 +11,7 @@ createRoot(document.getElementById('root')).render(
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="games/:gameName/:username" element={<Game />} />
+                <Route path="games/:gamename/:username" element={<Game />} />
             </Routes>
         </BrowserRouter>
         <ToastContainer />

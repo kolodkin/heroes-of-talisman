@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import './HomePage.css';
+import styles from './HomePage.module.css'
+import classNames from 'classnames';
+
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
@@ -75,28 +77,28 @@ const HomePage = () => {
     };
 
     return (
-        <div className="homepage">
-            <div className="homepage-container">
+        <div className={styles.homepage}>
+            <div className={styles['homepage-container']}>
                 <h1>Welcome to Heroes of Talisman</h1>
-                <div className="input-container">
+                <div className={styles["input-container"]}>
                     <label>
                         Enter your name:
-                        <input type="text" value={username} onChange={handleNameChange} />
+                        <input className={styles.input} type="text" value={username} onChange={handleNameChange} />
                     </label>
                 </div>
-                <div className="input-container">
+                <div className={styles["input-container"]}>
                     <label>
                         Add New Game:
-                        <input type="text" value={newGameName} onChange={handleNewGameNameChange} />
+                        <input className={styles.input} type="text" value={newGameName} onChange={handleNewGameNameChange} />
                     </label>
-                    <button onClick={handleNewGame}>+</button>
+                    <button className={styles.button} onClick={handleNewGame}>+</button>
                 </div>
                 <h2>Join A Game:</h2>
                 <ul>
                     {games.map((game, index) => (
-                        <li key={index} className="game-list-item">
-                            <button onClick={() => joinGame(game)}>{game}</button>
-                            <button className="game-list-delete" onClick={() => handleDeleteGame(game)}>🗑️</button>
+                        <li key={index} className={styles["game-list-item"]}>
+                            <button className={styles.button} onClick={() => joinGame(game)}>{game}</button>
+                            <button className={styles["game-list-delete"]} onClick={() => handleDeleteGame(game)}>🗑️</button>
                         </li>
                     ))}
                 </ul>
