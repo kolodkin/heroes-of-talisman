@@ -5,7 +5,7 @@ class GameException(Exception):
     pass
 
 
-class UserMessage(GameException):
+class ReportedException(GameException):
     pass
 
 
@@ -108,13 +108,13 @@ class GameEngine:
             },
         }
 
-    async def action(self, action: dict, *args, **kwargs):
+    def action(self, action: dict, *args, **kwargs):
         if not hasattr(self, f'action_{action["action"]}'):
-            raise GameException("Invalid action")
+            raise ReportedException("Invalid action")
 
         func = getattr(self, f'action_{action["action"]}')
         if not callable(func):
-            raise GameException("Invalid action")
+            raise ReportedException("Invalid action")
 
         func(*args, **kwargs)
         return self.game
@@ -123,7 +123,7 @@ class GameEngine:
         # add player if not in game
         if self.username not in self.players:
             if len(self.players) >= __MAX_PLAYERS__:
-                raise UserMessage("Game is full")
+                raise ReportedException("Game is full")
             self.add_new_player(self.username)
 
         if self.playing is None:

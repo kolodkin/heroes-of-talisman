@@ -11,7 +11,7 @@ from fastapi.responses import PlainTextResponse
 import uvicorn
 from redis.asyncio import Redis
 
-from .game_engine import __DEFAULT_GAME__, GameEngine, GameException
+from .game_engine import __DEFAULT_GAME__, GameEngine, ReportedException
 
 logger = logging.getLogger("uvicorn")
 
@@ -134,16 +134,16 @@ async def actions_loop(websocket: WebSocket, redis: Redis, redis_meta: RedisMeta
         action = json.loads(action)
         logger.info(f"Received action: {action}")
 
+        success = False
         try:
             game_engine = await from_redis(redis, redis_meta)
-            await game_engine.action(action)
-        except GameException as e:
-            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=f"Invalid action: {e}")
+            game_engine.action(action)
+            success = True
         except Exception as e:
-            raise HTTPException(
-                status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                detail=f"Unexpeced Exception: {e.__class__.__name__}:{e}",
-            )
+            await websocket.send_json({"error": str(e), "class": e.__class__.__name__})
+
+        if not success:
+            continue
 
         logger.info(f"Sending game state to user '{game_engine.username}'")
         await redis_client.set(redis_meta.key, game_engine.dumps())
