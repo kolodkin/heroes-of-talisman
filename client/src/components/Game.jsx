@@ -15,15 +15,19 @@ const RECONNECT_TIMEOUT_MS = 300;
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : '');
 
+const processGame = (game, username) => {
+    game.active = game.playing === username;
+    return game;
+}
 
-const Board = ({ username, userData, playing }) => {
+const Board = ({ username, userData, playing, active }) => {
     const { characters } = userData;
 
     return (
-        <div className={`player-board ${playing ? 'playing' : ''}`}>
+        <div className={`player-board ${playing == username ? 'playing' : ''}`}>
             <div className='player-info'>
                 <p className='text-2xl'>{username}</p>
-                <p>({playing ? lang.playing : lang.waiting_his_turn})</p>
+                <p>({active ? lang.active : lang.waiting_his_turn})</p>
             </div>
             <div className="characters">
                 {Object.entries(characters).map(([name, character]) => (
@@ -74,7 +78,7 @@ const ActionBoard = ({ username, gamename, game, sendAction }) => {
     let content;
     switch (stage) {
         case 'character_select':
-            content = <CharacterSelect characters={game.players[username].characters} sendAction={sendAction} />
+            content = <CharacterSelect characters={game.players[username].characters} sendAction={sendAction} active={game.active} />
             break
     }
 
@@ -100,7 +104,7 @@ const ActionBoard = ({ username, gamename, game, sendAction }) => {
 
 const Game = () => {
     const navparams = useParams();
-    const { gameName: gamename, username } = navparams;
+    const { gamename, username } = navparams;
     const [game, setGame] = useState(null);
     const socketRef = useRef(null);
     const isFirstRender = useRef(true);
@@ -138,7 +142,8 @@ const Game = () => {
                     }
                 }
                 else if (data.event === 'game_update') {
-                    setGame(data.game);
+                    const game = processGame(data.game, username);
+                    setGame(game);
                 }
             };
 
@@ -156,7 +161,7 @@ const Game = () => {
                     enotify('Disconnected from the game.');
                 }
 
-                connectTimeout = setTimeout(() => connectSocket(retries + 1), RECONNECT_TIMEOUT_MS); // Attempt to reconnect after 200ms
+                connectTimeout.current = setTimeout(() => connectSocket(retries + 1), RECONNECT_TIMEOUT_MS); // Attempt to reconnect after 200ms
             };
 
             socket.onerror = (error) => {
@@ -198,7 +203,7 @@ const Game = () => {
             <ActionBoard username={username} gamename={gamename} game={game} sendAction={sendAction} />
             <div className="players">
                 {Object.entries(game.players).map(([username, userData]) => (
-                    <Board key={username} username={username} userData={userData} playing={username == game.playing} />
+                    <Board key={username} username={username} userData={userData} playing={game.playing} active={game.active} />
                 ))}
             </div>
         </div>

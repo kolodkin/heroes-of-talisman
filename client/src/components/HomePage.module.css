@@ -1,4 +1,3 @@
-
 .homepage {
     display: flex;
     flex-direction: column;
@@ -32,12 +31,12 @@
     margin-bottom: 20px;
 }
 
-h1 {
+.homepage h1 {
     font-size: 3.2em;
     line-height: 1.1;
 }
 
-input[type="text"] {
+.homepage input[type="text"] {
     background-color: #333333;
     color: #ffffff;
     border: 1px solid #444444;
@@ -45,7 +44,7 @@ input[type="text"] {
     margin-left: 10px;
 }
 
-button {
+.homepage button {
     background-color: #444444;
     color: #ffffff;
     border: none;
@@ -54,20 +53,20 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+.homepage button:hover {
     background-color: #555555;
 }
 
-ul {
+.homepage ul {
     list-style-type: none;
     padding: 0;
 }
 
-li {
+.homepage li {
     margin: 5px 0;
 }
 
-li button {
+.homepage li button {
     width: 100%;
     background-color: #333333;
     color: #ffffff;
@@ -77,14 +76,14 @@ li button {
     cursor: pointer;
 }
 
-li button:hover {
+.homepage li button:hover {
     background-color: #444444;
 }
 
-.game-list-item {
+.homepage .game-list-item {
     display: flex;
 }
 
-.game-list-delete {
+.homepage .game-list-delete {
     width: 3.5em;
 }
