@@ -141,9 +141,7 @@ const Game = () => {
             return;
         }
 
-        if (retries == 0) {
-            enotify('Disconnected from the game.');
-        }
+        enotify('Disconnected from the game.');
     };
 
     const onerror = (error) => {

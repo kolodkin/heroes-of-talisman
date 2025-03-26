@@ -170,6 +170,8 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
         if username in game_engine.players:
             game_engine.action({"action": "disconnect"})
         await redis_client.set(redis_meta.key, game_engine.dumps())
+        await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
+
         logger.info(f"Client '{username}' disconnected from game '{gamename}'")
     finally:
         # Perform any cleanup actions here
