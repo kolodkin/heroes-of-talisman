@@ -16,7 +16,7 @@ const CharachterCard = ({ active, name, character, isSelected, onClick }) => {
             className={className({ [styles.selected]: isSelected, [styles.active]: active }, styles.charachter, 'text-2xl')}
             onClick={onClick}
         >
-            <img src={`/images/${name}.png`} alt={name} style={{ width: '200px', height: '200px' }} />
+            <img src={`/images/${name}.png`} alt={name} style={{ minWidth: '200px', width: '200px', height: '200px' }} />
             <p className="align-text-center w-full">{nameStr} דרגה {character.level}</p>
             <div className='flex items-center space-x-1'>
                 {[...Array(character.dice).keys()].map((i) => (<DiceIcon color="white" fill="black" size={"20px"} key={i} />))}
