@@ -20,14 +20,14 @@ const processGame = (game, username) => {
     return game;
 }
 
-const Board = ({ username, userData, playing, active }) => {
+const Board = ({ username, userData, playing }) => {
     const { characters } = userData;
 
     return (
-        <div className={`player-board ${playing == username ? 'playing' : ''}`}>
+        <div className={`player-board ${playing ? 'playing' : ''}`}>
             <div className='player-info'>
                 <p className='text-2xl'>{username}</p>
-                <p>({active ? lang.active : lang.waiting_his_turn})</p>
+                <p>({playing ? lang.playing : lang.waiting_his_turn})</p>
             </div>
             <div className="characters">
                 {Object.entries(characters).map(([name, character]) => (
@@ -203,7 +203,7 @@ const Game = () => {
             <ActionBoard username={username} gamename={gamename} game={game} sendAction={sendAction} />
             <div className="players">
                 {Object.entries(game.players).map(([username, userData]) => (
-                    <Board key={username} username={username} userData={userData} playing={game.playing} active={game.active} />
+                    <Board key={username} username={username} userData={userData} playing={game.playing === username} />
                 ))}
             </div>
         </div>

@@ -167,7 +167,8 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
         )
     except WebSocketDisconnect:
         game_engine = await from_redis(redis_client, redis_meta)
-        game_engine.action({"action": "disconnect"})
+        if username in game_engine.players:
+            game_engine.action({"action": "disconnect"})
         await redis_client.set(redis_meta.key, game_engine.dumps())
         logger.info(f"Client '{username}' disconnected from game '{gamename}'")
     finally:
