@@ -132,6 +132,8 @@ class GameEngine:
                 self.game["stage"] = "character_select"
             self.game["playing"] = self.username
 
+        self.player["status"] = "connected"
+
     def action_leave(self):
         if self.username not in self.players:
             raise GameException("Player not in game")

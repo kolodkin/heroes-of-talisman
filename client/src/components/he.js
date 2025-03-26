@@ -18,6 +18,9 @@ const lang = {
         'archer': 'קשת',
         'mage': 'קוסם',
     },
+    player_card: {
+        disconnected: 'התנתק מהמשחק',
+    },
     action_board: {
         wait_your_turn: 'המתן לתורך',
     },

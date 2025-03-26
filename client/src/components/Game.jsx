@@ -24,8 +24,12 @@ const processGame = (game, username) => {
 const Board = ({ username, userData, playing }) => {
     const { characters } = userData;
 
+    const disconnected = userData.status === 'disconnected'
+        ? <div className='flex justify-center items-center disconnected-card absolute w-full h-full'>{lang.player_card.disconnected}</div>
+        : null;
     return (
-        <div className={`player-board ${playing ? 'playing' : ''}`}>
+        <div className={`relative player-board ${playing ? 'playing' : ''}`}>
+            {disconnected}
             <div className='player-info'>
                 <p className='text-2xl'>{username}</p>
                 <p>({playing ? lang.playing : lang.waiting_his_turn})</p>
@@ -108,8 +112,8 @@ const Game = () => {
     }
 
     const onmessage = (event) => {
-        console.log('message', event.data);
         const data = JSON.parse(event.data);
+        console.log('onmessage', data);
         // handle error message
         if (data.error) {
             console.error(data.class || 'error', data.error);
@@ -131,12 +135,15 @@ const Game = () => {
         sendAction('connect');
     };
 
-    const onclose = () => {
+    const onclose = (closing) => {
+        console.log(`WebSocket closed, closing: ${closing}`);
+        if (closing) {
+            return;
+        }
+
         if (retries == 0) {
             enotify('Disconnected from the game.');
         }
-
-        connectTimeout.current = setTimeout(() => connectSocket(retries + 1), RECONNECT_TIMEOUT_MS); // Attempt to reconnect after 200ms
     };
 
     const onerror = (error) => {
@@ -172,6 +179,7 @@ const Game = () => {
     }, [gamename, username]);
 
     const sendAction = (action, data = {}) => {
+        console.log(`send action '${action}'`, data)
         const socket = socketRef.current;
         if (socket) {
             socket.send(JSON.stringify({
