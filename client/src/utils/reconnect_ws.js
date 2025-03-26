@@ -23,7 +23,7 @@ const ReconnectWebSocket = ({url, onopen, onclose, onmessage, onerror, interval,
         };
         
         ws.onclose = (event) => {
-            onclose(event);
+            onclose(closing, event);
     
             if (closing){
                 return;
