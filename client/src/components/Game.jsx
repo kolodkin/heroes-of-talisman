@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { notify, enotify } from '../utils/notify';
 import ReconnectWebSocket from '../utils/reconnect_ws';
-import './Game.css';
+import styles from './Game.module.css';
+import classNames from 'classnames';
 
 import { DiceIcon, HeartIcon } from './Icons';
 import CharacterSelect from './CharachterSelect';
@@ -25,16 +26,16 @@ const Board = ({ username, userData, playing }) => {
     const { characters } = userData;
 
     const disconnected = userData.status === 'disconnected'
-        ? <div className='flex justify-center items-center disconnected-card absolute w-full h-full'>{lang.player_card.disconnected}</div>
+        ? <div className={classNames(styles['disconnected-card'], 'flex justify-center items-center absolute w-full h-full')}> {lang.player_card.disconnected}</ div>
         : null;
     return (
-        <div className={`relative player-board ${playing ? 'playing' : ''}`}>
+        <div className={classNames('relative', styles['player-board'], { [styles.playing]: playing })}>
             {disconnected}
-            <div className='player-info'>
+            <div className={styles['player-info']}>
                 <p className='text-2xl'>{username}</p>
                 <p>({playing ? lang.playing : lang.waiting_his_turn})</p>
             </div>
-            <div className="characters">
+            <div className={styles.characters}>
                 {Object.entries(characters).map(([name, character]) => (
                     <CharachterCard key={name} name={name} character={character} />
                 ))}
@@ -47,7 +48,7 @@ const CharachterCard = ({ name, character }) => {
     const nameStr = lang.charachterNames[name];
 
     return (
-        <div className='charachter'>
+        <div className={styles.character}>
             <img src={`/images/${name}.png`} alt={name} style={{ minWidth: '100px', width: '100px', height: '100px' }} />
             <p className="align-text-center w-full">{nameStr} דרגה {character.level}</p>
             <div className='flex items-center space-x-1'>
@@ -79,15 +80,15 @@ const ActionBoard = ({ username, gamename, game, sendAction, handleLeave }) => {
 
 
     return (
-        <div className='action-board relative p-4'>
+        <div className={classNames(styles['action-board'], 'relative', 'p-4')}>
             <div className='absolute top-2 end-2 flex space-x-2'>
                 <p className='text-xl'>{username} @ {gamename}</p>
-                <div className='disconnect-button' onClick={handleLeave} title="צא מהמשחק"><span>X</span></div>
+                <div className={styles['disconnect-button']} onClick={handleLeave} title="צא מהמשחק"><span>X</span></div>
             </div>
-            <div className='stage'>
+            <div className={styles.stage}>
                 <p className='text-2xl mb-5'>
                     {game.playing !== username ?
-                        `${lang.action_board.wait_your_turn} (${stageName} - ${game.playing})`
+                        `${lang.action_board.wait_your_turn}(${stageName} - ${game.playing})`
                         : stageTitle
                     }
                 </p>
@@ -201,14 +202,14 @@ const Game = () => {
     }
 
     return (
-        <div className='game'>
+        <div className={classNames(styles.game, { ['active-player']: game.active })}>
             <ActionBoard username={username} gamename={gamename} game={game} sendAction={sendAction} handleLeave={handleLeave} />
-            <div className="players">
+            <div className={styles.players}>
                 {Object.entries(game.players).map(([username, userData]) => (
                     <Board key={username} username={username} userData={userData} playing={game.playing === username} />
                 ))}
             </div>
-        </div>
+        </div >
     );
 };
 

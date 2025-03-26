@@ -9,14 +9,14 @@
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-.active.charachter:hover {
+:global(.active-player) .charachter:hover {
     background-color: rgba(255, 255, 255, 0.4);
     border: 1px solid whitesmoke;
     cursor: pointer;
 }
 
-.active.selected,
-.active.selected:hover {
+:global(.active-player) .selected,
+:global(.active-player).selected:hover {
     background-color: rgba(255, 255, 255, 0.5);
     border: 1px solid whitesmoke;
 }
