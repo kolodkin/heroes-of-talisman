@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { notify, enotify } from '../utils/notify';
+import ReconnectWebSocket from '../utils/reconnect_ws';
 import './Game.css';
 
 import { DiceIcon, HeartIcon } from './Icons';
@@ -43,7 +44,7 @@ const CharachterCard = ({ name, character }) => {
 
     return (
         <div className='charachter'>
-            <img src={`/images/${name}.png`} alt={name} style={{ width: '100px', height: '100px' }} />
+            <img src={`/images/${name}.png`} alt={name} style={{ minWidth: '100px', width: '100px', height: '100px' }} />
             <p className="align-text-center w-full">{nameStr} דרגה {character.level}</p>
             <div className='flex items-center space-x-1'>
                 {[...Array(character.dice).keys()].map((i) => (<DiceIcon color="white" fill="black" size={"20px"} key={i} />))}
@@ -59,20 +60,10 @@ const CharachterCard = ({ name, character }) => {
 }
 
 
-const ActionBoard = ({ username, gamename, game, sendAction }) => {
-    const navigate = useNavigate();
-
+const ActionBoard = ({ username, gamename, game, sendAction, handleLeave }) => {
     const { stage } = game;
     const stageName = lang.stageNames[stage];
     const stageTitle = lang.stageTitleNames[stage];
-
-
-    const handleLeave = () => {
-        console.log(`${username} disconnected`);
-        toast(`${username} leaft game`);
-        sendAction('leave');
-        navigate('/');
-    };
 
 
     let content;
@@ -103,13 +94,55 @@ const ActionBoard = ({ username, gamename, game, sendAction }) => {
 }
 
 const Game = () => {
+    const navigate = useNavigate();
     const navparams = useParams();
     const { gamename, username } = navparams;
     const [game, setGame] = useState(null);
     const socketRef = useRef(null);
     const isFirstRender = useRef(true);
-    const connectTimeout = useRef(null);
 
+    /* socket callbacks */
+    const onMaxRetries = () => {
+        enotify('Failed to connect to the game. Please try again later.');
+        return
+    }
+
+    const onmessage = (event) => {
+        console.log('message', event.data);
+        const data = JSON.parse(event.data);
+        // handle error message
+        if (data.error) {
+            console.error(data.class || 'error', data.error);
+            if (data.class == 'ReportedException') {
+                toast.error(data.error);
+            }
+            else {
+                toast.error('Server Error. If this error persists, please contact the administrator.');
+            }
+        }
+        else if (data.event === 'game_update') {
+            const game = processGame(data.game, username);
+            setGame(game);
+        }
+    }
+
+    const onopen = () => {
+        notify('Connected to the game!');
+        sendAction('connect');
+    };
+
+    const onclose = () => {
+        if (retries == 0) {
+            enotify('Disconnected from the game.');
+        }
+
+        connectTimeout.current = setTimeout(() => connectSocket(retries + 1), RECONNECT_TIMEOUT_MS); // Attempt to reconnect after 200ms
+    };
+
+    const onerror = (error) => {
+        console.error('WebSocket error:', error);
+        // toast.error('WebSocket error occurred.');
+    };
 
     useEffect(() => {
         // handle strict mode re-render
@@ -118,67 +151,23 @@ const Game = () => {
             return;
         }
 
-        const connectSocket = (retries = 0) => {
-            if (retries >= MAX_RECONNECT_RETRIES) {
-                enotify('Failed to connect to the game. Please try again later.');
-                return
-            }
 
-            const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-            socketRef.current = new WebSocket(`${protocol}://${window.location.host}/ws/${gamename}/${username}`);
-            const socket = socketRef.current;
-
-            socket.onmessage = (event) => {
-                console.log('message', event.data);
-                const data = JSON.parse(event.data);
-                // handle error message
-                if (data.error) {
-                    console.error(data.class || 'error', data.error);
-                    if (data.class == 'ReportedException') {
-                        toast.error(data.error);
-                    }
-                    else {
-                        toast.error('Server Error. If this error persists, please contact the administrator.');
-                    }
-                }
-                else if (data.event === 'game_update') {
-                    const game = processGame(data.game, username);
-                    setGame(game);
-                }
-            };
-
-            socket.onopen = () => {
-                notify('Connected to the game!');
-                if (connectTimeout.current) {
-                    clearTimeout(connectTimeout.current);
-                }
-
-                sendAction('connect');
-            };
-
-            socket.onclose = () => {
-                if (retries == 0) {
-                    enotify('Disconnected from the game.');
-                }
-
-                connectTimeout.current = setTimeout(() => connectSocket(retries + 1), RECONNECT_TIMEOUT_MS); // Attempt to reconnect after 200ms
-            };
-
-            socket.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                // toast.error('WebSocket error occurred.');
-            };
-        };
-
-        connectSocket();
+        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const url = `${protocol}://${window.location.host}/ws/${gamename}/${username}`;
+        socketRef.current = ReconnectWebSocket({
+            url,
+            onopen,
+            onerror,
+            onclose,
+            onmessage,
+            interval: RECONNECT_TIMEOUT_MS,
+            maxRetries: MAX_RECONNECT_RETRIES,
+            onMaxRetries,
+        });
 
         return () => {
             console.log('Unmounting Game component');
             socketRef.current?.close();
-            socketRef.current = null;
-            if (connectTimeout.current) {
-                clearTimeout(connectTimeout.current);
-            }
         };
     }, [gamename, username]);
 
@@ -193,6 +182,13 @@ const Game = () => {
         }
     };
 
+    const handleLeave = () => {
+        notify('Leaving game...');
+        sendAction('leave');
+        socketRef.current?.close();
+        navigate('/');
+    };
+
 
     if (!game) {
         return <div>Loading...</div>;
@@ -200,7 +196,7 @@ const Game = () => {
 
     return (
         <div className='game'>
-            <ActionBoard username={username} gamename={gamename} game={game} sendAction={sendAction} />
+            <ActionBoard username={username} gamename={gamename} game={game} sendAction={sendAction} handleLeave={handleLeave} />
             <div className="players">
                 {Object.entries(game.players).map(([username, userData]) => (
                     <Board key={username} username={username} userData={userData} playing={game.playing === username} />
