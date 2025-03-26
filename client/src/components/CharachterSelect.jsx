@@ -8,12 +8,12 @@ import { DiceIcon, HeartIcon } from './Icons';
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : '');
 import lang from './he'
 
-const CharachterCard = ({ active, name, character, isSelected, onClick }) => {
+const CharachterCard = ({ name, character, isSelected, onClick }) => {
     const nameStr = lang.charachterNames[name];
 
     return (
         <div
-            className={className({ [styles.selected]: isSelected, [styles.active]: active }, styles.charachter, 'text-2xl')}
+            className={className({ [styles.selected]: isSelected }, styles.charachter, 'text-2xl')}
             onClick={onClick}
         >
             <img src={`/images/${name}.png`} alt={name} style={{ minWidth: '200px', width: '200px', height: '200px' }} />
@@ -47,11 +47,10 @@ const CharacterSelect = ({ characters, sendAction, active }) => {
     };
 
     return (
-        <div className='character-select flex flex-col items-center space-y-3'>
+        <div className='flex flex-col items-center space-y-3'>
             <div className='flex justify-center space-x-3 mb-8'>
                 {Object.entries(characters).map(([name, character]) => (
                     <CharachterCard
-                        active={active}
                         key={name}
                         name={name}
                         character={character}
@@ -61,7 +60,7 @@ const CharacterSelect = ({ characters, sendAction, active }) => {
                 ))}
             </div>
             <button
-                className={className({ [styles.active]: active }, styles.charachter, 'text-2xl', 'rounded')}
+                className={className(styles.charachter, 'text-2xl', 'rounded')}
                 onClick={handleSubmit}
                 disabled={!active}
             >
