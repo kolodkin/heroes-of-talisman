@@ -40,9 +40,9 @@ const CharacterSelect = ({ characters, sendAction, active }) => {
 
     const handleSubmit = () => {
         if (selectedCharacter) {
-            sendAction(selectedCharacter);
+            sendAction('character_select', { character: selectedCharacter });
         } else {
-            notify('Please select a character.');
+            notify('character_select.select_character');
         }
     };
 
