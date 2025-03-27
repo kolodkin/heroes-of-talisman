@@ -79,6 +79,10 @@ class GameEngine:
     def stage(self):
         return self.game["stage"]
 
+    @stage.setter
+    def stage(self, value):
+        self.game["stage"] = value
+
     @property
     def player(self):
         if self.username not in self.players:
@@ -89,6 +93,7 @@ class GameEngine:
         self.players[username] = {
             "status": "connected",
             "cards": [],
+            "selected": None,
             "characters": {
                 "knight": {
                     "health": 2,
@@ -108,16 +113,39 @@ class GameEngine:
             },
         }
 
-    def action(self, action: dict, *args, **kwargs):
-        if not hasattr(self, f'action_{action["action"]}'):
-            raise ReportedException("Invalid action")
+    def run_action(self, action: dict, *args, **kwargs):
+        if not hasattr(self, f"action_{action}"):
+            raise ReportedException(f"Invalid action", f"cannot find action '{action}'")
 
-        func = getattr(self, f'action_{action["action"]}')
+        func = getattr(self, f"action_{action}")
         if not callable(func):
-            raise ReportedException("Invalid action")
+            raise ReportedException("Invalid action", f"action '{action}' is not callable")
 
         func(*args, **kwargs)
         return self.game
+
+    def action(self, action_meta: dict):
+        action_meta = {**action_meta}
+        action = action_meta.pop("action")
+        username = action_meta.pop("username")
+        if username != self.username:
+            raise GameException(f"Invalid action. (wrong username). expected: {self.username}, got:{username}")
+
+        kwargs = action_meta
+
+        return self.run_action(action, **kwargs)
+
+    def action_character_select(self, character: str):
+        if self.stage != "character_select":
+            raise ReportedException("Invalid action. (wrong stage)")
+
+        if character not in self.player["characters"]:
+            raise ReportedException("Invalid action. (character not found)")
+
+        self.player["selected"] = character
+
+        # update stage
+        self.stage = "card_draw"
 
     def action_connect(self):
         # add player if not in game

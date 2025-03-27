@@ -11,7 +11,7 @@ from fastapi.responses import PlainTextResponse
 import uvicorn
 from redis.asyncio import Redis
 
-from .game_engine import __DEFAULT_GAME__, GameEngine, ReportedException
+from .game_engine import __DEFAULT_GAME__, GameEngine
 
 logger = logging.getLogger("uvicorn")
 
@@ -140,6 +140,7 @@ async def actions_loop(websocket: WebSocket, redis: Redis, redis_meta: RedisMeta
             game_engine.action(action)
             success = True
         except Exception as e:
+            logger.warning(f"Error processing action. action: {action}", exc_info=e)
             await websocket.send_json({"error": str(e), "class": e.__class__.__name__})
 
         if not success:
@@ -154,10 +155,12 @@ async def actions_loop(websocket: WebSocket, redis: Redis, redis_meta: RedisMeta
 async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
     redis_meta = RedisMeta(gamename, username)
 
-    if not await redis_client.exists(redis_meta.key):
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
-
     await websocket.accept()
+
+    if not await redis_client.exists(redis_meta.key):
+        await websocket.send_json({"error": "Game not found"})
+        await websocket.close()
+        return
 
     logger.info(f"Connection to game {gamename} established for user {username}")
     try:
@@ -168,7 +171,7 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
     except WebSocketDisconnect:
         game_engine = await from_redis(redis_client, redis_meta)
         if username in game_engine.players:
-            game_engine.action({"action": "disconnect"})
+            game_engine.run_action("disconnect")
         await redis_client.set(redis_meta.key, game_engine.dumps())
         await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
 

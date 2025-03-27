@@ -14,6 +14,6 @@ createRoot(document.getElementById('root')).render(
                 <Route path="games/:gamename/:username" element={<Game />} />
             </Routes>
         </BrowserRouter>
-        <ToastContainer />
+        <ToastContainer rtl />
     </StrictMode>,
 );

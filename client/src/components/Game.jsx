@@ -11,8 +11,8 @@ import lang from './he'
 import { toast } from 'react-toastify';
 
 
-const MAX_RECONNECT_RETRIES = 5;
-const RECONNECT_TIMEOUT_MS = 300;
+const MAX_RECONNECT_RETRIES = 6;
+const RECONNECT_TIMEOUT_MS = 500;
 
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : '');
@@ -108,7 +108,7 @@ const Game = () => {
 
     /* socket callbacks */
     const onMaxRetries = () => {
-        enotify('Failed to connect to the game. Please try again later.');
+        enotify(errors.connection_failed);
         return
     }
 
@@ -117,6 +117,13 @@ const Game = () => {
         console.log('onmessage', data);
         // handle error message
         if (data.error) {
+            // special casses
+            if (data.error === 'Game not found') {
+                enotify('errors.game_not_found', gamename);
+                navigate('/');
+                socketRef.current?.close();
+                return;
+            }
             console.error(data.class || 'error', data.error);
             if (data.class == 'ReportedException') {
                 toast.error(data.error);
@@ -132,7 +139,7 @@ const Game = () => {
     }
 
     const onopen = () => {
-        notify('Connected to the game!');
+        notify(lang.notify.connected);
         sendAction('connect');
     };
 
@@ -190,7 +197,7 @@ const Game = () => {
     };
 
     const handleLeave = () => {
-        notify('Leaving game...');
+        notify('notify.leaving_game');
         sendAction('leave');
         socketRef.current?.close();
         navigate('/');
