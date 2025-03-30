@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import className from 'classnames'
-import { notify, enotify } from '../utils/notify';
+import { notify } from '../utils/notify';
 
 import styles from './CharachterSelect.module.css'
 import { DiceIcon, HeartIcon } from './Icons';
