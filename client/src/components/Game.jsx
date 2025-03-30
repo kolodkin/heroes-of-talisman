@@ -7,6 +7,7 @@ import classNames from 'classnames';
 
 import { DiceIcon, HeartIcon } from './Icons';
 import CharacterSelect from './CharachterSelect';
+import DrawCard from './DrawCard';
 import lang from './he'
 import { toast } from 'react-toastify';
 
@@ -75,6 +76,9 @@ const ActionBoard = ({ username, gamename, game, sendAction, handleLeave }) => {
     switch (stage) {
         case 'character_select':
             content = <CharacterSelect characters={game.players[username].characters} sendAction={sendAction} active={game.active} />
+            break
+        case 'card_draw':
+            content = <DrawCard sendAction={sendAction} active={game.active} />
             break
     }
 
