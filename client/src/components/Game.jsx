@@ -11,7 +11,7 @@ import lang from './he'
 import { toast } from 'react-toastify';
 
 
-const MAX_RECONNECT_RETRIES = 6;
+const MAX_RECONNECT_RETRIES = 20;
 const RECONNECT_TIMEOUT_MS = 500;
 
 
@@ -88,7 +88,7 @@ const ActionBoard = ({ username, gamename, game, sendAction, handleLeave }) => {
             <div className={styles.stage}>
                 <p className='text-2xl mb-5'>
                     {game.playing !== username ?
-                        `${lang.action_board.wait_your_turn}(${stageName} - ${game.playing})`
+                        `${lang.action_board.wait_your_turn} (${stageName} - ${game.playing})`
                         : stageTitle
                     }
                 </p>
@@ -101,14 +101,16 @@ const ActionBoard = ({ username, gamename, game, sendAction, handleLeave }) => {
 const Game = () => {
     const navigate = useNavigate();
     const navparams = useParams();
+    const [connected, setConnected] = useState(false);
     const { gamename, username } = navparams;
     const [game, setGame] = useState(null);
     const socketRef = useRef(null);
     const isFirstRender = useRef(true);
 
+
     /* socket callbacks */
     const onMaxRetries = () => {
-        enotify(errors.connection_failed);
+        enotify('errors.connection_failed');
         return
     }
 
@@ -139,17 +141,19 @@ const Game = () => {
     }
 
     const onopen = () => {
-        notify(lang.notify.connected);
+        notify('notify.connected');
+        setConnected(true);
         sendAction('connect');
     };
 
-    const onclose = (closing) => {
-        console.log(`WebSocket closed, closing: ${closing}`);
-        if (closing) {
+    const onclose = (closing, retries) => {
+        console.log(`WebSocket closed, closing: ${closing}, retries: ${retries}`);
+        if (closing || retries != 0) {
             return;
         }
 
-        enotify('Disconnected from the game.');
+        setConnected(false);
+        enotify('disconnected');
     };
 
     const onerror = (error) => {
@@ -208,14 +212,23 @@ const Game = () => {
         return <div>Loading...</div>;
     }
 
+    const disconnectedOverlay = !connected ? (
+        <div className={styles.disconnected}>
+            <p>{lang.disconnected}</p>
+        </div>
+    ) : null;
+
     return (
-        <div className={classNames(styles.game, { ['active-player']: game.active })}>
-            <ActionBoard username={username} gamename={gamename} game={game} sendAction={sendAction} handleLeave={handleLeave} />
-            <div className={styles.players}>
-                {Object.entries(game.players).map(([username, userData]) => (
-                    <Board key={username} username={username} userData={userData} playing={game.playing === username} />
-                ))}
+        <div className={styles.game}>
+            <div className={classNames(styles['game-content'], { ['active-player']: game.active })}>
+                <ActionBoard username={username} gamename={gamename} game={game} sendAction={sendAction} handleLeave={handleLeave} />
+                <div className={styles.players}>
+                    {Object.entries(game.players).map(([username, userData]) => (
+                        <Board key={username} username={username} userData={userData} playing={game.playing === username} />
+                    ))}
+                </div>
             </div>
+            {disconnectedOverlay}
         </div >
     );
 };

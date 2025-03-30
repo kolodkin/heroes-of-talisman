@@ -1,5 +1,6 @@
 const lang = {
     playing: 'משחק',
+    disconnected: 'התנתקת מהמשחק',
     waiting_his_turn: 'ממתין לתורו',
     // game_not_found: `Game '${gamename}' not found. Please check the game name and try again.`,    
     stageNames: {
@@ -31,12 +32,12 @@ const lang = {
     },
     errors:{
         game_not_found: `המשחק '%s' לא נמצא. בדוק את שם המשחק ונסה שוב.`,   
+        connection_failed: 'נכשל בהתחברות למשחק. נסה שוב מאוחר יותר.',
     },
     notify: {
         connected: 'התחברת למשחק',
         disconnected: 'התתקת מהמשחק',
-        //'Failed to connect to the game. Please try again later.'
-        connection_failed: 'נכשל בהתחברות למשחק. נסה שוב מאוחר יותר.',
+        //'Failed to connect to the game. Please try again later.'        
         leaving_game: 'עוזב משחק',
     },
         
