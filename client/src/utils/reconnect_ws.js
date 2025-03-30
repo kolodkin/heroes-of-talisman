@@ -2,8 +2,9 @@ const ReconnectWebSocket = ({url, onopen, onclose, onmessage, onerror, interval,
     let ws;
     let reconnectTimeout = null;
     let closing = false;
+    let retries = 0;
 
-    const connect = (retries = 0) => {
+    const connect = () => {
         if (retries == maxRetries){
             onMaxRetries();
             return;
@@ -11,7 +12,8 @@ const ReconnectWebSocket = ({url, onopen, onclose, onmessage, onerror, interval,
         ws = new WebSocket(url);
 
         ws.onopen = () => {
-            onopen();
+            retries = 0;
+            onopen();            
         };
     
         ws.onmessage = (event) => {
@@ -23,14 +25,15 @@ const ReconnectWebSocket = ({url, onopen, onclose, onmessage, onerror, interval,
         };
         
         ws.onclose = (event) => {
-            onclose(closing, event);
+            onclose(closing, retries, event);
     
             if (closing){
                 return;
             }
 
             // reconnect attempt
-            reconnectTimeout = setTimeout(() => connect(retries+1), interval);
+            retries++;
+            reconnectTimeout = setTimeout(() => connect(), interval);
         };
     };
 

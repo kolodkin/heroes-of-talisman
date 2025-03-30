@@ -17,7 +17,7 @@ export const notify = (key) => {
     toast(msg);
 }
 
-export const enotify = (key, ...args) => {
+export const enotify = (key, ...args) => {    
     let msg = getVal(key);
     msg = printf(msg, ...args);
     console.error('enotify', key, msg);
