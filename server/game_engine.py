@@ -16,6 +16,7 @@ __DEFAULT_GAME__ = {
     #                                      |                                                      |
     #                                      <------------------------------------------------------|
     "playing": None,  # username
+    "selected_character": None,  # current round selected charachter
     "players": {},
 }
 
@@ -79,6 +80,14 @@ class GameEngine:
     def stage(self):
         return self.game["stage"]
 
+    @property
+    def selected_character(self):
+        return self.game["selected_character"]
+
+    @selected_character.setter
+    def selected_character(self, value):
+        self.game["selected_character"] = value
+
     @stage.setter
     def stage(self, value):
         self.game["stage"] = value
@@ -93,7 +102,6 @@ class GameEngine:
         self.players[username] = {
             "status": "connected",
             "cards": [],
-            "selected": None,
             "characters": {
                 "knight": {
                     "health": 2,
@@ -142,7 +150,7 @@ class GameEngine:
         if character not in self.player["characters"]:
             raise ReportedException("Invalid action. (character not found)")
 
-        self.player["selected"] = character
+        self.selected_character = character
 
         # update stage
         self.stage = "card_draw"
