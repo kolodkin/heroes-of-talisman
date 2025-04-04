@@ -30,6 +30,9 @@ const lang = {
         submit: 'שלח',
         select_character: 'בחר דמות בבקשה',
     },
+    draw_card:{
+        draw: 'שלוף קלף',
+    },
     errors:{
         game_not_found: `המשחק '%s' לא נמצא. בדוק את שם המשחק ונסה שוב.`,   
         connection_failed: 'נכשל בהתחברות למשחק. נסה שוב מאוחר יותר.',

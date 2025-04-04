@@ -23,10 +23,10 @@ const processGame = (game, username) => {
     return game;
 }
 
-const Board = ({ username, userData, playing }) => {
-    const { characters } = userData;
+const Board = ({ username, playerData, playing, selected_character }) => {
+    const { characters } = playerData;
 
-    const disconnected = userData.status === 'disconnected'
+    const disconnected = playerData.status === 'disconnected'
         ? <div className={classNames(styles['disconnected-card'], 'flex justify-center items-center absolute w-full h-full')}> {lang.player_card.disconnected}</ div>
         : null;
     return (
@@ -38,18 +38,18 @@ const Board = ({ username, userData, playing }) => {
             </div>
             <div className={styles.characters}>
                 {Object.entries(characters).map(([name, character]) => (
-                    <CharachterCard key={name} name={name} character={character} />
+                    <CharachterCard key={name} name={name} character={character} selected={character == selected_character} />
                 ))}
             </div>
         </div>
     );
 };
 
-const CharachterCard = ({ name, character }) => {
+const CharachterCard = ({ name, character, selected }) => {
     const nameStr = lang.charachterNames[name];
 
     return (
-        <div className={styles.character}>
+        <div className={classNames(styles.character, { [styles.selected]: selected })}>
             <img src={`/images/${name}.png`} alt={name} style={{ minWidth: '100px', width: '100px', height: '100px' }} />
             <p className="align-text-center w-full">{nameStr} דרגה {character.level}</p>
             <div className='flex items-center space-x-1'>
@@ -227,8 +227,10 @@ const Game = () => {
             <div className={classNames(styles['game-content'], { ['active-player']: game.active })}>
                 <ActionBoard username={username} gamename={gamename} game={game} sendAction={sendAction} handleLeave={handleLeave} />
                 <div className={styles.players}>
-                    {Object.entries(game.players).map(([username, userData]) => (
-                        <Board key={username} username={username} userData={userData} playing={game.playing === username} />
+                    {Object.entries(game.players).map(([username, playerData]) => (
+                        <Board key={username} username={username} playerData={playerData}
+                            playing={game.playing === username}
+                            selected_character={game.playing === username ? game.selected_character : null} />
                     ))}
                 </div>
             </div>
