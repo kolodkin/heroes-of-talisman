@@ -17,6 +17,7 @@ const getImageSize = (url) => {
 
 const DrawCard = ({ sendAction, active }) => {
     const [isDrawing, setIsDrawing] = useState(false);
+    const [isNextPhase, setIsNextPhase] = useState(false);
     const [imageSize, setImageSize] = useState(null);
     const [cardSize, setCardSize] = useState(null);
 
@@ -30,8 +31,20 @@ const DrawCard = ({ sendAction, active }) => {
     }, []);
 
     const handleDrawCard = () => {
-        setIsDrawing(true);
+        if (!isDrawing) {
+            setIsDrawing(true);
+            setTimeout(() => {
+                setIsNextPhase(true);
+                // sendAction('card_draw');
+            }, 1000);
+        }
+        else {
+            setTimeout(() => {
+                sendAction('card_draw');
+            }, 1000);
+        }
     };
+
 
     if (!imageSize || !cardSize) {
         return null; // todo: add loading spinner
@@ -88,11 +101,31 @@ const DrawCard = ({ sendAction, active }) => {
                 </svg>
             </div>
             <button
-                className="px-4 py-2 bg-blue-500 text-white rounded"
+                className={`px-10 py-4 bg-blue-500 text-white rounded relative overflow-hidden ${styles.button}`}
                 onClick={handleDrawCard}
-                disabled={isDrawing}
+                disabled={isDrawing && !isNextPhase}
+                style={{
+                    transition: 'opacity 0.5s ease-in-out',
+                }}
             >
-                {lang.draw_card.draw}
+                <span
+                    className={`absolute inset-0 flex items-center justify-center`}
+                    style={{
+                        opacity: isDrawing ? 0 : 1,
+                        transition: 'opacity 0.5s ease-in-out',
+                    }}
+                >
+                    {lang.draw_card.draw}
+                </span>
+                <span
+                    className={`absolute inset-0 flex items-center justify-center`}
+                    style={{
+                        opacity: isDrawing ? 1 : 0,
+                        transition: 'opacity 0.5s 0.5s ease-in-out',
+                    }}
+                >
+                    {lang.draw_card.continue}
+                </span>
             </button>
         </div >
     );
