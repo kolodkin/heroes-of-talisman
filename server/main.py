@@ -11,6 +11,7 @@ from fastapi.responses import PlainTextResponse
 import uvicorn
 from redis.asyncio import Redis
 
+from .env import REDIS_HOST, REDIS_PORT
 from .game_engine import __DEFAULT_GAME__, GameEngine
 
 logger = logging.getLogger("uvicorn")
@@ -32,7 +33,7 @@ app.add_middleware(
 )
 
 # Initialize Redis client
-redis_client = Redis.from_url("redis://localhost")
+redis_client = Redis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}")
 
 
 @app.get("/")
