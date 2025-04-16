@@ -35,7 +35,6 @@ const DrawCard = ({ sendAction, active }) => {
             setIsDrawing(true);
             setTimeout(() => {
                 setIsNextPhase(true);
-                // sendAction('card_draw');
             }, 1000);
         }
         else {

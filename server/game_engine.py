@@ -11,8 +11,11 @@ class ReportedException(GameException):
 
 __MAX_PLAYERS__ = 4
 
+__DECK__ = ["talisman", "golden_apple"]
 __DEFAULT_GAME__ = {
     "stage": None,  # None -> [character_select] -> [card_draw] -> [use_skill] -> [battle] -> |
+    "stage_meta": None,  # stage meta data
+    "deck": __DECK__,  # deck of cards
     #                                      |                                                      |
     #                                      <------------------------------------------------------|
     "playing": None,  # username
@@ -154,6 +157,9 @@ class GameEngine:
 
         # update stage
         self.stage = "card_draw"
+
+        # draw a card from deck
+        self.game["stage_meta"] = {"card": {"image": "/images/cards/talisman.png", "text": ""}}
 
     def action_connect(self):
         # add player if not in game
