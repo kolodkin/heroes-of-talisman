@@ -15,14 +15,14 @@ const getImageSize = (url) => {
 };
 
 
-const DrawCard = ({ sendAction, active }) => {
+const DrawCard = ({ sendAction, card, active }) => {
     const [isDrawing, setIsDrawing] = useState(false);
     const [isNextPhase, setIsNextPhase] = useState(false);
     const [imageSize, setImageSize] = useState(null);
     const [cardSize, setCardSize] = useState(null);
 
     const imageUrl = '/images/deck_top.png';
-    const cardUrl = '/images/card1.png';
+    const cardUrl = `/images/cards/${card}.png`;
     const height = 400;
 
     useEffect(() => {
@@ -38,9 +38,7 @@ const DrawCard = ({ sendAction, active }) => {
             }, 1000);
         }
         else {
-            setTimeout(() => {
-                sendAction('card_draw');
-            }, 1000);
+            sendAction('card_draw');
         }
     };
 
@@ -63,6 +61,10 @@ const DrawCard = ({ sendAction, active }) => {
     const cardStartXOffset = (width - cardWidth * 0.5) / 2;
     const cardStartYOffset = (height - cardHeight * 0.5) / 2;
     const cardEndXOffset = (width - cardWidth) / 2;
+
+    const cardDetails = isDrawing ?
+        <div>card details</div> :
+        null;
 
     return (
         <div className="flex flex-col items-center space-y-3">
@@ -99,6 +101,7 @@ const DrawCard = ({ sendAction, active }) => {
                     />
                 </svg>
             </div>
+            {cardDetails}
             <button
                 className="px-10 py-4 bg-blue-500 text-white rounded relative overflow-hidden"
                 onClick={handleDrawCard}

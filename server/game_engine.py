@@ -1,4 +1,5 @@
 import json
+import random
 
 
 class GameException(Exception):
@@ -15,7 +16,7 @@ __DECK__ = ["talisman", "golden_apple"]
 __DEFAULT_GAME__ = {
     "stage": None,  # None -> [character_select] -> [card_draw] -> [use_skill] -> [battle] -> |
     "stage_meta": None,  # stage meta data
-    "deck": __DECK__,  # deck of cards
+    "deck": random.shuffle(__DECK__),  # deck of cards
     #                                      |                                                      |
     #                                      <------------------------------------------------------|
     "playing": None,  # username
@@ -83,6 +84,18 @@ class GameEngine:
     def stage(self):
         return self.game["stage"]
 
+    @stage.setter
+    def stage(self, value):
+        self.game["stage"] = value
+
+    @property
+    def stage_meta(self):
+        return self.game["stage_meta"]
+
+    @stage_meta.setter
+    def stage_meta(self, value):
+        self.game["stage_meta"] = value
+
     @property
     def selected_character(self):
         return self.game["selected_character"]
@@ -90,10 +103,6 @@ class GameEngine:
     @selected_character.setter
     def selected_character(self, value):
         self.game["selected_character"] = value
-
-    @stage.setter
-    def stage(self, value):
-        self.game["stage"] = value
 
     @property
     def player(self):
@@ -155,11 +164,24 @@ class GameEngine:
 
         self.selected_character = character
 
-        # update stage
+        # Stage Update -> card_draw
         self.stage = "card_draw"
 
-        # draw a card from deck
-        self.game["stage_meta"] = {"card": {"image": "/images/cards/talisman.png", "text": ""}}
+        selected_card = random.choice(self.game["deck"])  # Randomly select a card from the deck
+        self.stage_meta = {"card": selected_card}
+
+    def action_card_draw(self):
+        if self.stage != "card_draw":
+            raise ReportedException("Invalid action. (wrong stage)")
+
+        # promt: randomly select a card from the deck and add it to stage meta
+        selected_card = self.stage_meta["card"]
+        self.game["deck"].remove(selected_card)  # Remove the selected card from the deck
+        if len(self.game["deck"]) == 0:
+            self.game["deck"] = random.shuffle(__DECK__)
+
+        # Stage Update -> use_skill
+        self.stage = "use_skill"
 
     def action_connect(self):
         # add player if not in game
