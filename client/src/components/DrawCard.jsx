@@ -101,10 +101,11 @@ const DrawCard = ({ sendAction, active }) => {
                 </svg>
             </div>
             <button
-                className={`px-10 py-4 bg-blue-500 text-white rounded relative overflow-hidden ${styles.button}`}
+                className="px-10 py-4 bg-blue-500 text-white rounded relative overflow-hidden"
                 onClick={handleDrawCard}
                 disabled={isDrawing && !isNextPhase}
                 style={{
+                    // opacity: isDrawing ? 0 : 1,
                     transition: 'opacity 0.5s ease-in-out',
                 }}
             >
