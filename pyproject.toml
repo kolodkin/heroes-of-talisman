@@ -9,3 +9,8 @@ dependencies = [
     "redis>=5.2.1",
     "uvicorn[standard]>=0.34.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pillow>=11.2.1",
+]
