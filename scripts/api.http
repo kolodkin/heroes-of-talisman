@@ -1,9 +1,11 @@
+@url=http://localhost:5173
+
 ### Welcome
-GET http://localhost:5173/
+GET {{url}}
 
 ### Health
-GET http://localhost:5173/health
+GET {{url}}/api/health
 
 
 ### Delete Game
-DELETE http://localhost:5173/api/games/2t
+DELETE {{url}}/api/games/2t

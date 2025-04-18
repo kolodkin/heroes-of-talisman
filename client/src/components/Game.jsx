@@ -6,7 +6,7 @@ import styles from './Game.module.css';
 import classNames from 'classnames';
 
 import { DiceIcon, HeartIcon } from './Icons';
-import CharacterSelect from './CharachterSelect';
+import CharacterSelect from './CharacterSelect';
 import DrawCard from './DrawCard';
 import lang from './he'
 import { toast } from 'react-toastify';
@@ -38,15 +38,15 @@ const Board = ({ username, playerData, playing, selected_character }) => {
             </div>
             <div className={styles.characters}>
                 {Object.entries(characters).map(([name, character]) => (
-                    <CharachterCard key={name} name={name} character={character} selected={character == selected_character} />
+                    <CharacterCard key={name} name={name} character={character} selected={character == selected_character} />
                 ))}
             </div>
         </div>
     );
 };
 
-const CharachterCard = ({ name, character, selected }) => {
-    const nameStr = lang.charachterNames[name];
+const CharacterCard = ({ name, character, selected }) => {
+    const nameStr = lang.characterNames[name];
 
     return (
         <div className={classNames(styles.character, { [styles.selected]: selected })}>
@@ -75,7 +75,7 @@ const ActionBoard = ({ username, gamename, game, sendAction, handleLeave }) => {
     let content;
     switch (stage) {
         case 'character_select':
-            content = <CharacterSelect characters={game.players[username].characters} sendAction={sendAction} active={game.active} />
+            content = <CharacterSelect characters={game.players[username].characters} sendAction={sendAction} active={game.active} selectedCharacter={game.stage_meta?.selected} />
             break
         case 'card_draw':
             content = <DrawCard sendAction={sendAction} card={game.stage_meta.card} active={game.active} />

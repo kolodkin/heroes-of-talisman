@@ -22,13 +22,16 @@ def shuffled_deck():
 
 
 __DEFAULT_GAME__ = {
-    "stage": None,  # None -> [character_select] -> [card_draw] -> [use_skill] -> [battle] -> |
+    "stage": None,
+    # None ->
+    # [character_select] -> [character_selected]
+    # [card_draw] -> [card_drawn] ->
+    # [use_skill] -> [battle] ->
+    # [character_select]
     "stage_meta": None,  # stage meta data
     "deck": shuffled_deck(),  # deck of cards
-    #                                      |                                                      |
-    #                                      <------------------------------------------------------|
     "playing": None,  # username
-    "selected_character": None,  # current round selected charachter
+    "selected_character": None,  # current round selected character
     "players": {},
 }
 
@@ -152,6 +155,10 @@ class GameEngine:
         func(*args, **kwargs)
         return self.game
 
+    def assert_stage(self, req_stage: str):
+        if self.stage != req_stage:
+            raise ReportedException(f"Invalid action. (wrong stage '{self.stage}')")
+
     def action(self, action_meta: dict):
         action_meta = {**action_meta}
         action = action_meta.pop("action")
@@ -164,8 +171,16 @@ class GameEngine:
         return self.run_action(action, **kwargs)
 
     def action_character_select(self, character: str):
-        if self.stage != "character_select":
-            raise ReportedException("Invalid action. (wrong stage)")
+        self.assert_stage("character_select")
+
+        if character not in self.player["characters"]:
+            raise ReportedException("Invalid action. (character not found)")
+
+        # Stage Meta Update
+        self.stage_meta = {"selected": character}
+
+    def action_character_selected(self, character: str):
+        self.assert_stage("character_select")
 
         if character not in self.player["characters"]:
             raise ReportedException("Invalid action. (character not found)")
@@ -179,8 +194,7 @@ class GameEngine:
         self.stage_meta = {"card": selected_card}
 
     def action_card_draw(self):
-        if self.stage != "card_draw":
-            raise ReportedException("Invalid action. (wrong stage)")
+        self.assert_stage("card_draw")
 
         # promt: randomly select a card from the deck and add it to stage meta
         selected_card = self.stage_meta["card"]

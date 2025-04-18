@@ -15,7 +15,7 @@ const lang = {
         'use_skill': 'בחר יכולת והשתמש בה או דלג',
         'battle': 'בחר דמות יריב לתקוף או דלג',
     },
-    charachterNames: {
+    characterNames: {
         'knight': 'אביר',
         'archer': 'קשת',
         'mage': 'קוסם',
