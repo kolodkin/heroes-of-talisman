@@ -13,10 +13,18 @@ class ReportedException(GameException):
 __MAX_PLAYERS__ = 4
 
 __DECK__ = ["talisman", "golden_apple"]
+
+
+def shuffled_deck():
+    deck = __DECK__.copy()
+    random.shuffle(deck)
+    return deck
+
+
 __DEFAULT_GAME__ = {
     "stage": None,  # None -> [character_select] -> [card_draw] -> [use_skill] -> [battle] -> |
     "stage_meta": None,  # stage meta data
-    "deck": random.shuffle(__DECK__),  # deck of cards
+    "deck": shuffled_deck(),  # deck of cards
     #                                      |                                                      |
     #                                      <------------------------------------------------------|
     "playing": None,  # username
@@ -178,7 +186,7 @@ class GameEngine:
         selected_card = self.stage_meta["card"]
         self.game["deck"].remove(selected_card)  # Remove the selected card from the deck
         if len(self.game["deck"]) == 0:
-            self.game["deck"] = random.shuffle(__DECK__)
+            self.game["deck"] = shuffled_deck()
 
         # Stage Update -> use_skill
         self.stage = "use_skill"
