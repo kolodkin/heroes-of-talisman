@@ -41,7 +41,7 @@ async def root():
     return PlainTextResponse("Welcome to 'Heroes of Talisman' game server!")
 
 
-@app.get("/health")
+@app.get("/api/health")
 async def health():
     return PlainTextResponse("Server is up")
 

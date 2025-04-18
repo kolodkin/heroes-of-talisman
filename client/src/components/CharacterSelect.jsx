@@ -1,19 +1,18 @@
-import { useState } from 'react';
 import className from 'classnames'
 import { notify } from '../utils/notify';
 
-import styles from './CharachterSelect.module.css'
+import styles from './CharacterSelect.module.css'
 import { DiceIcon, HeartIcon } from './Icons';
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : '');
 import lang from './he'
 
-const CharachterCard = ({ name, character, isSelected, onClick }) => {
-    const nameStr = lang.charachterNames[name];
+const CharacterCard = ({ name, character, isSelected, onClick }) => {
+    const nameStr = lang.characterNames[name];
 
     return (
         <div
-            className={className({ [styles.selected]: isSelected }, styles.charachter, 'text-2xl')}
+            className={className({ [styles.selected]: isSelected }, styles.character, 'text-2xl')}
             onClick={onClick}
         >
             <img src={`/images/${name}.png`} alt={name} style={{ minWidth: '200px', width: '200px', height: '200px' }} />
@@ -30,27 +29,35 @@ const CharachterCard = ({ name, character, isSelected, onClick }) => {
     )
 }
 
-const CharacterSelect = ({ characters, sendAction, active }) => {
-    const [selectedCharacter, setSelectedCharacter] = useState(null);
-
+const CharacterSelect = ({ characters, sendAction, active, selectedCharacter = null }) => {
     const handleCharacterClick = (name) => {
-        setSelectedCharacter(name);
-        // notify(`selected ${lang.charachterNames[name]}`);
+        sendAction('character_select', { character: name });
+        // notify(`selected ${lang.characterNames[name]}`);
     };
 
     const handleSubmit = () => {
         if (selectedCharacter) {
-            sendAction('character_select', { character: selectedCharacter });
+            sendAction('character_selected', { character: selectedCharacter });
         } else {
             notify('character_select.select_character');
         }
     };
 
+    const button = active ?
+        <button
+            className={className(styles.character, 'text-2xl', 'rounded')}
+            onClick={handleSubmit}
+        >
+            <p>{lang.character_select.submit}</p>
+        </button>
+        : null;
+
+
     return (
         <div className='flex flex-col items-center space-y-3'>
             <div className='flex justify-center space-x-3 mb-8'>
                 {Object.entries(characters).map(([name, character]) => (
-                    <CharachterCard
+                    <CharacterCard
                         key={name}
                         name={name}
                         character={character}
@@ -59,13 +66,7 @@ const CharacterSelect = ({ characters, sendAction, active }) => {
                     />
                 ))}
             </div>
-            <button
-                className={className(styles.charachter, 'text-2xl', 'rounded')}
-                onClick={handleSubmit}
-                disabled={!active}
-            >
-                <p>{lang.character_select.submit}</p>
-            </button>
+            {button}
         </div>
     )
 }
