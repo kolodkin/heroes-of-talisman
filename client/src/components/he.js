@@ -32,6 +32,7 @@ const lang = {
     },
     draw_card:{
         draw: 'שלוף קלף',
+        drawen: 'שלפת קלף',
         continue: 'המשך',
     },
     cards: {

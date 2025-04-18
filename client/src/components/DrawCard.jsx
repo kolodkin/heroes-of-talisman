@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import className from 'classnames';
-import { notify } from '../utils/notify';
 
+import { getLangVal } from '../utils/lang';
 import styles from './DrawCard.module.css';
+import classNames from 'classnames';
 import lang from './he';
 
 const getImageSize = (url) => {
@@ -62,9 +62,6 @@ const DrawCard = ({ sendAction, card, active }) => {
     const cardStartYOffset = (height - cardHeight * 0.5) / 2;
     const cardEndXOffset = (width - cardWidth) / 2;
 
-    const cardDetails = isDrawing ?
-        <div>card details</div> :
-        null;
 
     return (
         <div className="flex flex-col items-center space-y-3">
@@ -101,11 +98,18 @@ const DrawCard = ({ sendAction, card, active }) => {
                     />
                 </svg>
             </div>
-            {cardDetails}
+            <div style={{
+                maxHeight: isDrawing ? '500px' : '0', // auto can't be animated, using value bigger than expected element height
+                overflow: 'hidden',
+                transition: 'max-height 1s 0.3s ease-in-out',
+            }}>
+                <div className='text-xl font-bold'>{getLangVal(`cards.${card}`)}</div>
+                <div>{getLangVal(`cards.${card}_desc`)}</div>
+            </div>
             <button
-                className="px-10 py-4 bg-blue-500 text-white rounded relative overflow-hidden"
+                className={classNames("px-10 py-4 text-white rounded relative overflow-hidden", styles['draw-card-button'])}
                 onClick={handleDrawCard}
-                disabled={isDrawing && !isNextPhase}
+                disabled={active && (isDrawing && !isNextPhase)}
                 style={{
                     // opacity: isDrawing ? 0 : 1,
                     transition: 'opacity 0.5s ease-in-out',
