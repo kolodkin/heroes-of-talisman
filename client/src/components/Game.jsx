@@ -78,7 +78,7 @@ const ActionBoard = ({ username, gamename, game, sendAction, handleLeave }) => {
             content = <CharacterSelect characters={game.players[username].characters} sendAction={sendAction} active={game.active} selectedCharacter={game.stage_meta?.selected} />
             break
         case 'card_draw':
-            content = <DrawCard sendAction={sendAction} card={game.stage_meta.card} active={game.active} />
+            content = <DrawCard sendAction={sendAction} card={game.stage_meta.card} drawn={game.stage_meta.drawn} active={game.active} />
             break
     }
 

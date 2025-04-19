@@ -24,8 +24,8 @@ def shuffled_deck():
 __DEFAULT_GAME__ = {
     "stage": None,
     # None ->
-    # [character_select] -> [character_selected]
-    # [card_draw] -> [card_drawn] ->
+    # [character_select] ->
+    # [card_draw] ->
     # [use_skill] -> [battle] ->
     # [character_select]
     "stage_meta": None,  # stage meta data
@@ -116,6 +116,14 @@ class GameEngine:
         self.game["selected_character"] = value
 
     @property
+    def deck(self):
+        return self.game["deck"]
+
+    @deck.setter
+    def deck(self, value):
+        self.game["deck"] = value
+
+    @property
     def player(self):
         if self.username not in self.players:
             raise GameException("Player not in game")
@@ -170,10 +178,10 @@ class GameEngine:
 
         return self.run_action(action, **kwargs)
 
-    def action_character_select(self, character: str):
+    def action_character_select(self, character: str = None):
         self.assert_stage("character_select")
 
-        if character not in self.player["characters"]:
+        if character is not None and character not in self.player["characters"]:
             raise ReportedException("Invalid action. (character not found)")
 
         # Stage Meta Update
@@ -190,20 +198,28 @@ class GameEngine:
         # Stage Update -> card_draw
         self.stage = "card_draw"
 
-        selected_card = random.choice(self.game["deck"])  # Randomly select a card from the deck
-        self.stage_meta = {"card": selected_card}
+        selected_card = random.choice(self.deck)  # Randomly select a card from the deck
+        self.stage_meta = {"card": selected_card, "drawn": False}
 
-    def action_card_draw(self):
+    def action_card_draw(self, card: str = None, drawn=False):
         self.assert_stage("card_draw")
 
-        # promt: randomly select a card from the deck and add it to stage meta
-        selected_card = self.stage_meta["card"]
-        self.game["deck"].remove(selected_card)  # Remove the selected card from the deck
-        if len(self.game["deck"]) == 0:
-            self.game["deck"] = shuffled_deck()
+        self.stage_meta = {"card": card, "drawn": drawn}
 
-        # Stage Update -> use_skill
+    def action_card_select(self, card):
+        self.assert_stage("card_draw")
+
+        if card not in self.deck:
+            raise ReportedException(f"Invalid action. (card '{card}' not in dec)")
+
+        # Remove the selected card from the deck
+        self.deck.remove(card)
+        if len(self.game["deck"]) == 0:
+            self.deck = shuffled_deck()
+
+        # Update Stage -> use_skill
         self.stage = "use_skill"
+        self.stage_meta = {}
 
     def action_connect(self):
         # add player if not in game

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import { getLangVal } from '../utils/lang';
 import styles from './DrawCard.module.css';
+import cStyles from './Common.module.css';
 import classNames from 'classnames';
 import lang from './he';
 
@@ -15,8 +16,7 @@ const getImageSize = (url) => {
 };
 
 
-const DrawCard = ({ sendAction, card, active }) => {
-    const [isDrawing, setIsDrawing] = useState(false);
+const DrawCard = ({ sendAction, card, drawn, active }) => {
     const [isNextPhase, setIsNextPhase] = useState(false);
     const [imageSize, setImageSize] = useState(null);
     const [cardSize, setCardSize] = useState(null);
@@ -30,15 +30,24 @@ const DrawCard = ({ sendAction, card, active }) => {
         getImageSize(cardUrl).then(size => setCardSize(size));
     }, []);
 
-    const handleDrawCard = () => {
-        if (!isDrawing) {
-            setIsDrawing(true);
+    useEffect(() => {
+        if (drawn) {
             setTimeout(() => {
                 setIsNextPhase(true);
             }, 1000);
         }
-        else {
-            sendAction('card_draw');
+    }, [drawn])
+
+    const handleDrawCard = () => {
+        if (!active) {
+            return
+        }
+
+        if (!drawn) {
+            sendAction('card_draw', { card, drawn: true });
+        }
+        else if (isNextPhase) {
+            sendAction('card_select', { card });
         }
     };
 
@@ -75,7 +84,7 @@ const DrawCard = ({ sendAction, card, active }) => {
                         href={imageUrl}
                         width={iwidth}
                         height={height}
-                        opacity={!isDrawing ? "1" : "0"}
+                        opacity={!drawn ? "1" : "0"}
                         x="0"
                         y="0"
                         style={{
@@ -88,9 +97,9 @@ const DrawCard = ({ sendAction, card, active }) => {
                         href={cardUrl}
                         width={cardWidth}
                         height={cardHeight}
-                        opacity={!isDrawing ? "0" : "1"}
+                        opacity={!drawn ? "0" : "1"}
                         style={{
-                            transform: !isDrawing
+                            transform: !drawn
                                 ? `translate(${cardStartXOffset}px, ${cardStartYOffset}px) scale(0.5)`
                                 : `translate(${cardEndXOffset}px, 0px) scale(1)`,
                             transition: 'transform 1s 0.3s ease-in, opacity 0.8s ease-in',
@@ -99,7 +108,7 @@ const DrawCard = ({ sendAction, card, active }) => {
                 </svg>
             </div>
             <div style={{
-                maxHeight: isDrawing ? '500px' : '0', // auto can't be animated, using value bigger than expected element height
+                maxHeight: drawn ? '500px' : '0', // auto can't be animated, using value bigger than expected element height
                 overflow: 'hidden',
                 transition: 'max-height 1s 0.3s ease-in-out',
             }}>
@@ -107,18 +116,15 @@ const DrawCard = ({ sendAction, card, active }) => {
                 <div>{getLangVal(`cards.${card}_desc`)}</div>
             </div>
             <button
-                className={classNames("px-10 py-4 text-white rounded relative overflow-hidden", styles['draw-card-button'])}
+                className={classNames(" text-white rounded relative overflow-hidden", cStyles.gamebtn)}
                 onClick={handleDrawCard}
-                disabled={active && (isDrawing && !isNextPhase)}
-                style={{
-                    // opacity: isDrawing ? 0 : 1,
-                    transition: 'opacity 0.5s ease-in-out',
-                }}
+                style={{ transition: 'width 0.5s ease-in-out' }}
             >
+                <span style={{ opacity: 0 }}>{drawn ? lang.draw_card.draw : lang.draw_card.drawen}</span>
                 <span
                     className={`absolute inset-0 flex items-center justify-center`}
                     style={{
-                        opacity: isDrawing ? 0 : 1,
+                        opacity: drawn ? 0 : 1,
                         transition: 'opacity 0.5s ease-in-out',
                     }}
                 >
@@ -127,7 +133,7 @@ const DrawCard = ({ sendAction, card, active }) => {
                 <span
                     className={`absolute inset-0 flex items-center justify-center`}
                     style={{
-                        opacity: isDrawing ? 1 : 0,
+                        opacity: drawn ? 1 : 0,
                         transition: 'opacity 0.5s 0.5s ease-in-out',
                     }}
                 >

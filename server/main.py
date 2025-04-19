@@ -79,6 +79,19 @@ async def delete_game(gamename: str):
     return {"message": "Game deleted successfully"}
 
 
+@router.post("/{gamename}/reset")
+async def reset_game(gamename: str):
+    redis_meta = RedisMeta(gamename)
+
+    if not await redis_client.exists(redis_meta.key):
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
+
+    await redis_client.set(redis_meta.key, json.dumps(__DEFAULT_GAME__))
+    await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
+
+    return {"message": "Game reset successfully"}
+
+
 @app.post("/check-game-name")
 async def check_game_name(game: Game):
     is_unique = not await redis_client.exists(f"game:{game.name}")
