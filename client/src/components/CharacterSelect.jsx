@@ -1,7 +1,8 @@
-import className from 'classnames'
+import className from 'classnames';
 import { notify } from '../utils/notify';
 
-import styles from './CharacterSelect.module.css'
+import styles from './CharacterSelect.module.css';
+import commonStyles from './Common.module.css';
 import { DiceIcon, HeartIcon } from './Icons';
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : '');
@@ -12,7 +13,7 @@ const CharacterCard = ({ name, character, isSelected, onClick }) => {
 
     return (
         <div
-            className={className({ [styles.selected]: isSelected }, styles.character, 'text-2xl')}
+            className={className({ [commonStyles.selected]: isSelected }, commonStyles.gamebtn, styles.character, 'text-2xl')}
             onClick={onClick}
         >
             <img src={`/images/${name}.png`} alt={name} style={{ minWidth: '200px', width: '200px', height: '200px' }} />
@@ -31,27 +32,25 @@ const CharacterCard = ({ name, character, isSelected, onClick }) => {
 
 const CharacterSelect = ({ characters, sendAction, active, selectedCharacter = null }) => {
     const handleCharacterClick = (name) => {
+        if (!active) {
+            return;
+        }
+
         sendAction('character_select', { character: name });
         // notify(`selected ${lang.characterNames[name]}`);
     };
 
     const handleSubmit = () => {
+        if (!active) {
+            return;
+        }
+
         if (selectedCharacter) {
             sendAction('character_selected', { character: selectedCharacter });
         } else {
             notify('character_select.select_character');
         }
     };
-
-    const button = active ?
-        <button
-            className={className(styles.character, 'text-2xl', 'rounded')}
-            onClick={handleSubmit}
-        >
-            <p>{lang.character_select.submit}</p>
-        </button>
-        : null;
-
 
     return (
         <div className='flex flex-col items-center space-y-3'>
@@ -66,7 +65,12 @@ const CharacterSelect = ({ characters, sendAction, active, selectedCharacter = n
                     />
                 ))}
             </div>
-            {button}
+            <button
+                className={className(commonStyles.gamebtn, styles.character, 'text-2xl', 'rounded')}
+                onClick={handleSubmit}
+            >
+                <p>{lang.character_select.submit}</p>
+            </button>
         </div>
     )
 }

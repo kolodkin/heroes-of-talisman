@@ -6,6 +6,8 @@ GET {{url}}
 ### Health
 GET {{url}}/api/health
 
+### Reset Game
+POST {{url}}/api/games/2t/reset
 
 ### Delete Game
 DELETE {{url}}/api/games/2t

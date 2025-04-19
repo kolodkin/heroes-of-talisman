@@ -3,20 +3,4 @@
     flex-direction: column;
     align-items: start;
     justify-content: center;
-    padding: 10px;
-    border: 1px solid black;
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-:global(.active-player) .character:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-    border: 1px solid whitesmoke;
-    cursor: pointer;
-}
-
-.selected,
-:global(.active-player).selected:hover {
-    background-color: rgba(255, 255, 255, 0.5);
-    border: 1px solid whitesmoke;
 }

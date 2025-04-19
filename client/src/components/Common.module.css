@@ -1,0 +1,23 @@
+.gamebtn {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px;
+    overflow: hidden;
+}
+
+:global(.active-player) .gamebtn {
+    cursor: pointer;
+}
+
+
+:global(.active-player) .gamebtn:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    outline: 1px solid whitesmoke;
+    cursor: pointer;
+}
+
+.selected,
+:global(.active-player).selected:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid whitesmoke;
+}
