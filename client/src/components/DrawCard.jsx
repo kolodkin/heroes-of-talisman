@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
 import { getLangVal } from '../utils/lang';
-import styles from './DrawCard.module.css';
 import cStyles from './Common.module.css';
 import classNames from 'classnames';
 import lang from './he';
@@ -74,7 +73,7 @@ const DrawCard = ({ sendAction, card, drawn, active }) => {
 
     return (
         <div className="flex flex-col items-center space-y-3">
-            <div className={styles['image']} style={{ width: width, height: height }}>
+            <div style={{ width: width, height: height }}>
                 <svg
                     viewBox={`0 0 ${width} ${height}`}
                     xmlns="http://www.w3.org/2000/svg"
