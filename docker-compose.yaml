@@ -2,66 +2,42 @@
 # https://hub.docker.com/_/redis
 
 services:
-  server:
-    image: ubuntu:24.04
-    ports:
-      - 8080:8080
-    user: ${MY_UID}:${MY_GID}
-    environment:
-      UVICORN_HOST: 0.0.0.0
-      UVICORN_PORT: 8080
-      POSTGRES_HOST: postgres
-      REDIS_HOST: redis
-    volumes:
-      - /home/$USER/.local:/home/$USER/.local
-      - .:${PWD}
-    working_dir: "${PWD}"
-    command: ["/bin/bash", "-c", "source .venv/bin/activate && python -m uvicorn server.main:app --reload"]
-    depends_on:
-      # - postgres
-      - redis
-    restart: unless-stopped
-
-  # postgres:
-  #   # https://hub.docker.com/_/postgres
-  #   image: postgres:17.3
-  #   # volumes:
-  #   #   - postgres:/var/lib/postgresql/data:Z
+  # server:
+  #   image: ubuntu:24.04
   #   ports:
-  #     - 5432:5432
+  #     - 8080:8080
+  #   user: ${MY_UID}:${MY_GID}
   #   environment:
-  #     POSTGRES_USER: ${POSTGRES_USER:-postgres}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+  #     UVICORN_HOST: 0.0.0.0
+  #     UVICORN_PORT: 8080
+  #     POSTGRES_HOST: postgres
+  #     REDIS_HOST: redis
+  #   volumes:
+  #     - /home/$USER/.local:/home/$USER/.local
+  #     - .:${PWD}
+  #   working_dir: "${PWD}"
+  #   command: ["/bin/bash", "-c", "source .venv/bin/activate && python -m uvicorn server.main:app --reload"]
+  #   depends_on:
+  #     - postgres
   #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -d postgres -U $${POSTGRES_PASSWORD:-postgres}"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
 
-  redis:
-    # https://hub.docker.com/_/redis
-    image: redis:7.4.2
-    restart: unless-stopped
-    ports:
-      - 6379:6379
-    command: redis-server --loglevel warning
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis}
+  postgres:
+    # https://hub.docker.com/_/postgres
+    image: postgres:17.5
     # volumes:
-    #   - redis:/data
-
-  www-dev:
-    image: node:${MY_NODE}
+    #   - postgres:/var/lib/postgresql/data:Z
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     restart: unless-stopped
-    network_mode: "host"
-    volumes:
-      - ~/.npm:/.npm
-      - ./:/app
-    working_dir: /app
-    user: ${MY_UID}:${MY_GID}
-    command: ["/bin/bash", "-c", "cd client && npm run dev"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres -U $${POSTGRES_PASSWORD:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-# volumes:
-#   postgres:
-#   redis:
+
+volumes:
+  postgres:
