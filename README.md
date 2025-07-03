@@ -1,1 +1,1 @@
-# heroes-of-talisman
+# aicards
