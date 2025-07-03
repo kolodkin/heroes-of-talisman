@@ -4,10 +4,18 @@
 
 ### Technology Stack
 
-- Python with **FastAPI**
-- **PostgreSQL** using **SQLModel** and **Alembic** for migrations
-- Tested with **pytest** and `TestClient`\
+- Backend built with **FastAPI** framework in Python
+- Database using **PostgreSQL** with **SQLModel** ORM and **Alembic** migration tool
+- Testing framework using **pytest** with FastAPI's `TestClient`\
   [FastAPI Testing Guide](https://fastapi.tiangolo.com/tutorial/testing/)
+- Service orchestration with docker compose
+
+
+--- Docker Compose
+
+- Each service should include a healthcheck configuration
+
+- Service port numbers should be defined in .env with fallback to standard ports
 
 ---
 

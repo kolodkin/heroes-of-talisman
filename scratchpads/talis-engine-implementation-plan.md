@@ -18,7 +18,7 @@
 
 ## POC Implementation Path Status: »» **NEXT PHASE TO IMPLEMENT**
 
-### Unit 1: Project Foundation & Dependencies [Backend structure setup] Status: ⚪ **NOT STARTED**
+### Unit 1: Project Foundation & Dependencies [Backend structure setup] Status: ✅ **COMPLETED**
 
 **Tags**:
 - [DEMOABLE] - Can verify FastAPI server starts and dependencies work
@@ -28,23 +28,23 @@
 
 **Changes**
 
-- [ ] Update pyproject.toml with complete dependency list (FastAPI, SQLModel, Alembic, Redis, pytest, WebSockets)
-- [ ] Create server/main.py with basic FastAPI app and health endpoints
-- [ ] Create server/__init__.py and basic module structure
-- [ ] Update docker-compose.yaml to include Redis service
-- [ ] Create .env.example with environment variables
+- [x] Update pyproject.toml with complete dependency list (FastAPI, SQLModel, Alembic, Redis, pytest, WebSockets)
+- [x] Create server/main.py with basic FastAPI app and health endpoints
+- [x] Create server/__init__.py and basic module structure
+- [x] Update docker-compose.yaml to include Redis service
+- [x] Create .env.example with environment variables
 
 **Success Criteria**
 
-- [ ] FastAPI server starts without errors
-- [ ] Health check endpoint returns 200
-- [ ] All dependencies install successfully
-- [ ] Docker compose brings up PostgreSQL and Redis
+- [x] FastAPI server starts without errors
+- [x] Health check endpoint returns 200
+- [x] All dependencies install successfully
+- [x] Docker compose brings up PostgreSQL and Redis
 
 **Testing**
 
-- [ ] Test FastAPI server startup
-- [ ] Test `/api/health` endpoint responds correctly
+- [x] Test FastAPI server startup
+- [x] Test `/api/health` endpoint responds correctly
 
 **Implementation Notes**
 
@@ -52,30 +52,30 @@
 - Use existing docker-compose.yaml PostgreSQL configuration
 - Add Redis service following same pattern
 
-### Unit 2: Database Models & Migration Setup [SQLModel foundation] Status: ⚪ **NOT STARTED**
+### Unit 2: Database Models & Migration Setup [SQLModel foundation] Status: ✅ **COMPLETED**
 
 **Complexity**: SMALL (3 points)
 **Purpose**: Create database models and migration system following design guidelines
 
 **Changes**
 
-- [ ] Create server/models.py with User and Game SQLModel classes
-- [ ] Set up Alembic configuration in server/alembic/
-- [ ] Create initial migration with users and games tables
-- [ ] Create database connection and session management
-- [ ] Add database URL configuration
+- [x] Create server/models.py with User and Game SQLModel classes
+- [x] Set up Alembic configuration in server/alembic/
+- [x] Create initial migration with users and games tables
+- [x] Create database connection and session management
+- [x] Add database URL configuration
 
 **Success Criteria**
 
-- [ ] Database models match design specification (users: email, password, last_log_in, created_at)
-- [ ] Games table created with id, name, data (jsonb), last_updated, created
-- [ ] Alembic migrations run successfully
-- [ ] Database connection established
+- [x] Database models match design specification (users: email, password, last_log_in, created_at)
+- [x] Games table created with id, name, data (jsonb), last_updated, created
+- [x] Alembic migrations run successfully
+- [x] Database connection established
 
 **Testing**
 
-- [ ] Test model creation and validation
-- [ ] Test migration up/down operations
+- [x] Test model creation and validation
+- [x] Test migration up/down operations
 
 **Implementation Notes**
 
@@ -83,32 +83,32 @@
 - Use PostgreSQL jsonb for game.data field
 - Set up proper foreign key relationships
 
-### Unit 3: JWT Authentication System [Security foundation] Status: ⚪ **NOT STARTED**
+### Unit 3: JWT Authentication System [Security foundation] Status: ✅ **COMPLETED**
 
 **Complexity**: STANDARD (4 points)
 **Purpose**: Implement JWT-based authentication for both REST and WebSocket
 
 **Changes**
 
-- [ ] Create server/auth.py with JWT token generation and validation
-- [ ] Implement password hashing with passlib
-- [ ] Create login/register endpoints in server/routers/auth.py
-- [ ] Add JWT dependency for protected routes
-- [ ] Create WebSocket JWT authentication dependency
+- [x] Create server/auth.py with JWT token generation and validation
+- [x] Implement password hashing with passlib
+- [x] Create login/register endpoints in server/routers/auth.py
+- [x] Add JWT dependency for protected routes
+- [x] Create WebSocket JWT authentication dependency
 
 **Success Criteria**
 
-- [ ] Users can register with email/password
-- [ ] Login returns valid JWT token
-- [ ] Protected endpoints require valid JWT
-- [ ] WebSocket connections authenticate with JWT
+- [x] Users can register with email/password
+- [x] Login returns valid JWT token
+- [x] Protected endpoints require valid JWT
+- [x] WebSocket connections authenticate with JWT
 
 **Testing**
 
-- [ ] Test user registration and login
-- [ ] Test JWT token validation
-- [ ] Test protected endpoint access
-- [ ] Test WebSocket authentication with JWT
+- [x] Test user registration and login
+- [x] Test JWT token validation
+- [x] Test protected endpoint access
+- [x] Test WebSocket authentication with JWT
 
 **Implementation Notes**
 
@@ -122,29 +122,29 @@ Users can register, login, and access protected endpoints with JWT tokens.
 
 ## MVP Implementation Path Status: ⚪ **NOT STARTED**
 
-### Unit 4: API Router Structure [REST API foundation] Status: ⚪ **NOT STARTED**
+### Unit 4: API Router Structure [REST API foundation] Status: ✅ **COMPLETED**
 
 **Complexity**: SMALL (2 points)
 **Purpose**: Create API router structure following design guidelines
 
 **Changes**
 
-- [ ] Create server/routers/__init__.py
-- [ ] Set up `/api` welcome endpoint returning text message
-- [ ] Update `/api/health` endpoint
-- [ ] Create router structure for future endpoints
-- [ ] Integrate routers into main FastAPI app
+- [x] Create server/routers/__init__.py
+- [x] Set up `/api` welcome endpoint returning text message
+- [x] Update `/api/health` endpoint
+- [x] Create router structure for future endpoints
+- [x] Integrate routers into main FastAPI app
 
 **Success Criteria**
 
-- [ ] `/api` returns welcome text message
-- [ ] `/api/health` returns health check response
-- [ ] Router structure ready for expansion
+- [x] `/api` returns welcome text message
+- [x] `/api/health` returns health check response
+- [x] Router structure ready for expansion
 
 **Testing**
 
-- [ ] Test all API endpoints respond correctly
-- [ ] Test router integration with main app
+- [x] Test all API endpoints respond correctly
+- [x] Test router integration with main app
 
 **Implementation Notes**
 
