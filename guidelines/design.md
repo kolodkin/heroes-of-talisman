@@ -1,8 +1,9 @@
-# Design Guidelines
+Design Guidelines
+=================
 
-## Backend
+# Backend
 
-### Technology Stack
+## Technology Stack
 
 - Backend built with **FastAPI** framework in Python
 - Database using **PostgreSQL** with **SQLModel** ORM and **Alembic** migration tool
@@ -95,9 +96,9 @@
 
 ---
 
-## Frontend
+# Frontend
 
-### Design Principles
+## Design Principles
 
 - **npm** as build tool
 - **Lit** for rendering: [https://lit.dev](https://lit.dev)

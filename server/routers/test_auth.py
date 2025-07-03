@@ -178,13 +178,13 @@ class TestProtectedEndpoints:
     
     def test_get_current_user_with_expired_token(self, client: TestClient, test_user: User):
         """Test accessing protected endpoint with expired token."""
-        from datetime import datetime, timedelta
+        from datetime import datetime, timedelta, timezone
         from server.auth import jwt, SECRET_KEY, ALGORITHM
         
         # Create expired token
         expired_payload = {
             "sub": test_user.email,
-            "exp": datetime.utcnow() - timedelta(minutes=30)
+            "exp": datetime.now(timezone.utc) - timedelta(minutes=30)
         }
         expired_token = jwt.encode(expired_payload, SECRET_KEY, algorithm=ALGORITHM)
         

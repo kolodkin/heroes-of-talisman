@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
@@ -89,7 +89,7 @@ async def login(
         )
     
     # Update last login time
-    user.last_log_in = datetime.utcnow()
+    user.last_log_in = datetime.now(timezone.utc)
     session.add(user)
     session.commit()
     
