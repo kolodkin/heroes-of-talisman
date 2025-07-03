@@ -120,7 +120,7 @@
 
 Users can register, login, and access protected endpoints with JWT tokens.
 
-## MVP Implementation Path Status: »» **NEXT PHASE TO IMPLEMENT**
+## MVP Implementation Path Status: ✅ **COMPLETED**
 
 ### Unit 4: API Router Structure [REST API foundation] Status: ✅ **COMPLETED**
 
@@ -184,32 +184,32 @@ Users can register, login, and access protected endpoints with JWT tokens.
 - Design action classes for easy extension
 - Store game state in PostgreSQL jsonb field
 
-### Unit 6: WebSocket Game Endpoints [Real-time communication] Status: »» **NEXT TO IMPLEMENT**
+### Unit 6: WebSocket Game Endpoints [Real-time communication] Status: ✅ **COMPLETED**
 
 **Complexity**: STANDARD (5 points)
 **Purpose**: Implement WebSocket endpoints for real-time game communication
 
 **Changes**
 
-- [ ] Create server/websocket.py with WebSocket manager
-- [ ] Implement `/ws/game/<gameid>/<userid>` endpoint
-- [ ] Add Redis-based locking for game state updates
-- [ ] Integrate JWT authentication with WebSocket connections
-- [ ] Implement connect/disconnect action calls
+- [x] Create server/websocket.py with WebSocket manager
+- [x] Implement `/ws/game/<gameid>/<userid>` endpoint
+- [x] Add Redis-based locking for game state updates
+- [x] Integrate JWT authentication with WebSocket connections
+- [x] Implement connect/disconnect action calls
 
 **Success Criteria**
 
-- [ ] WebSocket connections authenticate with JWT
-- [ ] Game state updates use Redis locks
-- [ ] Connect/disconnect actions called automatically
-- [ ] Multiple clients can connect to same game
+- [x] WebSocket connections authenticate with JWT
+- [x] Game state updates use Redis locks
+- [x] Connect/disconnect actions called automatically
+- [x] Multiple clients can connect to same game
 
 **Testing**
 
-- [ ] Test WebSocket connection with JWT
-- [ ] Test game state locking mechanism
-- [ ] Test multiple clients in same game
-- [ ] Test automatic connect/disconnect actions
+- [x] Test WebSocket connection with JWT
+- [x] Test game state locking mechanism
+- [x] Test multiple clients in same game
+- [x] Test automatic connect/disconnect actions
 
 **Implementation Notes**
 
@@ -221,9 +221,9 @@ Users can register, login, and access protected endpoints with JWT tokens.
 
 Complete backend with authentication, game engine, and WebSocket communication.
 
-## Enhancement Implementation Path Status: ⚪ **NOT STARTED**
+## Enhancement Implementation Path Status: »» **NEXT PHASE TO IMPLEMENT**
 
-### Unit 7: Frontend Project Setup [Lit development environment] Status: ⚪ **NOT STARTED**
+### Unit 7: Frontend Project Setup [Lit development environment] Status: »» **NEXT TO IMPLEMENT**
 
 **Complexity**: SMALL (3 points)
 **Purpose**: Set up frontend development environment with Lit and build tools

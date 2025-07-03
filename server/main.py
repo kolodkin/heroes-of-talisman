@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from .routers import auth, api
+from .routers import auth, api, websocket_router
 
 
 app = FastAPI(
@@ -12,6 +12,7 @@ app = FastAPI(
 # Include routers
 app.include_router(api.router)
 app.include_router(auth.router)
+app.include_router(websocket_router.router)
 
 
 if __name__ == "__main__":

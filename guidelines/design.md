@@ -7,8 +7,6 @@ Design Guidelines
 
 - Backend built with **FastAPI** framework in Python
 - Database using **PostgreSQL** with **SQLModel** ORM and **Alembic** migration tool
-- Testing framework using **pytest** with FastAPI's `TestClient`\
-  [FastAPI Testing Guide](https://fastapi.tiangolo.com/tutorial/testing/)
 - Service orchestration with docker compose
 
 
@@ -88,12 +86,17 @@ Design Guidelines
 - Endpoint: `/ws/game/<gameid>/<userid>`
 - Each logged-in user uses a separate WebSocket connection.
 - Workflow:
-  - Receive actions from UI.
-  - Acquire Redis-based lock.
-  - Update the `games` table in DB.
-  - Call `connect` on socket open.
-  - Call `disconnect` on socket close.
-
+  - Client sends action via WebSocket
+  - Server acquires distributed lock using Redis (10 second timeout)
+    ```python
+    ...
+    with r.lock("my-lock-key", timeout=10)  # timeout auto-releases after 10 seconds
+      # execute action
+      ....
+    ````
+  - Game engine processes action and returns updated game state
+  - Server persists new game state to database
+  - Server broadcasts state change to connected clients
 ---
 
 # Frontend
