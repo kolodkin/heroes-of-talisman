@@ -1,4 +1,4 @@
-# Turn Based Card Games – Webservice Design Guidelines
+# Design Guidelines
 
 ## Backend
 
