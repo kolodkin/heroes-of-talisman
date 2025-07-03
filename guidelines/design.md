@@ -63,7 +63,7 @@ Design Guidelines
 
   ```python
   action_cls = ACTIONS[action]
-  self.game = action_cls(game, user).execute(**kwargs)
+  self.game = action_cls(game: GameEngine, user: str).execute(**kwargs)
   ```
 
   where `ACTIONS` is a dictionary of available action classes (e.g., `Connect(Action)`).

@@ -24,3 +24,8 @@ dev = [
     "pytest>=8.3.4",
     "httpx>=0.28.1",
 ]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:datetime.datetime.utcnow*:DeprecationWarning",
+]
