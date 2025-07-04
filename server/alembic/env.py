@@ -8,8 +8,8 @@ from alembic import context
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlmodel import SQLModel
-from server.models import User, Game  # Import our models
-from server.database import engine  # Use the same engine as SQLModel
+from server.database import get_database_url
+from sqlalchemy import create_engine
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -63,10 +63,9 @@ def run_migrations_online() -> None:
     to ensure consistency in database connections.
 
     """
-    # Use the same engine as SQLModel
-    connectable = engine
 
-    with connectable.connect() as connection:
+    engine = create_engine(get_database_url(lib="psycopg2"))
+    with engine.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
