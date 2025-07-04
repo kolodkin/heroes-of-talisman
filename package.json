@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@lit-labs/preact-signals": "^1.0.3",
+    "@preact/signals": "^2.2.1",
+    "@preact/signals-core": "^1.11.0",
     "lit": "^3.1.0"
   },
   "devDependencies": {

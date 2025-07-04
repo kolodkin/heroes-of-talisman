@@ -53,7 +53,7 @@ Design Guidelines
 - **vite** as build tool and development server
 - **Lit** for rendering: [https://lit.dev](https://lit.dev)
 - **Lit Router** for routing
-- **lit preact-signals** for state management
+- **lit preact-signals** for state management [@lit-labs/preact-signals](https://www.npmjs.com/package/@lit-labs/preact-signals)
 - **TailwindCSS** for styling: [https://tailwindcss.com](https://tailwindcss.com)
 - **Web Test Runner** for testing: [Test Runner Docs](https://modern-web.dev/docs/test-runner/overview/)
 - Each SVG icon is wrapped in a Lit component and bundled in `icons.js`

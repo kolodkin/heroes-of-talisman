@@ -86,29 +86,35 @@ Run `npm run dev` and see a working Lit component with Vite hot reload.
 - Import CSS in main.js for proper loading order
 - Configure content paths for class detection
 
-### Unit 3: Signals Integration [Add @preact/signals state management] Status: ⚪ **NOT STARTED**
+### Unit 3: Signals Integration [Add @preact/signals state management] Status: ✅ **COMPLETE**
 
 **Complexity**: SMALL (3 points)
 **Purpose**: Enable reactive state management across components
 
 **Changes**
 
-- [ ] Install @preact/signals and @preact/signals-core packages
-- [ ] Create src/services/auth.js with signal-based auth service
-- [ ] Implement SignalWatcher pattern for Lit component reactivity
-- [ ] Set up API client with signal-based state management
+- [x] Install @preact/signals and @preact/signals-core packages
+- [x] Create src/services/auth.js with signal-based auth service
+- [x] Implement SignalWatcher pattern for Lit component reactivity
+- [x] Set up API client with signal-based state management
+- [x] Create test signals for development and verification
+- [x] Update HelloWorld component to demonstrate signal integration
 
 **Success Criteria**
 
-- [ ] Components automatically re-render when signals change
-- [ ] Signal state persists across component mounts/unmounts
-- [ ] Auth signals work with sessionStorage persistence
+- [x] Components automatically re-render when signals change
+- [x] Signal state persists across component mounts/unmounts
+- [x] Auth signals work with sessionStorage persistence
+- [x] SignalWatcher mixin enables automatic reactivity
+- [x] Interactive signal testing interface works correctly
 
 **Testing**
 
-- [ ] Create test signal and verify component updates
-- [ ] Test signal persistence across page refreshes
-- [ ] Verify SignalWatcher mixin functionality
+- [x] Create test signal and verify component updates
+- [x] Test signal persistence across page refreshes
+- [x] Verify SignalWatcher mixin functionality
+- [x] Test counter and message signals with interactive buttons
+- [x] Verify auth state signals integration
 
 **Implementation Notes**
 
@@ -281,15 +287,15 @@ Complete frontend application with secure authentication, modern UI, and excelle
 
 ---
 
-## CHECKPOINT: Talis Engine Frontend - TailwindCSS Integration - Unit 2 Complete
+## CHECKPOINT: Talis Engine Frontend - Signals Integration - Unit 3 Complete
 
 ### MASTER PLAN STATUS
 **Implementation Progress**:
 1. POC Implementation
    - [x] Unit 1: Basic Frontend Setup [Initialize Vite project with Lit] ✓
    - [x] Unit 2: Add TailwindCSS v4 [Style system integration] ✓
-   - [ ] Unit 3: Signals Integration [Add @preact/signals state management] ← NEXT UNIT
-   - [ ] Unit 4: Routing System [Add Vaadin Router for navigation]
+   - [x] Unit 3: Signals Integration [Add @preact/signals state management] ✓
+   - [ ] Unit 4: Routing System [Add Vaadin Router for navigation] ← NEXT UNIT
 2. Enhancement Implementation
    - [ ] Unit 5: Auth Service Implementation [Centralized JWT authentication]
    - [ ] Unit 6: Login Page Component [Email/password authentication form]
@@ -300,50 +306,55 @@ Complete frontend application with secure authentication, modern UI, and excelle
 ### TECHNICAL CONTEXT
 **Established Patterns**:
 - Frontend Structure: Files in project root (not separate frontend/ directory)
-- Lit Components: ES6 classes extending LitElement with TailwindCSS classes in templates
+- Lit Components: ES6 classes extending SignalWatcher(LitElement) with TailwindCSS classes
 - Vite Config: PostCSS with TailwindCSS and Autoprefixer plugins
 - Package Management: NPM with package.json in project root
 - Styling: TailwindCSS v4 with @tailwindcss/postcss plugin
+- State Management: @preact/signals with @lit-labs/preact-signals official integration
 
 **Architecture**:
 - Vite 5.x dev server with native ES modules
-- Lit 3.x web components using TailwindCSS classes
+- Lit 3.x web components using TailwindCSS classes and signal-based reactivity
 - TailwindCSS v4 with PostCSS integration
+- @preact/signals for reactive state management
 - Project structure: src/components/, src/pages/, src/services/, src/styles/
 - FastAPI backend with JWT auth at /api/auth endpoints
 
 ### COMPLETED UNITS
 **Unit 1**: Basic Frontend Setup - Initialize Vite project with Lit
 **Unit 2**: Add TailwindCSS v4 - Style system integration
+**Unit 3**: Signals Integration - Add @preact/signals state management
 **Files Modified**:
-- package.json - Added TailwindCSS and PostCSS dependencies
-- vite.config.js - PostCSS configuration with TailwindCSS plugin
-- tailwind.config.js - TailwindCSS configuration
-- src/styles/index.css - TailwindCSS imports and base styles
-- src/main.js - Updated with CSS imports and TailwindCSS-styled component
-- Directory structure: src/styles/ added
+- package.json - Added @preact/signals and @lit-labs/preact-signals dependencies
+- src/services/auth.js - Signal-based auth service with sessionStorage persistence
+- src/main.js - Updated HelloWorld component with official @lit-labs/preact-signals integration
+- Enhanced component with interactive signal testing (counter, message, auth status)
+- Removed custom signal-watcher.js in favor of official integration
 
 **Verification**:
-- Vite dev server starts successfully with `npm run dev`
-- TailwindCSS classes compile correctly
-- Modern card-based UI with TailwindCSS utilities
-- Hot module replacement functional with styling updates
-
-### NEXT UNIT SPECIFICATION
-**Task**: Add @preact/signals for reactive state management
-**Steps**:
-1. Install @preact/signals and @preact/signals-core packages
-2. Create src/services/auth.js with signal-based auth service
-3. Implement SignalWatcher pattern for Lit component reactivity
-4. Set up API client with signal-based state management
-5. Create test signals and verify component updates
-
-**Success Criteria**:
+- Vite dev server starts successfully with official @lit-labs/preact-signals integration
 - Components automatically re-render when signals change
 - Signal state persists across component mounts/unmounts
 - Auth signals work with sessionStorage persistence
+- Interactive signal testing buttons work correctly
+- Official SignalWatcher mixin enables automatic reactivity
+- Removed custom implementation in favor of official package
 
-**Pattern to Follow**: @preact/signals integration patterns from research
+### NEXT UNIT SPECIFICATION
+**Task**: Add Vaadin Router for client-side navigation
+**Steps**:
+1. Install @vaadin/router package
+2. Create src/router.js with route definitions
+3. Set up protected route middleware using auth signals
+4. Configure routes for /login and /home paths
+5. Test navigation between routes
+
+**Success Criteria**:
+- Navigation between routes works without page refresh
+- Protected routes redirect to login when not authenticated
+- Browser back/forward buttons work correctly
+
+**Pattern to Follow**: Vaadin Router integration patterns from research
 
 ---
-Units: 2 completed | Next: Medium complexity
+Units: 3 completed | Next: Low complexity
