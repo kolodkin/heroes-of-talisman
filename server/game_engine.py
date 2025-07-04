@@ -125,7 +125,10 @@ class GameEngine:
         self._action_history: List[Dict[str, Any]] = []
 
         # Initialize actions dictionary with instances
-        self.actions: Dict[str, Action] = {"connect": ConnectAction(self), "disconnect": DisconnectAction(self)}
+        self.actions: Dict[str, Action] = {
+            "connect": ConnectAction(self),
+            "disconnect": DisconnectAction(self),
+        }
 
     def execute(self, action: str, **kwargs) -> ActionResult:
         """Execute an action with given parameters.

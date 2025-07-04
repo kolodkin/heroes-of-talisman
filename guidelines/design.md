@@ -21,7 +21,7 @@ Design Guidelines
 - pre-commit used for keeping code clean
 
 ### Docker Compose
-
+ˆˆ
 - Each service should include a healthcheck configuration
 - Service port numbers should be defined in .env with fallback to standard ports
 
