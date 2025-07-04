@@ -2,7 +2,8 @@ from datetime import datetime, timezone
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
-from sqlmodel import Session, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 from pydantic import BaseModel, EmailStr
 
 from ..database import get_session
@@ -44,11 +45,12 @@ class UserResponse(BaseModel):
 @router.post("/register", response_model=UserResponse)
 async def register(
     user_data: UserRegister,
-    session: Session = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ):
     """Register a new user."""
     # Check if user already exists
-    existing_user = session.exec(select(User).where(User.email == user_data.email)).first()
+    result = await session.execute(select(User).where(User.email == user_data.email))
+    existing_user = result.first()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -63,8 +65,8 @@ async def register(
     )
     
     session.add(user)
-    session.commit()
-    session.refresh(user)
+    await session.commit()
+    await session.refresh(user)
     
     return UserResponse(
         id=user.id,
@@ -77,10 +79,10 @@ async def register(
 @router.post("/login", response_model=Token)
 async def login(
     user_data: UserLogin,
-    session: Session = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ):
     """Login user and return JWT token."""
-    user = authenticate_user(session, user_data.email, user_data.password)
+    user = await authenticate_user(session, user_data.email, user_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -88,10 +90,10 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Update last login time
-    user.last_log_in = datetime.now(timezone.utc)
+    # Update last login time  
+    user.last_log_in = datetime.now()
     session.add(user)
-    session.commit()
+    await session.commit()
     
     # Create access token
     access_token = create_access_token(data={"sub": user.email})

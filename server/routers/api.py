@@ -1,7 +1,8 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import PlainTextResponse
-from sqlmodel import Session, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 from pydantic import BaseModel
 
 from ..database import get_session
@@ -28,8 +29,8 @@ class GameResponse(BaseModel):
 
 @router.get("/", response_class=PlainTextResponse)
 async def api_welcome():
-    """API welcome endpoint returning text message as per design guidelines."""
-    return "Welcome to Heroes of Talisman Game Engine API"
+    """Welcome message for the API."""
+    return "Welcome to Heroes of Talisman API"
 
 
 @router.get("/health")
@@ -50,15 +51,18 @@ async def health_check():
 @router.post("/games", response_model=GameResponse)
 async def create_game(
     game_data: GameCreate,
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
     """Create a new game."""
     # Generate game ID if not provided
-    game_id = game_data.game_id or f"game_{len(session.exec(select(Game)).all()) + 1}"
+    result = await session.execute(select(Game))
+    games = result.scalars().all()
+    game_id = game_data.game_id or f"game_{len(games) + 1}"
     
     # Check if game ID already exists
-    existing_game = session.exec(select(Game).where(Game.id == game_id)).first()
+    result = await session.execute(select(Game).where(Game.id == game_id))
+    existing_game = result.first()
     if existing_game:
         raise HTTPException(status_code=400, detail="Game ID already exists")
     
@@ -70,8 +74,8 @@ async def create_game(
     )
     
     session.add(game)
-    session.commit()
-    session.refresh(game)
+    await session.commit()
+    await session.refresh(game)
     
     return GameResponse(
         id=game.id,
@@ -85,17 +89,17 @@ async def create_game(
 @router.get("/games/{game_id}", response_model=GameResponse)
 async def get_game(
     game_id: str,
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
     """Get game information."""
-    game = session.exec(select(Game).where(Game.id == game_id)).first()
+    result = await session.execute(select(Game).where(Game.id == game_id))
+    game = result.first()
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
     
-    # Get connected users from WebSocket manager
-    from ..websocket import manager
-    connected_users = manager.get_connected_users(game_id)
+    # For now, return empty connected users since we're ignoring websocket parts
+    connected_users = []
     
     return GameResponse(
         id=game.id,
@@ -108,22 +112,21 @@ async def get_game(
 
 @router.get("/games", response_model=List[GameResponse])
 async def list_games(
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
     """List all games."""
-    games = session.exec(select(Game)).all()
+    result = await session.execute(select(Game))
+    games = result.scalars().all()
     
-    # Get connected users from WebSocket manager
-    from ..websocket import manager
-    
+    # For now, return empty connected users since we're ignoring websocket parts
     return [
         GameResponse(
             id=game.id,
             name=game.name,
             last_updated=game.last_updated.isoformat(),
             created=game.created.isoformat(),
-            connected_users=manager.get_connected_users(game.id)
+            connected_users=[]
         )
         for game in games
     ]
@@ -132,15 +135,16 @@ async def list_games(
 @router.delete("/games/{game_id}")
 async def delete_game(
     game_id: str,
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
     """Delete a game."""
-    game = session.exec(select(Game).where(Game.id == game_id)).first()
+    result = await session.execute(select(Game).where(Game.id == game_id))
+    game = result.first()
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
     
-    session.delete(game)
-    session.commit()
+    await session.delete(game)
+    await session.commit()
     
     return {"message": f"Game {game_id} deleted successfully"} 

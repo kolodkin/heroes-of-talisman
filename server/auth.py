@@ -5,7 +5,8 @@ from jose import JWTError, jwt
 import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlmodel import Session, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 from .database import get_session
 from .models import User
@@ -30,19 +31,16 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     """Generate password hash."""
-    salt = bcrypt.gensalt(rounds=BCRYPT_ROUNDS)
-    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed.decode('utf-8')
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=BCRYPT_ROUNDS)).decode('utf-8')
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """Create a JWT access token."""
+    """Create JWT access token."""
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -60,9 +58,10 @@ def verify_token(token: str) -> Optional[str]:
         return None
 
 
-def authenticate_user(session: Session, email: str, password: str) -> Optional[User]:
+async def authenticate_user(session: AsyncSession, email: str, password: str) -> Optional[User]:
     """Authenticate user with email and password."""
-    user = session.exec(select(User).where(User.email == email)).first()
+    result = await session.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
     if not user:
         return None
     if not verify_password(password, user.password):
@@ -70,9 +69,9 @@ def authenticate_user(session: Session, email: str, password: str) -> Optional[U
     return user
 
 
-def get_current_user(
+async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-    session: Session = Depends(get_session)
+    session: AsyncSession = Depends(get_session)
 ) -> User:
     """Get current user from JWT token."""
     credentials_exception = HTTPException(
@@ -85,18 +84,20 @@ def get_current_user(
     if email is None:
         raise credentials_exception
     
-    user = session.exec(select(User).where(User.email == email)).first()
+    result = await session.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
     if user is None:
         raise credentials_exception
     
     return user
 
 
-def get_current_user_websocket(token: str, session: Session) -> Optional[User]:
+async def get_current_user_websocket(token: str, session: AsyncSession) -> Optional[User]:
     """Get current user from JWT token for WebSocket connections."""
     email = verify_token(token)
     if email is None:
         return None
     
-    user = session.exec(select(User).where(User.email == email)).first()
+    result = await session.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
     return user 

@@ -1,6 +1,9 @@
 import os
-from sqlmodel import SQLModel, create_engine, Session
-from typing import Generator
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+from contextlib import asynccontextmanager
+from sqlmodel import SQLModel
+from typing import AsyncGenerator
 
 
 # Database configuration
@@ -12,12 +15,12 @@ def get_database_url():
     postgres_password = os.getenv("POSTGRES_PASSWORD", "postgres")
     postgres_db = os.getenv("POSTGRES_DB", "heroes_talisman")
     
-    return f"postgresql://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_db}"
+    return f"postgresql+asyncpg://{postgres_user}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_db}"
 
 DATABASE_URL = os.getenv("DATABASE_URL", get_database_url())
 
-# Create engine with connection pooling
-engine = create_engine(
+# Create async engine with connection pooling
+engine = create_async_engine(
     DATABASE_URL,
     pool_size=20,
     max_overflow=0,
@@ -25,13 +28,18 @@ engine = create_engine(
     echo=os.getenv("DEBUG", "false").lower() == "true"
 )
 
+# Create session factory
+SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-def create_db_and_tables():
+
+async def create_db_and_tables():
     """Create database tables."""
-    SQLModel.metadata.create_all(engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
 
 
-def get_session() -> Generator[Session, None, None]:
+@asynccontextmanager
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     """Get database session for dependency injection."""
-    with Session(engine) as session:
+    async with SessionLocal() as session:
         yield session 

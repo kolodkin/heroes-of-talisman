@@ -37,6 +37,29 @@ Design Guidelines
    - `last_updated`: datetime
    - `created`: datetime
 
+### Usage
+
+- database session will be acuiqred with sql async 
+  ```
+  from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+  from sqlalchemy.orm import sessionmaker
+  from contextlib import asynccontextmanager
+
+  engine = create_async_engine("postgresql+asyncpg://user:pass@host/db")
+  SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+  @asynccontextmanager
+  async def get_session():
+      async with SessionLocal() as session:
+          yield session
+  
+  # than in relevant endpoitns
+  @app.get("/")
+  async def read_data(session: AsyncSession = Depends(get_session)):
+    result = await session.execute(...)
+
+  ```
+
 ---
 
 ## Game Engine
@@ -87,13 +110,7 @@ Design Guidelines
 - Each logged-in user uses a separate WebSocket connection.
 - Workflow:
   - Client sends action via WebSocket
-  - Server acquires distributed lock using Redis (10 second timeout)
-    ```python
-    ...
-    with r.lock("my-lock-key", timeout=10)  # timeout auto-releases after 10 seconds
-      # execute action
-      ....
-    ````
+  - Server gets game with for_update flag to avoid mutex on game update.
   - Game engine processes action and returns updated game state
   - Server persists new game state to database
   - Server broadcasts state change to connected clients

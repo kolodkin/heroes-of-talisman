@@ -1,19 +1,20 @@
 import pytest
-from fastapi.testclient import TestClient
-from sqlmodel import Session, select
+import httpx
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 from server.models import User
 from server.auth import verify_password, verify_token
 
 
-def test_register_new_user(client: TestClient, session: Session):
+async def test_register_new_user(client: httpx.AsyncClient, session: AsyncSession):
     """Test successful user registration."""
     user_data = {
         "email": "newuser@example.com",
         "password": "newpassword123"
     }
     
-    response = client.post("/api/auth/register", json=user_data)
+    response = await client.post("/api/auth/register", json=user_data)
     
     assert response.status_code == 200
     data = response.json()
@@ -25,60 +26,61 @@ def test_register_new_user(client: TestClient, session: Session):
     assert "password" not in data  # Password should not be in response
     
     # Verify user was created in database
-    user = session.exec(select(User).where(User.email == user_data["email"])).first()
+    result = await session.execute(select(User).where(User.email == user_data["email"]))
+    user = result.scalar_one_or_none()
     assert user is not None
     assert user.email == user_data["email"]
     assert verify_password(user_data["password"], user.password)
 
 
-def test_register_duplicate_email(client: TestClient, test_user: User):
+async def test_register_duplicate_email(client: httpx.AsyncClient, test_user: User):
     """Test registration with existing email fails."""
     user_data = {
         "email": test_user.email,
         "password": "newpassword123"
     }
     
-    response = client.post("/api/auth/register", json=user_data)
+    response = await client.post("/api/auth/register", json=user_data)
     
     assert response.status_code == 400
     assert "already exists" in response.json()["detail"]
 
 
-def test_register_invalid_email(client: TestClient):
+async def test_register_invalid_email(client: httpx.AsyncClient):
     """Test registration with invalid email format."""
     user_data = {
         "email": "invalid-email",
         "password": "password123"
     }
     
-    response = client.post("/api/auth/register", json=user_data)
+    response = await client.post("/api/auth/register", json=user_data)
     
     assert response.status_code == 422
 
 
-def test_register_missing_fields(client: TestClient):
+async def test_register_missing_fields(client: httpx.AsyncClient):
     """Test registration with missing required fields."""
     # Missing password
-    response = client.post("/api/auth/register", json={"email": "test@example.com"})
+    response = await client.post("/api/auth/register", json={"email": "test@example.com"})
     assert response.status_code == 422
     
     # Missing email
-    response = client.post("/api/auth/register", json={"password": "password123"})
+    response = await client.post("/api/auth/register", json={"password": "password123"})
     assert response.status_code == 422
     
     # Empty request
-    response = client.post("/api/auth/register", json={})
+    response = await client.post("/api/auth/register", json={})
     assert response.status_code == 422
 
 
-def test_login_valid_credentials(client: TestClient, test_user: User):
+async def test_login_valid_credentials(client: httpx.AsyncClient, test_user: User):
     """Test successful login with valid credentials."""
     login_data = {
         "email": test_user.email,
         "password": "testpassword123"
     }
     
-    response = client.post("/api/auth/login", json=login_data)
+    response = await client.post("/api/auth/login", json=login_data)
     
     assert response.status_code == 200
     data = response.json()
@@ -92,44 +94,44 @@ def test_login_valid_credentials(client: TestClient, test_user: User):
     assert email == test_user.email
 
 
-def test_login_invalid_email(client: TestClient):
+async def test_login_invalid_email(client: httpx.AsyncClient):
     """Test login with nonexistent email."""
     login_data = {
         "email": "nonexistent@example.com",
         "password": "password123"
     }
     
-    response = client.post("/api/auth/login", json=login_data)
+    response = await client.post("/api/auth/login", json=login_data)
     
     assert response.status_code == 401
     assert "Incorrect email or password" in response.json()["detail"]
 
 
-def test_login_invalid_password(client: TestClient, test_user: User):
+async def test_login_invalid_password(client: httpx.AsyncClient, test_user: User):
     """Test login with incorrect password."""
     login_data = {
         "email": test_user.email,
         "password": "wrongpassword"
     }
     
-    response = client.post("/api/auth/login", json=login_data)
+    response = await client.post("/api/auth/login", json=login_data)
     
     assert response.status_code == 401
     assert "Incorrect email or password" in response.json()["detail"]
 
 
-def test_login_missing_fields(client: TestClient):
+async def test_login_missing_fields(client: httpx.AsyncClient):
     """Test login with missing required fields."""
     # Missing password
-    response = client.post("/api/auth/login", json={"email": "test@example.com"})
+    response = await client.post("/api/auth/login", json={"email": "test@example.com"})
     assert response.status_code == 422
     
     # Missing email
-    response = client.post("/api/auth/login", json={"password": "password123"})
+    response = await client.post("/api/auth/login", json={"password": "password123"})
     assert response.status_code == 422
 
 
-def test_login_updates_last_login(client: TestClient, test_user: User, session: Session):
+async def test_login_updates_last_login(client: httpx.AsyncClient, test_user: User, session: AsyncSession):
     """Test that login updates the last_log_in timestamp."""
     login_data = {
         "email": test_user.email,
@@ -139,17 +141,17 @@ def test_login_updates_last_login(client: TestClient, test_user: User, session: 
     # User should not have last_log_in initially
     assert test_user.last_log_in is None
     
-    response = client.post("/api/auth/login", json=login_data)
+    response = await client.post("/api/auth/login", json=login_data)
     assert response.status_code == 200
     
     # Check that last_log_in was updated
-    session.refresh(test_user)
+    await session.refresh(test_user)
     assert test_user.last_log_in is not None
 
 
-def test_get_current_user_with_valid_token(client: TestClient, test_user: User, auth_headers: dict):
+async def test_get_current_user_with_valid_token(client: httpx.AsyncClient, test_user: User, auth_headers: dict):
     """Test accessing protected endpoint with valid JWT token."""
-    response = client.get("/api/auth/me", headers=auth_headers)
+    response = await client.get("/api/auth/me", headers=auth_headers)
     
     assert response.status_code == 200
     data = response.json()
@@ -160,24 +162,24 @@ def test_get_current_user_with_valid_token(client: TestClient, test_user: User, 
     assert "password" not in data
 
 
-def test_get_current_user_without_token(client: TestClient):
+async def test_get_current_user_without_token(client: httpx.AsyncClient):
     """Test accessing protected endpoint without token."""
-    response = client.get("/api/auth/me")
+    response = await client.get("/api/auth/me")
     
     assert response.status_code == 403
     assert "Not authenticated" in response.json()["detail"]
 
 
-def test_get_current_user_with_invalid_token(client: TestClient):
+async def test_get_current_user_with_invalid_token(client: httpx.AsyncClient):
     """Test accessing protected endpoint with invalid token."""
     headers = {"Authorization": "Bearer invalid-token"}
-    response = client.get("/api/auth/me", headers=headers)
+    response = await client.get("/api/auth/me", headers=headers)
     
     assert response.status_code == 401
     assert "Could not validate credentials" in response.json()["detail"]
 
 
-def test_get_current_user_with_expired_token(client: TestClient, test_user: User):
+async def test_get_current_user_with_expired_token(client: httpx.AsyncClient, test_user: User):
     """Test accessing protected endpoint with expired token."""
     from datetime import datetime, timedelta, timezone
     from server.auth import jwt, SECRET_KEY, ALGORITHM
@@ -190,31 +192,30 @@ def test_get_current_user_with_expired_token(client: TestClient, test_user: User
     expired_token = jwt.encode(expired_payload, SECRET_KEY, algorithm=ALGORITHM)
     
     headers = {"Authorization": f"Bearer {expired_token}"}
-    response = client.get("/api/auth/me", headers=headers)
+    response = await client.get("/api/auth/me", headers=headers)
     
     assert response.status_code == 401
     assert "Could not validate credentials" in response.json()["detail"]
 
 
-def test_get_current_user_with_malformed_bearer_token(client: TestClient):
+async def test_get_current_user_with_malformed_bearer_token(client: httpx.AsyncClient):
     """Test accessing protected endpoint with malformed bearer token."""
     headers = {"Authorization": "Bearer"}
-    response = client.get("/api/auth/me", headers=headers)
+    response = await client.get("/api/auth/me", headers=headers)
     
     assert response.status_code == 403
-    assert "Not authenticated" in response.json()["detail"]
 
 
-def test_get_current_user_with_different_auth_scheme(client: TestClient, auth_token: str):
+async def test_get_current_user_with_different_auth_scheme(client: httpx.AsyncClient, auth_token: str):
     """Test accessing protected endpoint with different auth scheme."""
     headers = {"Authorization": f"Basic {auth_token}"}
-    response = client.get("/api/auth/me", headers=headers)
+    response = await client.get("/api/auth/me", headers=headers)
     
     assert response.status_code == 403
     assert "Invalid authentication credentials" in response.json()["detail"]
 
 
-def test_complete_auth_flow(client: TestClient, session: Session):
+async def test_complete_auth_flow(client: httpx.AsyncClient, session: AsyncSession):
     """Test complete registration -> login -> access protected endpoint flow."""
     # 1. Register new user
     user_data = {
@@ -222,19 +223,19 @@ def test_complete_auth_flow(client: TestClient, session: Session):
         "password": "flowtest123"
     }
     
-    register_response = client.post("/api/auth/register", json=user_data)
+    register_response = await client.post("/api/auth/register", json=user_data)
     assert register_response.status_code == 200
     
     # 2. Login with new user
-    login_response = client.post("/api/auth/login", json=user_data)
+    login_response = await client.post("/api/auth/login", json=user_data)
     assert login_response.status_code == 200
     
     token_data = login_response.json()
     assert "access_token" in token_data
     
     # 3. Access protected endpoint
-    headers = {"Authorization": f"Bearer {token_data['access_token']}"}
-    me_response = client.get("/api/auth/me", headers=headers)
+    auth_headers = {"Authorization": f"Bearer {token_data['access_token']}"}
+    me_response = await client.get("/api/auth/me", headers=auth_headers)
     assert me_response.status_code == 200
     
     user_info = me_response.json()

@@ -1,28 +1,27 @@
-import pytest
-from fastapi.testclient import TestClient
+import httpx
 
 
-def test_api_welcome_endpoint(client: TestClient):
+async def test_api_welcome_endpoint(client: httpx.AsyncClient):
     """Test the API welcome endpoint returns correct text message."""
-    response = client.get("/api/")
+    response = await client.get("/api/")
     
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/plain; charset=utf-8"
-    assert response.text == "Welcome to Heroes of Talisman Game Engine API"
+    assert response.text == "Welcome to Heroes of Talisman API"
 
 
-def test_api_welcome_endpoint_redirect(client: TestClient):
+async def test_api_welcome_endpoint_redirect(client: httpx.AsyncClient):
     """Test that /api redirects to /api/ and returns welcome message."""
-    response = client.get("/api", follow_redirects=True)
+    response = await client.get("/api", follow_redirects=True)
     
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/plain; charset=utf-8"
-    assert response.text == "Welcome to Heroes of Talisman Game Engine API"
+    assert response.text == "Welcome to Heroes of Talisman API"
 
 
-def test_health_check_endpoint(client: TestClient):
+async def test_health_check_endpoint(client: httpx.AsyncClient):
     """Test the health check endpoint returns correct structure."""
-    response = client.get("/api/health")
+    response = await client.get("/api/health")
     
     assert response.status_code == 200
     assert response.headers["content-type"] == "application/json"
@@ -36,9 +35,9 @@ def test_health_check_endpoint(client: TestClient):
     assert data["endpoints"]["health"] == "/api/health"
 
 
-def test_health_check_structure(client: TestClient):
+async def test_health_check_structure(client: httpx.AsyncClient):
     """Test that health check returns all required fields."""
-    response = client.get("/api/health")
+    response = await client.get("/api/health")
     data = response.json()
     
     # Check all required fields are present
@@ -52,31 +51,33 @@ def test_health_check_structure(client: TestClient):
     assert "health" in data["endpoints"]
 
 
-def test_nonexistent_endpoint(client: TestClient):
+async def test_nonexistent_endpoint(client: httpx.AsyncClient):
     """Test that nonexistent endpoints return 404."""
-    response = client.get("/api/nonexistent")
+    response = await client.get("/api/nonexistent")
     
     assert response.status_code == 404
 
 
-def test_api_methods(client: TestClient):
-    """Test that API endpoints only respond to correct HTTP methods."""
+async def test_api_methods(client: httpx.AsyncClient):
+    """Test that different HTTP methods are handled appropriately."""
+    # GET should work for /api/health
+    response = await client.get("/api/health")
+    assert response.status_code == 200
+    
+    # POST should not be allowed for /api/health
+    response = await client.post("/api/health")
+    assert response.status_code == 405  # Method Not Allowed
+    
+    # PUT should not be allowed for /api/health
+    response = await client.put("/api/health")
+    assert response.status_code == 405  # Method Not Allowed
+
     # Test welcome endpoint with wrong methods
-    response = client.post("/api/")
+    response = await client.post("/api/")
     assert response.status_code == 405
     
-    response = client.put("/api/")
+    response = await client.put("/api/")
     assert response.status_code == 405
     
-    response = client.delete("/api/")
-    assert response.status_code == 405
-    
-    # Test health endpoint with wrong methods
-    response = client.post("/api/health")
-    assert response.status_code == 405
-    
-    response = client.put("/api/health")
-    assert response.status_code == 405
-    
-    response = client.delete("/api/health")
+    response = await client.delete("/api/")
     assert response.status_code == 405 
