@@ -3,93 +3,26 @@ Design Guidelines
 
 # Backend
 
+## General
+- remove unused imports to keep code clean
+- organize imports in the following groups, separated by a blank line:
+  1. Python standard library imports (e.g. os, datetime, typing)
+  2. Third-party package imports (e.g. fastapi, sqlmodel, redis)
+  3. Local application imports (e.g. from server.models)
+  4. Module-level imports (e.g. from .utils)
+
+
 ## Technology Stack
 
 - Backend built with **FastAPI** framework in Python
 - Database using **PostgreSQL** with **SQLModel** ORM and **Alembic** migration tool
 - Service orchestration with docker compose
+- JWT-based auth per [FastAPI Security JWT](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/)
 
-
---- Docker Compose
+### Docker Compose
 
 - Each service should include a healthcheck configuration
-
 - Service port numbers should be defined in .env with fallback to standard ports
-
----
-
-## Database
-
-### Tables & Models
-
-1. **users**
-
-   - `email`: str
-   - `password`: str
-   - `last_log_in`: datetime
-   - `created_at`: datetime
-
-2. **games**
-
-   - `id`: str
-   - `name`: str
-   - `data`: jsonb
-   - `last_updated`: datetime
-   - `created`: datetime
-
-### Usage
-
-- database session will be acuiqred with sql async 
-  ```
-  from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-  from sqlalchemy.orm import sessionmaker
-  from contextlib import asynccontextmanager
-
-  engine = create_async_engine("postgresql+asyncpg://user:pass@host/db")
-  SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
-  @asynccontextmanager
-  async def get_session():
-      async with SessionLocal() as session:
-          yield session
-  
-  # than in relevant endpoitns
-  @app.get("/")
-  async def read_data(session: AsyncSession = Depends(get_session)):
-    result = await session.execute(...)
-
-  ```
-
----
-
-## Game Engine
-
-- Implemented as a Python class that manages game logic.
-
-- Constructor:
-
-  ```python
-  def __init__(self, game: Game, user: str)
-  ```
-
-  where `Game` is a **Pydantic** model.
-
-- Execution method:
-
-  ```python
-  def execute(self, action: str, **kwargs)
-  ```
-
-  Logic:
-
-  ```python
-  action_cls = ACTIONS[action]
-  self.game = action_cls(game: GameEngine, user: str).execute(**kwargs)
-  ```
-
-  where `ACTIONS` is a dictionary of available action classes (e.g., `Connect(Action)`).
-
----
 
 ## API Design
 
@@ -97,10 +30,6 @@ Design Guidelines
 - `/api` returns a welcome text message.
 - `/api/health` returns health check response.
 - Other topics use dedicated `APIRouter` in separate files.
-
-### Auth API
-
-- JWT-based auth per [FastAPI Security JWT](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/)
 
 ---
 
@@ -114,11 +43,10 @@ Design Guidelines
   - Game engine processes action and returns updated game state
   - Server persists new game state to database
   - Server broadcasts state change to connected clients
----
 
 # Frontend
 
-## Design Principles
+## Technology Stack
 
 - **npm** as build tool
 - **Lit** for rendering: [https://lit.dev](https://lit.dev)
