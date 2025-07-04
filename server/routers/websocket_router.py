@@ -11,11 +11,11 @@ router = APIRouter()
 #     token: str = Query(..., description="JWT authentication token")
 # ):
 #     """WebSocket endpoint for game connections with JWT authentication.
-    
+
 #     Args:
 #         websocket: WebSocket connection
 #         game_id: Game identifier
 #         user_id: User identifier
 #         token: JWT authentication token passed as query parameter
 #     """
-#     await websocket_endpoint(websocket, game_id, user_id, token) 
+#     await websocket_endpoint(websocket, game_id, user_id, token)

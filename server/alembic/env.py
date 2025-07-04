@@ -43,6 +43,7 @@ def run_migrations_offline() -> None:
 
     """
     from server.database import get_database_url
+
     url = get_database_url()
     context.configure(
         url=url,
@@ -66,9 +67,7 @@ def run_migrations_online() -> None:
     connectable = engine
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

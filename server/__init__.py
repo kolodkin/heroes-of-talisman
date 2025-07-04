@@ -1,1 +1,1 @@
-# Heroes of Talisman - Game Engine Backend 
+# Heroes of Talisman - Game Engine Backend

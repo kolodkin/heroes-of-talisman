@@ -19,7 +19,7 @@ def session_fixture():
         poolclass=StaticPool,
     )
     SQLModel.metadata.create_all(engine)
-    
+
     with Session(engine) as session:
         yield session
 
@@ -27,24 +27,22 @@ def session_fixture():
 @pytest.fixture(name="client")
 def client_fixture(session: Session):
     """Create a test client with database session override."""
+
     def get_session_override():
         return session
 
     app.dependency_overrides[get_session] = get_session_override
-    
+
     with TestClient(app) as test_client:
         yield test_client
-    
+
     app.dependency_overrides.clear()
 
 
 @pytest.fixture(name="test_user")
 def test_user_fixture(session: Session):
     """Create a test user in the database."""
-    user = User(
-        email="test@example.com",
-        password=get_password_hash("testpassword123")
-    )
+    user = User(email="test@example.com", password=get_password_hash("testpassword123"))
     session.add(user)
     session.commit()
     session.refresh(user)
@@ -54,11 +52,7 @@ def test_user_fixture(session: Session):
 @pytest.fixture(name="test_game")
 def test_game_fixture(session: Session):
     """Create a test game in the database."""
-    game = Game(
-        id="test-game-1",
-        name="Test Game",
-        data={"players": [], "status": "waiting"}
-    )
+    game = Game(id="test-game-1", name="Test Game", data={"players": [], "status": "waiting"})
     session.add(game)
     session.commit()
     session.refresh(game)
@@ -75,4 +69,4 @@ def auth_token_fixture(test_user: User):
 @pytest.fixture(name="auth_headers")
 def auth_headers_fixture(auth_token: str):
     """Create authorization headers with JWT token."""
-    return {"Authorization": f"Bearer {auth_token}"} 
+    return {"Authorization": f"Bearer {auth_token}"}

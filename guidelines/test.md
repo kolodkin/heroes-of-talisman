@@ -2,7 +2,7 @@ Test Guidelines
 ===============
 
 # Backend Testing
-- Tests should follow pytest conventions and best practices 
+- Tests should follow pytest conventions and best practices
 - Use descriptive function names, or split tests across multiple files instead of using test classes
 - Testing framework using **pytest** with FastAPI's `TestClient`\
   [FastAPI Testing Guide](https://fastapi.tiangolo.com/tutorial/testing/)

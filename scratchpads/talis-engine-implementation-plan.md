@@ -358,7 +358,7 @@ Complete turn-based card game platform with real-time multiplayer functionality.
 
 ### Unit 11: Testing & Documentation [Production readiness] Status: ⚪ **NOT STARTED**
 
-**Complexity**: SMALL (3 points)  
+**Complexity**: SMALL (3 points)
 **Purpose**: Add comprehensive testing and documentation
 
 **Changes**
@@ -389,4 +389,4 @@ Complete turn-based card game platform with real-time multiplayer functionality.
 
 ## 🚀 Demoable Checkpoint: Production-Ready Platform
 
-Complete turn-based card game platform with testing, documentation, and production readiness. 
+Complete turn-based card game platform with testing, documentation, and production readiness.
