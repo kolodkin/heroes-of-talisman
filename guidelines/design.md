@@ -18,6 +18,7 @@ Design Guidelines
 - Database using **PostgreSQL** with **SQLModel** ORM and **Alembic** migration tool
 - Service orchestration with docker compose
 - JWT-based auth per [FastAPI Security JWT](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/)
+- pre-commit used for keeping code clean
 
 ### Docker Compose
 
@@ -82,4 +83,3 @@ Design Guidelines
 
 - `connect`: Adds user to `game.users` as connected
 - `disconnect`: Marks user as disconnected in `game.users`
-

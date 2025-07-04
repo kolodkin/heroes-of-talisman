@@ -7,4 +7,5 @@ ROOT_DIR=$SCRIPT_DIR/..
 cd $ROOT_DIR
 uv sync
 ./scripts/create_env.sh
+pre-commit install
 docker compose up -d

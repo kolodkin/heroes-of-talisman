@@ -18,6 +18,8 @@ dependencies = [
     "python-multipart>=0.0.12",
     "websockets>=13.1",
     "pydantic[email]>=2.10.3",
+    "pre-commit>=4.2.0",
+    "black>=25.1.0",
 ]
 
 [dependency-groups]
