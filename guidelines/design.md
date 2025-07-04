@@ -49,7 +49,8 @@ Design Guidelines
 
 ## Technology Stack
 
-- **npm** as build tool
+- **npm** as package manager
+- **vite** as build tool and development server
 - **Lit** for rendering: [https://lit.dev](https://lit.dev)
 - **Lit Router** for routing
 - **lit preact-signals** for state management
