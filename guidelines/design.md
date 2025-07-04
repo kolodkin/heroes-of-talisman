@@ -47,6 +47,10 @@ Design Guidelines
 
 # Frontend
 
+## General
+
+- all source files must include a trailing newline character
+
 ## Technology Stack
 
 - **npm** as package manager
