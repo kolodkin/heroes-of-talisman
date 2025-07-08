@@ -21,7 +21,7 @@ echo POSTGRES_HOST=${POSTGRES_HOST:-localhost} >> .env
 echo POSTGRES_USER=${POSTGRES_USER:-postgres} >> .env
 echo POSTGRES_PORT=${POSTGRES_PORT:-5432} >> .env
 echo POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres} >> .env
-echo POSTGRES`_DB=${POSTGRES_DB:-postgres} >> .env
+echo POSTGRES_DB=${POSTGRES_DB:-postgres} >> .env
 
 echo "" >> .env
 echo "# REDIS" >> .env
