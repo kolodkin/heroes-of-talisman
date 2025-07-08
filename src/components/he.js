@@ -2,7 +2,7 @@ const lang = {
     playing: 'משחק',
     disconnected: 'התנתקת מהמשחק',
     waiting_his_turn: 'ממתין לתורו',
-    // game_not_found: `Game '${gamename}' not found. Please check the game name and try again.`,    
+    // game_not_found: `Game '${gamename}' not found. Please check the game name and try again.`,
     stageNames: {
         'character_select': 'בחירת דמות',
         'card_draw': 'שליפת קלף',
@@ -40,16 +40,16 @@ const lang = {
         talisman_desc: 'משמיד (ולא רק מוריד דרגה) את כל מי שהדמות העונדת אותו מביסה (מורידה לה את כל האסימונים).',
     },
     errors:{
-        game_not_found: `המשחק '%s' לא נמצא. בדוק את שם המשחק ונסה שוב.`,   
+        game_not_found: `המשחק '%s' לא נמצא. בדוק את שם המשחק ונסה שוב.`,
         connection_failed: 'נכשל בהתחברות למשחק. נסה שוב מאוחר יותר.',
     },
     notify: {
         connected: 'התחברת למשחק',
         disconnected: 'התתקת מהמשחק',
-        //'Failed to connect to the game. Please try again later.'        
+        //'Failed to connect to the game. Please try again later.'
         leaving_game: 'עוזב משחק',
     },
-        
+
 }
 
 export default lang

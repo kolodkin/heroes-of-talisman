@@ -13,20 +13,20 @@ const ReconnectWebSocket = ({url, onopen, onclose, onmessage, onerror, interval,
 
         ws.onopen = () => {
             retries = 0;
-            onopen();            
+            onopen();
         };
-    
+
         ws.onmessage = (event) => {
             onmessage(event);
         };
-    
+
         ws.onerror = (event) => {
             onerror(event);
         };
-        
+
         ws.onclose = (event) => {
             onclose(closing, retries, event);
-    
+
             if (closing){
                 return;
             }
@@ -38,13 +38,13 @@ const ReconnectWebSocket = ({url, onopen, onclose, onmessage, onerror, interval,
     };
 
     const send = (data) => {
-        if (ws?.readyState === WebSocket.OPEN){            
+        if (ws?.readyState === WebSocket.OPEN){
             ws.send(data);
         }
         else {
             // should never get here, should be handled on upper lair identifiying onopen and onclose
             console.error(`WebSocket is not open, cannot send data - ${data}`);
-        }        
+        }
     }
 
     const close = () => {

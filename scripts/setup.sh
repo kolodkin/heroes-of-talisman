@@ -19,5 +19,8 @@ pre-commit install
 # python -m server.database
 # alembic upgrade head
 
+# install client dependencies
+npm install
+
 # Start the services
 docker compose up -d

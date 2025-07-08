@@ -3,7 +3,10 @@
 
 services:
   server:
-    image: ubuntu:24.04
+    image: ghcr.io/astral-sh/uv:python3.12-bookworm
+    profiles:
+      - server
+      - debug
     ports:
       - 8080:8080
     user: ${MY_UID}:${MY_GID}
@@ -13,8 +16,8 @@ services:
       POSTGRES_HOST: postgres
       REDIS_HOST: redis
     volumes:
-      - /home/$USER/.local:/home/$USER/.local
       - .:${PWD}
+      - ./docker/.venv:${PWD}/.venv
     working_dir: "${PWD}"
     command: ["/bin/bash", "-c", "source .venv/bin/activate && python -m uvicorn server.main:app --reload"]
     depends_on:
@@ -53,6 +56,9 @@ services:
 
   www-dev:
     image: node:${MY_NODE}
+    profiles:
+      - client
+      - debug
     restart: unless-stopped
     network_mode: "host"
     volumes:
