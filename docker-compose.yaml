@@ -22,29 +22,29 @@ services:
       - redis
     restart: unless-stopped
 
-  # postgres:
-  #   # https://hub.docker.com/_/postgres
-  #   image: postgres:17.3
-  #   # volumes:
-  #   #   - postgres:/var/lib/postgresql/data:Z
-  #   ports:
-  #     - 5432:5432
-  #   environment:
-  #     POSTGRES_USER: ${POSTGRES_USER:-postgres}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -d postgres -U $${POSTGRES_PASSWORD:-postgres}"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  postgres:
+    # https://hub.docker.com/_/postgres
+    image: postgres:17.5
+    # volumes:
+    #   - postgres:/var/lib/postgresql/data:Z
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d postgres -U $${POSTGRES_PASSWORD:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     # https://hub.docker.com/_/redis
     image: redis:7.4.2
     restart: unless-stopped
     ports:
-      - 6379:6379
+      - ${REDIS_PORT:-6379}:6379
     command: redis-server --loglevel warning
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis}
