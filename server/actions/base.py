@@ -57,5 +57,5 @@ class Action(ABC):
             raise ReportedException(f"Invalid action. (wrong stage '{self.stage}')")
 
     @abstractmethod
-    def run(self) -> GameModel:
+    def run(self, *args, **kwargs) -> GameModel:
         """Execute the action and return the updated game."""
