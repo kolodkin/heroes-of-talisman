@@ -31,6 +31,7 @@ class ConnectAction(Action):
             self.game.playing = self.user
 
         self.player.status = "connected"
+        return self.game
 
 
 class LeaveAction(Action):
@@ -39,8 +40,10 @@ class LeaveAction(Action):
             raise GameException("Player not in game")
 
         self.players.pop(self.user)
+        return self.game
 
 
 class DisconnectAction(Action):
     def run(self) -> GameModel:
         self.player.status = "disconnected"
+        return self.game
