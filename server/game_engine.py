@@ -1,5 +1,8 @@
 import json
 import random
+from typing import Any, Dict, Optional
+
+from pydantic import BaseModel, Field
 
 
 class GameException(Exception):
@@ -21,19 +24,16 @@ def shuffled_deck():
     return deck
 
 
-__DEFAULT_GAME__ = {
-    "stage": None,
-    # None ->
-    # [character_select] ->
-    # [card_draw] ->
-    # [use_skill] -> [battle] ->
-    # [character_select]
-    "stage_meta": None,  # stage meta data
-    "deck": shuffled_deck(),  # deck of cards
-    "playing": None,  # username
-    "selected_character": None,  # current round selected character
-    "players": {},
-}
+class GameModel(BaseModel):
+    stage: Optional[str] = None
+    stage_meta: Optional[Dict[str, Any]] = None
+    deck: list[str] = Field(default_factory=shuffled_deck)
+    playing: Optional[str] = None
+    selected_character: Optional[str] = None
+    players: Dict[str, Any] = Field(default_factory=dict)
+
+
+__DEFAULT_GAME__ = GameModel()
 
 
 TraitDB = {
@@ -57,7 +57,7 @@ TraitDB = {
 
 
 class GameEngine:
-    def __init__(self, gamename: str, username: str, game: dict):
+    def __init__(self, gamename: str, username: str, game: GameModel):
         self._gamename = gamename
         self._username = username
 
@@ -65,7 +65,7 @@ class GameEngine:
         self._game = game
 
     def dumps(self):
-        return json.dumps(self.game)
+        return self.game.model_dump_json()
 
     @property
     def gamename(self):
@@ -80,48 +80,48 @@ class GameEngine:
         return self._redis
 
     @property
-    def game(self: str):
+    def game(self) -> GameModel:
         return self._game
 
     @property
     def players(self):
-        return self.game["players"]
+        return self.game.players
 
     @property
     def playing(self):
-        return self.game["playing"]
+        return self.game.playing
 
     @property
     def stage(self):
-        return self.game["stage"]
+        return self.game.stage
 
     @stage.setter
     def stage(self, value):
-        self.game["stage"] = value
+        self.game.stage = value
 
     @property
     def stage_meta(self):
-        return self.game["stage_meta"]
+        return self.game.stage_meta
 
     @stage_meta.setter
     def stage_meta(self, value):
-        self.game["stage_meta"] = value
+        self.game.stage_meta = value
 
     @property
     def selected_character(self):
-        return self.game["selected_character"]
+        return self.game.selected_character
 
     @selected_character.setter
     def selected_character(self, value):
-        self.game["selected_character"] = value
+        self.game.selected_character = value
 
     @property
     def deck(self):
-        return self.game["deck"]
+        return self.game.deck
 
     @deck.setter
     def deck(self, value):
-        self.game["deck"] = value
+        self.game.deck = value
 
     @property
     def player(self):
@@ -214,7 +214,7 @@ class GameEngine:
 
         # Remove the selected card from the deck
         self.deck.remove(card)
-        if len(self.game["deck"]) == 0:
+        if len(self.deck) == 0:
             self.deck = shuffled_deck()
 
         # Update Stage -> use_skill
@@ -231,8 +231,8 @@ class GameEngine:
         if self.playing is None:
             # game not started, set playing to current player and initial stage
             if self.stage is None:
-                self.game["stage"] = "character_select"
-            self.game["playing"] = self.username
+                self.game.stage = "character_select"
+            self.game.playing = self.username
 
         self.player["status"] = "connected"
 

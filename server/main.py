@@ -12,7 +12,7 @@ import uvicorn
 from redis.asyncio import Redis
 
 from .env import REDIS_HOST, REDIS_PORT
-from .game_engine import __DEFAULT_GAME__, GameEngine
+from .game_engine import __DEFAULT_GAME__, GameEngine, GameModel
 
 logger = logging.getLogger("uvicorn")
 
@@ -59,7 +59,7 @@ async def add_game(new_game: Game):
         raise HTTPException(status_code=400, detail="Game already exists")
 
     await redis_client.rpush("games", new_game.name)
-    await redis_client.set(f"game:{new_game.name}", json.dumps(__DEFAULT_GAME__))
+    await redis_client.set(f"game:{new_game.name}", __DEFAULT_GAME__.model_dump_json())
 
     return {"message": "Game added successfully"}
 
@@ -86,7 +86,7 @@ async def reset_game(gamename: str):
     if not await redis_client.exists(redis_meta.key):
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
 
-    await redis_client.set(redis_meta.key, json.dumps(__DEFAULT_GAME__))
+    await redis_client.set(redis_meta.key, __DEFAULT_GAME__.model_dump_json())
     await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
 
     return {"message": "Game reset successfully"}
@@ -117,11 +117,11 @@ async def from_redis(redis: Redis, redis_meta: RedisMeta) -> "GameEngine":
     if game is None:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
 
-    game = json.loads(game)
+    game_model = GameModel.model_validate_json(game)
     if redis_meta.username is None:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="missing username")
 
-    return GameEngine(redis_meta.gamename, redis_meta.username, game)
+    return GameEngine(redis_meta.gamename, redis_meta.username, game_model)
 
 
 async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta):
@@ -135,7 +135,7 @@ async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta):
                 await websocket.send_json(
                     {
                         "event": "game_update",
-                        "game": game_engine.game,
+                        "game": game_engine.game.model_dump(),
                     }
                 )
             else:
