@@ -12,6 +12,9 @@ uv sync
 # Create environment variables
 ./scripts/create_env.sh
 
+# Activate virtual environment
+source .venv/bin/activate
+
 # Install pre-commit hooks
 pre-commit install
 
