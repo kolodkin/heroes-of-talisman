@@ -24,13 +24,28 @@ def shuffled_deck():
     return deck
 
 
+class CharacterModel(BaseModel):
+    health: int
+    level: int
+    max_health: int
+    skills: Dict[str, Any] = Field(default_factory=dict)
+    dice: int
+    attack: Optional[int] = None  # Only knight has attack
+
+
+class PlayerModel(BaseModel):
+    status: str = "connected"
+    cards: list[str] = Field(default_factory=list)
+    characters: Dict[str, CharacterModel] = Field(default_factory=dict)
+
+
 class GameModel(BaseModel):
     stage: Optional[str] = None
     stage_meta: Optional[Dict[str, Any]] = None
     deck: list[str] = Field(default_factory=shuffled_deck)
     playing: Optional[str] = None
     selected_character: Optional[str] = None
-    players: Dict[str, Any] = Field(default_factory=dict)
+    players: Dict[str, PlayerModel] = Field(default_factory=dict)
 
 
 __DEFAULT_GAME__ = GameModel()
@@ -130,27 +145,21 @@ class GameEngine:
         return self.players[self.username]
 
     def add_new_player(self, username: str):
-        self.players[username] = {
-            "status": "connected",
-            "cards": [],
-            "characters": {
-                "knight": {
-                    "health": 2,
-                    "level": 1,
-                    **TraitDB["knight-1"],
-                },
-                "archer": {
-                    "health": 3,
-                    "level": 1,
-                    **TraitDB["archer-1"],
-                },
-                "mage": {
-                    "health": 2,
-                    "level": 1,
-                    **TraitDB["mage-1"],
-                },
-            },
-        }
+        characters = {}
+        for char_type in ["knight", "archer", "mage"]:
+            trait_key = f"{char_type}-1"
+            trait_data = TraitDB[trait_key]
+
+            characters[char_type] = CharacterModel(
+                health=trait_data["max_health"],
+                level=1,
+                max_health=trait_data["max_health"],
+                skills=trait_data.get("skills", {}),
+                dice=trait_data["dice"],
+                attack=trait_data.get("attack"),  # Only knight has this
+            )
+
+        self.players[username] = PlayerModel(status="connected", cards=[], characters=characters)
 
     def run_action(self, action: dict, *args, **kwargs):
         if not hasattr(self, f"action_{action}"):
@@ -181,7 +190,7 @@ class GameEngine:
     def action_character_select(self, character: str = None):
         self.assert_stage("character_select")
 
-        if character is not None and character not in self.player["characters"]:
+        if character is not None and character not in self.player.characters:
             raise ReportedException("Invalid action. (character not found)")
 
         # Stage Meta Update
@@ -190,7 +199,7 @@ class GameEngine:
     def action_character_selected(self, character: str):
         self.assert_stage("character_select")
 
-        if character not in self.player["characters"]:
+        if character not in self.player.characters:
             raise ReportedException("Invalid action. (character not found)")
 
         self.selected_character = character
@@ -234,7 +243,7 @@ class GameEngine:
                 self.game.stage = "character_select"
             self.game.playing = self.username
 
-        self.player["status"] = "connected"
+        self.player.status = "connected"
 
     def action_leave(self):
         if self.username not in self.players:
@@ -243,4 +252,4 @@ class GameEngine:
         self.players.pop(self.username)
 
     def action_disconnect(self):
-        self.player["status"] = "disconnected"
+        self.player.status = "disconnected"
