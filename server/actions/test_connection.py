@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 
 from .connection import ConnectAction, LeaveAction, DisconnectAction
-from ..models import GameModel, PlayerModel, CharacterModel, GameException, ReportedException
+from .models import GameModel, PlayerModel, CharacterModel, GameException, ReportedException
 
 
 @pytest.fixture

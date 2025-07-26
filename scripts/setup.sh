@@ -20,7 +20,7 @@ pre-commit install
 
 # Run database migrations
 # python -m server.database
-# alembic upgrade head
+alembic upgrade head
 
 # install client dependencies
 npm install

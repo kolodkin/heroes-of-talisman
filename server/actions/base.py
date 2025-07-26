@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-from ..models import GameModel, PlayerModel, GameException, ReportedException
+from .models import GameModel, PlayerModel, GameException, ReportedException
 
 
 class Action(ABC):

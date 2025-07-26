@@ -1,7 +1,7 @@
 from typing import Optional
 
 from .base import Action
-from ..models import GameModel, ReportedException, shuffled_deck
+from .models import GameModel, ReportedException, shuffled_deck
 
 
 class CardDrawAction(Action):

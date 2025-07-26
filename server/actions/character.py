@@ -2,7 +2,7 @@ import random
 from typing import Optional
 
 from .base import Action
-from ..models import GameModel, ReportedException
+from .models import GameModel, ReportedException
 
 
 class CharacterSelectAction(Action):
