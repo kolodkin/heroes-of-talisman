@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 
 from .character import CharacterSelectAction, CharacterSelectedAction
-from ..models import GameModel, PlayerModel, CharacterModel, ReportedException
+from .models import GameModel, PlayerModel, CharacterModel, ReportedException
 
 
 @pytest.fixture

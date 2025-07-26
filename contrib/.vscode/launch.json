@@ -49,6 +49,13 @@
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "justMyCode": true
+        },
+        {
+            "name": "Alembic",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "alembic",
+            "args": ["upgrade", "head"],
         }
     ]
 }

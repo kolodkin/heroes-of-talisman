@@ -1,7 +1,7 @@
 import pytest
 
 from .base import Action
-from ..models import GameModel, PlayerModel, CharacterModel, GameException, ReportedException
+from .models import GameModel, PlayerModel, CharacterModel, GameException, ReportedException
 
 
 class ConcreteAction(Action):

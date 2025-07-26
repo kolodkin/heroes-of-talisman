@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 
 from .card import CardDrawAction, CardSelectAction
-from ..models import GameModel, PlayerModel, CharacterModel, ReportedException
+from .models import GameModel, PlayerModel, CharacterModel, ReportedException
 
 
 @pytest.fixture

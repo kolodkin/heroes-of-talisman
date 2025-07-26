@@ -1,7 +1,7 @@
 from typing import Dict
 
 from .base import Action
-from ..models import GameModel, GameException, ReportedException, PlayerModel, CharacterModel, TraitDB, __MAX_PLAYERS__
+from .models import GameModel, GameException, ReportedException, PlayerModel, CharacterModel, TraitDB, __MAX_PLAYERS__
 
 
 class ConnectAction(Action):
