@@ -34,3 +34,8 @@ done
 echo "Postgres is ready."
 
 alembic upgrade head
+# Migrate test database
+echo "Migrating test database..."
+docker compose exec -T postgres psql -U "${POSTGRES_USER:-postgres}" -c "DROP DATABASE IF EXISTS test_db;"
+docker compose exec -T postgres psql -U "${POSTGRES_USER:-postgres}" -c "CREATE DATABASE test_db;"
+DB_URL=postgresql://postgres:postgres@localhost:5432/test_db alembic upgrade head

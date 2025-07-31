@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from sqlmodel import SQLModel, Field
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP
 from sqlalchemy import event
 
 
@@ -15,11 +15,11 @@ class Game(SQLModel, table=True):
 
     id: int = Field(default=None, primary_key=True)
     name: str = Field(unique=True)
-    data: Optional[bytes] = Field(default=None, sa_type=JSONB, nullable=True)
+    data: Optional[dict] = Field(default=None, sa_type=JSONB, nullable=True)
     chat: Optional[dict] = Field(default={}, sa_type=JSONB)
 
-    created_at: datetime = Field(default_factory=utc_now)
-    updated_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(default_factory=utc_now, sa_type=TIMESTAMP(timezone=True))
+    updated_at: datetime = Field(default_factory=utc_now, sa_type=TIMESTAMP(timezone=True))
 
 
 # Auto-update `updated_at` on update
