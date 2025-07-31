@@ -3,16 +3,21 @@ import asyncio
 import json
 from http import HTTPStatus
 
-from fastapi import APIRouter, FastAPI, WebSocket, HTTPException, WebSocketDisconnect
+from fastapi import APIRouter, FastAPI, WebSocket, HTTPException, WebSocketDisconnect, Depends
 
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.responses import PlainTextResponse
 import uvicorn
 from redis.asyncio import Redis
+from sqlmodel import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .env import REDIS_HOST, REDIS_PORT
-from .game_engine import __DEFAULT_GAME__, GameEngine, GameModel
+from .game_engine import GameEngine
+from .actions.models import __DEFAULT_GAME__, GameModel
+from .models import Game as GameTable
+from .database import get_db, AsyncSessionLocal
 
 logger = logging.getLogger("uvicorn")
 
@@ -32,7 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Redis client
+# Initialize Redis client (for pub/sub only)
 redis_client = Redis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}")
 
 
@@ -51,50 +56,72 @@ class Game(BaseModel):
 
 
 @router.post("/")
-async def add_game(new_game: Game):
+async def add_game(new_game: Game, session: AsyncSession = Depends(get_db)):
     if len(new_game.name) == 0:
         raise HTTPException(status_code=400, detail="Game name cannot be empty")
 
-    if await redis_client.exists(f"game:{new_game.name}"):
+    # Check if game already exists
+    result = await session.execute(select(GameTable).where(GameTable.name == new_game.name))
+    existing_game = result.scalar_one_or_none()
+
+    if existing_game:
         raise HTTPException(status_code=400, detail="Game already exists")
 
-    await redis_client.rpush("games", new_game.name)
-    await redis_client.set(f"game:{new_game.name}", __DEFAULT_GAME__.model_dump_json())
+    # Create new game with default data
+    game_data = __DEFAULT_GAME__.model_dump()
+    db_game = GameTable(name=new_game.name, data=game_data)
+
+    session.add(db_game)
+    await session.commit()
 
     return {"message": "Game added successfully"}
 
 
 @router.get("/")
-async def get_games():
-    games = await redis_client.lrange("games", 0, -1)
-    return [game.decode("utf-8") for game in games]
+async def get_games(session: AsyncSession = Depends(get_db)):
+    result = await session.execute(select(GameTable.name))
+    games = result.scalars().all()
+    return list(games)
 
 
 @router.delete("/{gamename}")
-async def delete_game(gamename: str):
-    if not await redis_client.exists(f"game:{gamename}"):
+async def delete_game(gamename: str, session: AsyncSession = Depends(get_db)):
+    result = await session.execute(select(GameTable).where(GameTable.name == gamename))
+    game = result.scalar_one_or_none()
+
+    if not game:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
-    await redis_client.lrem("games", 0, gamename)
-    await redis_client.delete(f"game:{gamename}")
+
+    await session.delete(game)
+    await session.commit()
     return {"message": "Game deleted successfully"}
 
 
 @router.post("/{gamename}/reset")
-async def reset_game(gamename: str):
+async def reset_game(gamename: str, session: AsyncSession = Depends(get_db)):
     redis_meta = RedisMeta(gamename)
 
-    if not await redis_client.exists(redis_meta.key):
+    result = await session.execute(select(GameTable).where(GameTable.name == gamename))
+    game = result.scalar_one_or_none()
+
+    if not game:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
 
-    await redis_client.set(redis_meta.key, __DEFAULT_GAME__.model_dump_json())
+    # Reset game data to default
+    game.data = __DEFAULT_GAME__.model_dump()
+    await session.commit()
+
+    # Notify connected clients
     await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
 
     return {"message": "Game reset successfully"}
 
 
 @app.post("/check-game-name")
-async def check_game_name(game: Game):
-    is_unique = not await redis_client.exists(f"game:{game.name}")
+async def check_game_name(game: Game, session: AsyncSession = Depends(get_db)):
+    result = await session.execute(select(GameTable).where(GameTable.name == game.name))
+    existing_game = result.scalar_one_or_none()
+    is_unique = existing_game is None
     return {"isUnique": is_unique}
 
 
@@ -112,26 +139,28 @@ class RedisMeta:
         return f"game:{self.gamename}"
 
 
-async def from_redis(redis: Redis, redis_meta: RedisMeta) -> "GameEngine":
-    game = await redis.get(redis_meta.key)
+async def from_database(session: AsyncSession, redis_meta: RedisMeta) -> "GameEngine":
+    result = await session.execute(select(GameTable).where(GameTable.name == redis_meta.gamename))
+    game = result.scalar_one_or_none()
+
     if game is None:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
 
-    game_model = GameModel.model_validate_json(game)
+    game_model = GameModel.model_validate(game.data)
     if redis_meta.username is None:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="missing username")
 
     return GameEngine(redis_meta.gamename, redis_meta.username, game_model)
 
 
-async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta):
+async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta, session: AsyncSession):
     pubsub = redis_client.pubsub()
     await pubsub.subscribe(redis_meta.channel)
     async for message in pubsub.listen():
         if message["type"] == "message":
             data = json.loads(message["data"])
             if data["event"] == "game_update":
-                game_engine = await from_redis(redis_client, redis_meta)
+                game_engine = await from_database(session, redis_meta)
                 await websocket.send_json(
                     {
                         "event": "game_update",
@@ -142,7 +171,7 @@ async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta):
                 logger.warning(f"Unknown event: {data}")
 
 
-async def actions_loop(websocket: WebSocket, redis: Redis, redis_meta: RedisMeta):
+async def actions_loop(websocket: WebSocket, session: AsyncSession, redis_meta: RedisMeta):
     while True:
         action = await websocket.receive_text()
         action = json.loads(action)
@@ -150,7 +179,7 @@ async def actions_loop(websocket: WebSocket, redis: Redis, redis_meta: RedisMeta
 
         success = False
         try:
-            game_engine = await from_redis(redis, redis_meta)
+            game_engine = await from_database(session, redis_meta)
             game_engine.action(action)
             success = True
         except Exception as e:
@@ -161,7 +190,14 @@ async def actions_loop(websocket: WebSocket, redis: Redis, redis_meta: RedisMeta
             continue
 
         logger.info(f"Sending game state to user '{game_engine.username}'")
-        await redis_client.set(redis_meta.key, game_engine.dumps())
+
+        # Save to database
+        result = await session.execute(select(GameTable).where(GameTable.name == redis_meta.gamename))
+        game = result.scalar_one()
+        game.data = game_engine.game.model_dump()
+        await session.commit()
+
+        # Notify connected clients
         await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
 
 
@@ -171,22 +207,36 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
 
     await websocket.accept()
 
-    if not await redis_client.exists(redis_meta.key):
-        await websocket.send_json({"error": "Game not found"})
-        await websocket.close()
-        return
+    # Check if game exists in database
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(select(GameTable).where(GameTable.name == gamename))
+        game = result.scalar_one_or_none()
+
+        if not game:
+            await websocket.send_json({"error": "Game not found"})
+            await websocket.close()
+            return
 
     logger.info(f"Connection to game {gamename} established for user {username}")
     try:
-        await asyncio.gather(
-            game_update_loop(websocket, redis_meta),
-            actions_loop(websocket, redis_client, redis_meta),
-        )
+        async with AsyncSessionLocal() as session:
+            await asyncio.gather(
+                game_update_loop(websocket, redis_meta, session),
+                actions_loop(websocket, session, redis_meta),
+            )
     except WebSocketDisconnect:
-        game_engine = await from_redis(redis_client, redis_meta)
-        game_engine.run_action("disconnect")
-        await redis_client.set(redis_meta.key, game_engine.dumps())
-        await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
+        async with AsyncSessionLocal() as session:
+            game_engine = await from_database(session, redis_meta)
+            game_engine.run_action("disconnect")
+
+            # Save to database
+            result = await session.execute(select(GameTable).where(GameTable.name == redis_meta.gamename))
+            game = result.scalar_one()
+            game.data = game_engine.game.model_dump()
+            await session.commit()
+
+            # Notify connected clients
+            await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
 
         logger.info(f"Client '{username}' disconnected from game '{gamename}'")
     finally:
