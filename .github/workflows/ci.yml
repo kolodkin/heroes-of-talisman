@@ -16,20 +16,16 @@ jobs:
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
-        healthcheck:
-          test: ["CMD", "pg_isready", "-U", "postgres"]
-          interval: 10s
-          timeout: 5s
-          retries: 5
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=10s
+          --health-timeout=5s --health-retries=5
       redis:
         image: redis:7.4.2
         ports:
           - 6379:6379
-        healthcheck:
-          test: ["CMD", "redis-cli", "ping"]
-          interval: 10s
-          timeout: 5s
-          retries: 5
+        options: >-
+          --health-cmd="redis-cli ping" --health-interval=10s
+          --health-timeout=5s --health-retries=5
 
     steps:
       - uses: actions/checkout@v4
