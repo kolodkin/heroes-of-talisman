@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # C extensions
 *.so
 
@@ -205,4 +210,3 @@ dist-ssr
 *.tmp*
 
 test-results/
-

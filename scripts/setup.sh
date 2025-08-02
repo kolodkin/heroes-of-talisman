@@ -6,6 +6,11 @@ ROOT_DIR=$SCRIPT_DIR/..
 
 cd $ROOT_DIR
 
+if ! command -v docker >/dev/null 2>&1; then
+  echo "docker not installed"
+  exit 1
+fi
+
 # Install dependencies
 uv sync
 
@@ -22,10 +27,10 @@ pre-commit install
 npm install
 
 # Start the services
-docker compose up -d
+echo "Starting services with docker..."
+
 
 # Run database migrations
-# python -m server.database
 # Wait for postgres to be up
 echo "Waiting for postgres to be ready..."
 until docker compose exec -T postgres pg_isready -U "${POSTGRES_USER:-postgres}" > /dev/null 2>&1; do
