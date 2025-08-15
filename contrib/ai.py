@@ -78,8 +78,6 @@ def convert_md_to_mdc(ai_files: List[Path], root_dir: Path) -> List[Tuple[Path, 
                 write_tidy(outfile, line)
         output_path = cursor_rules_dir / output_name
 
-        # Copy content and convert extension
-        shutil.copy2(ai_file, output_path)
         # Ensure single trailing newline
         ensure_single_newline_at_eof(output_path)
         conversions.append((ai_file, output_path))
