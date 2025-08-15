@@ -7,9 +7,11 @@ ROOT_DIR=$SCRIPT_DIR/..
 cd $ROOT_DIR
 
 if ! command -v docker >/dev/null 2>&1; then
-  echo "docker not installed"
+  echo "docker not installed, exiting..."
   exit 1
 fi
+
+docker compose up -d
 
 # Install dependencies
 uv sync
@@ -28,7 +30,6 @@ npm install
 
 # Start the services
 echo "Starting services with docker..."
-
 
 # Run database migrations
 # Wait for postgres to be up
