@@ -37,15 +37,15 @@ jobs:
       - name: Install uv
         run: pip install uv
 
-      - name: Install Python dependencies
-        run: uv sync
-
       - name: Create test database
         run: |
           sudo apt-get update && sudo apt-get install -y postgresql-client
           psql -h localhost -U postgres -c "CREATE DATABASE test_db;" || true
         env:
           PGPASSWORD: postgres
+
+      - name: Install Python dependencies
+        run: uv sync
 
       - name: Run backend tests
         run: uv run pytest -v
