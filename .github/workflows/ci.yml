@@ -58,7 +58,6 @@ jobs:
           REDIS_HOST: localhost
           REDIS_PORT: 6379
           REDIS_PASSWORD: redis
-          PYTHONPATH: ${{ github.workspace }
 
   test-e2e:
     # timeout-minutes: 60
