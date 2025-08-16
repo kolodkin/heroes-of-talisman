@@ -37,7 +37,7 @@ uv sync
 # Create environment variables
 ./scripts/create_env.sh
 
-# Install pre-commit hooks
+# Install python pre-commit hooks
 uv run pre-commit install
 uv run pre-commit run --files "$0" # installs pre-commit hooks
 
@@ -45,6 +45,8 @@ uv run pre-commit run --files "$0" # installs pre-commit hooks
 npm install
 npx playwright install --with-deps chromium
 
+# Install npm git hooks for frontend
+npx simple-git-hooks
 
 # Run database migrations
 # Wait for postgres to be up
