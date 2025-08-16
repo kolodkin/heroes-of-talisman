@@ -65,6 +65,17 @@ The engine expects a JSON game state as defined in backend "server/action/models
 - **Turn Indicators**: Visual cues for active player
 - **Player Statistics**: Score, remaining cards, status
 
+### Multiplayer Layout
+
+- **Center-focused Design**: SharedArea is always positioned in the center of the game board
+- **Clockwise Player Arrangement**: PlayerHands are arranged clockwise around the SharedArea
+  - User's PlayerHand is always positioned at the bottom
+  - Other players are positioned clockwise from the user's position
+  - In two-player games: second player is positioned on top (opposite the user)
+  - In multi-player games: positions adjust dynamically based on the number of players
+- **Spatial Awareness**: Layout provides clear visual hierarchy of game elements
+- **Consistent Orientation**: Maintains the same arrangement regardless of game state
+
 ### Responsive Design
 
 - **Adaptive Layouts**: Adjusts to different screen sizes
@@ -81,4 +92,4 @@ The engine expects a JSON game state as defined in backend "server/action/models
 
 ## State and API Integration
 
-Game State and API interactions are handled within the 'src/components/Game.jsx' component.
+Game State and API interactions are handled within the 'src/components/GameHandler.jsx' component wrapping 'src/components/Game.jsx'
