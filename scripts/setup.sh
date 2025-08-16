@@ -42,6 +42,8 @@ uv run pre-commit install
 
 # install client dependencies
 npm install
+npx playwright install --with-deps chromium
+
 
 # Run database migrations
 # Wait for postgres to be up

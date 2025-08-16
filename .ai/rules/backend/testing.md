@@ -24,3 +24,17 @@ class TestCharacter:  # Don't do this
     def test_creation(self):
         pass
 ```
+
+## Running Tests
+- To run all tests, use:
+  ```
+  uv run pytest
+  ```
+- To run tests in a specific file, use:
+  ```
+  uv run pytest <filename>
+  ```
+- To run a specific test function in a file, use:
+  ```
+  uv run pytest <filename>::<testname>
+  ```

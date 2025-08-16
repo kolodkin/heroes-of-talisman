@@ -46,7 +46,7 @@ def find_ai_markdown_files(root_dir: Path) -> List[Path]:
     if not ai_dir.exists():
         return []
 
-    return list(ai_dir.rglob("*.md"))
+    return list(sorted(ai_dir.rglob("*.md")))
 
 
 def convert_md_to_mdc(ai_files: List[Path], root_dir: Path) -> List[Tuple[Path, Path]]:
