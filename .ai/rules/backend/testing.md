@@ -1,6 +1,6 @@
-# Testing Guidelines
+# Backend Tests
 
-## Backend Tests
+## Guidelines
 - Use pytest for all backend tests
 - Avoid using classes for grouping tests
 - Prefer function-based tests over class-based test organization

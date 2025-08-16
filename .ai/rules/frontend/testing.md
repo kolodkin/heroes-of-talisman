@@ -1,5 +1,9 @@
 # Frontend Testing
 
+## Guidelines
+
+- In `basic.spec.js` tests, capture a screenshot after every view change.
+
 ## Running tests
 
 - All frontend end-to-end and integration tests are run using [Playwright](https://playwright.dev/).
