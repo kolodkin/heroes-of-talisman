@@ -1,9 +1,3 @@
----
-description: Testing guidelines for Heroes of Talisman backend
-globs: ["server/**/test*.py"]
-alwaysApply: false
----
-
 # Testing Guidelines
 
 ## Backend Tests
