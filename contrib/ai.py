@@ -7,7 +7,6 @@ to CLAUDE.md and AGENTS.md files in the project root.
 """
 
 import os
-import shutil
 from pathlib import Path
 from typing import List, Tuple
 import sys
@@ -43,7 +42,7 @@ def ensure_single_newline_at_eof(path: Path) -> None:
 
 def find_ai_markdown_files(root_dir: Path) -> List[Path]:
     """Find all .md files in .ai directory and subdirectories."""
-    ai_dir = root_dir / ".rules" / ".ai"
+    ai_dir = root_dir / ".ai" / "rules"
     if not ai_dir.exists():
         return []
 
