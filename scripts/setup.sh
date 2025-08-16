@@ -9,6 +9,14 @@ cd $ROOT_DIR
 # check for docker command
 docker_installed=$(command -v docker >/dev/null 2>&1 && echo "true" || echo "false")
 
+# Parse --no-docker flag
+for arg in "$@"; do
+  if [ "$arg" = "--no-docker" ]; then
+    docker_installed=false
+  fi
+done
+
+
 if [ "$docker_installed" = "true" ]; then
   echo "Starting services with docker"
   docker compose up -d
