@@ -43,7 +43,7 @@ def ensure_single_newline_at_eof(path: Path) -> None:
 
 def find_ai_markdown_files(root_dir: Path) -> List[Path]:
     """Find all .md files in .ai directory and subdirectories."""
-    ai_dir = root_dir / ".ai"
+    ai_dir = root_dir / ".rules" / ".ai"
     if not ai_dir.exists():
         return []
 
