@@ -42,4 +42,4 @@ echo "Postgres is ready."
 uv run alembic upgrade head
 
 # AI instructions conversion
-uv run contrib/ai.py
+uv run scripts/ai.py

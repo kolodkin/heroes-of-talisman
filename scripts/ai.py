@@ -93,8 +93,8 @@ def concatenate_ai_markdown(ai_files: List[Path], root_dir: Path, output_filenam
     out_path = root_dir / output_filename
 
     with open(out_path, "w", encoding="utf-8") as outfile:
-        write_tidy(outfile, "# AI Documentation\n\n")
-        write_tidy(outfile, "This file contains concatenated documentation from .ai/ directory.\n\n")
+        write_tidy(outfile, "# Agents Documentation\n")
+        write_tidy(outfile, "This file contains agents guidlines.\n\n")
 
         for ai_file in ai_files:
             relative_path = ai_file.relative_to(root_dir)
