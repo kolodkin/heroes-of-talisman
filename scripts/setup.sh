@@ -10,7 +10,7 @@ cd $ROOT_DIR
 docker_installed=$(command -v docker >/dev/null 2>&1 && echo "true" || echo "false")
 
 if [ "$docker_installed" = "true" ]; then
-  echo "docker installed"
+  echo "Starting services with docker"
   docker compose up -d
 else
   echo "docker not installed"
@@ -34,9 +34,6 @@ uv run pre-commit install
 
 # install client dependencies
 npm install
-
-# Start the services
-echo "Starting services with docker..."
 
 # Run database migrations
 # Wait for postgres to be up
