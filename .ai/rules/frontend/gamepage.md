@@ -50,10 +50,8 @@ The engine expects a JSON game state as defined in backend "server/action/models
 
 ### Deck Management
 
-- **Multiple Deck Types**: Hand, draw pile, discard pile, custom decks
-- **Flexible Layouts**: Stack, fan spread, grid arrangement
+- **Flexible Layouts**: Stack, grid arrangement
 - **Visibility Controls**: Face-up/face-down rendering
-- **Size Limits**: Configurable maximum deck sizes
 
 ### Card Interactions
 
@@ -76,89 +74,11 @@ The engine expects a JSON game state as defined in backend "server/action/models
 
 ## Implementation Details
 
-### State Management
-
-```javascript
-// Using React Context for global game state
-const GameStateContext = createContext();
-
-// Custom hook for accessing game state
-const useGameState = () => {
-  const context = useContext(GameStateContext);
-  if (!context) {
-    throw new Error("useGameState must be used within GameStateProvider");
-  }
-  return context;
-};
-```
-
-### Card Rendering Logic
-
-```javascript
-// Card component with conditional rendering
-const Card = ({ card, onClick }) => {
-  const cardClass = `card ${card.faceUp ? "face-up" : "face-down"}
-                     ${card.selected ? "selected" : ""}
-                     ${card.metadata?.highlighted ? "highlighted" : ""}`;
-
-  return (
-    <div className={cardClass} onClick={() => onClick(card)}>
-      {card.faceUp ? <CardFace card={card} /> : <CardBack />}
-    </div>
-  );
-};
-```
-
 ### Deck Layout Algorithms
 
 - **Stack Layout**: Cards positioned with slight offsets
 - **Grid Layout**: Cards in rows/columns with consistent spacing
 
-## API Integration
+## State and API Integration
 
-### Game State Updates
-
-```javascript
-// WebSocket connection for real-time updates
-const useGameSocket = (gameId) => {
-  const [socket, setSocket] = useState(null);
-  const [gameState, setGameState] = useState(null);
-
-  useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:3001/game/${gameId}`);
-
-    ws.onmessage = (event) => {
-      const update = JSON.parse(event.data);
-      setGameState(update);
-    };
-
-    setSocket(ws);
-    return () => ws.close();
-  }, [gameId]);
-
-  return { socket, gameState };
-};
-```
-
-### Action Dispatching
-
-```javascript
-// Send player actions to game server
-const useGameActions = (socket) => {
-  const sendAction = (action) => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      socket.send(JSON.stringify(action));
-    }
-  };
-
-  return {
-    drawCard: (playerId) => sendAction({ type: "DRAW_CARD", playerId }),
-    playCard: (playerId, cardId, targetDeck) => sendAction({ type: "PLAY_CARD", playerId, cardId, targetDeck }),
-    selectCard: (playerId, cardId) => sendAction({ type: "SELECT_CARD", playerId, cardId }),
-  };
-};
-```
-
-### Development Dependencies
-
-- Playwright for end-to-end testing
+Game State and API interactions are handled within the 'src/components/Game.jsx' component.
