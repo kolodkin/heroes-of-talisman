@@ -78,5 +78,10 @@ export default defineConfig({
       url: 'http://localhost:5173',
       reuseExistingServer: !process.env.CI,
     },
+    {
+      command: 'uv run uvicorn server.main:app --reload --port 8000',
+      url: 'http://localhost:8000',
+      reuseExistingServer: !process.env.CI,
+    },
   ],
 });

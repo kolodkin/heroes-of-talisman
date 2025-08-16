@@ -9,7 +9,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:e2e": "playwright test"
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.14",
