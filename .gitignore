@@ -196,7 +196,6 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.cursor/*
 .idea
 .DS_Store
 *.suo
@@ -205,6 +204,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# AI instructions conversion
+.cursor/*
+.claude/*
+AGENTS.md
+CLAUDE.md
 
 # tmp
 *.tmp*
