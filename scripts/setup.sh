@@ -39,6 +39,7 @@ uv sync
 
 # Install pre-commit hooks
 uv run pre-commit install
+uv run pre-commit run --files "$0" # installs pre-commit hooks
 
 # install client dependencies
 npm install
