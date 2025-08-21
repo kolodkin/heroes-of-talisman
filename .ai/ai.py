@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import List, Tuple
 import sys
 import re
+import shutil
 
 VERBOSE = "-v" in sys.argv or "--verbose" in sys.argv
 
@@ -135,6 +136,12 @@ def main():
 
     vlog("\nCreating AGENTS.md...")
     concatenate_ai_markdown(ai_files, root_dir, "AGENTS.md")
+
+    # MCP setup
+    vlog("\nCreating MCP setup...")
+    mcp_setup_path = root_dir / ".ai" / "mcp-tools.json"
+    # copy file to .cursor/.mcp.json
+    shutil.copy(mcp_setup_path, root_dir / ".cursor" / "mcp.json")
 
     vlog(f"\nConversion complete! Processed {len(ai_files)} files.")
 

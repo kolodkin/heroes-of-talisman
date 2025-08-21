@@ -61,7 +61,7 @@ Playwright MCP is a Model Context Protocol server that enables AI agents to eval
 ### Basic Navigation & Setup
 
 ```
-"Navigate to localhost:3000 and take a screenshot of the homepage"
+"Navigate to localhost:5173 and take a screenshot of the homepage"
 "Open the development server at http://localhost:5173"
 "Test the mobile view of the current page using iPhone 15"
 ```

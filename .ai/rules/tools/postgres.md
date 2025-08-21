@@ -1,8 +1,8 @@
-# PostgreSQL MCP for Backend Development
+# PostgreSQL-Heroes MCP for Backend Development
 
 ## Overview
 
-PostgreSQL MCP is a Model Context Protocol server that provides secure database access for backend development workflows. It enables AI agents to assist with database schema design, query optimization, API development, data modeling, and backend application debugging through intelligent database interactions.
+PostgreSQL-Heroes MCP is a Model Context Protocol server that provides secure database access for backend development workflows. It enables AI agents to assist with database schema design, query optimization, API development, data modeling, and backend application debugging through intelligent database interactions.
 
 ## Key Benefits for Backend Development
 

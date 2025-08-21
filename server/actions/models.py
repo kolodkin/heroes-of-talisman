@@ -41,25 +41,25 @@ class PlayerModel(BaseModel):
 class GameModel(BaseModel):
     stage: str = "start"
     playing: Optional[str] = None  # the player who is currently playing
-    players: list[PlayerModel] = Field(default_factory=list)
+    players: dict[str, PlayerModel] = Field(default_factory=list)
 
 
 __DEFAULT_GAME__ = GameModel()
 
 
 CHARACTER_DEFAULT_STATS = {
-    "knight-1": {
+    "knight": {
         "health": 2,
         "max_health": 2,
         "dice": 1,
         "attack": 1,
     },
-    "archer-1": {
+    "archer": {
         "health": 2,
         "max_health": 3,
         "dice": 1,
     },
-    "mage-1": {
+    "mage": {
         "health": 2,
         "max_health": 2,
         "dice": 1,
