@@ -26,7 +26,8 @@ router = APIRouter()
 
 # Set up CORS
 origins = [
-    "http://localhost:5173",
+    "*",
+    # "http://localhost:5173",
 ]
 
 app.add_middleware(
@@ -48,7 +49,23 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return PlainTextResponse("Server is up")
+    try:
+        async with AsyncSessionLocal() as session:
+            await session.execute(select(1))
+        db_status = "up"
+    except Exception as e:
+        db_status = f"down {session.bind.url} - {e.__class__.__name__}:{e}"
+
+    # Check Redis connection
+    try:
+        await redis_client.ping()
+        redis_status = "up"
+    except Exception as e:
+        redis_status = f"down {REDIS_HOST}:{REDIS_PORT} - {e.__class__.__name__}:{e}"
+    return {
+        "db": db_status,
+        "redis": redis_status,
+    }
 
 
 class Game(BaseModel):
