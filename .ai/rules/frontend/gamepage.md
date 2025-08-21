@@ -39,6 +39,7 @@ The engine expects a JSON game state as defined in backend "server/action/models
 - Renders a single deck of cards
 - Supports different layouts (stack, grid)
 - Handles card selection and interaction
+- When a deck is marked as active, it indicates that the deck is currently involved in the playing player's turn.
 
 ### CardComponent
 
@@ -65,14 +66,28 @@ The engine expects a JSON game state as defined in backend "server/action/models
 - **Turn Indicators**: Visual cues for active player
 - **Player Statistics**: Score, remaining cards, status
 
+### Zoom, Pan and Zoom Modes
+
+The game is presented from a top-down perspective, with the entire GameBoard always rendered and visible. Users can adjust their view by zooming in or out using the mouse scroll wheel, and can pan across the board by dragging while holding the right mouse button. Both zooming and panning are achieved through CSS3 transformations.
+
+Store the user's current zoom and pan settings for the game board in local storage, and automatically retrieve and apply these settings when the GameHandler component initializes.
+
+The interface provides four zoom preset modes, each accessible via a specific keyboard shortcut:
+
+- Pressing '1' triggers Full View, resetting zoom and pan to display the entire game board (default).
+- Pressing '2' activates Hand Zoom, centering and zooming in on the player's hand area.
+- Pressing '3' enables Hand & Shared Zoom, adjusting the view to show both the player's hand and the shared area.
+- Pressing '4' selects Active Zoom, focusing the view on the decks currently involved in the active player's turn.
+
 ### Multiplayer Layout
 
 - **Center-focused Design**: SharedArea is always positioned in the center of the game board
-- **Clockwise Player Arrangement**: PlayerHands are arranged clockwise around the SharedArea
+- **Player Arrangement**: PlayerHands are arranged around the SharedArea as follows
   - User's PlayerHand is always positioned at the bottom
-  - Other players are positioned clockwise from the user's position
-  - In two-player games: second player is positioned on top (opposite the user)
-  - In multi-player games: positions adjust dynamically based on the number of players
+  - Second player is always positioned on top
+  - Third player is always positioned on the left
+  - Fourth player is always positioned on the right
+  - For five or more players, continue positioning additional PlayerHands in the following repeating order: top, left, right, bottom, and so on, cycling through these positions as needed.
 - **Spatial Awareness**: Layout provides clear visual hierarchy of game elements
 - **Consistent Orientation**: Maintains the same arrangement regardless of game state
 
