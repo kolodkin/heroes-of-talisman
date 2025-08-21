@@ -74,4 +74,8 @@ echo "Postgres is ready."
 uv run alembic upgrade head
 
 # AI instructions conversion
-uv run scripts/ai.py -v
+uv run .ai/ai.py -v
+# if claude command is available, run the conversion
+if command -v claude >/dev/null 2>&1; then
+  uv run .ai/claude_mcp_setup.py | bash
+fi
