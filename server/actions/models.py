@@ -24,47 +24,44 @@ def shuffled_deck():
 
 
 class CharacterModel(BaseModel):
-    health: int
     level: int
+    health: int
     max_health: int
-    skills: Dict[str, Any] = Field(default_factory=dict)
     dice: int
     attack: Optional[int] = None  # Only knight has attack
 
 
 class PlayerModel(BaseModel):
+    name: str
     status: str = "connected"
     cards: list[str] = Field(default_factory=list)
     characters: Dict[str, CharacterModel] = Field(default_factory=dict)
 
 
 class GameModel(BaseModel):
-    stage: Optional[str] = None
-    stage_meta: Optional[Dict[str, Any]] = None
-    deck: list[str] = Field(default_factory=shuffled_deck)
-    playing: Optional[str] = None
-    selected_character: Optional[str] = None
-    players: Dict[str, PlayerModel] = Field(default_factory=dict)
+    stage: str = "start"
+    playing: Optional[str] = None  # the player who is currently playing
+    players: list[PlayerModel] = Field(default_factory=list)
 
 
 __DEFAULT_GAME__ = GameModel()
 
 
-TraitDB = {
+CHARACTER_DEFAULT_STATS = {
     "knight-1": {
+        "health": 2,
         "max_health": 2,
-        "skills": {},
         "dice": 1,
         "attack": 1,
     },
     "archer-1": {
+        "health": 2,
         "max_health": 3,
-        "skills": {},
         "dice": 1,
     },
     "mage-1": {
+        "health": 2,
         "max_health": 2,
-        "skills": {},
         "dice": 1,
     },
 }

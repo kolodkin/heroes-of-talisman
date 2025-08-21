@@ -28,10 +28,6 @@ class GameEngine:
         return self._username
 
     @property
-    def redis(self):
-        return self._redis
-
-    @property
     def game(self) -> GameModel:
         return self._game
 

@@ -50,4 +50,3 @@ class responsible for handling each action.
 - [x] `connect` – add a player to the game (`ConnectAction`)
 - [x] `leave` – remove a player from the game (`LeaveAction`)
 - [x] `disconnect` – mark a player as disconnected (`DisconnectAction`)
-- [x] `character_select` – stage where the player chooses a character (`CharacterSelectAction`)
