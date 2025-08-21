@@ -8,6 +8,7 @@ __pycache__/
 /blob-report/
 /playwright/.cache/
 test-results/
+.playwright-mcp/
 
 # C extensions
 *.so

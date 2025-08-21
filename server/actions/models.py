@@ -41,7 +41,7 @@ class PlayerModel(BaseModel):
 class GameModel(BaseModel):
     stage: str = "start"
     playing: Optional[str] = None  # the player who is currently playing
-    players: dict[str, PlayerModel] = Field(default_factory=list)
+    players: dict[str, PlayerModel] = Field(default_factory=dict)
 
 
 __DEFAULT_GAME__ = GameModel()
