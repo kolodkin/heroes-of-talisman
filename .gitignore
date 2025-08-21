@@ -7,6 +7,7 @@ __pycache__/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+test-results/
 
 # C extensions
 *.so
@@ -213,4 +214,5 @@ CLAUDE.md
 # tmp
 *.tmp*
 
-test-results/
+# project specific
+.docker

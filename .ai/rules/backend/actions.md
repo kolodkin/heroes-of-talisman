@@ -42,7 +42,6 @@ To implement a new action, subclass `Action` and implement the `run`
 method. Use `assert_stage` to ensure the action only executes during the
 appropriate game phase and update the `GameModel` as needed.
 
-
 # Server Actions
 
 Checklist of actions implemented in the server's action layer and the
@@ -52,6 +51,3 @@ class responsible for handling each action.
 - [x] `leave` – remove a player from the game (`LeaveAction`)
 - [x] `disconnect` – mark a player as disconnected (`DisconnectAction`)
 - [x] `character_select` – stage where the player chooses a character (`CharacterSelectAction`)
-- [x] `character_selected` – confirm character selection and move to card draw (`CharacterSelectedAction`)
-- [x] `card_draw` – prompt the player to draw a card (`CardDrawAction`)
-- [x] `card_select` – resolve the drawn card and advance to skill use (`CardSelectAction`)

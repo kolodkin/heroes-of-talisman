@@ -2,34 +2,11 @@
 # https://hub.docker.com/_/redis
 
 services:
-  server:
-    image: ghcr.io/astral-sh/uv:python3.12-bookworm
-    profiles:
-      - server
-      - debug
-    ports:
-      - 8080:8080
-    user: ${MY_UID}:${MY_GID}
-    environment:
-      UVICORN_HOST: 0.0.0.0
-      UVICORN_PORT: 8080
-      POSTGRES_HOST: postgres
-      REDIS_HOST: redis
-    volumes:
-      - .:${PWD}
-      - ./docker/.venv:${PWD}/.venv
-    working_dir: "${PWD}"
-    command: ["/bin/bash", "-c", "source .venv/bin/activate && python -m uvicorn server.main:app --reload"]
-    depends_on:
-      # - postgres
-      - redis
-    restart: unless-stopped
-
   postgres:
     # https://hub.docker.com/_/postgres
     image: postgres:17.5
-    # volumes:
-    #   - postgres:/var/lib/postgresql/data:Z
+    volumes:
+      - postgres:/var/lib/postgresql/data:Z
     ports:
       - ${POSTGRES_PORT:-5432}:5432
     environment:
@@ -51,23 +28,55 @@ services:
     command: redis-server --loglevel warning
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis}
-    # volumes:
-    #   - redis:/data
+    volumes:
+      - redis:/data
 
-  www-dev:
+  server:
+    image: ghcr.io/astral-sh/uv:python3.12-bookworm
+    profiles:
+      - server
+      - debug
+    ports:
+      - 8000:8000
+    user: ${MY_UID}:${MY_GID}
+    environment:
+      UVICORN_HOST: 0.0.0.0
+      UVICORN_PORT: 8000
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      VIRTUAL_ENV: ${PWD}/.docker/.venv
+    volumes:
+      - .:${PWD}
+      - ${HOME}/.cache:/.cache
+      - ./.docker/.venv:${PWD}/.venv
+    working_dir: "${PWD}"
+    command: uv run uvicorn server.main:app --reload
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  www:
     image: node:${MY_NODE}
     profiles:
       - client
       - debug
-    restart: unless-stopped
-    network_mode: "host"
+    # restart: unless-stopped
+    environment:
+      VITE_PROXY_URL: ${VITE_PROXY_URL:-host.docker.internal}
     volumes:
-      - ~/.npm:/.npm
-      - ./:/app
-    working_dir: /app
+      - .:${PWD}
+      - ${HOME}/.cache:/.cache
+      - ${HOME}/.npm:/.npm
+      - ${PWD}/.docker/node_modules:${PWD}/node_modules
+    working_dir: "${PWD}"
+    ports:
+      - 5173:5173
     user: ${MY_UID}:${MY_GID}
-    command: ["/bin/bash", "-c", "cd client && npm run dev"]
+    command: /bin/bash -c "npm install && npm run hdev"
 
-# volumes:
-#   postgres:
-#   redis:
+volumes:
+  postgres:
+  redis:
