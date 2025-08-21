@@ -6,8 +6,8 @@ from .models import GameModel, PlayerModel, GameException, ReportedException
 
 class Action(ABC):
     def __init__(self, user: str, game: GameModel):
-        self.user = user
-        self.game = game
+        self.user: str = user
+        self.game: GameModel = game
 
     # convenience helpers similar to GameEngine properties
     @property

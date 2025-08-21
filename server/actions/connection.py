@@ -1,7 +1,15 @@
 from typing import Dict
 
 from .base import Action
-from .models import GameModel, GameException, ReportedException, PlayerModel, CharacterModel, TraitDB, __MAX_PLAYERS__
+from .models import (
+    GameModel,
+    GameException,
+    ReportedException,
+    PlayerModel,
+    CharacterModel,
+    CHARACTER_DEFAULT_STATS,
+    __MAX_PLAYERS__,
+)
 
 
 class ConnectAction(Action):
@@ -12,16 +20,7 @@ class ConnectAction(Action):
 
             characters: Dict[str, CharacterModel] = {}
             for char_type in ["knight", "archer", "mage"]:
-                trait_key = f"{char_type}-1"
-                trait_data = TraitDB[trait_key]
-                characters[char_type] = CharacterModel(
-                    health=trait_data["max_health"],
-                    level=1,
-                    max_health=trait_data["max_health"],
-                    skills=trait_data.get("skills", {}),
-                    dice=trait_data["dice"],
-                    attack=trait_data.get("attack"),
-                )
+                characters[char_type] = CharacterModel(**CHARACTER_DEFAULT_STATS[char_type])
 
             self.players[self.user] = PlayerModel(status="connected", cards=[], characters=characters)
 
