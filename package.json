@@ -10,8 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "e2e": "playwright test",
-    "e2ui": "playwright test --ui",
-    "e2prev": "playwright show-report"
+    "e2u": "playwright test --ui",
+    "e2p": "playwright show-report"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.14",

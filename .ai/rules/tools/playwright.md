@@ -27,26 +27,9 @@ Playwright MCP is a Model Context Protocol server that enables AI agents to eval
 
 **UI/UX Validation:**
 
-- Confirm visual design matches mockups
 - Test user interaction flows
 - Validate loading states and animations
 - Check error handling and edge cases
-- Verify cross-browser compatibility
-
-**Performance & Optimization:**
-
-- Measure page load performance
-- Test lazy loading implementations
-- Validate bundle size impact on load times
-- Check for layout shifts (CLS)
-- Monitor JavaScript execution performance
-
-**Regression Testing:**
-
-- Compare before/after screenshots
-- Test existing functionality after changes
-- Validate that bug fixes work correctly
-- Ensure no unintended side effects
 
 ### ❌ When NOT to Use
 
@@ -155,7 +138,7 @@ Playwright MCP is a Model Context Protocol server that enables AI agents to eval
 
 ### Reporting & Documentation
 
-- **Screenshot Everything**: Document visual states
+- **Screenshot Everything**: For each visual state, instruct the AI to take a screenshot and save it with an enumerated filename indicating the flow, using the format "{i}-{name}.jpg" (e.g., 001-start.jpg, 002-after-click.jpg).
 - **Record Interactions**: Save traces for complex user flows
 - **Compare Versions**: Use before/after comparisons
 - **Document Bugs**: Capture steps to reproduce issues

@@ -2,14 +2,14 @@ const { test, expect } = require("@playwright/test");
 
 async function screenshot(page, name) {
   const screenshot = await page.screenshot();
-  await test.info().attach(name, { body: screenshot, contentType: "image/jpeg" });
+  await test.info().attach(name, { body: screenshot, contentType: "image/jpg" });
 }
 
 test("basic game flow", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveTitle(/Heroes of Talisman/);
   await page.waitForResponse(
-    (response) => response.url().includes("/api/games/") && response.request().method() === "GET"
+    (response) => response.url().includes("/api/games/") && response.request().method() === "GET",
   );
 
   await page.getByLabel("Enter your name:").fill("player");
