@@ -13,6 +13,159 @@ Playwright MCP is a Model Context Protocol server that enables AI agents to eval
 - **Visual Regression**: Detect unintended UI changes through screenshots
 - **Responsive Testing**: Validate mobile and desktop layouts
 
+## 🌐 Core Automation Tools
+
+### Navigation & Page Control
+- **`browser_navigate`** - Navigate to a URL
+  - *Parameters:* `url` (string)
+  - *Usage:* Navigate to any website or web application
+
+- **`browser_navigate_back`** - Go back to previous page
+  - *No parameters*
+  - *Usage:* Browser back button functionality
+
+- **`browser_navigate_forward`** - Go forward to next page
+  - *No parameters*
+  - *Usage:* Browser forward button functionality
+
+- **`browser_close`** - Close the browser page
+  - *No parameters*
+  - *Usage:* Clean up and close current browser session
+
+### Element Interactions
+- **`browser_click`** - Perform click on web elements
+  - *Parameters:* `element` (description), `ref` (exact reference), `doubleClick` (optional boolean)
+  - *Usage:* Click buttons, links, or any clickable elements
+
+- **`browser_type`** - Type text into editable elements
+  - *Parameters:* `element`, `ref`, `text`, `submit` (optional), `slowly` (optional)
+  - *Usage:* Fill forms, input fields, text areas
+
+- **`browser_hover`** - Hover mouse over elements
+  - *Parameters:* `element`, `ref`
+  - *Usage:* Trigger hover effects, reveal tooltips
+
+- **`browser_drag`** - Drag and drop between elements
+  - *Parameters:* `startElement`, `startRef`, `endElement`, `endRef`
+  - *Usage:* Drag and drop operations, reordering items
+
+- **`browser_select_option`** - Select dropdown options
+  - *Parameters:* `element`, `ref`, `values` (array)
+  - *Usage:* Select from dropdowns, multi-select lists
+
+- **`browser_press_key`** - Press keyboard keys
+  - *Parameters:* `key` (key name or character)
+  - *Usage:* Keyboard shortcuts, navigation, special key presses
+
+### Page Information & Monitoring
+- **`browser_snapshot`** - Capture accessibility snapshot
+  - *No parameters*
+  - *Usage:* Get structured page content for element selection and analysis
+
+- **`browser_take_screenshot`** - Take visual screenshots
+  - *Parameters:* `raw` (optional), `filename` (optional), `element` (optional), `ref` (optional)
+  - *Usage:* Visual documentation, debugging, element-specific captures
+
+- **`browser_console_messages`** - Get browser console logs
+  - *No parameters*
+  - *Usage:* Debug JavaScript errors, monitor console output
+
+- **`browser_network_requests`** - List network requests
+  - *No parameters*
+  - *Usage:* Monitor API calls, track network activity
+
+### Advanced Interactions
+- **`browser_evaluate`** - Execute JavaScript code
+  - *Parameters:* `function` (JavaScript code), `element` (optional), `ref` (optional)
+  - *Usage:* Custom JavaScript execution, data extraction
+
+- **`browser_file_upload`** - Upload files
+  - *Parameters:* `paths` (array of file paths)
+  - *Usage:* Upload documents, images, or any files
+
+- **`browser_handle_dialog`** - Handle browser dialogs
+  - *Parameters:* `accept` (boolean), `promptText` (optional)
+  - *Usage:* Handle alerts, confirms, prompts
+
+- **`browser_wait_for`** - Wait for conditions
+  - *Parameters:* `time` (optional), `text` (optional), `textGone` (optional)
+  - *Usage:* Wait for page loads, content changes, specific text
+
+- **`browser_resize`** - Resize browser window
+  - *Parameters:* `width` (number), `height` (number)
+  - *Usage:* Test responsive design, change viewport
+
+## 📑 Tab Management (Capability Required)
+
+- **`browser_tab_list`** - List all open tabs
+  - *No parameters*
+  - *Usage:* View all browser tabs and their status
+
+- **`browser_tab_new`** - Open new tab
+  - *Parameters:* `url` (optional)
+  - *Usage:* Create new browser tabs
+
+- **`browser_tab_select`** - Switch to specific tab
+  - *Parameters:* `index` (tab number)
+  - *Usage:* Navigate between multiple tabs
+
+- **`browser_tab_close`** - Close specific tab
+  - *Parameters:* `index` (optional, closes current if not specified)
+  - *Usage:* Close unwanted tabs
+
+## 🔧 System & Installation
+
+- **`browser_install`** - Install browser
+  - *No parameters*
+  - *Usage:* Install required browser if missing
+
+## 🎯 Coordinate-Based Tools (--caps=vision)
+
+- **`browser_mouse_click_xy`** - Click at coordinates
+  - *Parameters:* `element`, `x`, `y`
+  - *Usage:* Precise coordinate-based clicking
+
+- **`browser_mouse_move_xy`** - Move mouse to coordinates
+  - *Parameters:* `element`, `x`, `y`
+  - *Usage:* Hover at specific positions
+
+- **`browser_mouse_drag_xy`** - Drag between coordinates
+  - *Parameters:* `element`, `startX`, `startY`, `endX`, `endY`
+  - *Usage:* Precise drag and drop operations
+
+## 📄 PDF Generation (--caps=pdf)
+
+- **`browser_pdf_save`** - Save page as PDF
+  - *Parameters:* `filename` (optional)
+  - *Usage:* Generate PDF documents from web pages
+
+## 🚀 Usage Patterns
+
+### Basic Web Automation
+1. `browser_navigate` → Navigate to target site
+2. `browser_snapshot` → Get page structure
+3. `browser_click/type` → Interact with elements
+4. `browser_take_screenshot` → Document results
+
+### Form Filling
+1. `browser_navigate` → Go to form page
+2. `browser_type` → Fill input fields
+3. `browser_select_option` → Select dropdown values
+4. `browser_file_upload` → Upload files if needed
+5. `browser_click` → Submit form
+
+### Multi-Tab Workflow
+1. `browser_tab_new` → Open additional tabs
+2. `browser_tab_select` → Switch between tabs
+3. Perform operations in each tab
+4. `browser_tab_close` → Clean up when done
+
+### Testing & Debugging
+1. `browser_console_messages` → Check for errors
+2. `browser_network_requests` → Monitor API calls
+3. `browser_evaluate` → Run custom checks
+4. `browser_take_screenshot` → Visual verification
+
 ## Frontend Code Evaluation Use Cases
 
 ### ✅ When to Use Playwright MCP
