@@ -38,13 +38,13 @@ class PlayerModel(BaseModel):
     characters: Dict[str, CharacterModel] = Field(default_factory=dict)
 
 
-class GameModel(BaseModel):
+class GameBoard(BaseModel):
     stage: str = "start"
     playing: Optional[str] = None  # the player who is currently playing
     players: dict[str, PlayerModel] = Field(default_factory=dict)
 
 
-__DEFAULT_GAME__ = GameModel()
+__DEFAULT_GAME__ = GameBoard()
 
 
 CHARACTER_DEFAULT_STATS = {

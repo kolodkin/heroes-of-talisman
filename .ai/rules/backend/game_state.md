@@ -1,7 +1,7 @@
 # Game State Modeling
 
 - Use the following Pydantic models to represent the game state (see `server/actions/models.py`):
-  - `GameModel`: Represents the entire current state of the game.
+  - `GameBoard`: Represents the entire current state of the game.
   - `PlayerModel`: Represents the state of an individual player.
   - `CharacterModel`: Represents the stats and attributes of a player's character.
 

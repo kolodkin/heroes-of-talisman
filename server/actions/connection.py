@@ -1,8 +1,8 @@
 from typing import Dict
 
 from .base import Action
-from .models import (
-    GameModel,
+from .gameplay import (
+    GameBoard,
     GameException,
     ReportedException,
     PlayerModel,
@@ -13,7 +13,7 @@ from .models import (
 
 
 class ConnectAction(Action):
-    def run(self) -> GameModel:
+    def run(self) -> GameBoard:
         if self.user not in self.players:
             if len(self.players) >= __MAX_PLAYERS__:
                 raise ReportedException("Game is full")
@@ -34,7 +34,7 @@ class ConnectAction(Action):
 
 
 class LeaveAction(Action):
-    def run(self) -> GameModel:
+    def run(self) -> GameBoard:
         if self.user not in self.players:
             raise GameException("Player not in game")
 
@@ -43,6 +43,6 @@ class LeaveAction(Action):
 
 
 class DisconnectAction(Action):
-    def run(self) -> GameModel:
+    def run(self) -> GameBoard:
         self.player.status = "disconnected"
         return self.game

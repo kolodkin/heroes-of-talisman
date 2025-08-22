@@ -1,7 +1,7 @@
 # Server Action Design
 
 The server's action layer organizes game mutations into small, focused
-classes. Each action is invoked with the current user and `GameModel`
+classes. Each action is invoked with the current user and `GameBoard`
 state and returns the updated game after running.
 
 ## Core Components
@@ -18,16 +18,16 @@ state and returns the updated game after running.
 - **Card actions** (`CardDrawAction`, `CardSelectAction`): control drawing
   and selecting cards, maintaining the deck and moving play into the
   skill usage stage.
-- **Models**: Pydantic models (`GameModel`, `PlayerModel`, `CharacterModel`)
+- **Models**: Pydantic models (`GameBoard`, `PlayerModel`, `CharacterModel`)
   describe the game state and enforce structure and types.
 
 ## Workflow
 
 1. An action instance is created with a user identifier and the current
-   `GameModel`.
+   `GameBoard`.
 2. The client-provided parameters are passed to the action's `run`
    method.
-3. The action updates the `GameModel` and returns it for broadcasting to
+3. The action updates the `GameBoard` and returns it for broadcasting to
    other players.
 
 ## Error Handling
@@ -40,7 +40,7 @@ state and returns the updated game after running.
 
 To implement a new action, subclass `Action` and implement the `run`
 method. Use `assert_stage` to ensure the action only executes during the
-appropriate game phase and update the `GameModel` as needed.
+appropriate game phase and update the `GameBoard` as needed.
 
 # Server Actions
 
