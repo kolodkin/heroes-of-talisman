@@ -9,17 +9,8 @@ to CLAUDE.md and AGENTS.md files in the project root.
 import os
 from pathlib import Path
 from typing import List, Tuple
-import sys
 import re
 import shutil
-
-VERBOSE = "-v" in sys.argv or "--verbose" in sys.argv
-
-
-def vlog(*args, **kwargs):
-    """Print only if verbose flag is set."""
-    if VERBOSE:
-        print(*args, **kwargs)
 
 
 def write_tidy(outfile, text: str) -> None:
@@ -81,7 +72,7 @@ def convert_md_to_mdc(ai_files: List[Path], root_dir: Path) -> List[Tuple[Path, 
         # Ensure single trailing newline
         ensure_single_newline_at_eof(output_path)
         conversions.append((ai_file, output_path))
-        vlog(f"Converted: {ai_file} -> {output_path}")
+        print(f"Converted: {ai_file} -> {output_path}")
 
     return conversions
 
@@ -108,42 +99,42 @@ def concatenate_ai_markdown(ai_files: List[Path], root_dir: Path, output_filenam
 
     # Ensure single trailing newline
     ensure_single_newline_at_eof(out_path)
-    vlog(f"Created: {out_path}")
+    print(f"Created: {out_path}")
 
 
 def main():
     """Main function to execute the conversion process."""
     root_dir = Path(__file__).parent.parent.resolve()
-    vlog(f"Working directory: {root_dir}")
+    print(f"Working directory: {root_dir}")
 
     # Find all .ai markdown files
     ai_files = find_ai_markdown_files(root_dir)
     if not ai_files:
-        vlog("No .ai/**.md files found.")
+        print("No .ai/**.md files found.")
         return
 
-    vlog(f"Found {len(ai_files)} .ai markdown files:")
+    print(f"Found {len(ai_files)} .ai markdown files:")
     for ai_file in ai_files:
-        vlog(f"  - {ai_file.relative_to(root_dir)}")
+        print(f"  - {ai_file.relative_to(root_dir)}")
 
     # Convert .md to .mdc files
-    vlog("\nConverting to .cursor/rules/*.mdc files...")
+    print("\nConverting to .cursor/rules/*.mdc files...")
     conversions = convert_md_to_mdc(ai_files, root_dir)
 
     # Concatenate unified docs to both outputs (only filename differs)
-    vlog("\nCreating CLAUDE.md...")
+    print("\nCreating CLAUDE.md...")
     concatenate_ai_markdown(ai_files, root_dir, "CLAUDE.md")
 
-    vlog("\nCreating AGENTS.md...")
+    print("\nCreating AGENTS.md...")
     concatenate_ai_markdown(ai_files, root_dir, "AGENTS.md")
 
     # MCP setup
-    vlog("\nCreating MCP setup...")
+    print("\nCreating MCP setup...")
     mcp_setup_path = root_dir / ".ai" / "mcp-tools.json"
     # copy file to .cursor/.mcp.json
     shutil.copy(mcp_setup_path, root_dir / ".cursor" / "mcp.json")
 
-    vlog(f"\nConversion complete! Processed {len(ai_files)} files.")
+    print(f"\nConversion complete! Processed {len(ai_files)} files.")
 
 
 if __name__ == "__main__":
