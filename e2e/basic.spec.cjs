@@ -28,8 +28,16 @@ test("basic game flow", async ({ page }) => {
 
   await screenshot(page, "home-with-test");
 
-  await testGame.click();
+  const [connectedLog] = await Promise.all([
+    page.waitForEvent("console", {
+      predicate: (msg) => msg.text().includes("notify.connected"),
+      timeout: 1000,
+    }),
+    testGame.click(),
+  ]);
   await expect(page).toHaveURL(/\/games\/test\//);
+  const connectedText = await connectedLog.args()[2].jsonValue();
+  await test.info().attach("connection-message", { body: connectedText, contentType: "text/plain" });
 
   await screenshot(page, "joined-game");
 });
