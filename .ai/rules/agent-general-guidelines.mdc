@@ -1,0 +1,12 @@
+---
+description: Agent general guidlines
+globs:
+alwaysApply: true
+---
+
+# Agent general guidelines
+
+- Whenever a file is referenced, always verify if a corresponding <filename>.md or <foldername>.md file exists in the same directory to gather additional context.
+- Always run Python scripts using the following command to ensure correct module resolution:
+  `PYTHONPATH=. uv run <script path>`
+- When coding, check if a file named test_<filename>.py exists in the same folder as the file you are working on. If it exists, use it for testing. If it does not exist, recommend creating one following the Testing Guidelines.

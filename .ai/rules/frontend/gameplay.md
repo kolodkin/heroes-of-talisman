@@ -1,10 +1,14 @@
-# Frontend - Game Page
+# Frontend - Game Play
 
 A React-based UI engine for visualizing and interacting with card game states represented as JSON data structures.
 
 ## Overview
 
 This frontend engine provides a complete visualization system for card games featuring multiple players, each with their own card decks, plus a shared area. The system renders game state from JSON data and provides interactive components for gameplay.
+
+## Backend Alignment
+
+Frontend components are designed to work seamlessly with the backend models outlined in [backend gameplay](../backend/gameplay.md).
 
 ## Core Architecture
 
@@ -77,7 +81,6 @@ The interface provides four zoom preset modes, each accessible via a specific ke
 - Pressing '1' triggers Full View, resetting zoom and pan to display the entire game board (default).
 - Pressing '2' activates Hand Zoom, centering and zooming in on the player's hand area.
 - Pressing '3' enables Hand & Shared Zoom, adjusting the view to show both the player's hand and the shared area.
-
 - Pressing '4' selects Active Zoom, focusing the view on the decks currently involved in the active player's turn.
 
 ### Multiplayer Layout
