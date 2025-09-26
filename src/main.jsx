@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import HomePage from "./components/HomePage.jsx";
-import GameHandler from "./components/GameHandler.jsx";
+import GameHandler from "./components/GamePlay/GameHandler.jsx";
 import { ToastContainer } from "react-toastify";
 
 createRoot(document.getElementById("root")).render(

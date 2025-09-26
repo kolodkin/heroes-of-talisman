@@ -1,16 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { notify, enotify } from "../utils/notify";
-import AppWebSocket from "../utils/ws";
+import { notify, enotify } from "../../utils/notify";
+import AppWebSocket from "../../utils/ws";
 import styles from "./GameHandler.module.css";
 
-import lang from "./he";
+import lang from "../he";
 import { toast } from "react-toastify";
+
+import GamePlay from "./GamePlay";
 
 const MAX_RECONNECT_RETRIES = 20;
 const RECONNECT_TIMEOUT_MS = 500;
 
-const Game = () => {
+const GameHandler = () => {
   const navigate = useNavigate();
   const navparams = useParams();
   const [connected, setConnected] = useState(false);
@@ -123,10 +125,10 @@ const Game = () => {
 
   return (
     <div className={styles["game-handler"]} style={{ direction: lang.direction }}>
-      <div>Hi</div>
+      <GamePlay />
       {disconnectedOverlay}
     </div>
   );
 };
 
-export default Game;
+export default GameHandler;

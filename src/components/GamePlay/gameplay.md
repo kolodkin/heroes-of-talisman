@@ -1,55 +1,10 @@
-# Frontend - Game Play
+# FrontEnd - GamePlay
 
 A React-based UI engine for visualizing and interacting with card game states represented as JSON data structures.
 
 ## Overview
 
 This frontend engine provides a complete visualization system for card games featuring multiple players, each with their own card decks, plus a shared area. The system renders game state from JSON data and provides interactive components for gameplay.
-
-## Backend Alignment
-
-Frontend components are designed to work seamlessly with the backend models outlined in [backend gameplay](../backend/gameplay.md).
-
-## Core Architecture
-
-### Game State Structure
-
-The engine expects a JSON game state as defined in backend "server/action/models.py -> GameBoard"
-
-## Component Hierarchy
-
-### GameBoard (Root Component)
-
-- Manages overall game state
-- Handles player turns and game flow
-- Coordinates between all child components
-- Manages SharedArea and PlayerHands
-
-### SharedArea
-
-- Displays common game elements
-- Manages drawn cards deck
-- Handles center pile and community cards
-
-### PlayerHand
-
-- Renders the cards and character(s) for a single player
-- Shows player's hand, character stats, and any status effects
-- Highlights if it's the player's turn or if the player is disconnected
-- Supports interaction with cards in hand (e.g., selection, play)
-
-### DeckComponent
-
-- Renders a single deck of cards
-- Supports different layouts (stack, grid)
-- Handles card selection and interaction
-- When a deck is marked as active, it indicates that the deck is currently involved in the playing player's turn.
-
-### CardComponent
-
-- Renders individual card visuals
-- Manages card states (face up/down, selected, highlighted)
-- Handles click events and animations
 
 ## Key Features
 
@@ -111,4 +66,4 @@ The interface provides four zoom preset modes, each accessible via a specific ke
 
 ## State and API Integration
 
-Game State and API interactions are handled within the 'src/components/GameHandler.jsx' component wrapping 'src/components/Game.jsx'
+Game State and API interactions are handled within the [GameHandler](./GameHandler.jsx) component wrapping [GamePlay](./GamePlay.jsx) Component.
