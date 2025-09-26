@@ -1,4 +1,4 @@
-from .actions.gameplay import (
+from .gameplay.models import (
     GameBoard,
     GameException,
     ReportedException,
