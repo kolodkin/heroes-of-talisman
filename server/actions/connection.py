@@ -1,15 +1,16 @@
 from typing import Dict
 
 from .base import Action
-from .gameplay import (
+from ..gameplay.models import (
     GameBoard,
     GameException,
     ReportedException,
     PlayerModel,
     CharacterModel,
     CHARACTER_DEFAULT_STATS,
-    __MAX_PLAYERS__,
 )
+
+__MAX_PLAYERS__ = 4
 
 
 class ConnectAction(Action):
