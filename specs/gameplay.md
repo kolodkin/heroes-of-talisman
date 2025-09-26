@@ -1,0 +1,55 @@
+# Game Play
+
+This document outlines the gameplay architecture and component hierarchy for the card game engine, detailing main components.
+
+- [FrontEnd GamePlay](/src/components/GamePlay)
+- [BackEnd GamePlay](/server/gameplay)
+
+## Overview
+
+This engine offers a fully integrated backend and frontend interaction system for card games, supporting multiple players with individual decks and a shared area.
+It is built on a tightly integrated system of React components and Pydantic models, with data exchanged via JSON serialization.
+
+## Backend Alignment
+
+Frontend components are designed to work seamlessly with the backend models outlined in [backend gameplay](../backend/gameplay.md).
+
+## Core Architecture
+
+### Game Board Structure
+
+The engine expects a JSON game board as defined in backend "server/gameplay/models.py -> GameBoard"
+
+## Component\Models Hierarchy
+
+### GameBoard
+
+- Manages overall game state
+- Handles player turns and game flow
+- Coordinates between all child components
+- Manages SharedArea and PlayerHands
+
+### SharedArea
+
+- Common game elements
+- Manages drawn cards deck
+- Handles center pile and community cards
+
+### PlayerHand
+
+- The cards for a single player
+- Shows player's hand, stats, and any status effects
+- Highlights if it's the player's turn or if the player is disconnected
+- Supports interaction with cards in hand (e.g., selection, play)
+
+### Deck
+
+- A single deck of cards
+- Supports different layouts (stack, grid)
+- Handles card selection and interaction
+- When a deck is marked as active, it indicates that the deck is currently involved in the playing player's turn.
+
+### Card
+
+- Manages card states (face up/down, selected, highlighted)
+- Handles click events and animations
