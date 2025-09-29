@@ -6,7 +6,7 @@ services:
     # https://hub.docker.com/_/postgres
     image: postgres:17.5
     volumes:
-      - postgres:/var/lib/postgresql/data:Z
+      - postgres:/var/lib/postgresql/data
     ports:
       - ${POSTGRES_PORT:-5432}:5432
     environment:

@@ -10,8 +10,8 @@ import pytest
 from server.actions.connection import ConnectAction
 from server.gameplay.models import (
     GameBoard,
-    PlayerModel,
-    CharacterModel,
+    PlayerHand,
+    CharacterCard,
     ReportedException,
     CHARACTER_DEFAULT_STATS,
 )
@@ -25,14 +25,14 @@ def test_connect_action_new_player():
 
     updated_game = action.run()
 
-    assert "player1" in updated_game.players
-    assert updated_game.players["player1"].name == "player1"
-    assert updated_game.players["player1"].status == "connected"
-    assert updated_game.players["player1"].cards == []
-    assert len(updated_game.players["player1"].characters) == 3
-    assert "knight" in updated_game.players["player1"].characters
-    assert "archer" in updated_game.players["player1"].characters
-    assert "mage" in updated_game.players["player1"].characters
+    assert "player1" in updated_game.players_hands
+    assert updated_game.players_hands["player1"].name == "player1"
+    assert updated_game.players_hands["player1"].status == "connected"
+    assert updated_game.players_hands["player1"].cards == []
+    assert len(updated_game.players_hands["player1"].characters) == 3
+    assert "knight" in updated_game.players_hands["player1"].characters
+    assert "archer" in updated_game.players_hands["player1"].characters
+    assert "mage" in updated_game.players_hands["player1"].characters
     assert updated_game.stage == "start"  # Default stage remains "start"
     assert updated_game.playing == "player1"
 
@@ -40,14 +40,14 @@ def test_connect_action_new_player():
 def test_connect_action_existing_player_reconnect():
     """Test reconnecting an existing player who was disconnected"""
     game = GameBoard()
-    game.players["player1"] = PlayerModel(
+    game.players_hands["player1"] = PlayerHand(
         name="player1",
         status="disconnected",
         cards=["talisman"],
         characters={
-            "knight": CharacterModel(level=2, **CHARACTER_DEFAULT_STATS["knight"]),
-            "archer": CharacterModel(level=1, **CHARACTER_DEFAULT_STATS["archer"]),
-            "mage": CharacterModel(level=1, **CHARACTER_DEFAULT_STATS["mage"]),
+            "knight": CharacterCard(level=2, **CHARACTER_DEFAULT_STATS["knight"]),
+            "archer": CharacterCard(level=1, **CHARACTER_DEFAULT_STATS["archer"]),
+            "mage": CharacterCard(level=1, **CHARACTER_DEFAULT_STATS["mage"]),
         },
     )
 
@@ -55,9 +55,9 @@ def test_connect_action_existing_player_reconnect():
     updated_game = action.run()
 
     # Player should be reconnected with their existing data
-    assert updated_game.players["player1"].status == "connected"
-    assert updated_game.players["player1"].cards == ["talisman"]
-    assert updated_game.players["player1"].characters["knight"].level == 2
+    assert updated_game.players_hands["player1"].status == "connected"
+    assert updated_game.players_hands["player1"].cards == ["talisman"]
+    assert updated_game.players_hands["player1"].characters["knight"].level == 2
 
 
 def test_connect_action_game_full():
@@ -69,8 +69,8 @@ def test_connect_action_game_full():
         player_name = f"player{i+1}"
         characters = {}
         for char_type in ["knight", "archer", "mage"]:
-            characters[char_type] = CharacterModel(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-        game.players[player_name] = PlayerModel(name=player_name, characters=characters)
+            characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+        game.players_hands[player_name] = PlayerHand(name=player_name, characters=characters)
 
     action = ConnectAction("player_overflow", game)
 
@@ -85,14 +85,14 @@ def test_connect_action_second_player():
     game.playing = "player1"
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
-        characters[char_type] = CharacterModel(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players["player1"] = PlayerModel(name="player1", characters=characters)
+        characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+    game.players_hands["player1"] = PlayerHand(name="player1", characters=characters)
 
     action = ConnectAction("player2", game)
     updated_game = action.run()
 
-    assert "player2" in updated_game.players
-    assert updated_game.players["player2"].status == "connected"
+    assert "player2" in updated_game.players_hands
+    assert updated_game.players_hands["player2"].status == "connected"
     assert updated_game.stage == "character_select"
     assert updated_game.playing == "player1"  # Playing player should not change
 
@@ -116,7 +116,7 @@ def test_connect_action_character_stats():
 
     updated_game = action.run()
 
-    player = updated_game.players["player1"]
+    player = updated_game.players_hands["player1"]
 
     # Check knight stats
     knight = player.characters["knight"]

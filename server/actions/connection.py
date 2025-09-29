@@ -5,8 +5,8 @@ from ..gameplay.models import (
     GameBoard,
     GameException,
     ReportedException,
-    PlayerModel,
-    CharacterModel,
+    PlayerHand,
+    CharacterCard,
     CHARACTER_DEFAULT_STATS,
 )
 
@@ -19,11 +19,11 @@ class ConnectAction(Action):
             if len(self.players) >= __MAX_PLAYERS__:
                 raise ReportedException("Game is full")
 
-            characters: Dict[str, CharacterModel] = {}
+            characters: Dict[str, CharacterCard] = {}
             for char_type in ["knight", "archer", "mage"]:
-                characters[char_type] = CharacterModel(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+                characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
 
-            self.players[self.user] = PlayerModel(name=self.user, status="connected", cards=[], characters=characters)
+            self.players[self.user] = PlayerHand(name=self.user, status="connected", cards=[], characters=characters)
 
         if self.game.playing is None:
             if self.game.stage is None:
