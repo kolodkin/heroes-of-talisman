@@ -1,6 +1,11 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Literal
 
 from pydantic import BaseModel, Field
+
+
+CONNECTED = "connected"
+DISCONNECTED = "disconnected"
+CONNECTION_STATUS = Literal["connected", "disconnected"]
 
 
 class GameException(Exception):
@@ -11,17 +16,17 @@ class ReportedException(GameException):
     pass
 
 
-class CardModel(BaseModel):
+class Card(BaseModel):
     face_up: bool = True
     selected: bool = False
 
 
-class DeckModel(BaseModel):
-    cards: list[CardModel] = Field(default_factory=list)
+class Deck(BaseModel):
+    cards: list[Card] = Field(default_factory=list)
     visible: bool = True
 
 
-class CharacterModel(BaseModel):
+class CharacterCard(BaseModel):
     level: int
     health: int
     max_health: int
@@ -29,17 +34,17 @@ class CharacterModel(BaseModel):
     attack: Optional[int] = None  # Only knight has attack
 
 
-class PlayerModel(BaseModel):
+class PlayerHand(BaseModel):
     name: str
-    status: str = "connected"
+    status: CONNECTION_STATUS = CONNECTED
     cards: list[str] = Field(default_factory=list)
-    characters: Dict[str, CharacterModel] = Field(default_factory=dict)
+    characters: Dict[str, CharacterCard] = Field(default_factory=dict)
 
 
 class GameBoard(BaseModel):
     stage: str = "start"
     playing: str = None  # the player who is currently playing
-    players: dict[str, PlayerModel] = Field(default_factory=dict)
+    players_hands: dict[str, PlayerHand] = Field(default_factory=dict)
 
 
 __DEFAULT_GAME__ = GameBoard()

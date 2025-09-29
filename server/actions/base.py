@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-from ..gameplay.models import GameBoard, PlayerModel, GameException, ReportedException
+from ..gameplay.models import GameBoard, PlayerHand, GameException, ReportedException
 
 
 class Action(ABC):
@@ -12,10 +12,10 @@ class Action(ABC):
     # convenience helpers similar to GameEngine properties
     @property
     def players(self):
-        return self.game.players
+        return self.game.players_hands
 
     @property
-    def player(self) -> PlayerModel:
+    def player(self) -> PlayerHand:
         if self.user not in self.players:
             raise GameException("Player not in game")
         return self.players[self.user]

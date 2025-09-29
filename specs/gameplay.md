@@ -27,7 +27,7 @@ The engine expects a JSON game board as defined in backend "server/gameplay/mode
 - Manages overall game state
 - Handles player turns and game flow
 - Coordinates between all child components
-- Manages SharedArea and PlayerHands
+- Manages SharedArea and Players
 
 ### SharedArea
 
@@ -35,12 +35,10 @@ The engine expects a JSON game board as defined in backend "server/gameplay/mode
 - Manages drawn cards deck
 - Handles center pile and community cards
 
-### PlayerHand
+### Player
 
-- The cards for a single player
-- Shows player's hand, stats, and any status effects
-- Highlights if it's the player's turn or if the player is disconnected
-- Supports interaction with cards in hand (e.g., selection, play)
+- The status and cards for a single player
+- holds player connection status (connected \ disconncted)
 
 ### Deck
 

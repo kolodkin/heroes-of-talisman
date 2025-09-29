@@ -10,8 +10,8 @@ import pytest
 from server.actions.connection import DisconnectAction
 from server.gameplay.models import (
     GameBoard,
-    PlayerModel,
-    CharacterModel,
+    PlayerHand,
+    CharacterCard,
     GameException,
     CHARACTER_DEFAULT_STATS,
 )
@@ -22,14 +22,14 @@ def test_disconnect_action_existing_player():
     game = GameBoard()
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
-        characters[char_type] = CharacterModel(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players["player1"] = PlayerModel(name="player1", status="connected", characters=characters)
+        characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+    game.players_hands["player1"] = PlayerHand(name="player1", status="connected", characters=characters)
 
     action = DisconnectAction("player1", game)
     updated_game = action.run()
 
-    assert updated_game.players["player1"].status == "disconnected"
-    assert updated_game.players["player1"].name == "player1"  # Other data preserved
+    assert updated_game.players_hands["player1"].status == "disconnected"
+    assert updated_game.players_hands["player1"].name == "player1"  # Other data preserved
 
 
 def test_disconnect_action_nonexistent_player():
@@ -46,11 +46,11 @@ def test_disconnect_action_already_disconnected():
     game = GameBoard()
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
-        characters[char_type] = CharacterModel(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players["player1"] = PlayerModel(name="player1", status="disconnected", characters=characters)
+        characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+    game.players_hands["player1"] = PlayerHand(name="player1", status="disconnected", characters=characters)
 
     action = DisconnectAction("player1", game)
     updated_game = action.run()
 
     # Should still work and status remains disconnected
-    assert updated_game.players["player1"].status == "disconnected"
+    assert updated_game.players_hands["player1"].status == "disconnected"
