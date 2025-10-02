@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
-import { getLangVal } from "../utils/lang";
 import cStyles from "./Common.module.css";
 import classNames from "classnames";
-import lang from "../utils/lang";
 
 const getImageSize = (url) => {
   return new Promise((resolve, reject) => {
@@ -15,6 +14,7 @@ const getImageSize = (url) => {
 };
 
 const DrawCard = ({ sendAction, card, drawn, active }) => {
+  const { t } = useTranslation();
   const [isNextPhase, setIsNextPhase] = useState(false);
   const [imageSize, setImageSize] = useState(null);
   const [cardSize, setCardSize] = useState(null);
@@ -106,15 +106,15 @@ const DrawCard = ({ sendAction, card, drawn, active }) => {
           transition: "max-height 1s 0.3s ease-in-out",
         }}
       >
-        <div className="text-xl font-bold">{getLangVal(`cards.${card}`)}</div>
-        <div>{getLangVal(`cards.${card}_desc`)}</div>
+        <div className="text-xl font-bold">{t(`cards.${card}`)}</div>
+        <div>{t(`cards.${card}_desc`)}</div>
       </div>
       <button
         className={classNames(" text-white rounded relative overflow-hidden", cStyles.gamebtn)}
         onClick={handleDrawCard}
         style={{ transition: "width 0.5s ease-in-out" }}
       >
-        <span style={{ opacity: 0 }}>{drawn ? lang.draw_card.draw : lang.draw_card.drawen}</span>
+        <span style={{ opacity: 0 }}>{drawn ? t("draw_card.draw") : t("draw_card.drawen")}</span>
         <span
           className={`absolute inset-0 flex items-center justify-center`}
           style={{
@@ -122,7 +122,7 @@ const DrawCard = ({ sendAction, card, drawn, active }) => {
             transition: "opacity 0.5s ease-in-out",
           }}
         >
-          {lang.draw_card.draw}
+          {t("draw_card.draw")}
         </span>
         <span
           className={`absolute inset-0 flex items-center justify-center`}
@@ -131,7 +131,7 @@ const DrawCard = ({ sendAction, card, drawn, active }) => {
             transition: "opacity 0.5s 0.5s ease-in-out",
           }}
         >
-          {lang.draw_card.continue}
+          {t("draw_card.continue")}
         </span>
       </button>
     </div>

@@ -8,7 +8,7 @@ import classNames from "classnames";
 import { DiceIcon, HeartIcon } from "./Icons";
 import CharacterSelect from "./CharacterSelect";
 import DrawCard from "./DrawCard";
-import lang from "../utils/lang";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 const MAX_RECONNECT_RETRIES = 20;

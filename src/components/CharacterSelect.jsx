@@ -1,12 +1,14 @@
 import className from "classnames";
+import { useTranslation } from "react-i18next";
 import { notify } from "../utils/notify";
 
 import styles from "./CharacterSelect.module.css";
 import commonStyles from "./Common.module.css";
 import CharacterCard from "./CharacterCard";
-import lang from "../utils/lang";
 
 const CharacterSelect = ({ characters, sendAction, active, selectedCharacter = null }) => {
+  const { t } = useTranslation();
+
   const handleCharacterClick = (name) => {
     if (!active) {
       return;
@@ -45,7 +47,7 @@ const CharacterSelect = ({ characters, sendAction, active, selectedCharacter = n
         className={className(commonStyles.gamebtn, styles.character, "text-2xl", "rounded")}
         onClick={handleSubmit}
       >
-        <p>{lang.character_select.submit}</p>
+        <p>{t("character_select.submit")}</p>
       </button>
     </div>
   );
