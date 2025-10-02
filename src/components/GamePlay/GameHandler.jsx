@@ -126,7 +126,7 @@ const GameHandler = () => {
 
   return (
     <div className={styles["game-handler"]} style={{ direction: lang.direction }}>
-      <Navbar />
+      <Navbar stage={gamePlay?.stage} />
       <GamePlay username={username} gamePlay={gamePlay} />
       {disconnectedOverlay}
     </div>

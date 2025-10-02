@@ -17,7 +17,7 @@ Actions may change the game stage, but not necessarily. Some actions update game
 
 **Stage Transition Rules:**
 
-- Actions can modify `GameBoard.stage` when appropriate (e.g., completing a required task)
+- Actions can modify `GamePlay.stage` when appropriate (e.g., completing a required task)
 - Actions can modify game state within the current stage without changing it (e.g., selecting a card, moving a character)
 - Stage transitions are determined by action logic, not automatically enforced
 - Multiple actions may be required before a stage advances

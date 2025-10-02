@@ -10,13 +10,13 @@ import pytest
 
 from server.actions.connection import ConnectAction, DisconnectAction, LeaveAction
 from server.gameplay.models import (
-    GameBoard,
+    GamePlay,
 )
 
 
 def test_connect_then_disconnect_then_reconnect():
     """Test full connection lifecycle: connect -> disconnect -> reconnect"""
-    game = GameBoard()
+    game = GamePlay()
 
     # Initial connection
     connect_action = ConnectAction("player1", game)
@@ -41,7 +41,7 @@ def test_connect_then_disconnect_then_reconnect():
 
 def test_multiple_players_connect_disconnect_leave():
     """Test multiple players with various actions"""
-    game = GameBoard()
+    game = GamePlay()
 
     # Connect multiple players
     for i in range(3):

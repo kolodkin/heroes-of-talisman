@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .env import REDIS_HOST, REDIS_PORT
 from .game_engine import GameEngine
-from .gameplay.models import __DEFAULT_GAME__, GameBoard
+from .gameplay.models import __DEFAULT_GAME__, GamePlay
 from .models import Game as GameTable
 from .database import get_db, AsyncSessionLocal
 
@@ -163,7 +163,7 @@ async def from_database(session: AsyncSession, redis_meta: RedisMeta) -> "GameEn
     if game is None:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
 
-    game_model = GameBoard.model_validate(game.data)
+    game_model = GamePlay.model_validate(game.data)
     if redis_meta.username is None:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail="missing username")
 

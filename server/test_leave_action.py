@@ -10,7 +10,7 @@ import pytest
 
 from server.actions.connection import LeaveAction
 from server.gameplay.models import (
-    GameBoard,
+    GamePlay,
     Player,
     CharacterCard,
     GameException,
@@ -20,7 +20,7 @@ from server.gameplay.models import (
 
 def test_leave_action_existing_player():
     """Test a player leaving the game"""
-    game = GameBoard()
+    game = GamePlay()
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
@@ -36,7 +36,7 @@ def test_leave_action_existing_player():
 
 def test_leave_action_nonexistent_player():
     """Test a player who is not in the game trying to leave"""
-    game = GameBoard()
+    game = GamePlay()
     action = LeaveAction("nonexistent_player", game)
 
     with pytest.raises(GameException, match="Player not in game"):
@@ -45,7 +45,7 @@ def test_leave_action_nonexistent_player():
 
 def test_leave_action_only_player():
     """Test the only player in the game leaving"""
-    game = GameBoard()
+    game = GamePlay()
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
