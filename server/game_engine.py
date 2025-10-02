@@ -1,5 +1,5 @@
 from .gameplay.models import (
-    GameBoard,
+    GamePlay,
     GameException,
     ReportedException,
 )
@@ -9,7 +9,7 @@ from .actions import (
 
 
 class GameEngine:
-    def __init__(self, gamename: str, username: str, game: GameBoard):
+    def __init__(self, gamename: str, username: str, game: GamePlay):
         self._gamename = gamename
         self._username = username
 
@@ -33,7 +33,7 @@ class GameEngine:
         return self._username
 
     @property
-    def game(self) -> GameBoard:
+    def game(self) -> GamePlay:
         return self._game
 
     def run_action(self, action: str, *args, **kwargs):

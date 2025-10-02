@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-from ..gameplay.models import GameBoard, Player, GameException, ReportedException
+from ..gameplay.models import GamePlay, Player, GameException, ReportedException
 
 
 class Action(ABC):
-    def __init__(self, user: str, game: GameBoard):
+    def __init__(self, user: str, game: GamePlay):
         self.user: str = user
-        self.game: GameBoard = game
+        self.game: GamePlay = game
 
     # convenience helpers similar to GameEngine properties
     @property
@@ -57,5 +57,5 @@ class Action(ABC):
             raise ReportedException(f"Invalid action. (wrong stage '{self.stage}')")
 
     @abstractmethod
-    def run(self, *args, **kwargs) -> GameBoard:
+    def run(self, *args, **kwargs) -> GamePlay:
         """Execute the action and return the updated game."""

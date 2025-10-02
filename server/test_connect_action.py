@@ -9,7 +9,7 @@ import pytest
 
 from server.actions.connection import ConnectAction
 from server.gameplay.models import (
-    GameBoard,
+    GamePlay,
     Player,
     CharacterCard,
     ReportedException,
@@ -20,7 +20,7 @@ from server.actions.connection import __MAX_PLAYERS__
 
 def test_connect_action_new_player():
     """Test connecting a new player to an empty game"""
-    game = GameBoard()
+    game = GamePlay()
     action = ConnectAction("player1", game)
 
     updated_game = action.run()
@@ -39,7 +39,7 @@ def test_connect_action_new_player():
 
 def test_connect_action_existing_player_reconnect():
     """Test reconnecting an existing player who was disconnected"""
-    game = GameBoard()
+    game = GamePlay()
     game.players["player1"] = Player(
         name="player1",
         status="disconnected",
@@ -62,7 +62,7 @@ def test_connect_action_existing_player_reconnect():
 
 def test_connect_action_game_full():
     """Test connecting when game is at maximum capacity"""
-    game = GameBoard()
+    game = GamePlay()
 
     # Fill game to max capacity
     for i in range(__MAX_PLAYERS__):
@@ -80,7 +80,7 @@ def test_connect_action_game_full():
 
 def test_connect_action_second_player():
     """Test connecting a second player to a game with one player"""
-    game = GameBoard()
+    game = GamePlay()
     game.stage = "character_select"
     game.playing = "player1"
     characters = {}
@@ -99,7 +99,7 @@ def test_connect_action_second_player():
 
 def test_connect_action_stage_none():
     """Test connecting a player when game stage is None"""
-    game = GameBoard()
+    game = GamePlay()
     game.stage = None  # Explicitly set to None
     action = ConnectAction("player1", game)
 
@@ -111,7 +111,7 @@ def test_connect_action_stage_none():
 
 def test_connect_action_character_stats():
     """Test that connected player gets correct default character stats"""
-    game = GameBoard()
+    game = GamePlay()
     action = ConnectAction("player1", game)
 
     updated_game = action.run()

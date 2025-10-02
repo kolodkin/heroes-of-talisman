@@ -1,18 +1,18 @@
-"""Test player reordering in GameBoard"""
+"""Test player reordering in GamePlay"""
 
-from server.gameplay.models import GameBoard, Player
+from server.gameplay.models import GamePlay, Player
 
 
 def test_reorder_players_single_player():
     """Test reordering with a single player"""
-    game = GameBoard(players={"alice": Player(name="alice")})
+    game = GamePlay(players={"alice": Player(name="alice")})
     game.reorder_players("alice")
     assert list(game.players.keys()) == ["alice"]
 
 
 def test_reorder_players_two_players():
     """Test reordering with two players"""
-    game = GameBoard(
+    game = GamePlay(
         players={
             "alice": Player(name="alice"),
             "bob": Player(name="bob"),
@@ -30,7 +30,7 @@ def test_reorder_players_two_players():
 
 def test_reorder_players_four_players():
     """Test reordering with four players (circular shift)"""
-    game = GameBoard(
+    game = GamePlay(
         players={
             "alice": Player(name="alice"),
             "bob": Player(name="bob"),
@@ -58,7 +58,7 @@ def test_reorder_players_four_players():
 
 def test_reorder_players_nonexistent_user():
     """Test reordering with a user that doesn't exist keeps original order"""
-    game = GameBoard(
+    game = GamePlay(
         players={
             "alice": Player(name="alice"),
             "bob": Player(name="bob"),

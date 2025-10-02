@@ -44,7 +44,7 @@ class Player(BaseModel):
     characters: Dict[str, CharacterCard] = Field(default_factory=dict)
 
 
-class GameBoard(BaseModel):
+class GamePlay(BaseModel):
     stage: str = "start"
     playing: Optional[str] = None  # the player who is currently playing
     players: dict[str, Player] = Field(default_factory=dict)
@@ -71,7 +71,7 @@ class GameBoard(BaseModel):
         self.players.update(reordered_dict)
 
 
-__DEFAULT_GAME__ = GameBoard()
+__DEFAULT_GAME__ = GamePlay()
 
 
 CHARACTER_DEFAULT_STATS = {
