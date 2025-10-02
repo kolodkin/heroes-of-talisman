@@ -5,49 +5,52 @@ async function screenshot(page, name) {
   await test.info().attach(name, { body: screenshot, contentType: "image/jpg" });
 }
 
-test("basic game flow", async ({ page }) => {
+async function setupHomePage(page) {
   await page.goto("/");
   await expect(page).toHaveTitle(/Heroes of Talisman/);
-
-  // Wait for games list to load
   await page.waitForSelector('h2:has-text("Join A Game:")');
+}
 
-  await page.getByLabel("Enter your name:").fill("player");
-
+async function cleanupTestGame(page) {
   const testGame = page.getByRole("button", { name: "test" });
   if (await testGame.count()) {
     await page.locator("li", { has: testGame }).getByRole("button", { name: "🗑️" }).click();
     await expect(testGame).toHaveCount(0);
   }
+}
 
-  await screenshot(page, "home");
-
+async function createTestGame(page) {
   await page.getByLabel("Add New Game:").fill("test");
   await page.getByRole("button", { name: "+" }).click();
+  const testGame = page.getByRole("button", { name: "test" });
   await expect(testGame).toBeVisible();
+  return testGame;
+}
 
-  await screenshot(page, "home-with-test");
+async function joinGame(page, playerName, gameName) {
+  await page.getByLabel("Enter your name:").fill(playerName);
+  const gameButton = page.getByRole("button", { name: gameName });
 
   const [connectedLog] = await Promise.all([
     page.waitForEvent("console", {
       predicate: (msg) => msg.text().includes("notify.connected"),
       timeout: 1000,
     }),
-    testGame.click(),
+    gameButton.click(),
   ]);
-  await expect(page).toHaveURL(/\/games\/test\//);
+
+  await expect(page).toHaveURL(new RegExp(`/games/${gameName}/`));
   const connectedText = await connectedLog.args()[2].jsonValue();
-  await test.info().attach("connection-message", { body: connectedText, contentType: "text/plain" });
+  await test.info().attach(`${playerName}-connection-message`, { body: connectedText, contentType: "text/plain" });
+}
 
-  await screenshot(page, "joined-game");
-
-  // Get player's div using data-player attribute
-  const playerDiv = page.locator('[data-player="player"]');
+async function validatePlayerCharacters(page, playerName) {
+  const playerDiv = page.locator(`[data-player="${playerName}"]`);
 
   // Validate player name appears
-  await expect(playerDiv.getByText("player")).toBeVisible();
+  await expect(playerDiv.getByText(playerName)).toBeVisible();
 
-  // Validate character cards appear (all 3 characters) within player's div
+  // Validate character cards appear (all 3 characters)
   await expect(playerDiv.getByAltText("knight")).toBeVisible();
   await expect(playerDiv.getByAltText("archer")).toBeVisible();
   await expect(playerDiv.getByAltText("mage")).toBeVisible();
@@ -56,36 +59,36 @@ test("basic game flow", async ({ page }) => {
   await expect(playerDiv.getByText(/אביר דרגה 1/)).toBeVisible();
   await expect(playerDiv.getByText(/קשת דרגה 1/)).toBeVisible();
   await expect(playerDiv.getByText(/קוסם דרגה 1/)).toBeVisible();
+}
 
-  // Open a new page for player2
+test("basic game flow", async ({ page }) => {
+  // Setup and create game
+  await setupHomePage(page);
+  await cleanupTestGame(page);
+  await screenshot(page, "home");
+
+  await createTestGame(page);
+  await screenshot(page, "home-with-test");
+
+  // Player1 joins
+  await joinGame(page, "player", "test");
+  await screenshot(page, "joined-game");
+
+  // Validate player1's characters
+  await validatePlayerCharacters(page, "player");
+
+  // Player2 joins in new page
   const page2 = await page.context().newPage();
-  await page2.goto("/");
-  await expect(page2).toHaveTitle(/Heroes of Talisman/);
-  await page2.waitForSelector('h2:has-text("Join A Game:")');
-
-  // Player2 joins the test game
-  await page2.getByLabel("Enter your name:").fill("player2");
-  await page2.getByRole("button", { name: "test" }).click();
-  await expect(page2).toHaveURL(/\/games\/test\/player2/);
+  await setupHomePage(page2);
+  await joinGame(page2, "player2", "test");
 
   // Wait for player2's div to be visible before screenshot
   await page2.waitForSelector('[data-player="player2"]', { timeout: 5000 });
-
   await screenshot(page2, "player2-joined-game");
 
-  // Get both players' divs
+  // Validate player2 sees both players' characters
+  await validatePlayerCharacters(page2, "player2");
   const player1Div = page2.locator('[data-player="player"]');
-  const player2Div = page2.locator('[data-player="player2"]');
-
-  // Validate player2 sees their own div with name
-  await expect(player2Div.getByText("player2")).toBeVisible();
-
-  // Validate player2 sees their own characters
-  await expect(player2Div.getByAltText("knight")).toBeVisible();
-  await expect(player2Div.getByAltText("archer")).toBeVisible();
-  await expect(player2Div.getByAltText("mage")).toBeVisible();
-
-  // Validate player2 also sees player1's div with characters
   await expect(player1Div.getByText("player")).toBeVisible();
   await expect(player1Div.getByAltText("knight")).toBeVisible();
 
