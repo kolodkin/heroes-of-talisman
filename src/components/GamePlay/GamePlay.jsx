@@ -43,14 +43,16 @@ const GamePlay = ({ username, gamePlay }) => {
         const position = arrangePlayer(index);
         return (
           <div key={player.name} className={`${styles.player} ${styles[`player--${position}`]}`}>
-            <div className={styles["player-name"]}>{player.name}</div>
-            <div className={styles["player-characters"]}>
-              {player.characters &&
-                Object.entries(player.characters).map(([charName, character]) => (
-                  <Card key={charName} faceUp={true}>
-                    <CharacterCard name={charName} character={character} />
-                  </Card>
-                ))}
+            <div className={styles["player-content"]}>
+              <div className={styles["player-name"]}>{player.name}</div>
+              <div className={styles["player-characters"]}>
+                {player.characters &&
+                  Object.entries(player.characters).map(([charName, character]) => (
+                    <Card key={charName} faceUp={true}>
+                      <CharacterCard name={charName} character={character} />
+                    </Card>
+                  ))}
+              </div>
             </div>
           </div>
         );
