@@ -1,8 +1,8 @@
 .card {
   position: relative;
-  border: 2px solid #555;
-  border-radius: 8px;
-  background-color: #fff;
+  border: 3px solid #333;
+  border-radius: 12px;
+  background-color: transparent;
   cursor: pointer;
   transition: all 0.2s ease;
 }
