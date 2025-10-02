@@ -2,6 +2,51 @@
 
 ## Styling System
 
+### Primary: Use CSS Modules
+
+**CSS Modules should be the default choice for component styling.** Use `.module.css` files for better organization and maintainability.
+
+### Secondary: Tailwind CSS for Simple Styling
+
+**Use Tailwind CSS only for simple styling with ≤3 utility classes.**
+
+**Good (simple):**
+
+```jsx
+<button className="px-4 py-2 rounded">Click</button>
+```
+
+**Bad (too many classes):**
+
+```jsx
+<button className="px-6 py-3 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-md">
+  Click
+</button>
+```
+
+**Better (use CSS Module instead):**
+
+```css
+/* Button.module.css */
+.primary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  background-color: #2563eb;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+}
+.primary:hover {
+  background-color: #1d4ed8;
+}
+```
+
+```jsx
+import styles from "./Button.module.css";
+<button className={styles.primary}>Click</button>;
+```
+
 ### Use CSS Modules
 
 # CSS Modules with Vite
