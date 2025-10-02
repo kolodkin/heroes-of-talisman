@@ -10,6 +10,8 @@ This document outlines the gameplay architecture and component hierarchy for the
 This engine offers a fully integrated backend and frontend interaction system for card games, supporting multiple players with individual decks and a shared area.
 It is built on a tightly integrated system of React components and Pydantic models, with data exchanged via JSON serialization.
 
+The game supports multiple languages, currently Hebrew and English, with a centralized language management system.
+
 ## Backend Alignment
 
 Frontend components are designed to work seamlessly with the backend models outlined in [backend gameplay](../backend/gameplay.md).

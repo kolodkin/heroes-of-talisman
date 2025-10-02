@@ -4,7 +4,7 @@ import { notify } from "../utils/notify";
 import styles from "./CharacterSelect.module.css";
 import commonStyles from "./Common.module.css";
 import CharacterCard from "./CharacterCard";
-import lang from "./he";
+import lang from "../utils/lang";
 
 const CharacterSelect = ({ characters, sendAction, active, selectedCharacter = null }) => {
   const handleCharacterClick = (name) => {
