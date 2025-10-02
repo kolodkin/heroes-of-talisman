@@ -42,7 +42,11 @@ const GamePlay = ({ username, gamePlay }) => {
       {playersArray.map((player, index) => {
         const position = arrangePlayer(index);
         return (
-          <div key={player.name} className={`${styles.player} ${styles[`player--${position}`]}`}>
+          <div
+            key={player.name}
+            className={`${styles.player} ${styles[`player--${position}`]}`}
+            data-player={player.name}
+          >
             <div className={styles["player-content"]}>
               <div className={styles["player-name"]}>{player.name}</div>
               <div className={styles["player-characters"]}>
