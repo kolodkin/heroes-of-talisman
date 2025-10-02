@@ -1,5 +1,7 @@
 import React from "react";
 import styles from "./GamePlay.module.css";
+import Card from "./Card";
+import CharacterCard from "../CharacterCard";
 
 const GamePlay = ({ username, gamePlay }) => {
   if (!gamePlay || !gamePlay.players) {
@@ -41,7 +43,15 @@ const GamePlay = ({ username, gamePlay }) => {
         const position = arrangePlayer(index);
         return (
           <div key={player.name} className={`${styles.player} ${styles[`player--${position}`]}`}>
-            {player.name}
+            <div className={styles["player-name"]}>{player.name}</div>
+            <div className={styles["player-characters"]}>
+              {player.characters &&
+                Object.entries(player.characters).map(([charName, character]) => (
+                  <Card key={charName} faceUp={true}>
+                    <CharacterCard name={charName} character={character} />
+                  </Card>
+                ))}
+            </div>
           </div>
         );
       })}
