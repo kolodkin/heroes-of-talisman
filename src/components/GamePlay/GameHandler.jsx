@@ -4,7 +4,7 @@ import { notify, enotify } from "../../utils/notify";
 import AppWebSocket from "../../utils/ws";
 import styles from "./GameHandler.module.css";
 
-import lang from "../he";
+import lang from "../../utils/lang";
 import { toast } from "react-toastify";
 
 import GamePlay from "./GamePlay";

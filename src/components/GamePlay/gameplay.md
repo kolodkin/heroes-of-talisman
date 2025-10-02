@@ -43,6 +43,15 @@ This frontend engine provides a complete visualization system for card games fea
 - **Mobile Support**: Touch-friendly interactions
 - **Accessibility**: Screen reader support and keyboard navigation
 
+### Multi-Language Support
+
+- **Centralized Language Management**: All UI text is obtained via `utils/lang`
+- **Current Languages**: Hebrew (default), English
+- **Language Utilities**:
+  - `getLangVal(key)` - Retrieves localized text using dot notation (e.g., `'errors.connection_failed'`)
+  - Default language object imported from `utils/lang/he.js`
+- **Usage Pattern**: Components import language utilities to display localized text for labels, messages, and UI elements
+
 ## Implementation Details
 
 ### Deck Layout Algorithms

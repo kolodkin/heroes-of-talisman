@@ -2,7 +2,7 @@ import className from "classnames";
 import styles from "./CharacterSelect.module.css";
 import commonStyles from "./Common.module.css";
 import { DiceIcon, HeartIcon } from "./Icons";
-import lang from "./he";
+import lang from "../utils/lang";
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : "");
 

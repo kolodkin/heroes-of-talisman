@@ -8,7 +8,7 @@ import classNames from "classnames";
 import { DiceIcon, HeartIcon } from "./Icons";
 import CharacterSelect from "./CharacterSelect";
 import DrawCard from "./DrawCard";
-import lang from "./he";
+import lang from "../utils/lang";
 import { toast } from "react-toastify";
 
 const MAX_RECONNECT_RETRIES = 20;
