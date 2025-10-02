@@ -17,7 +17,7 @@ const GameHandler = () => {
   const navparams = useParams();
   const [connected, setConnected] = useState(false);
   const { gamename, username } = navparams;
-  const [game, setGame] = useState(null);
+  const [gamePlay, setGamePlay] = useState(null);
   const socketRef = useRef(null);
   const isFirstRender = useRef(true);
 
@@ -46,7 +46,7 @@ const GameHandler = () => {
         toast.error("Server Error. If this error persists, please contact the administrator.");
       }
     } else if (data.event === "game_update") {
-      setGame(data.game);
+      setGamePlay(data.game);
     }
   };
 
@@ -113,7 +113,7 @@ const GameHandler = () => {
     navigate("/");
   };
 
-  if (!game) {
+  if (!gamePlay) {
     return <div>Loading...</div>;
   }
 
@@ -125,7 +125,7 @@ const GameHandler = () => {
 
   return (
     <div className={styles["game-handler"]} style={{ direction: lang.direction }}>
-      <GamePlay />
+      <GamePlay username={username} gamePlay={gamePlay} />
       {disconnectedOverlay}
     </div>
   );

@@ -43,8 +43,8 @@ class Player(BaseModel):
 
 class GameBoard(BaseModel):
     stage: str = "start"
-    playing: str = None  # the player who is currently playing
-    players_hands: dict[str, Player] = Field(default_factory=dict)
+    playing: Optional[str] = None  # the player who is currently playing
+    players: dict[str, Player] = Field(default_factory=dict)
 
 
 __DEFAULT_GAME__ = GameBoard()
