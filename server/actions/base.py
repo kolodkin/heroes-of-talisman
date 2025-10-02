@@ -12,7 +12,7 @@ class Action(ABC):
     # convenience helpers similar to GameEngine properties
     @property
     def players(self):
-        return self.game.players_hands
+        return self.game.players
 
     @property
     def player(self) -> Player:

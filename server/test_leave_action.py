@@ -24,14 +24,14 @@ def test_leave_action_existing_player():
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players_hands["player1"] = Player(name="player1", characters=characters)
-    game.players_hands["player2"] = Player(name="player2", characters=characters)
+    game.players["player1"] = Player(name="player1", characters=characters)
+    game.players["player2"] = Player(name="player2", characters=characters)
 
     action = LeaveAction("player1", game)
     updated_game = action.run()
 
-    assert "player1" not in updated_game.players_hands
-    assert "player2" in updated_game.players_hands  # Other players remain
+    assert "player1" not in updated_game.players
+    assert "player2" in updated_game.players  # Other players remain
 
 
 def test_leave_action_nonexistent_player():
@@ -49,9 +49,9 @@ def test_leave_action_only_player():
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players_hands["player1"] = Player(name="player1", characters=characters)
+    game.players["player1"] = Player(name="player1", characters=characters)
 
     action = LeaveAction("player1", game)
     updated_game = action.run()
 
-    assert len(updated_game.players_hands) == 0
+    assert len(updated_game.players) == 0
