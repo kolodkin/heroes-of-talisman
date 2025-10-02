@@ -21,11 +21,8 @@ class GameEngine:
 
     def model_dump(self):
         """Return game state with players reordered for this user"""
-        game_dict = self.game.model_dump()
-        # Reorder players and convert to dict
-        reordered_players = self.game.reorder_players(self.username)
-        game_dict["players"] = {key: player.model_dump() for key, player in reordered_players.items()}
-        return game_dict
+        self.game.reorder_players(self.username)
+        return self.game.model_dump()
 
     @property
     def gamename(self):

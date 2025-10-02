@@ -54,7 +54,18 @@ This frontend engine provides a complete visualization system for card games fea
 
 Game State and API interactions are handled within the [GameHandler](./GameHandler.jsx) component wrapping [GamePlay](./GamePlay.jsx) Component.
 
-# Key Compoentns
+## Stage Components
+
+Each game stage has its own dedicated component that renders the appropriate UI for that stage. The SharedArea uses a switch/case statement to render the relevant stage component based on the current game stage.
+
+**Stage Rendering Flow:**
+
+1. GamePlay receives the game state including current stage
+2. SharedArea evaluates `gamePlay.stage`
+3. SharedArea renders the appropriate stage component (e.g., CharacterSelect, Movement, Combat)
+4. Stage component handles user interactions and sends actions to backend
+
+# Key Components
 
 ## Player
 
@@ -62,3 +73,9 @@ Game State and API interactions are handled within the [GameHandler](./GameHandl
 - Shows player's hand, stats, and any status effects
 - Highlights if it's the player's turn or if the player is disconnected
 - Supports interaction with cards in hand (e.g., selection, play)
+
+## SharedArea
+
+- Dynamically renders stage-specific components based on `gamePlay.stage`
+- Acts as the central game area where turn actions occur
+- Contains stage components: CharacterSelect, Movement, Combat, etc.
