@@ -6,8 +6,8 @@ from server.gameplay.models import GameBoard, Player
 def test_reorder_players_single_player():
     """Test reordering with a single player"""
     game = GameBoard(players={"alice": Player(name="alice")})
-    reordered = game.reorder_players("alice")
-    assert list(reordered.keys()) == ["alice"]
+    game.reorder_players("alice")
+    assert list(game.players.keys()) == ["alice"]
 
 
 def test_reorder_players_two_players():
@@ -20,12 +20,12 @@ def test_reorder_players_two_players():
     )
 
     # Alice first
-    reordered = game.reorder_players("alice")
-    assert list(reordered.keys()) == ["alice", "bob"]
+    game.reorder_players("alice")
+    assert list(game.players.keys()) == ["alice", "bob"]
 
     # Bob first
-    reordered = game.reorder_players("bob")
-    assert list(reordered.keys()) == ["bob", "alice"]
+    game.reorder_players("bob")
+    assert list(game.players.keys()) == ["bob", "alice"]
 
 
 def test_reorder_players_four_players():
@@ -40,24 +40,24 @@ def test_reorder_players_four_players():
     )
 
     # Alice first
-    reordered = game.reorder_players("alice")
-    assert list(reordered.keys()) == ["alice", "bob", "charlie", "dave"]
+    game.reorder_players("alice")
+    assert list(game.players.keys()) == ["alice", "bob", "charlie", "dave"]
 
     # Bob first
-    reordered = game.reorder_players("bob")
-    assert list(reordered.keys()) == ["bob", "charlie", "dave", "alice"]
+    game.reorder_players("bob")
+    assert list(game.players.keys()) == ["bob", "charlie", "dave", "alice"]
 
     # Charlie first
-    reordered = game.reorder_players("charlie")
-    assert list(reordered.keys()) == ["charlie", "dave", "alice", "bob"]
+    game.reorder_players("charlie")
+    assert list(game.players.keys()) == ["charlie", "dave", "alice", "bob"]
 
     # Dave first
-    reordered = game.reorder_players("dave")
-    assert list(reordered.keys()) == ["dave", "alice", "bob", "charlie"]
+    game.reorder_players("dave")
+    assert list(game.players.keys()) == ["dave", "alice", "bob", "charlie"]
 
 
 def test_reorder_players_nonexistent_user():
-    """Test reordering with a user that doesn't exist returns original order"""
+    """Test reordering with a user that doesn't exist keeps original order"""
     game = GameBoard(
         players={
             "alice": Player(name="alice"),
@@ -65,5 +65,5 @@ def test_reorder_players_nonexistent_user():
         }
     )
 
-    reordered = game.reorder_players("nonexistent")
-    assert list(reordered.keys()) == ["alice", "bob"]
+    game.reorder_players("nonexistent")
+    assert list(game.players.keys()) == ["alice", "bob"]

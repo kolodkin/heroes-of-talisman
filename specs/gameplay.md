@@ -51,3 +51,11 @@ The engine expects a JSON game board as defined in backend "server/gameplay/mode
 
 - Manages card states (face up/down, selected, highlighted)
 - Handles click events and animations
+
+## Game Stages
+
+The game progresses through distinct stages during each player's turn. Upon completing all stages, the turn passes to the next player.
+
+### Turn Stages
+
+1. **Character Select** - Player chooses which character will act during this turn

@@ -7,6 +7,9 @@ CONNECTED = "connected"
 DISCONNECTED = "disconnected"
 CONNECTION_STATUS = Literal["connected", "disconnected"]
 
+CHARACTER_SELECT = "character_select"
+STAGES = Literal["character_select"]
+
 
 class GameException(Exception):
     pass
@@ -46,10 +49,10 @@ class GameBoard(BaseModel):
     playing: Optional[str] = None  # the player who is currently playing
     players: dict[str, Player] = Field(default_factory=dict)
 
-    def reorder_players(self, username: str) -> dict[str, Player]:
-        """Return players dict with username first (circular shift)"""
+    def reorder_players(self, username: str):
+        """Reorder players dict in-place with username first (circular shift)"""
         if username not in self.players:
-            return self.players
+            return
 
         # Get all player keys
         player_keys = list(self.players.keys())
@@ -61,7 +64,11 @@ class GameBoard(BaseModel):
         reordered_keys = player_keys[user_index:] + player_keys[:user_index]
 
         # Build new dict with reordered keys
-        return {key: self.players[key] for key in reordered_keys}
+        reordered_dict = {key: self.players[key] for key in reordered_keys}
+
+        # Update in-place
+        self.players.clear()
+        self.players.update(reordered_dict)
 
 
 __DEFAULT_GAME__ = GameBoard()
