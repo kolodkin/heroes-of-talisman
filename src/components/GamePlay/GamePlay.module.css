@@ -30,10 +30,23 @@
   background-color: #2a2a2a;
   padding: 1rem;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
   font-weight: bold;
   color: #fff;
+}
+
+.player-name {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.player-characters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .player--bottom {
