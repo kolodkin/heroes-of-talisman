@@ -30,28 +30,9 @@ This frontend engine provides a complete visualization system for card games fea
 - **Turn Indicators**: Visual cues for active player
 - **Player Statistics**: Score, remaining cards, status
 
-### Zoom, Pan and Zoom Modes
-
-The game is presented from a top-down perspective, with the entire GameBoard always rendered and visible. Users can adjust their view by zooming in or out using the mouse scroll wheel, and can pan across the board by dragging while holding the right mouse button. Both zooming and panning are achieved through CSS3 transformations.
-
-Store the user's current zoom and pan settings for the game board in local storage, and automatically retrieve and apply these settings when the GameHandler component initializes.
-
-The interface provides four zoom preset modes, each accessible via a specific keyboard shortcut:
-
-- Pressing '1' triggers Full View, resetting zoom and pan to display the entire game board (default).
-- Pressing '2' activates Hand Zoom, centering and zooming in on the player's hand area.
-- Pressing '3' enables Hand & Shared Zoom, adjusting the view to show both the player's hand and the shared area.
-- Pressing '4' selects Active Zoom, focusing the view on the decks currently involved in the active player's turn.
-
 ### Multiplayer Layout
 
-- **Center-focused Design**: SharedArea is always positioned in the center of the game board
-- **Player Arrangement**: Players are arranged around the SharedArea as follows
-  - User's Player is always positioned at the bottom
-  - Second player is always positioned on top
-  - Third player is always positioned on the left
-  - Fourth player is always positioned on the right
-  - For five or more players, continue positioning additional Players in the following repeating order: top, left, right, bottom, and so on, cycling through these positions as needed.
+- **GamePlay Arrangement**: Players are arranged before shared area (left for ltr, right for rtl)
 - **Spatial Awareness**: Layout provides clear visual hierarchy of game elements
 - **Consistent Orientation**: Maintains the same arrangement regardless of game state
 

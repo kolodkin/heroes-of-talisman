@@ -181,7 +181,7 @@ async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta, session:
                 await websocket.send_json(
                     {
                         "event": "game_update",
-                        "game": game_engine.game.model_dump(),
+                        "game": game_engine.model_dump(),
                     }
                 )
             else:
