@@ -34,7 +34,7 @@ class CharacterCard(BaseModel):
     attack: Optional[int] = None  # Only knight has attack
 
 
-class PlayerHand(BaseModel):
+class Player(BaseModel):
     name: str
     status: CONNECTION_STATUS = CONNECTED
     cards: list[str] = Field(default_factory=list)
@@ -44,7 +44,7 @@ class PlayerHand(BaseModel):
 class GameBoard(BaseModel):
     stage: str = "start"
     playing: str = None  # the player who is currently playing
-    players_hands: dict[str, PlayerHand] = Field(default_factory=dict)
+    players_hands: dict[str, Player] = Field(default_factory=dict)
 
 
 __DEFAULT_GAME__ = GameBoard()

@@ -5,7 +5,7 @@ from ..gameplay.models import (
     GameBoard,
     GameException,
     ReportedException,
-    PlayerHand,
+    Player,
     CharacterCard,
     CHARACTER_DEFAULT_STATS,
 )
@@ -23,7 +23,7 @@ class ConnectAction(Action):
             for char_type in ["knight", "archer", "mage"]:
                 characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
 
-            self.players[self.user] = PlayerHand(name=self.user, status="connected", cards=[], characters=characters)
+            self.players[self.user] = Player(name=self.user, status="connected", cards=[], characters=characters)
 
         if self.game.playing is None:
             if self.game.stage is None:

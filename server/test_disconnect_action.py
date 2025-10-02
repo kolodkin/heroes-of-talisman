@@ -10,7 +10,7 @@ import pytest
 from server.actions.connection import DisconnectAction
 from server.gameplay.models import (
     GameBoard,
-    PlayerHand,
+    Player,
     CharacterCard,
     GameException,
     CHARACTER_DEFAULT_STATS,
@@ -23,7 +23,7 @@ def test_disconnect_action_existing_player():
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players_hands["player1"] = PlayerHand(name="player1", status="connected", characters=characters)
+    game.players_hands["player1"] = Player(name="player1", status="connected", characters=characters)
 
     action = DisconnectAction("player1", game)
     updated_game = action.run()
@@ -47,7 +47,7 @@ def test_disconnect_action_already_disconnected():
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players_hands["player1"] = PlayerHand(name="player1", status="disconnected", characters=characters)
+    game.players_hands["player1"] = Player(name="player1", status="disconnected", characters=characters)
 
     action = DisconnectAction("player1", game)
     updated_game = action.run()
