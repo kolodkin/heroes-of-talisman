@@ -11,7 +11,7 @@ import pytest
 from server.actions.connection import LeaveAction
 from server.gameplay.models import (
     GameBoard,
-    PlayerHand,
+    Player,
     CharacterCard,
     GameException,
     CHARACTER_DEFAULT_STATS,
@@ -24,8 +24,8 @@ def test_leave_action_existing_player():
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players_hands["player1"] = PlayerHand(name="player1", characters=characters)
-    game.players_hands["player2"] = PlayerHand(name="player2", characters=characters)
+    game.players_hands["player1"] = Player(name="player1", characters=characters)
+    game.players_hands["player2"] = Player(name="player2", characters=characters)
 
     action = LeaveAction("player1", game)
     updated_game = action.run()
@@ -49,7 +49,7 @@ def test_leave_action_only_player():
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players_hands["player1"] = PlayerHand(name="player1", characters=characters)
+    game.players_hands["player1"] = Player(name="player1", characters=characters)
 
     action = LeaveAction("player1", game)
     updated_game = action.run()

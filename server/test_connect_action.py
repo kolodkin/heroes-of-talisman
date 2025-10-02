@@ -10,7 +10,7 @@ import pytest
 from server.actions.connection import ConnectAction
 from server.gameplay.models import (
     GameBoard,
-    PlayerHand,
+    Player,
     CharacterCard,
     ReportedException,
     CHARACTER_DEFAULT_STATS,
@@ -40,7 +40,7 @@ def test_connect_action_new_player():
 def test_connect_action_existing_player_reconnect():
     """Test reconnecting an existing player who was disconnected"""
     game = GameBoard()
-    game.players_hands["player1"] = PlayerHand(
+    game.players_hands["player1"] = Player(
         name="player1",
         status="disconnected",
         cards=["talisman"],
@@ -70,7 +70,7 @@ def test_connect_action_game_full():
         characters = {}
         for char_type in ["knight", "archer", "mage"]:
             characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-        game.players_hands[player_name] = PlayerHand(name=player_name, characters=characters)
+        game.players_hands[player_name] = Player(name=player_name, characters=characters)
 
     action = ConnectAction("player_overflow", game)
 
@@ -86,7 +86,7 @@ def test_connect_action_second_player():
     characters = {}
     for char_type in ["knight", "archer", "mage"]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players_hands["player1"] = PlayerHand(name="player1", characters=characters)
+    game.players_hands["player1"] = Player(name="player1", characters=characters)
 
     action = ConnectAction("player2", game)
     updated_game = action.run()

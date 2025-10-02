@@ -46,12 +46,12 @@ The interface provides four zoom preset modes, each accessible via a specific ke
 ### Multiplayer Layout
 
 - **Center-focused Design**: SharedArea is always positioned in the center of the game board
-- **Player Arrangement**: PlayerHands are arranged around the SharedArea as follows
-  - User's PlayerHand is always positioned at the bottom
+- **Player Arrangement**: Players are arranged around the SharedArea as follows
+  - User's Player is always positioned at the bottom
   - Second player is always positioned on top
   - Third player is always positioned on the left
   - Fourth player is always positioned on the right
-  - For five or more players, continue positioning additional PlayerHands in the following repeating order: top, left, right, bottom, and so on, cycling through these positions as needed.
+  - For five or more players, continue positioning additional Players in the following repeating order: top, left, right, bottom, and so on, cycling through these positions as needed.
 - **Spatial Awareness**: Layout provides clear visual hierarchy of game elements
 - **Consistent Orientation**: Maintains the same arrangement regardless of game state
 
