@@ -45,12 +45,14 @@ This frontend engine provides a complete visualization system for card games fea
 
 ### Multi-Language Support
 
-- **Centralized Language Management**: All UI text is obtained via `utils/lang`
-- **Current Languages**: Hebrew (default), English
-- **Language Utilities**:
-  - `getLangVal(key)` - Retrieves localized text using dot notation (e.g., `'errors.connection_failed'`)
-  - Default language object imported from `utils/lang/he.js`
-- **Usage Pattern**: Components import language utilities to display localized text for labels, messages, and UI elements
+- **i18next Integration**: All UI text is managed via `react-i18next`
+- **Current Languages**: Hebrew only (for development simplicity)
+- **Configuration**: Centralized in `src/i18n.js` with translation resources
+- **Usage Pattern**:
+  - Components use the `useTranslation` hook to access translations
+  - Translation keys use dot notation (e.g., `t('errors.connection_failed')`)
+  - Interpolation supported for dynamic values (e.g., `t('errors.game_not_found', { gamename })`)
+- **Direction Support**: RTL handled via `t('direction')`
 
 ## Implementation Details
 

@@ -1,13 +1,14 @@
 import className from "classnames";
+import { useTranslation } from "react-i18next";
 import styles from "./CharacterSelect.module.css";
 import commonStyles from "./Common.module.css";
 import { DiceIcon, HeartIcon } from "./Icons";
-import lang from "../utils/lang";
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : "");
 
 const CharacterCard = ({ name, character, isSelected, onClick }) => {
-  const nameStr = lang.characterNames[name];
+  const { t } = useTranslation();
+  const nameStr = t(`characterNames.${name}`);
 
   return (
     <div
@@ -25,7 +26,7 @@ const CharacterCard = ({ name, character, isSelected, onClick }) => {
         }}
       />
       <p className="w-full text-center font-bold" style={{ fontSize: "0.7rem" }}>
-        {nameStr} דרגה {character.level}
+        {nameStr} {t("character_card.level")} {character.level}
       </p>
       <div className="flex items-center gap-1">
         {[...Array(character.dice).keys()].map((i) => (

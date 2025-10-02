@@ -6,4 +6,4 @@ ROOT_DIR=$SCRIPT_DIR/..
 
 cd $ROOT_DIR
 
-docker compose --profile debug up -d
+docker compose --profile debug down

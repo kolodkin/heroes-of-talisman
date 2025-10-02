@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { notify, enotify } from "../../utils/notify";
 import AppWebSocket from "../../utils/ws";
 import styles from "./GameHandler.module.css";
 
-import lang from "../../utils/lang";
 import { toast } from "react-toastify";
 
 import GamePlay from "./GamePlay";
@@ -16,6 +16,7 @@ const RECONNECT_TIMEOUT_MS = 500;
 const GameHandler = () => {
   const navigate = useNavigate();
   const navparams = useParams();
+  const { t } = useTranslation();
   const [connected, setConnected] = useState(false);
   const { gamename, username } = navparams;
   const [gamePlay, setGamePlay] = useState(null);
@@ -35,7 +36,7 @@ const GameHandler = () => {
     if (data.error) {
       // special casses
       if (data.error === "Game not found") {
-        enotify("errors.game_not_found", gamename);
+        enotify("errors.game_not_found", { gamename });
         navigate("/");
         socketRef.current?.close();
         return;
@@ -120,12 +121,12 @@ const GameHandler = () => {
 
   const disconnectedOverlay = !connected ? (
     <div className={styles.disconnected}>
-      <p>{lang.disconnected}</p>
+      <p>{t("disconnected")}</p>
     </div>
   ) : null;
 
   return (
-    <div className={styles["game-handler"]} style={{ direction: lang.direction }}>
+    <div className={styles["game-handler"]} style={{ direction: t("direction") }}>
       <Navbar stage={gamePlay?.stage} />
       <GamePlay username={username} gamePlay={gamePlay} />
       {disconnectedOverlay}

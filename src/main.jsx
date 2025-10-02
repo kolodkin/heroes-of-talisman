@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
+import "./i18n";
 import HomePage from "./components/HomePage.jsx";
 import GameHandler from "./components/GamePlay/GameHandler.jsx";
 import { ToastContainer } from "react-toastify";

@@ -45,7 +45,7 @@ class Player(BaseModel):
 
 
 class GamePlay(BaseModel):
-    stage: str = "start"
+    stage: str = CHARACTER_SELECT
     playing: Optional[str] = None  # the player who is currently playing
     players: dict[str, Player] = Field(default_factory=dict)
 
