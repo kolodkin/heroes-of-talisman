@@ -8,6 +8,7 @@ import lang from "../he";
 import { toast } from "react-toastify";
 
 import GamePlay from "./GamePlay";
+import Navbar from "./Navbar";
 
 const MAX_RECONNECT_RETRIES = 20;
 const RECONNECT_TIMEOUT_MS = 500;
@@ -125,6 +126,7 @@ const GameHandler = () => {
 
   return (
     <div className={styles["game-handler"]} style={{ direction: lang.direction }}>
+      <Navbar />
       <GamePlay username={username} gamePlay={gamePlay} />
       {disconnectedOverlay}
     </div>

@@ -1,0 +1,82 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  height: 60px;
+  background-color: #1a1a1a;
+  border-bottom: 2px solid #333;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0;
+  padding-inline: 20px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.navbar.visible {
+  transform: translateY(0);
+}
+
+.navbar.hidden {
+  transform: translateY(-100%);
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  flex: 1;
+}
+
+.gameName {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  margin: 0;
+}
+
+.username {
+  font-size: 16px;
+  color: #fff;
+  padding: 6px 16px;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  border: 2px solid #555;
+}
+
+.toggleBtn {
+  background-color: #2a2a2a;
+  border: 2px solid #555;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.toggleBtn:hover {
+  background-color: #333;
+  border-color: #666;
+}
+
+.showBtn {
+  position: fixed;
+  top: 10px;
+  inset-inline-end: 20px;
+  background-color: #1a1a1a;
+  border: 2px solid #555;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 999;
+  transition: all 0.2s;
+}
+
+.showBtn:hover {
+  background-color: #2a2a2a;
+  border-color: #666;
+}
