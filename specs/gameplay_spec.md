@@ -29,6 +29,7 @@ The engine expects a JSON game board as defined in backend "server/gameplay/mode
 - Game name
 - Username
 - Current stage name (translated)
+- Current playing player
 
 ### GameBoard
 

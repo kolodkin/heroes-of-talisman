@@ -1,10 +1,12 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./GamePlay.module.css";
 import Card from "./Card";
 import CharacterCard from "../CharacterCard";
 import StageCharacterSelect from "./StageCharacterSelect";
 
 const GamePlay = ({ username, gamePlay, sendAction }) => {
+  const { t } = useTranslation();
   if (!gamePlay || !gamePlay.players) {
     return null;
   }
@@ -37,6 +39,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
       </div>
 
       <div className={styles["shared-area"]}>
+        <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
         {(() => {
           const currentPlayer = gamePlay.players[username];
           const isActivePlayer = gamePlay.playing === username;
