@@ -33,9 +33,6 @@ services:
 
   server:
     image: ghcr.io/astral-sh/uv:python3.12-bookworm
-    profiles:
-      - server
-      - debug
     ports:
       - 8000:8000
     user: ${MY_UID}:${MY_GID}
@@ -60,9 +57,6 @@ services:
 
   www:
     image: node:${MY_NODE}
-    profiles:
-      - client
-      - debug
     # restart: unless-stopped
     environment:
       VITE_PROXY_URL: ${VITE_PROXY_URL:-host.docker.internal}
