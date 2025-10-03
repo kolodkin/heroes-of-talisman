@@ -83,14 +83,21 @@ test("basic game flow", async ({ page }) => {
   await joinGame(page2, "player2", "test");
 
   // Wait for player2's div to be visible before screenshot
-  await page2.waitForSelector('[data-player="player2"]', { timeout: 5000 });
-  await screenshot(page2, "player2-joined-game");
+  await page2.waitForSelector('[data-player="player2"]', { timeout: 2000 });
+  await screenshot(page, "player2-joined-game-page1");
+  await screenshot(page2, "player2-joined-game-page2");
 
+  // Validate all players see both players' characters (interactive)
   // Validate player2 sees both players' characters
+  await validatePlayerCharacters(page2, "player");
   await validatePlayerCharacters(page2, "player2");
-  const player1Div = page2.locator('[data-player="player"]');
-  await expect(player1Div.getByText("player")).toBeVisible();
-  await expect(player1Div.getByAltText("knight")).toBeVisible();
+
+  // Wait for player1 to receive the update about player2
+  await page.waitForSelector('[data-player="player2"]', { timeout: 5000 });
+
+  // Validate player sees both players' characters
+  await validatePlayerCharacters(page, "player");
+  await validatePlayerCharacters(page, "player2");
 
   // Clean up
   await page2.close();
