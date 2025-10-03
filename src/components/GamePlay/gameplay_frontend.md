@@ -54,6 +54,20 @@ This frontend engine provides a complete visualization system for card games fea
   - Interpolation supported for dynamic values (e.g., `t('errors.game_not_found', { gamename })`)
 - **Direction Support**: RTL handled via `t('direction')`
 
+### RTL/LTR Layout
+
+The application supports both RTL (Hebrew) and LTR layouts using CSS logical properties:
+
+- **Avoid**: `left`, `right`, `margin-left`, `margin-right`, `padding-left`, `padding-right`
+- **Use Instead**:
+  - `inline-start` / `inline-end` for horizontal positioning
+  - `margin-inline-start` / `margin-inline-end` for margins
+  - `padding-inline-start` / `padding-inline-end` for padding
+  - `inset-inline-start` / `inset-inline-end` for absolute positioning
+- **Naming Convention**: Use `start` and `end` in class/variable names (e.g., `startGroup`, `endGroup`) instead of `left` and `right`
+- **Flexbox**: Automatically handles direction - items flow according to text direction
+- **Why**: Logical properties automatically adapt to text direction, making the code direction-agnostic
+
 ## Implementation Details
 
 ### Deck Layout Algorithms
@@ -64,6 +78,15 @@ This frontend engine provides a complete visualization system for card games fea
 ## State and API Integration
 
 Game State and API interactions are handled within the [GameHandler](./GameHandler.jsx) component wrapping [GamePlay](./GamePlay.jsx) Component.
+
+## Routing
+
+The GamePlay component uses **React Router** for client-side navigation:
+
+- **Navigation**: Use `Link` component from `react-router-dom` for internal links
+- **Route Parameters**: Access game and player info via `useParams()` hook
+- **Programmatic Navigation**: Use `useNavigate()` hook for redirects
+- **Pattern**: All routes use React Router for SPA behavior (no full page reloads)
 
 ## Interactive
 
@@ -91,9 +114,12 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 ## Navbar
 
+- Home button (routes to '/')
 - Game name
 - Username
 - Current stage name (translated)
+- Current playing player
+- Game title (at end)
 
 ## Player
 
