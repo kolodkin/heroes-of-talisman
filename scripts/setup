@@ -18,8 +18,8 @@ done
 
 
 if [ "$docker_installed" = "true" ]; then
-  echo "Starting services with docker"
-  docker compose up -d
+  echo "Starting postgres and redis with docker"
+  docker compose up -d postgres redis
 else
   echo "docker not installed"
 
@@ -72,6 +72,12 @@ done
 echo "Postgres is ready."
 
 uv run alembic upgrade head
+
+# Start all services
+if [ "$docker_installed" = "true" ]; then
+  echo "Starting all services with docker"
+  docker compose up -d
+fi
 
 # AI instructions conversion
 uv run .ai/ai.py -v
