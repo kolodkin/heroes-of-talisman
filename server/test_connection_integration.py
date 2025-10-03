@@ -11,6 +11,9 @@ import pytest
 from server.actions.connection import ConnectAction, DisconnectAction, LeaveAction
 from server.gameplay.models import (
     GamePlay,
+    CHARACTER_SELECT,
+    CONNECTED,
+    DISCONNECTED,
 )
 
 
@@ -22,21 +25,21 @@ def test_connect_then_disconnect_then_reconnect():
     connect_action = ConnectAction("player1", game)
     game = connect_action.run()
 
-    assert game.players["player1"].status == "connected"
-    assert game.stage == "start"  # Default stage remains "start"
+    assert game.players["player1"].status == CONNECTED
+    assert game.stage == CHARACTER_SELECT
     assert game.playing == "player1"
 
     # Disconnect
     disconnect_action = DisconnectAction("player1", game)
     game = disconnect_action.run()
 
-    assert game.players["player1"].status == "disconnected"
+    assert game.players["player1"].status == DISCONNECTED
 
     # Reconnect
     reconnect_action = ConnectAction("player1", game)
     game = reconnect_action.run()
 
-    assert game.players["player1"].status == "connected"
+    assert game.players["player1"].status == CONNECTED
 
 
 def test_multiple_players_connect_disconnect_leave():
@@ -56,7 +59,7 @@ def test_multiple_players_connect_disconnect_leave():
     disconnect_action = DisconnectAction("player2", game)
     game = disconnect_action.run()
 
-    assert game.players["player2"].status == "disconnected"
+    assert game.players["player2"].status == DISCONNECTED
     assert len(game.players) == 3  # Still in game
 
     # Player3 leaves
@@ -70,5 +73,5 @@ def test_multiple_players_connect_disconnect_leave():
     reconnect_action = ConnectAction("player2", game)
     game = reconnect_action.run()
 
-    assert game.players["player2"].status == "connected"
+    assert game.players["player2"].status == CONNECTED
     assert len(game.players) == 2
