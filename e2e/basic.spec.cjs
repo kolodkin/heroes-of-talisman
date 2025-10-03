@@ -63,6 +63,52 @@ async function validatePlayerCharacters(page, playerName) {
   await expect(playerDiv.getByText(/קוסם דרגה 1/)).toBeVisible();
 }
 
+async function testCharacterSelection(page) {
+  // Get the select button to locate the character selection area
+  const selectButton = page.getByRole("button", { name: "בחר" });
+  await expect(selectButton).toBeVisible();
+
+  // Player1 selects knight character (the one near the בחר button)
+  // Click the knight that's a sibling/near the select button (in shared area, not player area)
+  await page.locator('[alt="knight"]').nth(2).click();
+
+  // Wait for game_update event
+  await page.waitForEvent("console", {
+    predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
+    timeout: TIMEOUT,
+  });
+  await screenshot(page, "knight-selected");
+
+  // Verify knight is highlighted
+  const knightCard = page.locator('[alt="knight"]').nth(2).locator("..");
+  await expect(knightCard).toHaveClass(/selected/);
+
+  // Player1 selects mage character
+  await page.locator('[alt="mage"]').nth(2).click();
+
+  // Wait for game_update event
+  await page.waitForEvent("console", {
+    predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
+    timeout: TIMEOUT,
+  });
+  await screenshot(page, "mage-selected");
+
+  // Verify mage is highlighted and knight is not
+  const mageCard = page.locator('[alt="mage"]').nth(2).locator("..");
+  await expect(mageCard).toHaveClass(/selected/);
+  await expect(knightCard).not.toHaveClass(/selected/);
+
+  // Player1 confirms selection with בחר button
+  await selectButton.click();
+
+  // Wait for game_update event
+  await page.waitForEvent("console", {
+    predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
+    timeout: TIMEOUT,
+  });
+  await screenshot(page, "character-selected-confirmed");
+}
+
 test("basic game flow", async ({ page }) => {
   // Setup and create game
   await setupHomePage(page);
@@ -100,6 +146,9 @@ test("basic game flow", async ({ page }) => {
   // Validate player sees both players' characters
   await validatePlayerCharacters(page, "player");
   await validatePlayerCharacters(page, "player2");
+
+  // Test character selection flow
+  await testCharacterSelection(page);
 
   // Clean up
   await page2.close();

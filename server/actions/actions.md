@@ -12,14 +12,22 @@ state and returns the updated game after running.
 - **Connection actions** (`ConnectAction`, `LeaveAction`,
   `DisconnectAction`): manage player lifecycle by connecting players,
   removing them from the game, or marking them as disconnected.
-- **Character actions** (`CharacterSelectAction`, `CharacterSelectedAction`):
-  handle the character selection phase and transition the game into the
-  card draw phase once a character is chosen.
-- **Card actions** (`CardDrawAction`, `CardSelectAction`): control drawing
-  and selecting cards, maintaining the deck and moving play into the
-  skill usage stage.
-- **Models**: Pydantic models (`GamePlay`, `PlayerModel`, `CharacterModel`)
+- **Models**: Pydantic models (`GamePlay`, `Player`, `CharacterCard`)
   describe the game state and enforce structure and types.
+
+## Stage: Character Select
+
+The character selection stage allows players to choose which character
+will act during their turn.
+
+- **`CharacterPressAction`**: Sets `stage_meta['selected']` to the
+  character name pressed by the active player. Validates that the player
+  is active, the stage is `character_select`, and the character exists
+  for this player.
+- **`CharacterSelectAction`**: Confirms the character selection by
+  setting `selected_character` to the chosen character name and
+  transitioning the game stage from `character_select` to `battle`.
+  Clears `stage_meta` after transition.
 
 ## Workflow
 
@@ -47,6 +55,13 @@ appropriate game phase and update the `GamePlay` as needed.
 Checklist of actions implemented in the server's action layer and the
 class responsible for handling each action.
 
+## General
+
 - [x] `connect` – add a player to the game (`ConnectAction`)
 - [x] `leave` – remove a player from the game (`LeaveAction`)
 - [x] `disconnect` – mark a player as disconnected (`DisconnectAction`)
+
+## Charachter Select Stage
+
+- [x] `character_press` – highlight selected character in (`CharacterPressAction`)
+- [x] `character_select` – confirm character selection and transition to battle (`CharacterSelectAction`)

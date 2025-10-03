@@ -48,6 +48,7 @@ const GameHandler = () => {
         toast.error("Server Error. If this error persists, please contact the administrator.");
       }
     } else if (data.event === "game_update") {
+      console.log(`game_update from action: ${data.event_action}`);
       setGamePlay(data.game);
     }
   };
@@ -128,7 +129,7 @@ const GameHandler = () => {
   return (
     <div className={styles["game-handler"]} style={{ direction: t("direction") }}>
       <Navbar stage={gamePlay?.stage} />
-      <GamePlay username={username} gamePlay={gamePlay} />
+      <GamePlay username={username} gamePlay={gamePlay} sendAction={sendAction} />
       {disconnectedOverlay}
     </div>
   );

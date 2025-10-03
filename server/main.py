@@ -194,12 +194,14 @@ async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta):
         if message["type"] == "message":
             data = json.loads(message["data"])
             if data["event"] == "game_update":
-                logger.info(f"User '{redis_meta.username}' received game_update event")
+                event_action = data.get("event_action", "unknown")
+                logger.info(f"User '{redis_meta.username}' received game_update event from action '{event_action}'")
                 async with AsyncSessionLocal() as session:
                     game_engine = await from_database(session, redis_meta)
                     await websocket.send_json(
                         {
                             "event": "game_update",
+                            "event_action": event_action,
                             "game": game_engine.model_dump(),
                         }
                     )
@@ -214,8 +216,13 @@ async def actions_loop(websocket: WebSocket, redis_meta: RedisMeta):
         logger.info(f"Received action: {action}")
 
         success = False
+        action_name = None
         async with AsyncSessionLocal() as session:
             try:
+                if "action" not in action:
+                    raise GameException("Missing 'action' field")
+
+                action_name = action["action"]
                 game_engine, game_db = await from_database_locked(session, redis_meta)
                 game_engine.action(action)
                 success = True
@@ -234,7 +241,10 @@ async def actions_loop(websocket: WebSocket, redis_meta: RedisMeta):
 
         # Notify connected clients (outside session context)
         logger.info(f"Publishing game_update event to channel '{redis_meta.channel}'")
-        await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
+        await redis_client.publish(
+            redis_meta.channel,
+            json.dumps(dict(event="game_update", event_action=action_name))
+        )
 
 
 @app.websocket("/ws/{gamename}/{username}")
