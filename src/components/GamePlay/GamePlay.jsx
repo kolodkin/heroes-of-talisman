@@ -2,8 +2,9 @@ import React from "react";
 import styles from "./GamePlay.module.css";
 import Card from "./Card";
 import CharacterCard from "../CharacterCard";
+import StageCharacterSelect from "./StageCharacterSelect";
 
-const GamePlay = ({ username, gamePlay }) => {
+const GamePlay = ({ username, gamePlay, sendAction }) => {
   if (!gamePlay || !gamePlay.players) {
     return null;
   }
@@ -35,7 +36,26 @@ const GamePlay = ({ username, gamePlay }) => {
         ))}
       </div>
 
-      <div className={styles["shared-area"]}>{/* Shared area content will go here */}</div>
+      <div className={styles["shared-area"]}>
+        {(() => {
+          const currentPlayer = gamePlay.players[username];
+          const isActivePlayer = gamePlay.playing === username;
+
+          switch (gamePlay.stage) {
+            case "character_select":
+              return (
+                <StageCharacterSelect
+                  characters={currentPlayer?.characters || {}}
+                  sendAction={sendAction}
+                  active={isActivePlayer}
+                  selectedCharacter={gamePlay.stage_meta?.selected}
+                />
+              );
+            default:
+              return <div>Stage: {gamePlay.stage}</div>;
+          }
+        })()}
+      </div>
     </div>
   );
 };

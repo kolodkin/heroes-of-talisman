@@ -35,7 +35,7 @@ const resources = {
         wait_your_turn: "המתן לתורך",
       },
       character_select: {
-        submit: "שלח",
+        submit: "בחר",
         select_character: "בחר דמות בבקשה",
       },
       draw_card: {

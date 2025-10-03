@@ -1,6 +1,6 @@
 import className from "classnames";
 import { useTranslation } from "react-i18next";
-import styles from "./CharacterSelect.module.css";
+import styles from "./GamePlay/StageCharacterSelect.module.css";
 import commonStyles from "./Common.module.css";
 import { DiceIcon, HeartIcon } from "./Icons";
 

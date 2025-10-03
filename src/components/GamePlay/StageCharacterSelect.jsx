@@ -1,12 +1,23 @@
+/**
+ * Character Select Stage
+ *
+ * Displays character cards for each character (similar to players menu).
+ *
+ * Flow:
+ * - On character click: invokes 'character_press' action, creating stage_meta
+ *   with 'selected' in backend, triggering game_update to highlight selected character
+ * - On Select button press: invokes 'character_select' action, populating
+ *   selected_character in game meta and switching GamePlay.stage to 'battle'
+ */
 import className from "classnames";
 import { useTranslation } from "react-i18next";
-import { notify } from "../utils/notify";
+import { notify } from "../../utils/notify";
 
-import styles from "./CharacterSelect.module.css";
-import commonStyles from "./Common.module.css";
-import CharacterCard from "./CharacterCard";
+import styles from "./StageCharacterSelect.module.css";
+import commonStyles from "../Common.module.css";
+import CharacterCard from "../CharacterCard";
 
-const CharacterSelect = ({ characters, sendAction, active, selectedCharacter = null }) => {
+const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacter = null }) => {
   const { t } = useTranslation();
 
   const handleCharacterClick = (name) => {
@@ -14,8 +25,7 @@ const CharacterSelect = ({ characters, sendAction, active, selectedCharacter = n
       return;
     }
 
-    sendAction("character_select", { character: name });
-    // notify(`selected ${lang.characterNames[name]}`);
+    sendAction("character_press", { character: name });
   };
 
   const handleSubmit = () => {
@@ -24,7 +34,7 @@ const CharacterSelect = ({ characters, sendAction, active, selectedCharacter = n
     }
 
     if (selectedCharacter) {
-      sendAction("character_selected", { character: selectedCharacter });
+      sendAction("character_select", { character: selectedCharacter });
     } else {
       notify("character_select.select_character");
     }
@@ -53,4 +63,4 @@ const CharacterSelect = ({ characters, sendAction, active, selectedCharacter = n
   );
 };
 
-export default CharacterSelect;
+export default StageCharacterSelect;
