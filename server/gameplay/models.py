@@ -8,7 +8,12 @@ DISCONNECTED = "disconnected"
 CONNECTION_STATUS = Literal["connected", "disconnected"]
 
 CHARACTER_SELECT = "character_select"
-STAGES = Literal["character_select"]
+STAGES_NAMES = Literal["character_select"]
+
+KNIGHT = "knight"
+ARCHER = "archer"
+MAGE = "mage"
+CHARACTER_TYPES = Literal["knight", "archer", "mage"]
 
 
 class GameException(Exception):
@@ -45,7 +50,7 @@ class Player(BaseModel):
 
 
 class GamePlay(BaseModel):
-    stage: str = CHARACTER_SELECT
+    stage: STAGES_NAMES = CHARACTER_SELECT
     playing: Optional[str] = None  # the player who is currently playing
     players: dict[str, Player] = Field(default_factory=dict)
 

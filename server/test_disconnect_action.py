@@ -14,6 +14,11 @@ from server.gameplay.models import (
     CharacterCard,
     GameException,
     CHARACTER_DEFAULT_STATS,
+    KNIGHT,
+    ARCHER,
+    MAGE,
+    CONNECTED,
+    DISCONNECTED,
 )
 
 
@@ -21,14 +26,14 @@ def test_disconnect_action_existing_player():
     """Test disconnecting an existing connected player"""
     game = GamePlay()
     characters = {}
-    for char_type in ["knight", "archer", "mage"]:
+    for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players["player1"] = Player(name="player1", status="connected", characters=characters)
+    game.players["player1"] = Player(name="player1", status=CONNECTED, characters=characters)
 
     action = DisconnectAction("player1", game)
     updated_game = action.run()
 
-    assert updated_game.players["player1"].status == "disconnected"
+    assert updated_game.players["player1"].status == DISCONNECTED
     assert updated_game.players["player1"].name == "player1"  # Other data preserved
 
 
@@ -45,12 +50,12 @@ def test_disconnect_action_already_disconnected():
     """Test disconnecting a player who is already disconnected"""
     game = GamePlay()
     characters = {}
-    for char_type in ["knight", "archer", "mage"]:
+    for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players["player1"] = Player(name="player1", status="disconnected", characters=characters)
+    game.players["player1"] = Player(name="player1", status=DISCONNECTED, characters=characters)
 
     action = DisconnectAction("player1", game)
     updated_game = action.run()
 
     # Should still work and status remains disconnected
-    assert updated_game.players["player1"].status == "disconnected"
+    assert updated_game.players["player1"].status == DISCONNECTED

@@ -15,6 +15,9 @@ from server.gameplay.models import (
     CharacterCard,
     GameException,
     CHARACTER_DEFAULT_STATS,
+    KNIGHT,
+    ARCHER,
+    MAGE,
 )
 
 
@@ -22,7 +25,7 @@ def test_leave_action_existing_player():
     """Test a player leaving the game"""
     game = GamePlay()
     characters = {}
-    for char_type in ["knight", "archer", "mage"]:
+    for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
@@ -47,7 +50,7 @@ def test_leave_action_only_player():
     """Test the only player in the game leaving"""
     game = GamePlay()
     characters = {}
-    for char_type in ["knight", "archer", "mage"]:
+    for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", characters=characters)
 

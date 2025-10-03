@@ -1,5 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
+const TIMEOUT = 2000;
+
 async function screenshot(page, name) {
   const screenshot = await page.screenshot();
   await test.info().attach(name, { body: screenshot, contentType: "image/jpg" });
@@ -34,7 +36,7 @@ async function joinGame(page, playerName, gameName) {
   const [connectedLog] = await Promise.all([
     page.waitForEvent("console", {
       predicate: (msg) => msg.text().includes("notify.connected"),
-      timeout: 1000,
+      timeout: TIMEOUT,
     }),
     gameButton.click(),
   ]);
@@ -83,7 +85,7 @@ test("basic game flow", async ({ page }) => {
   await joinGame(page2, "player2", "test");
 
   // Wait for player2's div to be visible before screenshot
-  await page2.waitForSelector('[data-player="player2"]', { timeout: 2000 });
+  await page2.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
   await screenshot(page, "player2-joined-game-page1");
   await screenshot(page2, "player2-joined-game-page2");
 
@@ -93,7 +95,7 @@ test("basic game flow", async ({ page }) => {
   await validatePlayerCharacters(page2, "player2");
 
   // Wait for player1 to receive the update about player2
-  await page.waitForSelector('[data-player="player2"]', { timeout: 5000 });
+  await page.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
 
   // Validate player sees both players' characters
   await validatePlayerCharacters(page, "player");
