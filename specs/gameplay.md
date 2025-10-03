@@ -54,6 +54,10 @@ The engine expects a JSON game board as defined in backend "server/gameplay/mode
 - Manages card states (face up/down, selected, highlighted)
 - Handles click events and animations
 
+## Interactive
+
+Any player action that updates the gameplay state will trigger an update for all players in the game via the WebSocket connection. This update implicitly causes a re-render of the game UI for all connected players, ensuring synchronized game state across all clients.
+
 ## Game Stages
 
 The game progresses through distinct stages during each player's turn. Upon completing all stages, the turn passes to the next player.

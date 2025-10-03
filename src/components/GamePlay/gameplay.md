@@ -65,6 +65,17 @@ This frontend engine provides a complete visualization system for card games fea
 
 Game State and API interactions are handled within the [GameHandler](./GameHandler.jsx) component wrapping [GamePlay](./GamePlay.jsx) Component.
 
+## Interactive
+
+Any player action that updates the gameplay state triggers a re-render for all connected players, ensuring synchronized game state across all clients.
+
+**Re-render Flow (onmessage in GameHandler.jsx):**
+
+1. WebSocket receives `game_update` event in `onmessage()` callback
+2. Game state is updated via `setGamePlay(data.game)`
+3. React automatically re-renders all components that depend on `gamePlay` state
+4. All connected players see the updated game state simultaneously
+
 ## Stage Components
 
 Each game stage has its own dedicated component that renders the appropriate UI for that stage. The SharedArea uses a switch/case statement to render the relevant stage component based on the current game stage.

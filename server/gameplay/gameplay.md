@@ -11,6 +11,18 @@ related specs:
 
 The backend manages game state using Pydantic models and processes player actions to update the game board. Game progression is controlled through stages, with actions potentially advancing or modifying the current stage.
 
+## Interactive
+
+Any player action that updates the gameplay state will trigger a WebSocket broadcast to all players in the game, ensuring synchronized game state across all clients.
+
+**WebSocket Broadcast Flow (actions_loop, game_update_loop in server/main.py):**
+
+1. Player action is received via `actions_loop()`
+2. Action is processed and game state is updated
+3. Updated state is saved to database
+4. Redis pub/sub broadcasts `game_update` event to all connected clients
+5. All clients receive the update via `game_update_loop()`
+
 ## Game Stages and Actions
 
 Actions may change the game stage, but not necessarily. Some actions update game state relevant to the current stage without advancing to the next stage.

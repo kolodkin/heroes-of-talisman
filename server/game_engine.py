@@ -21,8 +21,10 @@ class GameEngine:
 
     def model_dump(self):
         """Return game state with players reordered for this user"""
-        self.game.reorder_players(self.username)
-        return self.game.model_dump()
+        # Create a copy to avoid modifying the original game state
+        game_copy = self.game.model_copy(deep=True)
+        game_copy.reorder_players(self.username)
+        return game_copy.model_dump()
 
     @property
     def gamename(self):
