@@ -2,8 +2,8 @@
 
 This document outlines the gameplay architecture and component hierarchy for the card game engine, detailing main components.
 
-- [FrontEnd GamePlay](/src/components/GamePlay)
-- [BackEnd GamePlay](/server/gameplay)
+- [FrontEnd GamePlay](/src/components/GamePlay/gameplay_frontend.md)
+- [BackEnd GamePlay](/server/gameplay/gameplay_backend.md)
 
 ## Overview
 
@@ -14,7 +14,7 @@ The game supports internationalization via react-i18next, currently configured f
 
 ## Backend Alignment
 
-Frontend components are designed to work seamlessly with the backend models outlined in [backend gameplay](../backend/gameplay.md).
+Frontend components are designed to work seamlessly with the backend models outlined in [backend gameplay](/server/gameplay/gameplay_backend.md).
 
 ## Core Architecture
 
@@ -23,6 +23,12 @@ Frontend components are designed to work seamlessly with the backend models outl
 The engine expects a JSON game board as defined in backend "server/gameplay/models.py -> GameBoard"
 
 ## Component\Models Hierarchy
+
+### Navbar
+
+- Game name
+- Username
+- Current stage name (translated)
 
 ### GameBoard
 
