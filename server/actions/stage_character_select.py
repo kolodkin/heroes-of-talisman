@@ -13,6 +13,7 @@ from server.gameplay.models import (
     GamePlay,
     GameException,
     ReportedException,
+    CharacterSelectMeta,
     BATTLE,
     CHARACTER_SELECT,
 )
@@ -45,9 +46,7 @@ class CharacterPressAction(Action):
             raise ReportedException(f"Character {character} not available")
 
         # Set selected character in stage metadata
-        if self.game.stage_meta is None:
-            self.game.stage_meta = {}
-        self.game.stage_meta["selected"] = character
+        self.game.stage_meta = CharacterSelectMeta(selected=character)
 
         return self.game
 

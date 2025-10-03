@@ -35,7 +35,7 @@ def test_character_press_action_valid():
     updated_game = action.run(character=KNIGHT)
 
     assert updated_game.stage_meta is not None
-    assert updated_game.stage_meta["selected"] == KNIGHT
+    assert updated_game.stage_meta.selected == KNIGHT
     assert updated_game.stage == CHARACTER_SELECT  # Still in character select
 
 

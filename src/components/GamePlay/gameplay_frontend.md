@@ -4,8 +4,8 @@ A React-based UI engine for visualizing and interacting with card game states re
 
 related specs:
 
-- [gameplay spec](/specs/gameplay.md)
-- [gameplay backend spec](/server/gameplay/gameplay.md)
+- [gameplay spec](/specs/gameplay_spec.md)
+- [gameplay backend spec](/server/gameplay/gameplay_backend.md)
 
 ## Overview
 
@@ -88,6 +88,12 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 4. Stage component handles user interactions and sends actions to backend
 
 # Key Components
+
+## Navbar
+
+- Game name
+- Username
+- Current stage name (translated)
 
 ## Player
 

@@ -43,6 +43,12 @@ class CharacterCard(BaseModel):
     attack: Optional[int] = None  # Only knight has attack
 
 
+class CharacterSelectMeta(BaseModel):
+    """Stage metadata for character selection stage"""
+
+    selected: str  # Currently highlighted character
+
+
 class Player(BaseModel):
     name: str
     status: CONNECTION_STATUS = CONNECTED
@@ -54,7 +60,7 @@ class GamePlay(BaseModel):
     stage: STAGES_NAMES = CHARACTER_SELECT
     playing: Optional[str] = None  # the player who is currently playing
     players: dict[str, Player] = Field(default_factory=dict)
-    stage_meta: Optional[dict] = None  # Stage-specific metadata
+    stage_meta: Optional[CharacterSelectMeta] = None  # Stage-specific metadata
     selected_character: Optional[str] = None  # Currently selected character for the playing player
 
     def reorder_players(self, username: str):
