@@ -14,7 +14,7 @@ async function setupHomePage(page) {
 }
 
 async function cleanupTestGame(page) {
-  const testGame = page.getByRole("button", { name: "test" });
+  const testGame = page.getByRole("button", { name: "test-e2e", exact: true });
   if (await testGame.count()) {
     await page.locator("li", { has: testGame }).getByRole("button", { name: "🗑️" }).click();
     await expect(testGame).toHaveCount(0);
@@ -22,9 +22,9 @@ async function cleanupTestGame(page) {
 }
 
 async function createTestGame(page) {
-  await page.getByLabel("Add New Game:").fill("test");
+  await page.getByLabel("Add New Game:").fill("test-e2e");
   await page.getByRole("button", { name: "+" }).click();
-  const testGame = page.getByRole("button", { name: "test" });
+  const testGame = page.getByRole("button", { name: "test-e2e", exact: true });
   await expect(testGame).toBeVisible();
   return testGame;
 }
@@ -119,7 +119,7 @@ test("basic game flow", async ({ page }) => {
   await screenshot(page, "home-with-test");
 
   // Player1 joins
-  await joinGame(page, "player", "test");
+  await joinGame(page, "player", "test-e2e");
   await screenshot(page, "joined-game");
 
   // Validate player1's characters
@@ -128,7 +128,7 @@ test("basic game flow", async ({ page }) => {
   // Player2 joins in new page
   const page2 = await page.context().newPage();
   await setupHomePage(page2);
-  await joinGame(page2, "player2", "test");
+  await joinGame(page2, "player2", "test-e2e");
 
   // Wait for player2's div to be visible before screenshot
   await page2.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });

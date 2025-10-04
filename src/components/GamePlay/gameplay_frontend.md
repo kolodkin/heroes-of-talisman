@@ -127,6 +127,9 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 - Shows player's hand, stats, and any status effects
 - Highlights if it's the player's turn or if the player is disconnected
 - Supports interaction with cards in hand (e.g., selection, play)
+- **Minimizable**: Each player card can be collapsed using +/- toggle button
+  - When expanded: Shows full character cards with all details
+  - When minimized: Shows only character names and levels in a compact list
 
 ## SharedArea
 
