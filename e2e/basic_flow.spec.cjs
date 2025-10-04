@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 
-const TIMEOUT = 2000;
+const TIMEOUT = 1000;
+const GAME_NAME = "test basic flow";
 
 async function screenshot(page, name) {
   const screenshot = await page.screenshot();
@@ -14,7 +15,7 @@ async function setupHomePage(page) {
 }
 
 async function cleanupTestGame(page) {
-  const testGame = page.getByRole("button", { name: "test-e2e", exact: true });
+  const testGame = page.getByRole("button", { name: GAME_NAME, exact: true });
   if (await testGame.count()) {
     await page.locator("li", { has: testGame }).getByRole("button", { name: "🗑️" }).click();
     await expect(testGame).toHaveCount(0);
@@ -22,9 +23,9 @@ async function cleanupTestGame(page) {
 }
 
 async function createTestGame(page) {
-  await page.getByLabel("Add New Game:").fill("test-e2e");
+  await page.getByLabel("Add New Game:").fill(GAME_NAME);
   await page.getByRole("button", { name: "+" }).click();
-  const testGame = page.getByRole("button", { name: "test-e2e", exact: true });
+  const testGame = page.getByRole("button", { name: GAME_NAME, exact: true });
   await expect(testGame).toBeVisible();
   return testGame;
 }
@@ -41,7 +42,7 @@ async function joinGame(page, playerName, gameName) {
     gameButton.click(),
   ]);
 
-  await expect(page).toHaveURL(new RegExp(`/games/${gameName}/`));
+  await expect(page).toHaveURL(new RegExp(`/games/${encodeURIComponent(gameName)}/`));
   const connectedText = await connectedLog.args()[2].jsonValue();
   await test.info().attach(`${playerName}-connection-message`, { body: connectedText, contentType: "text/plain" });
 }
@@ -108,6 +109,11 @@ async function testCharacterSelection(page) {
   await expect(mageCard).toHaveClass(/selected/);
   await expect(knightCard).not.toHaveClass(/selected/);
 
+  // Validate submit button hover effects
+  await selectButton.hover();
+  await expect(selectButton).toHaveCSS("cursor", "pointer");
+  await screenshot(page, "character-select-button-hover");
+
   // Player1 confirms selection with בחר button
   await selectButton.click();
 
@@ -144,6 +150,11 @@ async function testOpponentSelection(page) {
   await page.waitForTimeout(500);
   await screenshot(page, "opponent-knight-selected");
 
+  // Validate submit button hover effects
+  await selectButton.hover();
+  await expect(selectButton).toHaveCSS("cursor", "pointer");
+  await screenshot(page, "opponent-select-button-hover");
+
   // Confirm opponent selection with בחר button
   await selectButton.click();
 
@@ -165,7 +176,7 @@ test("basic game flow", async ({ page }) => {
   await screenshot(page, "home-with-test");
 
   // Player1 joins
-  await joinGame(page, "player", "test-e2e");
+  await joinGame(page, "player", GAME_NAME);
   await screenshot(page, "joined-game");
 
   // Validate player1's characters
@@ -174,7 +185,7 @@ test("basic game flow", async ({ page }) => {
   // Player2 joins in new page
   const page2 = await page.context().newPage();
   await setupHomePage(page2);
-  await joinGame(page2, "player2", "test-e2e");
+  await joinGame(page2, "player2", GAME_NAME);
 
   // Wait for player2's div to be visible before screenshot
   await page2.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
@@ -204,6 +215,7 @@ test("basic game flow", async ({ page }) => {
 
   // Navigate back to home and delete the test game
   await page.goto("/");
+  await screenshot(page, "homepage-before-cleanup");
   await cleanupTestGame(page);
-  await screenshot(page, "cleanup-complete");
+  await screenshot(page, "homepage-after-cleanup");
 });
