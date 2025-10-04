@@ -8,8 +8,9 @@ DISCONNECTED = "disconnected"
 CONNECTION_STATUS = Literal["connected", "disconnected"]
 
 CHARACTER_SELECT = "character_select"
+OPPONENT_SELECTION = "opponent_selection"
 BATTLE = "battle"
-STAGES_NAMES = Literal["character_select", "battle"]
+STAGES_NAMES = Literal["character_select", "opponent_selection", "battle"]
 
 KNIGHT = "knight"
 ARCHER = "archer"
@@ -49,6 +50,13 @@ class CharacterSelectMeta(BaseModel):
     selected: str  # Currently highlighted character
 
 
+class Opponent(BaseModel):
+    """Selected opponent for battle"""
+
+    player: str  # Opponent player name
+    character: str  # Opponent character name
+
+
 class Player(BaseModel):
     name: str
     status: CONNECTION_STATUS = CONNECTED
@@ -62,6 +70,7 @@ class GamePlay(BaseModel):
     players: dict[str, Player] = Field(default_factory=dict)
     stage_meta: Optional[CharacterSelectMeta] = None  # Stage-specific metadata
     selected_character: Optional[str] = None  # Currently selected character for the playing player
+    opponent: Optional[Opponent] = None  # Selected opponent for battle
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""

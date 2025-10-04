@@ -71,6 +71,20 @@ services:
     user: ${MY_UID}:${MY_GID}
     command: /bin/bash -c "npm install && npm run hdev"
 
+  playwright-report:
+    image: node:${MY_NODE}
+    restart: unless-stopped
+    volumes:
+      - .:${PWD}
+      - ${HOME}/.cache:/.cache
+      - ${HOME}/.npm:/.npm
+      - ${PWD}/.docker/node_modules:${PWD}/node_modules
+    working_dir: "${PWD}"
+    ports:
+      - 9323:9323
+    user: ${MY_UID}:${MY_GID}
+    command: npx playwright show-report --host 0.0.0.0 --port 9323
+
 volumes:
   postgres:
   redis:

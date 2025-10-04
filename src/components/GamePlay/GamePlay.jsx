@@ -4,6 +4,7 @@ import styles from "./GamePlay.module.css";
 import Card from "./Card";
 import CharacterCard from "../CharacterCard";
 import StageCharacterSelect from "./StageCharacterSelect";
+import StageOpponentSelection from "./StageOpponentSelection";
 
 const PlayersCards = ({ player }) => {
   return (
@@ -97,6 +98,15 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                   sendAction={sendAction}
                   active={isActivePlayer}
                   selectedCharacter={gamePlay.stage_meta?.selected}
+                />
+              );
+            case "opponent_selection":
+              return (
+                <StageOpponentSelection
+                  players={gamePlay.players}
+                  currentPlayer={username}
+                  sendAction={sendAction}
+                  active={isActivePlayer}
                 />
               );
             default:

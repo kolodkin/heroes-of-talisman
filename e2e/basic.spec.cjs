@@ -109,6 +109,42 @@ async function testCharacterSelection(page) {
   await screenshot(page, "character-selected-confirmed");
 }
 
+async function testOpponentSelection(page) {
+  // Verify we're in opponent selection stage
+  const selectButton = page.getByRole("button", { name: "בחר" });
+  await expect(selectButton).toBeVisible();
+  await screenshot(page, "opponent-selection-stage");
+
+  // Find opponent player div in shared area (should be visible as opponent card)
+  // Look for player2's minimized view in the opponents container
+  const opponentDiv = page.locator('[data-player="player2"]').last();
+  await expect(opponentDiv).toBeVisible();
+
+  // Verify opponent player2 starts minimized (no character images visible in shared area opponent card)
+  // The character names should be visible in Hebrew
+  await expect(opponentDiv.getByText(/אביר/)).toBeVisible(); // knight
+  await expect(opponentDiv.getByText(/קשת/)).toBeVisible(); // archer
+  await expect(opponentDiv.getByText(/קוסם/)).toBeVisible(); // mage
+  await screenshot(page, "opponent-minimized");
+
+  // Click on opponent's knight character (minimized view)
+  await opponentDiv.getByText(/אביר/).click();
+
+  // Wait for selection update (might not trigger game_update, but state should change)
+  await page.waitForTimeout(500);
+  await screenshot(page, "opponent-knight-selected");
+
+  // Confirm opponent selection with בחר button
+  await selectButton.click();
+
+  // Wait for game_update event that transitions to battle
+  await page.waitForEvent("console", {
+    predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
+    timeout: TIMEOUT,
+  });
+  await screenshot(page, "opponent-selection-confirmed");
+}
+
 test("basic game flow", async ({ page }) => {
   // Setup and create game
   await setupHomePage(page);
@@ -149,6 +185,9 @@ test("basic game flow", async ({ page }) => {
 
   // Test character selection flow
   await testCharacterSelection(page);
+
+  // Test opponent selection flow
+  await testOpponentSelection(page);
 
   // Clean up
   await page2.close();

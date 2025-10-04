@@ -14,7 +14,7 @@ from server.gameplay.models import (
     GameException,
     ReportedException,
     CharacterSelectMeta,
-    BATTLE,
+    OPPONENT_SELECTION,
     CHARACTER_SELECT,
 )
 
@@ -56,7 +56,7 @@ class CharacterSelectAction(Action):
     Action invoked when the Select button is pressed to confirm character choice.
 
     Populates selected_character in game metadata and transitions the game
-    stage to 'battle'.
+    stage to 'opponent_selection'.
     """
 
     def run(self, character: str) -> GamePlay:
@@ -80,8 +80,8 @@ class CharacterSelectAction(Action):
         # Set selected character in game metadata
         self.game.selected_character = character
 
-        # Transition to battle stage
-        self.game.stage = BATTLE
+        # Transition to opponent_selection stage
+        self.game.stage = OPPONENT_SELECTION
         self.game.stage_meta = None  # Clear stage metadata
 
         return self.game
