@@ -5,9 +5,35 @@
  * Can be expanded to show full character cards or minimized to show compact character list.
  */
 import React, { useState } from "react";
+import className from "classnames";
+import { useTranslation } from "react-i18next";
 import CharacterCard from "../CharacterCard";
-import OpponentMinified from "./OpponentMinified";
 import styles from "./Opponent.module.css";
+
+const OpponentMinified = ({ player, selectedOpponent, onCharacterClick }) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className={styles["opponent-minimized"]}>
+      {player.characters &&
+        Object.entries(player.characters).map(([charName, character]) => (
+          <div
+            key={charName}
+            className={className(
+              styles["character-minimized"],
+              selectedOpponent?.character === charName && styles["character-selected"],
+            )}
+            onClick={() => onCharacterClick(charName)}
+          >
+            <span className={styles["character-name"]}>{t(`characterNames.${charName}`)}</span>
+            <span className={styles["character-level"]}>
+              {t("character_card.level")} {character.level}
+            </span>
+          </div>
+        ))}
+    </div>
+  );
+};
 
 const Opponent = ({ playerName, player, selectedOpponent, onCharacterClick }) => {
   const [isExpanded, setIsExpanded] = useState(false);
