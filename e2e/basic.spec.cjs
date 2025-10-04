@@ -68,6 +68,16 @@ async function testCharacterSelection(page) {
   const selectButton = page.getByRole("button", { name: "בחר" });
   await expect(selectButton).toBeVisible();
 
+  // Validate card sizes: player section should have small cards
+  const playerSectionCard = page.locator('[data-player="player"] [alt="knight"]').locator("..");
+  await expect(playerSectionCard).toHaveClass(/card-small/);
+  await screenshot(page, "player-section-small-cards");
+
+  // Validate card sizes: shared area should have normal cards
+  const sharedAreaCard = page.locator('[alt="knight"]').nth(2).locator("..");
+  await expect(sharedAreaCard).toHaveClass(/card-normal/);
+  await screenshot(page, "shared-area-normal-cards");
+
   // Player1 selects knight character (the one near the בחר button)
   // Click the knight that's a sibling/near the select button (in shared area, not player area)
   await page.locator('[alt="knight"]').nth(2).click();
@@ -191,4 +201,9 @@ test("basic game flow", async ({ page }) => {
 
   // Clean up
   await page2.close();
+
+  // Navigate back to home and delete the test game
+  await page.goto("/");
+  await cleanupTestGame(page);
+  await screenshot(page, "cleanup-complete");
 });

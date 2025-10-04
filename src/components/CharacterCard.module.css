@@ -1,0 +1,63 @@
+/* Base character card styles */
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  background-color: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 8px;
+  color: white;
+}
+
+/* Normal size (for SharedArea stages) */
+.card-normal {
+  padding: 1.5rem;
+  gap: 0.8rem;
+}
+
+.card-normal img {
+  min-width: 160px;
+  width: 160px;
+  height: 160px;
+  border-radius: 8px;
+}
+
+.card-normal p {
+  font-size: 1.2rem;
+}
+
+.card-normal .stats {
+  font-size: 1rem;
+}
+
+.card-normal .stats svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Small size (for Player menu) */
+.card-small {
+  padding: 0.5rem;
+  gap: 0.4rem;
+}
+
+.card-small img {
+  min-width: 80px;
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+}
+
+.card-small p {
+  font-size: 0.7rem;
+}
+
+.card-small .stats {
+  font-size: 0.65rem;
+}
+
+.card-small .stats svg {
+  width: 12px;
+  height: 12px;
+}

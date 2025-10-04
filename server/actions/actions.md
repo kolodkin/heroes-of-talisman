@@ -26,7 +26,21 @@ will act during their turn.
   for this player.
 - **`CharacterSelectAction`**: Confirms the character selection by
   setting `selected_character` to the chosen character name and
-  transitioning the game stage from `character_select` to `battle`.
+  transitioning the game stage from `character_select` to `opponent_selection`.
+  Clears `stage_meta` after transition.
+
+## Stage: Opponent Selection
+
+The opponent selection stage allows players to choose an opponent and
+one of their characters for battle.
+
+- **`OpponentPressAction`**: Sets `stage_meta` to an `Opponent` object
+  with the selected opponent player name and character. Validates that
+  the player is active, the stage is `opponent_selection`, the opponent
+  exists, is not the current player, and has the selected character.
+- **`OpponentSelectAction`**: Confirms the opponent selection by reading
+  from `stage_meta`, setting `opponent` to the selected opponent, and
+  transitioning the game stage from `opponent_selection` to `battle`.
   Clears `stage_meta` after transition.
 
 ## Workflow
@@ -61,7 +75,12 @@ class responsible for handling each action.
 - [x] `leave` – remove a player from the game (`LeaveAction`)
 - [x] `disconnect` – mark a player as disconnected (`DisconnectAction`)
 
-## Charachter Select Stage
+## Character Select Stage
 
-- [x] `character_press` – highlight selected character in (`CharacterPressAction`)
-- [x] `character_select` – confirm character selection and transition to battle (`CharacterSelectAction`)
+- [x] `character_press` – highlight selected character (`CharacterPressAction`)
+- [x] `character_select` – confirm character selection and transition to opponent_selection (`CharacterSelectAction`)
+
+## Opponent Selection Stage
+
+- [x] `opponent_press` – highlight selected opponent and character (`OpponentPressAction`)
+- [x] `opponent_select` – confirm opponent selection and transition to battle (`OpponentSelectAction`)

@@ -1,0 +1,48 @@
+.opponent {
+  border: 2px solid #555;
+  border-radius: 8px;
+  background-color: #2a2a2a;
+  padding: 1rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.opponent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.opponent-name {
+  font-size: 1.2rem;
+}
+
+.toggle-button {
+  background: #444;
+  border: 1px solid #666;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.toggle-button:hover {
+  background-color: #555;
+}
+
+.opponent-characters {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  justify-content: center;
+  overflow-x: auto;
+}

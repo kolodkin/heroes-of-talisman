@@ -68,7 +68,7 @@ class GamePlay(BaseModel):
     stage: STAGES_NAMES = CHARACTER_SELECT
     playing: Optional[str] = None  # the player who is currently playing
     players: dict[str, Player] = Field(default_factory=dict)
-    stage_meta: Optional[CharacterSelectMeta] = None  # Stage-specific metadata
+    stage_meta: Optional[CharacterSelectMeta | Opponent] = None  # Stage-specific metadata
     selected_character: Optional[str] = None  # Currently selected character for the playing player
     opponent: Optional[Opponent] = None  # Selected opponent for battle
 

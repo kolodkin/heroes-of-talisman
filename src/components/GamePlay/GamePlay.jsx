@@ -104,9 +104,10 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
               return (
                 <StageOpponentSelection
                   players={gamePlay.players}
-                  currentPlayer={username}
+                  activePlayer={gamePlay.playing}
                   sendAction={sendAction}
                   active={isActivePlayer}
+                  selectedOpponent={gamePlay.stage_meta}
                 />
               );
             default:
