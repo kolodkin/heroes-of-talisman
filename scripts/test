@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+echo "================================"
+echo "Running Backend Tests (pytest)"
+echo "================================"
+uv run pytest
+
+echo ""
+echo "================================"
+echo "Running Frontend Tests (e2e)"
+echo "================================"
+npm run e2e
+
+echo ""
+echo "================================"
+echo "✅ All Tests Passed!"
+echo "================================"
