@@ -12,12 +12,14 @@ const resources = {
       },
       stageNames: {
         character_select: "בחירת דמות",
+        opponent_selection: "בחירת יריב",
         card_draw: "שליפת קלף",
         use_skill: "שימוש ביכולת",
         battle: "קרב",
       },
       stageInstructions: {
         character_select: "בחר דמות",
+        opponent_selection: "בחר את יריבך",
         battle: "בחר דמות יריב לתקוף או דלג",
       },
       characterNames: {
@@ -31,6 +33,9 @@ const resources = {
       character_select: {
         submit: "בחר",
         select_character: "בחר דמות בבקשה",
+      },
+      opponent_selection: {
+        select_opponent: "בחר יריב ודמות בבקשה",
       },
       // cards: {
       //   talisman: "קמע",

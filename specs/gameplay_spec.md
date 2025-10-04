@@ -72,3 +72,5 @@ The game progresses through distinct stages during each player's turn. Upon comp
 ### Turn Stages
 
 1. **Character Select** - Player chooses which character will act during this turn
+2. **Opponent Selection** - Player selects an opponent and one of their characters for battle
+3. **Battle** - Combat between selected character and opponent's character

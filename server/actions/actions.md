@@ -1,6 +1,6 @@
-# Server Action Design
+# Backend Action Design
 
-The server's action layer organizes game mutations into small, focused
+The backend action layer organizes game mutations into small, focused
 classes. Each action is invoked with the current user and `GamePlay`
 state and returns the updated game after running.
 
@@ -50,7 +50,7 @@ To implement a new action, subclass `Action` and implement the `run`
 method. Use `assert_stage` to ensure the action only executes during the
 appropriate game phase and update the `GamePlay` as needed.
 
-# Server Actions
+# Backend Actions
 
 Checklist of actions implemented in the server's action layer and the
 class responsible for handling each action.

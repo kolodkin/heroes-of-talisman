@@ -37,7 +37,9 @@ Actions may change the game stage, but not necessarily. Some actions update game
 **Example Flow:**
 
 1. Stage: `character_select`
-2. Action: `select_character` → Updates selected character, may advance to next stage
-3. Action: `deselect_character` → Updates selection, stays in same stage
+2. Action: `character_press` → Updates selected character in stage_meta, stays in same stage
+3. Action: `character_select` → Confirms character selection, advances to `opponent_selection` stage
+4. Stage: `opponent_selection`
+5. Action: `opponent_select` → Selects opponent and their character, advances to `battle` stage
 
 ## Key Features

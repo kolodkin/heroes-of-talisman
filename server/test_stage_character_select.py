@@ -16,6 +16,7 @@ from server.gameplay.models import (
     ReportedException,
     CHARACTER_DEFAULT_STATS,
     CHARACTER_SELECT,
+    OPPONENT_SELECTION,
     BATTLE,
     KNIGHT,
     ARCHER,
@@ -80,7 +81,7 @@ def test_character_press_action_invalid_character():
 
 
 def test_character_select_action_valid():
-    """Test confirming character selection transitions to battle"""
+    """Test confirming character selection transitions to opponent_selection"""
     game = GamePlay(stage=CHARACTER_SELECT, playing="player1")
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
@@ -91,7 +92,7 @@ def test_character_select_action_valid():
     updated_game = action.run(character=KNIGHT)
 
     assert updated_game.selected_character == KNIGHT
-    assert updated_game.stage == BATTLE
+    assert updated_game.stage == OPPONENT_SELECTION
     assert updated_game.stage_meta is None  # Cleared after transition
 
 

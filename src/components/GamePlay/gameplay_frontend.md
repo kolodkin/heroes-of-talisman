@@ -107,8 +107,21 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 1. GamePlay receives the game state including current stage
 2. SharedArea evaluates `gamePlay.stage`
-3. SharedArea renders the appropriate stage component (e.g., CharacterSelect, Movement, Combat)
+3. SharedArea renders the appropriate stage component (e.g., StageCharacterSelect, StageOpponentSelection, Battle)
 4. Stage component handles user interactions and sends actions to backend
+
+**Current Stage Components:**
+
+- **StageCharacterSelect** (`character_select` stage): Player selects their character
+  - Displays player's characters
+  - Actions: `character_press` (highlight), `character_select` (confirm)
+  - Transitions to: `opponent_selection`
+
+- **StageOpponentSelection** (`opponent_selection` stage): Player selects opponent and their character
+  - Displays all opponents with their characters (starting minimized)
+  - Players can be expanded to see full character details
+  - Actions: `opponent_select` (confirm selection)
+  - Transitions to: `battle`
 
 # Key Components
 
