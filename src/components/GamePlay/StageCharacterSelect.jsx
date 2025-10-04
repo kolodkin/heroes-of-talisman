@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { notify } from "../../utils/notify";
 
 import styles from "./StageCharacterSelect.module.css";
+import submitButtonStyles from "./StageSubmitButton.module.css";
 import commonStyles from "../Common.module.css";
 import CharacterCard from "../CharacterCard";
 
@@ -50,11 +51,12 @@ const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacte
             character={character}
             isSelected={name === selectedCharacter}
             onClick={() => handleCharacterClick(name)}
+            size="normal"
           />
         ))}
       </div>
       <button
-        className={className(commonStyles.gamebtn, styles.character, "text-2xl", "rounded")}
+        className={className(commonStyles.gamebtn, submitButtonStyles["submit-button"], "text-2xl", "rounded")}
         onClick={handleSubmit}
       >
         <p>{t("character_select.submit")}</p>

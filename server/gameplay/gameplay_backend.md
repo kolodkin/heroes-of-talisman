@@ -40,6 +40,7 @@ Actions may change the game stage, but not necessarily. Some actions update game
 2. Action: `character_press` → Updates selected character in stage_meta, stays in same stage
 3. Action: `character_select` → Confirms character selection, advances to `opponent_selection` stage
 4. Stage: `opponent_selection`
-5. Action: `opponent_select` → Selects opponent and their character, advances to `battle` stage
+5. Action: `opponent_press` → Updates selected opponent and character in stage_meta, stays in same stage
+6. Action: `opponent_select` → Confirms opponent selection, advances to `battle` stage
 
 ## Key Features

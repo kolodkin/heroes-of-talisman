@@ -119,8 +119,11 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 - **StageOpponentSelection** (`opponent_selection` stage): Player selects opponent and their character
   - Displays all opponents with their characters (starting minimized)
+  - **Opponent Filtering**: Opponents are filtered based on `gamePlay.playing` (the active player), not the viewer
+    - All players see the same opponent selection menu
+    - The active player (whose turn it is) is excluded from the opponents list
   - Players can be expanded to see full character details
-  - Actions: `opponent_select` (confirm selection)
+  - Actions: `opponent_press` (highlight selection), `opponent_select` (confirm selection)
   - Transitions to: `battle`
 
 # Key Components
@@ -148,4 +151,7 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 - Dynamically renders stage-specific components based on `gamePlay.stage`
 - Acts as the central game area where turn actions occur
-- Contains stage components: CharacterSelect, Movement, Combat, etc.
+- Contains stage components: CharacterSelect, OpponentSelection, Battle, etc.
+- **Scrolling**: Uses `overflow-y: auto` to prevent content from escaping the SharedArea bounds
+  - Content that exceeds the SharedArea height will be scrollable
+  - Ensures the layout remains constrained within the viewport
