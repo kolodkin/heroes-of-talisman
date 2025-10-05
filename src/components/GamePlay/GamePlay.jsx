@@ -5,6 +5,7 @@ import Card from "./Card";
 import CharacterCard from "../CharacterCard";
 import StageCharacterSelect from "./StageCharacterSelect";
 import StageOpponentSelection from "./StageOpponentSelection";
+import StageBattle from "./StageBattle";
 
 const PlayersCards = ({ player }) => {
   return (
@@ -110,6 +111,8 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                   selectedOpponent={gamePlay.stage_meta}
                 />
               );
+            case "battle":
+              return <StageBattle gamePlay={gamePlay} />;
             default:
               return <div>Stage: {gamePlay.stage}</div>;
           }
