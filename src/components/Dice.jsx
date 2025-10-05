@@ -6,11 +6,15 @@
  * - Props:
  *   - value: Final dice value to display (1-6)
  *   - rollDuration: Animation duration in milliseconds
- *   - tilt: Base tilt angle for natural look (default: 5 degrees)
- *   - tiltMargin: Random margin added to base tilt (default: 5 degrees)
+ *   - rollInterval: Interval between rotations during roll
+ *   - rollSpeed: Base roll speed in degrees per interval
+ *   - rollSpeedMargin: Random margin added to roll speed
+ *   - stopDuration: Duration of deceleration to final position in milliseconds
+ *   - tilt: Base tilt angle for natural look
+ *   - tiltMargin: Random margin added to base tilt
  * - Animation:
- *   - During roll: 3D cube rotation effect
- *   - After duration: Shows final value face with random tilt and stops animation
+ *   - During roll: 3D cube rotation effect with continuous tumbling
+ *   - After duration: Gradually decelerates to final value face with random tilt
  * - Styling: CSS 3D cube with 6 faces, each showing different dice dots
  */
 import React, { useState, useEffect } from "react";
@@ -63,7 +67,16 @@ const FACE_ROTATIONS = {
   6: { x: -90, y: 0 },
 };
 
-const Dice = ({ value, rollDuration = 2000, tilt = 5, tiltMargin = 5 }) => {
+const Dice = ({
+  value,
+  rollDuration = 1200,
+  rollInterval = 50,
+  rollSpeed = 30,
+  rollSpeedMargin = 5,
+  stopDuration = 800,
+  tilt = 5,
+  tiltMargin = 5,
+}) => {
   const [isRolling, setIsRolling] = useState(rollDuration > 0);
   const [rotation, setRotation] = useState(FACE_ROTATIONS[value] || FACE_ROTATIONS[1]);
 
@@ -87,26 +100,44 @@ const Dice = ({ value, rollDuration = 2000, tilt = 5, tiltMargin = 5 }) => {
 
     setIsRolling(true);
 
-    // Random rotations during rolling
+    // Initialize rolling direction (random direction and speed)
+    const rollSpeedX = (Math.random() < 0.5 ? 1 : -1) * (rollSpeed + Math.random() * rollSpeedMargin);
+    const rollSpeedY = (Math.random() < 0.5 ? 1 : -1) * (rollSpeed + Math.random() * rollSpeedMargin);
+
+    let currentRotation = {
+      x: Math.random() * 360,
+      y: Math.random() * 360,
+    };
+
+    // Continuous rotation in the same direction during rolling
     const interval = setInterval(() => {
-      setRotation({
-        x: Math.random() * 360,
-        y: Math.random() * 360,
-      });
-    }, 100);
+      currentRotation = {
+        x: currentRotation.x + rollSpeedX,
+        y: currentRotation.y + rollSpeedY,
+      };
+      setRotation({ ...currentRotation });
+    }, rollInterval);
 
     // Stop rolling and show final value
     const timeout = setTimeout(() => {
       clearInterval(interval);
+
+      // Adjust target rotation to be closest to current rotation (avoid extra spins)
+      const adjustedTarget = {
+        x: targetRotation.x + Math.round((currentRotation.x - targetRotation.x) / 360) * 360,
+        y: targetRotation.y + Math.round((currentRotation.y - targetRotation.y) / 360) * 360,
+      };
+
+      // Smoothly transition to final position
       setIsRolling(false);
-      setRotation(targetRotation);
+      setRotation(adjustedTarget);
     }, rollDuration);
 
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [value, rollDuration, tilt, tiltMargin]);
+  }, [value, rollDuration, rollInterval, rollSpeed, rollSpeedMargin, stopDuration, tilt, tiltMargin]);
 
   return (
     <div className={styles.diceContainer}>
@@ -114,7 +145,12 @@ const Dice = ({ value, rollDuration = 2000, tilt = 5, tiltMargin = 5 }) => {
         className={className(styles.dice, { [styles.rolling]: isRolling })}
         style={{
           transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
-          transition: isRolling ? "none" : "transform 0.5s ease-out",
+          // Easing options:
+          // cubic-bezier(0.25, 0.46, 0.45, 0.94) - Smooth natural deceleration
+          // cubic-bezier(0.33, 1, 0.68, 1) - Very smooth exponential deceleration
+          // cubic-bezier(0.16, 1, 0.3, 1) - Gentle quadratic deceleration
+          // cubic-bezier(0.34, 1.56, 0.64, 1) - Slight overshoot then settle (bouncy effect)
+          transition: isRolling ? "none" : `transform ${stopDuration}ms cubic-bezier(0.33, 1, 0.68, 1)`,
         }}
       >
         {/* Face 1 - Front */}
