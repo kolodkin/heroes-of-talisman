@@ -48,7 +48,7 @@ const StageBattle = ({ gamePlay, rollDuration = 2000 }) => {
         playerName={currentPlayerName}
         characterName={selectedCharacterName}
         character={selectedCharacter}
-        diceValue={1}
+        diceValue={3}
         diceRollDuration={rollDuration}
       />
       <BattleParticipant
