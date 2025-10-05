@@ -55,6 +55,7 @@ class Opponent(BaseModel):
 
     player: str  # Opponent player name
     character: str  # Opponent character name
+    dice_roll: int = 0  # Dice roll value for battle
 
 
 class Player(BaseModel):

@@ -126,6 +126,17 @@ Each game stage has its own dedicated component that renders the appropriate UI 
   - Actions: `opponent_press` (highlight selection), `opponent_select` (confirm selection)
   - Transitions to: `battle`
 
+- **StageBattle** (`battle` stage): Displays the battle between current player and opponent
+  - **Layout**: Two vertically aligned sections
+    - **Player section**: Shows current player (`gamePlay.playing`), their selected character (`gamePlay.selected_character`), and dice
+    - **Opponent section**: Shows opponent player (`gamePlay.opponent.player`), their character (`gamePlay.opponent.character`), and dice with roll animation
+  - **Dice Display**:
+    - Player dice: Static display
+    - Opponent dice: Animated roll effect using `opponent.dice_roll` value
+    - Roll duration: Configurable via `rollDuration` prop (default: 2000ms)
+  - All connected players see synchronized battle state
+  - Actions: TBD (based on battle mechanics)
+
 # Key Components
 
 ## Navbar
