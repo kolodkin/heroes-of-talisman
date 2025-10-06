@@ -16,7 +16,7 @@ import styles from "./StageBattle.module.css";
 
 const BattleParticipant = ({ playerName, characterName, character, diceValue, diceRollDuration }) => {
   return (
-    <div className={styles.battleRow}>
+    <div className={styles.battleRow} data-battle-participant={playerName}>
       <h2 className={styles.playerName}>{playerName}</h2>
       <CharacterCard name={characterName} character={character} isSelected={false} size="small" />
       <Dice value={diceValue} rollDuration={diceRollDuration} />

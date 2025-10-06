@@ -4,6 +4,17 @@
 
 - In `basic.spec.js` tests, capture a screenshot after every view change.
 
+## Dom Selection
+
+Use CSS class name selectors (e.g., `[class*="diceContainer"]`) or dedicated data attributes (e.g., `data-battle-participant`) to locate DOM elements in e2e tests. Avoid selecting elements by DOM type (e.g., `h2`, `div`, `span`) as these are fragile and can break when refactoring markup structure.
+
+**Examples:**
+
+- **Good**: `page.locator('[data-battle-participant="player"]')`
+- **Good**: `page.locator('[class*="diceContainer"]')`
+- **Avoid**: `page.locator('h2').filter({ hasText: 'player' })`
+- **Avoid**: `page.locator('div.container > span')`
+
 ## Running tests
 
 - All frontend end-to-end and integration tests are run using [Playwright](https://playwright.dev/).
@@ -18,6 +29,7 @@
 - Test reports are generated in the `playwright-report/` directory after each run.
 
 **Best Practices:**
+
 - Write tests in a flat structure using function-based test definitions (avoid class-based grouping).
 - Use descriptive test names that clearly indicate the user flow or feature being tested.
 - Prefer colocating test files with the components or features they cover, or group related tests in the same directory.

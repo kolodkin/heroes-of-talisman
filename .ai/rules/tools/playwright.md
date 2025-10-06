@@ -13,16 +13,17 @@ Playwright MCP is a Model Context Protocol server that enables AI agents to eval
 - **Visual Regression**: Detect unintended UI changes through screenshots
 - **Responsive Testing**: Validate mobile and desktop layouts
 
-
 ## 🚀 Usage Patterns
 
 ### Basic Web Automation
+
 1. `browser_navigate` → Navigate to target site
 2. `browser_snapshot` → Get page structure
 3. `browser_click/type` → Interact with elements
 4. `browser_take_screenshot` → Document results
 
 ### Form Filling
+
 1. `browser_navigate` → Go to form page
 2. `browser_type` → Fill input fields
 3. `browser_select_option` → Select dropdown values
@@ -30,12 +31,14 @@ Playwright MCP is a Model Context Protocol server that enables AI agents to eval
 5. `browser_click` → Submit form
 
 ### Multi-Tab Workflow
+
 1. `browser_tab_new` → Open additional tabs
 2. `browser_tab_select` → Switch between tabs
 3. Perform operations in each tab
 4. `browser_tab_close` → Clean up when done
 
 ### Testing & Debugging
+
 1. `browser_console_messages` → Check for errors
 2. `browser_network_requests` → Monitor API calls
 3. `browser_evaluate` → Run custom checks
@@ -166,7 +169,7 @@ Playwright MCP is a Model Context Protocol server that enables AI agents to eval
 
 ### Reporting & Documentation
 
-- **Screenshot Everything**: For each visual state, instruct the AI to take a screenshot and save it with an enumerated filename indicating the flow, using the format "{i}-{name}.jpg" (e.g., 001-start.jpg, 002-after-click.jpg).
+- **Screenshot On UI Change**: Take a screenshot after each UI change with a descriptive filename indicating the state or action (e.g., start.jpg, after-click.jpg).
 - **Record Interactions**: Save traces for complex user flows
 - **Compare Versions**: Use before/after comparisons
 - **Document Bugs**: Capture steps to reproduce issues
