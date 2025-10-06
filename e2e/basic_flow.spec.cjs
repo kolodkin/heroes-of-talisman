@@ -6,7 +6,7 @@ const GAME_NAME = "test basic flow";
 async function cleanupTestGame(page) {
   const testGame = page.getByRole("button", { name: GAME_NAME, exact: true });
   if (await testGame.count()) {
-    await page.locator("li", { has: testGame }).getByRole("button", { name: "🗑️" }).click();
+    await page.locator('[class*="game-list-item"]', { has: testGame }).getByRole("button", { name: "🗑️" }).click();
     await expect(testGame).toHaveCount(0);
   }
 }
@@ -138,6 +138,40 @@ async function testOpponentSelection(page) {
   await screenshot(page, "opponent-selection-confirmed");
 }
 
+async function testBattleStage(page) {
+  // Wait for battle stage to load
+  await page.waitForTimeout(1000);
+  await screenshot(page, "battle-stage-start");
+
+  // Verify current player's battle participant is visible
+  const playerBattleRow = page.locator('[data-battle-participant="player"]');
+  await expect(playerBattleRow).toBeVisible();
+
+  // Verify opponent's battle participant is visible
+  const opponentBattleRow = page.locator('[data-battle-participant="player2"]');
+  await expect(opponentBattleRow).toBeVisible();
+  await screenshot(page, "battle-participants-visible");
+
+  // Verify player's character card is visible (mage was selected)
+  await expect(playerBattleRow.getByAltText("mage")).toBeVisible();
+  await screenshot(page, "battle-player-character");
+
+  // Verify opponent's character card is visible (knight was selected)
+  await expect(opponentBattleRow.getByAltText("knight")).toBeVisible();
+  await screenshot(page, "battle-opponent-character");
+
+  // Verify dice are visible for both participants
+  const playerDice = playerBattleRow.locator('[class*="diceContainer"]');
+  const opponentDice = opponentBattleRow.locator('[class*="diceContainer"]');
+  await expect(playerDice).toBeVisible();
+  await expect(opponentDice).toBeVisible();
+  await screenshot(page, "battle-dice-visible");
+
+  // Wait for dice roll animation to complete (rollDuration = 2000ms by default)
+  await page.waitForTimeout(2500);
+  await screenshot(page, "battle-dice-animation-complete");
+}
+
 test("basic game flow", async ({ page }) => {
   // Setup and create game
   await setupHomePage(page);
@@ -181,6 +215,9 @@ test("basic game flow", async ({ page }) => {
 
   // Test opponent selection flow
   await testOpponentSelection(page);
+
+  // Test battle stage
+  await testBattleStage(page);
 
   // Clean up
   await page2.close();

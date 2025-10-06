@@ -10,7 +10,7 @@ export async function screenshot(page, name) {
 export async function setupHomePage(page) {
   await page.goto("/");
   await expect(page).toHaveTitle(/Heroes of Talisman/);
-  await page.waitForSelector('h2:has-text("Join A Game:")');
+  await page.waitForSelector('[data-section="join-game"]');
 }
 
 export async function joinGame(page, playerName, gameName) {
