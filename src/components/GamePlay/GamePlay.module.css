@@ -34,6 +34,10 @@
   pointer-events: none;
 }
 
+.shared-area-battle {
+  justify-content: flex-start;
+}
+
 .stage-title {
   font-size: 1.5rem;
   font-weight: bold;

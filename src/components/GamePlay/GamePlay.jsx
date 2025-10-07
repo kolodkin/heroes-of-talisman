@@ -89,6 +89,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
       <div
         className={className(styles["shared-area"], {
           [styles["shared-area-disabled"]]: gamePlay.active?.player !== username,
+          [styles["shared-area-battle"]]: gamePlay.stage === "battle",
         })}
         data-shared-area-active={gamePlay.active?.player === username}
       >
