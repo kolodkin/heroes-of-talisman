@@ -83,5 +83,5 @@ fi
 uv run .ai/ai.py -v
 # if claude command is available, run the conversion
 if command -v claude >/dev/null 2>&1; then
-  uv run .ai/claude_mcp_setup.py | bash
+  uv run .ai/claude_mcp_setup.py | bash | true
 fi

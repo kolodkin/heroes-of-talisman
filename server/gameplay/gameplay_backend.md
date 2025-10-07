@@ -103,5 +103,3 @@ Checklist of actions implemented in `server/gameplay/actions/`:
 
 - [x] `opponent_press` – highlight selected opponent and character (`OpponentPressAction`)
 - [x] `opponent_select` – confirm opponent selection and transition to battle (`OpponentSelectAction`)
-
-## Key Features

@@ -1,13 +1,15 @@
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import className from "classnames";
 import styles from "./Navbar.module.css";
 
 function Navbar({ stage, playing }) {
   const { gamename, username } = useParams();
   const { t } = useTranslation();
+  const isActivePlayer = playing === username;
 
   return (
-    <nav className={styles.navbar}>
+    <nav className={className(styles.navbar, { [styles.active]: isActivePlayer })}>
       <div className={styles.content}>
         <div className={styles.startGroup}>
           <h1 className={styles.gameName}>{gamename || "Heroes of Talisman"}</h1>

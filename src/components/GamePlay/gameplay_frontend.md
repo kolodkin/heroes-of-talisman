@@ -147,6 +147,7 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 - Current stage name (translated)
 - Current playing player
 - Game title (at end)
+- **Active Player Indicator**: White outline around navbar when current user is the active player
 
 ## Player
 
@@ -166,3 +167,7 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 - **Scrolling**: Uses `overflow-y: auto` to prevent content from escaping the SharedArea bounds
   - Content that exceeds the SharedArea height will be scrollable
   - Ensures the layout remains constrained within the viewport
+- **Active Player Interaction**:
+  - Only the active player (`gamePlay.active.player`) can interact with UI elements in SharedArea
+  - Non-active players see the SharedArea with `pointer-events: none` to prevent all interactions
+  - Stage components also receive `active` prop as defensive coding for programmatic checks

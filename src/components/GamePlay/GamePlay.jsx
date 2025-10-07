@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import className from "classnames";
 import styles from "./GamePlay.module.css";
 import Card from "./Card";
 import CharacterCard from "../CharacterCard";
@@ -26,9 +27,9 @@ const PlayersMinified = ({ player }) => {
     <div className={styles["player-minimized"]}>
       {player.characters &&
         Object.entries(player.characters).map(([charName, character]) => (
-          <div key={charName} className={styles["character-minimized"]}>
+          <div key={charName} className={styles["character-minimized"]} data-character={charName}>
             <span className={styles["character-name"]}>{t(`characterNames.${charName}`)}</span>
-            <span className={styles["character-level"]}>
+            <span className={styles["character-level"]} data-level={character.level}>
               {t("character_card.level")} {character.level}
             </span>
           </div>
@@ -85,7 +86,12 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
         })}
       </div>
 
-      <div className={styles["shared-area"]}>
+      <div
+        className={className(styles["shared-area"], {
+          [styles["shared-area-disabled"]]: gamePlay.active?.player !== username,
+        })}
+        data-shared-area-active={gamePlay.active?.player === username}
+      >
         <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
         {(() => {
           const currentPlayer = gamePlay.players[username];

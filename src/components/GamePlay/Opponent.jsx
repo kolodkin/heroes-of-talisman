@@ -24,6 +24,7 @@ const OpponentMinified = ({ player, selectedOpponent, onCharacterClick }) => {
               selectedOpponent?.character === charName && styles["character-selected"],
             )}
             onClick={() => onCharacterClick(charName)}
+            data-character={charName}
           >
             <span className={styles["character-name"]}>{t(`characterNames.${charName}`)}</span>
             <span className={styles["character-level"]}>
