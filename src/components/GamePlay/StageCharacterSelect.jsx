@@ -56,7 +56,12 @@ const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacte
         ))}
       </div>
       <button
-        className={className(commonStyles.gamebtn, submitButtonStyles["submit-button"], "text-2xl", "rounded")}
+        className={className(
+          commonStyles.gamebtn,
+          commonStyles.submitButton,
+          submitButtonStyles["submit-button"],
+          "text-2xl",
+        )}
         onClick={handleSubmit}
       >
         <p>{t("character_select.submit")}</p>

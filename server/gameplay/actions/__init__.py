@@ -4,6 +4,7 @@ from .action import Action
 from .connection import ConnectAction, LeaveAction, DisconnectAction
 from .stage_character_select import CharacterPressAction, CharacterSelectAction
 from .stage_opponent_selection import OpponentPressAction, OpponentSelectAction
+from .stage_battle import ActivePlayerRollAction, OpponentRollAction
 
 # Action mapping for dynamic action execution
 ACTION_MAP: Dict[str, type[Action]] = {
@@ -14,4 +15,6 @@ ACTION_MAP: Dict[str, type[Action]] = {
     "character_select": CharacterSelectAction,
     "opponent_press": OpponentPressAction,
     "opponent_select": OpponentSelectAction,
+    "active_player_roll": ActivePlayerRollAction,
+    "opponent_roll": OpponentRollAction,
 }

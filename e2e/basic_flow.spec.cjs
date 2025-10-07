@@ -151,7 +151,7 @@ async function testOpponentSelection(page, page2) {
   await screenshot(page, "opponent-selection-confirmed");
 }
 
-async function testBattleStage(page) {
+async function testBattleStage(page, page2) {
   // Wait for battle stage to load
   await page.waitForTimeout(1000);
   await screenshot(page, "battle-stage-start");
@@ -171,16 +171,33 @@ async function testBattleStage(page) {
   // Verify opponent's character card is visible (knight was selected)
   await expect(opponentBattleRow.getByAltText("knight")).toBeVisible();
 
-  // Verify dice are visible for both participants
-  const playerDice = playerBattleRow.locator('[class*="diceContainer"]');
-  const opponentDice = opponentBattleRow.locator('[class*="diceContainer"]');
-  await expect(playerDice).toBeVisible();
-  await expect(opponentDice).toBeVisible();
-  await screenshot(page, "battle-dice-visible");
+  // Initially, roll buttons should be visible instead of dice
+  const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
+  const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
+  await expect(activeRollButton).toBeVisible();
+  await expect(opponentRollButton).toBeVisible();
+  await screenshot(page, "battle-roll-buttons-visible");
 
-  // Wait for dice roll animation to complete (rollDuration = 2000ms by default)
-  await page.waitForTimeout(2500);
-  await screenshot(page, "battle-dice-animation-complete");
+  // Active player rolls dice
+  await activeRollButton.click();
+  await page.waitForTimeout(500);
+  await screenshot(page, "battle-player-rolled");
+
+  // Verify active player dice is now visible
+  const activeDice = page.locator('[data-battle-role="active"] [class*="diceContainer"]');
+  await expect(activeDice).toBeVisible();
+
+  // Opponent (player2) rolls dice from their own page
+  const player2RollButton = page2.locator('[data-battle-role="opponent"] [data-roll-button]');
+  await player2RollButton.click();
+  await page.waitForTimeout(500);
+  await screenshot(page, "battle-opponent-rolled");
+  await screenshot(page2, "battle-opponent-rolled-page2");
+
+  // Verify opponent dice is now visible
+  const opponentDice = page.locator('[data-battle-role="opponent"] [class*="diceContainer"]');
+  await expect(opponentDice).toBeVisible();
+  await screenshot(page, "battle-both-dice-visible");
 }
 
 test("basic game flow", async ({ page }) => {
@@ -228,7 +245,7 @@ test("basic game flow", async ({ page }) => {
   await testOpponentSelection(page, page2);
 
   // Test battle stage
-  await testBattleStage(page);
+  await testBattleStage(page, page2);
 
   // Clean up
   await page2.close();

@@ -37,6 +37,9 @@ const resources = {
       opponent_selection: {
         select_opponent: "בחר יריב ודמות בבקשה",
       },
+      battle: {
+        roll: "גלגל את הקובייה",
+      },
       // cards: {
       //   talisman: "קמע",
       //   talisman_desc: "משמיד (ולא רק מוריד דרגה) את כל מי שהדמות העונדת אותו מביסה (מורידה לה את כל האסימונים).",
