@@ -7,8 +7,8 @@ existing players, nonexistent players, and already disconnected players.
 
 import pytest
 
-from server.actions.connection import DisconnectAction
-from server.gameplay.models import (
+from .connection import DisconnectAction
+from ..models import (
     GamePlay,
     Player,
     CharacterCard,

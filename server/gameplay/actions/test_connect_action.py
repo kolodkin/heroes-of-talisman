@@ -7,8 +7,8 @@ reconnections, game capacity limits, and character initialization.
 
 import pytest
 
-from server.actions.connection import ConnectAction
-from server.gameplay.models import (
+from .connection import ConnectAction, __MAX_PLAYERS__
+from ..models import (
     GamePlay,
     Player,
     CharacterCard,
@@ -22,7 +22,6 @@ from server.gameplay.models import (
     CONNECTED,
     DISCONNECTED,
 )
-from server.actions.connection import __MAX_PLAYERS__
 
 
 def test_connect_action_new_player():

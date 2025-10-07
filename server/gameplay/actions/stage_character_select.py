@@ -6,10 +6,8 @@ This module implements actions for the character selection stage:
 - CharacterSelectAction: Confirms selection and transitions to battle stage
 """
 
-from typing import Optional
-
-from server.actions.base import Action
-from server.gameplay.models import (
+from .action import Action
+from ..models import (
     GamePlay,
     GameException,
     ReportedException,

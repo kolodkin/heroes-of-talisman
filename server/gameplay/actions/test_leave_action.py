@@ -8,8 +8,8 @@ the only player leaving.
 
 import pytest
 
-from server.actions.connection import LeaveAction
-from server.gameplay.models import (
+from .connection import LeaveAction
+from ..models import (
     GamePlay,
     Player,
     CharacterCard,
