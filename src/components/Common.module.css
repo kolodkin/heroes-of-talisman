@@ -1,23 +1,41 @@
 .gamebtn {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    padding: 10px;
-    overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 10px;
+  overflow: hidden;
 }
 
 :global(.active-player) .gamebtn {
-    cursor: pointer;
+  cursor: pointer;
 }
 
-
 :global(.active-player) .gamebtn:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-    outline: 1px solid whitesmoke;
-    cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.4);
+  outline: 1px solid whitesmoke;
+  cursor: pointer;
 }
 
 .selected,
 :global(.active-player).selected:hover {
-    background-color: rgba(255, 255, 255, 0.5);
-    border: 1px solid whitesmoke;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid whitesmoke;
+}
+
+/* Shared submit button hover effect */
+.submitButton {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+}
+
+.submitButton:hover {
+  background-color: #2a2a2a;
+  border-color: #63b3ed;
+  box-shadow: 0 0 10px rgba(99, 179, 237, 0.5);
+  transform: translateY(-2px);
+}
+
+.submitButton:active {
+  transform: translateY(0);
+  box-shadow: 0 0 5px rgba(99, 179, 237, 0.3);
 }

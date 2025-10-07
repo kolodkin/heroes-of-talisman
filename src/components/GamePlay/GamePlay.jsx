@@ -118,7 +118,14 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                 />
               );
             case "battle":
-              return <StageBattle gamePlay={gamePlay} />;
+              return (
+                <StageBattle
+                  gamePlay={gamePlay}
+                  sendAction={sendAction}
+                  active={isActivePlayer}
+                  currentUser={username}
+                />
+              );
             default:
               return <div>Stage: {gamePlay.stage}</div>;
           }

@@ -103,3 +103,15 @@ Checklist of actions implemented in `server/gameplay/actions/`:
 
 - [x] `opponent_press` – highlight selected opponent and character (`OpponentPressAction`)
 - [x] `opponent_select` – confirm opponent selection and transition to battle (`OpponentSelectAction`)
+
+**Battle Stage:**
+
+- [x] `active_player_roll` – roll dice for active player, sets `active.dice` value (`ActivePlayerRollAction`)
+- [x] `opponent_roll` – roll dice for opponent, sets `opponent.dice` value (`OpponentRollAction`)
+
+### Stage: Battle
+
+The battle stage handles dice rolling for both the active player and opponent.
+
+- **`ActivePlayerRollAction`**: Rolls a dice for the active player and sets `active.dice` to the rolled value. Validates that the player is active and the stage is `battle`.
+- **`OpponentRollAction`**: Rolls a dice for the opponent and sets `opponent.dice` to the rolled value. Validates that the stage is `battle`. Note: This action can be invoked by any player (not just the active player), as the opponent needs to roll their own dice.
