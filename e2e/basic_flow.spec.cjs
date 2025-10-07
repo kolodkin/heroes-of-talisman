@@ -101,7 +101,6 @@ async function testCharacterSelection(page, page2) {
     predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
     timeout: TIMEOUT,
   });
-  await screenshot(page, "character-selected-confirmed");
 }
 
 async function testOpponentSelection(page, page2) {
@@ -130,9 +129,6 @@ async function testOpponentSelection(page, page2) {
 
   // Click on opponent's knight character (minimized view) using data attribute
   await opponentDiv.locator('[data-character="knight"]').click();
-
-  // Wait for selection update (might not trigger game_update, but state should change)
-  await page.waitForTimeout(500);
   await screenshot(page, "opponent-knight-selected");
 
   // Validate submit button hover effects
@@ -148,22 +144,17 @@ async function testOpponentSelection(page, page2) {
     predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
     timeout: TIMEOUT,
   });
-  await screenshot(page, "opponent-selection-confirmed");
 }
 
 async function testBattleStage(page, page2) {
-  // Wait for battle stage to load
-  await page.waitForTimeout(1000);
-  await screenshot(page, "battle-stage-start");
-
-  // Verify current player's battle participant is visible
+  // Wait for battle stage to load - verify battle participant is visible
   const playerBattleRow = page.locator('[data-battle-participant="player"]');
   await expect(playerBattleRow).toBeVisible();
+  await screenshot(page, "battle-stage-start");
 
   // Verify opponent's battle participant is visible
   const opponentBattleRow = page.locator('[data-battle-participant="player2"]');
   await expect(opponentBattleRow).toBeVisible();
-  await screenshot(page, "battle-participants-visible");
 
   // Verify player's character card is visible (mage was selected)
   await expect(playerBattleRow.getByAltText("mage")).toBeVisible();
@@ -177,42 +168,31 @@ async function testBattleStage(page, page2) {
   const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
   await expect(activeRollButton).toBeVisible();
   await expect(opponentRollButton).toBeVisible();
-  await screenshot(page, "battle-roll-buttons-visible");
 
   // Active player rolls dice
   await activeRollButton.click();
-  await page.waitForTimeout(500);
-  await screenshot(page, "battle-player-rolled");
 
-  // Verify active player dice is now visible
+  // Wait for active player dice to be visible
   const activeDice = page.locator('[data-battle-role="active"] [class*="diceContainer"]');
   await expect(activeDice).toBeVisible();
+  await screenshot(page, "battle-player-rolled");
 
   // Opponent (player2) rolls dice from their own page
   const player2RollButton = page2.locator('[data-battle-role="opponent"] [data-roll-button]');
   await player2RollButton.click();
-  await page.waitForTimeout(500);
-  await screenshot(page, "battle-opponent-rolled");
-  await screenshot(page2, "battle-opponent-rolled-page2");
 
-  // Verify opponent dice is now visible
+  // Wait for opponent dice to be visible
   const opponentDice = page.locator('[data-battle-role="opponent"] [class*="diceContainer"]');
   await expect(opponentDice).toBeVisible();
-  await screenshot(page, "battle-both-dice-visible");
+  await screenshot(page, "battle-opponent-rolled");
 
-  // Wait for dice roll animations to complete (rollDuration=1200ms + stopDuration=800ms = 2000ms total)
-  await page.waitForTimeout(2500);
-  await screenshot(page, "battle-scores-visible");
-
-  // Continue button should appear after dice animations complete
+  // Wait for dice animations to complete - continue button appears after animations
   const continueButton = page.getByRole("button", { name: /המשך/i });
   await expect(continueButton).toBeVisible();
-  await screenshot(page, "battle-continue-button-visible");
+  await screenshot(page, "battle-scores-visible");
 
   // Click continue to end battle
   await continueButton.click();
-  await page.waitForTimeout(500);
-  await screenshot(page, "battle-ended");
 
   // After battle, the next player (circular rotation) becomes active
   // In this 2-player game, the next player after player1 is player2

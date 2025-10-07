@@ -8,7 +8,7 @@
  * - First section: Active player (gamePlay.active.player) with their active character and dice/roll button
  * - Second section: Opponent player with their character and dice/roll button
  */
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import className from "classnames";
 import CharacterCard from "../CharacterCard";
@@ -24,10 +24,10 @@ const BattleParticipant = ({
   onRoll,
   canRoll,
   role,
-  isWinner,
   score,
   onDiceStop,
-  showResults,
+  winner,
+  showScore,
 }) => {
   const { t } = useTranslation();
 
@@ -37,7 +37,7 @@ const BattleParticipant = ({
 
   return (
     <div
-      className={className(styles.battleRow, { [styles.winner]: showResults && isWinner })}
+      className={className(styles.battleRow, { [styles.winner]: winner })}
       data-battle-participant={playerName}
       data-battle-role={role}
     >
@@ -50,13 +50,13 @@ const BattleParticipant = ({
               <Dice key={index} value={value} onStop={onDiceStop} />
             ))}
           </div>
-          {showResults && score !== null && score !== undefined && (
+          {showScore && score !== null && score !== undefined && (
             <div className={styles.scoreDisplay}>
               <span className={styles.scoreLabel}>{t("battle.total")}:</span>
               <span className={styles.scoreValue}>{score}</span>
             </div>
           )}
-          {showResults && isWinner && <div className={styles.winnerBadge}>{t("battle.winner")}</div>}
+          {winner && <div className={styles.winnerBadge}>{t("battle.winner")}</div>}
         </>
       ) : (
         <button
@@ -75,7 +75,7 @@ const BattleParticipant = ({
 
 const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const { t } = useTranslation();
-  const [diceStoppedCount, setDiceStoppedCount] = React.useState(0);
+  const [diceStoppedCount, setDiceStoppedCount] = useState(0);
 
   // Active player data
   const activePlayerName = gamePlay.active?.player;
@@ -92,26 +92,21 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
     return <div className={styles.loading}>{t("loading")}</div>;
   }
 
-  // Calculate scores and determine winner
+  // Get dice rolls and winner status from game state
   const activeDiceRoll = gamePlay.active?.dice_roll;
   const opponentDiceRoll = opponent.dice_roll;
+  const activeIsWinner = gamePlay.active?.winner ?? false;
+  const opponentIsWinner = opponent?.winner ?? false;
 
   const bothRolled = activeDiceRoll && opponentDiceRoll;
 
   // Calculate total expected dice count
   const totalExpectedDice = bothRolled ? (activeDiceRoll?.length || 0) + (opponentDiceRoll?.length || 0) : 0;
 
-  // Show results only after all dice have stopped
-  const showResults = bothRolled && diceStoppedCount >= totalExpectedDice;
+  // Show winner when all dice have stopped AND winner is set in backend
+  const showWinner = diceStoppedCount >= totalExpectedDice && (activeIsWinner || opponentIsWinner);
 
-  // Reset counter when dice values change
-  React.useEffect(() => {
-    if (bothRolled) {
-      setDiceStoppedCount(0);
-    }
-  }, [activeDiceRoll, opponentDiceRoll, bothRolled]);
-
-  const handleDiceStop = React.useCallback(() => {
+  const handleDiceStop = useCallback(() => {
     setDiceStoppedCount((prev) => prev + 1);
   }, []);
 
@@ -134,15 +129,15 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
     }
   };
 
-  const activeScore = activeDiceRoll
-    ? activeDiceRoll.reduce((sum, val) => sum + val, 0) + (activeCharacter?.attack || 0)
-    : null;
-  const opponentScore = opponentDiceRoll
-    ? opponentDiceRoll.reduce((sum, val) => sum + val, 0) + (opponentCharacter?.attack || 0)
-    : null;
-
-  const activeIsWinner = bothRolled && activeScore > opponentScore;
-  const opponentIsWinner = bothRolled && opponentScore > activeScore;
+  // Calculate scores for display (only when winner is set)
+  const activeScore =
+    showWinner && activeDiceRoll
+      ? activeDiceRoll.reduce((sum, val) => sum + val, 0) + (activeCharacter?.attack || 0)
+      : null;
+  const opponentScore =
+    showWinner && opponentDiceRoll
+      ? opponentDiceRoll.reduce((sum, val) => sum + val, 0) + (opponentCharacter?.attack || 0)
+      : null;
 
   return (
     <div className={styles.battleContainer}>
@@ -154,10 +149,10 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         onRoll={handleActivePlayerRoll}
         canRoll={active}
         role="active"
-        isWinner={activeIsWinner}
         score={activeScore}
         onDiceStop={handleDiceStop}
-        showResults={showResults}
+        winner={showWinner && activeIsWinner}
+        showScore={showWinner}
       />
       <BattleParticipant
         playerName={opponent.player}
@@ -167,12 +162,12 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         onRoll={handleOpponentRoll}
         canRoll={currentUser === opponent.player}
         role="opponent"
-        isWinner={opponentIsWinner}
         score={opponentScore}
         onDiceStop={handleDiceStop}
-        showResults={showResults}
+        winner={showWinner && opponentIsWinner}
+        showScore={showWinner}
       />
-      {showResults && (
+      {showWinner && (
         <button
           className={className(commonStyles.gamebtn, commonStyles.submitButton, styles.continueButton)}
           onClick={handleContinue}
