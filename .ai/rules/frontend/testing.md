@@ -35,3 +35,4 @@ Use dedicated data attributes (e.g., `data-battle-participant`, `data-character`
 - Write tests in a flat structure using function-based test definitions (avoid class-based grouping).
 - Use descriptive test names that clearly indicate the user flow or feature being tested.
 - Prefer colocating test files with the components or features they cover, or group related tests in the same directory.
+- Avoid `waitForTimeout()` - use `expect(element).toBeVisible()` to wait for DOM elements.

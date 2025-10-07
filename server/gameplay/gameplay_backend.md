@@ -55,20 +55,6 @@ The backend action layer organizes game mutations into small, focused classes. E
 - **Connection actions** (`ConnectAction`, `LeaveAction`, `DisconnectAction`): manage player lifecycle by connecting players, removing them from the game, or marking them as disconnected.
 - **Models**: Pydantic models (`GamePlay`, `Player`, `CharacterCard`) describe the game state and enforce structure and types.
 
-### Stage: Character Select
-
-The character selection stage allows players to choose which character will act during their turn.
-
-- **`CharacterPressAction`**: Sets `stage_meta['selected']` to the character name pressed by the active player. Validates that the player is active, the stage is `character_select`, and the character exists for this player.
-- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name and transitioning the game stage from `character_select` to `opponent_selection`. Clears `stage_meta` after transition.
-
-### Stage: Opponent Selection
-
-The opponent selection stage allows players to choose an opponent and one of their characters for battle.
-
-- **`OpponentPressAction`**: Sets `stage_meta` to an `Opponent` object with the selected opponent player name and character. Validates that the player is active, the stage is `opponent_selection`, the opponent exists, is not the current player, and has the selected character.
-- **`OpponentSelectAction`**: Confirms the opponent selection by reading from `stage_meta`, setting `opponent` to the selected opponent, and transitioning the game stage from `opponent_selection` to `battle`. Clears `stage_meta` after transition.
-
 ### Action Workflow
 
 1. An action instance is created with a user identifier and the current `GamePlay`.
@@ -84,31 +70,37 @@ The opponent selection stage allows players to choose an opponent and one of the
 
 To implement a new action, subclass `Action` and implement the `run` method. Use `assert_stage` to ensure the action only executes during the appropriate game phase and update the `GamePlay` as needed.
 
-### Implemented Actions
-
-Checklist of actions implemented in `server/gameplay/actions/`:
-
-**General:**
+### General Actions
 
 - [x] `connect` – add a player to the game (`ConnectAction`)
 - [x] `leave` – remove a player from the game (`LeaveAction`)
 - [x] `disconnect` – mark a player as disconnected (`DisconnectAction`)
 
-**Character Select Stage:**
+## Stages
+
+### Stage: Character Select
+
+The character selection stage allows players to choose which character will act during their turn.
+
+- **`CharacterPressAction`**: Sets `stage_meta['selected']` to the character name pressed by the active player. Validates that the player is active, the stage is `character_select`, and the character exists for this player.
+- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name and transitioning the game stage from `character_select` to `opponent_selection`. Clears `stage_meta` after transition.
+
+**Actions:**
 
 - [x] `character_press` – highlight selected character (`CharacterPressAction`)
 - [x] `character_select` – confirm character selection and transition to opponent_selection (`CharacterSelectAction`)
 
-**Opponent Selection Stage:**
+### Stage: Opponent Selection
+
+The opponent selection stage allows players to choose an opponent and one of their characters for battle.
+
+- **`OpponentPressAction`**: Sets `stage_meta` to an `Opponent` object with the selected opponent player name and character. Validates that the player is active, the stage is `opponent_selection`, the opponent exists, is not the current player, and has the selected character.
+- **`OpponentSelectAction`**: Confirms the opponent selection by reading from `stage_meta`, setting `opponent` to the selected opponent, and transitioning the game stage from `opponent_selection` to `battle`. Clears `stage_meta` after transition.
+
+**Actions:**
 
 - [x] `opponent_press` – highlight selected opponent and character (`OpponentPressAction`)
 - [x] `opponent_select` – confirm opponent selection and transition to battle (`OpponentSelectAction`)
-
-**Battle Stage:**
-
-- [x] `active_player_roll` – roll dice for active player, sets `active.dice_roll` list (`ActivePlayerRollAction`)
-- [x] `opponent_roll` – roll dice for opponent, sets `opponent.dice_roll` list (`OpponentRollAction`)
-- [x] `battle_end` – end battle, reduce loser's health, transition to next turn (`BattleEndAction`)
 
 ### Stage: Battle
 
@@ -117,3 +109,9 @@ The battle stage handles dice rolling for both the active player and opponent, f
 - **`ActivePlayerRollAction`**: Rolls dice for the active player based on their character's dice value and sets `active.dice_roll` to a list of rolled values. Validates that the player is active and the stage is `battle`.
 - **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle`. Note: This action can be invoked by the opponent player (not the active player), as the opponent needs to roll their own dice.
 - **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
+
+**Actions:**
+
+- [x] `active_player_roll` – roll dice for active player, sets `active.dice_roll` list (`ActivePlayerRollAction`)
+- [x] `opponent_roll` – roll dice for opponent, sets `opponent.dice_roll` list (`OpponentRollAction`)
+- [x] `battle_end` – end battle, reduce loser's health, transition to next turn (`BattleEndAction`)

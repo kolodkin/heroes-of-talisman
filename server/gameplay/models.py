@@ -67,6 +67,16 @@ class ActivePlayer3(BaseModel):
     dice_roll: list[int]
 
 
+class ActivePlayer4(BaseModel):
+    player: str
+    character: str
+    dice_roll: list[int]
+    winner: bool
+
+
+ActivePlayer = ActivePlayer1 | ActivePlayer2 | ActivePlayer3 | ActivePlayer4
+
+
 class Opponent2(BaseModel):
     player: str
     character: str
@@ -78,6 +88,16 @@ class Opponent3(BaseModel):
     dice_roll: list[int]
 
 
+class Opponent4(BaseModel):
+    player: str
+    character: str
+    dice_roll: list[int]
+    winner: bool
+
+
+Opponent = Opponent2 | Opponent3 | Opponent4
+
+
 class Player(BaseModel):
     name: str
     status: CONNECTION_STATUS = CONNECTED
@@ -87,9 +107,9 @@ class Player(BaseModel):
 
 class GamePlay(BaseModel):
     stage: STAGES_NAMES = CHARACTER_SELECT
-    active: Optional[ActivePlayer1 | ActivePlayer2 | ActivePlayer3] = None  # The active player and its selections
+    active: Optional[ActivePlayer] = None  # The active player and its selections
     players: dict[str, Player] = Field(default_factory=dict)
-    opponent: Optional[Opponent2 | Opponent3] = None  # Selected opponent for battle
+    opponent: Optional[Opponent] = None  # Selected opponent for battle
     stage_meta: Optional[CharacterSelectMeta | Opponent2] = None  # Temporary stage-specific metadata
 
     def reorder_players(self, username: str):
