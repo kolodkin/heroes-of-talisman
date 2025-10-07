@@ -38,7 +38,8 @@ const resources = {
         select_opponent: "בחר יריב ודמות בבקשה",
       },
       battle: {
-        roll: "גלגל את הקובייה",
+        roll_the_dice: "גלגל את הקובייה",
+        roll_the_dice_mult: "גלגל את הקוביות",
       },
       // cards: {
       //   talisman: "קמע",

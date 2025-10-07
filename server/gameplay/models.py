@@ -64,7 +64,7 @@ class ActivePlayer2(BaseModel):
 class ActivePlayer3(BaseModel):
     player: str
     character: str
-    dice_roll: int
+    dice_roll: list[int]
 
 
 class Opponent2(BaseModel):
@@ -75,7 +75,7 @@ class Opponent2(BaseModel):
 class Opponent3(BaseModel):
     player: str
     character: str
-    dice_roll: int
+    dice_roll: list[int]
 
 
 class Player(BaseModel):

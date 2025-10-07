@@ -28,9 +28,7 @@ class ActivePlayerRollAction(Action):
     def run(self) -> GamePlay:
         # Validate stage
         if self.game.stage != BATTLE:
-            raise GameException(
-                f"Cannot roll dice in stage: {self.game.stage}"
-            )
+            raise GameException(f"Cannot roll dice in stage: {self.game.stage}")
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
@@ -41,17 +39,20 @@ class ActivePlayerRollAction(Action):
             raise GameException("Player not in game")
 
         # Validate active is ActivePlayer2 (has player and character but no dice yet)
-        if not hasattr(self.game.active, 'character'):
+        if not hasattr(self.game.active, "character"):
             raise GameException("Active player has no character selected")
 
+        # Get character's dice value
+        player = self.game.players[self.user]
+        character = player.characters[self.game.active.character]
+        num_dice = character.dice
+
         # Roll dice
-        dice_value = random.randint(1, 6)
+        dice_roll = [random.randint(1, 6) for _ in range(num_dice)]
 
         # Upgrade active to ActivePlayer3 with dice_roll
         self.game.active = ActivePlayer3(
-            player=self.game.active.player,
-            character=self.game.active.character,
-            dice_roll=dice_value
+            player=self.game.active.player, character=self.game.active.character, dice_roll=dice_roll
         )
 
         return self.game
@@ -68,9 +69,7 @@ class OpponentRollAction(Action):
     def run(self) -> GamePlay:
         # Validate stage
         if self.game.stage != BATTLE:
-            raise GameException(
-                f"Cannot roll dice in stage: {self.game.stage}"
-            )
+            raise GameException(f"Cannot roll dice in stage: {self.game.stage}")
 
         # Validate opponent exists
         if not self.game.opponent:
@@ -81,17 +80,20 @@ class OpponentRollAction(Action):
             raise ReportedException("You are not the opponent")
 
         # Validate opponent is Opponent2 (has player and character but no dice yet)
-        if not hasattr(self.game.opponent, 'character'):
+        if not hasattr(self.game.opponent, "character"):
             raise GameException("Opponent has no character selected")
 
+        # Get character's dice value
+        player = self.game.players[self.user]
+        character = player.characters[self.game.opponent.character]
+        num_dice = character.dice
+
         # Roll dice
-        dice_value = random.randint(1, 6)
+        dice_roll = [random.randint(1, 6) for _ in range(num_dice)]
 
         # Upgrade opponent to Opponent3 with dice_roll
         self.game.opponent = Opponent3(
-            player=self.game.opponent.player,
-            character=self.game.opponent.character,
-            dice_roll=dice_value
+            player=self.game.opponent.player, character=self.game.opponent.character, dice_roll=dice_roll
         )
 
         return self.game
