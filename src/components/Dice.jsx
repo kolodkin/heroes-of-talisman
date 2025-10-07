@@ -60,11 +60,11 @@ const DiceDots = ({ value }) => {
 // Define rotation angles for each face (outside component to avoid recreation)
 const FACE_ROTATIONS = {
   1: { x: 0, y: 0 },
-  2: { x: 0, y: 90 },
+  2: { x: 0, y: -90 },
   3: { x: 0, y: 180 },
-  4: { x: 0, y: -90 },
-  5: { x: 90, y: 0 },
-  6: { x: -90, y: 0 },
+  4: { x: 0, y: 90 },
+  5: { x: -90, y: 0 },
+  6: { x: 90, y: 0 },
 };
 
 const Dice = ({
@@ -96,6 +96,9 @@ const Dice = ({
     if (rollDuration <= 0) {
       setIsRolling(false);
       setRotation(targetRotation);
+      if (onStop) {
+        onStop();
+      }
       return;
     }
 
