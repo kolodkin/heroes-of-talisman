@@ -74,8 +74,22 @@
   font-weight: bold;
   font-size: 1.2rem;
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-  animation: pulse 1.5s ease-in-out infinite;
+  opacity: 0;
+  animation:
+    winnerAppear 0.8s ease-out 0.4s forwards,
+    pulse 1.5s ease-in-out 1.2s infinite;
   margin-inline-start: 1rem;
+}
+
+@keyframes winnerAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes pulse {
@@ -92,6 +106,7 @@
 
 .winner {
   background-color: rgba(255, 215, 0, 0.1);
+  transition: background-color 0.5s ease-in-out;
 }
 
 .continueButton {
