@@ -12,6 +12,9 @@
   display: flex;
   align-items: center;
   gap: 2rem;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: background-color 0.3s ease;
 }
 
 .playerName {
@@ -89,8 +92,6 @@
 
 .winner {
   background-color: rgba(255, 215, 0, 0.1);
-  border-radius: 0.5rem;
-  padding: 1rem;
 }
 
 .continueButton {
