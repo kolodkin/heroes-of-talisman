@@ -125,7 +125,7 @@ CHARACTER_DEFAULT_STATS = {
         "attack": 1,
     },
     "archer": {
-        "health": 2,
+        "health": 3,
         "max_health": 3,
         "dice": 1,
     },

@@ -128,15 +128,26 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 - **StageBattle** (`battle` stage): Displays the battle between current player and opponent
   - **Layout**: Two vertically aligned sections
-    - **Player section**: Shows current player (`gamePlay.active.player`), their selected character (`gamePlay.active.character`), and dice
-    - **Opponent section**: Shows opponent player (`gamePlay.opponent.player`), their character (`gamePlay.opponent.character`), and roll button / dice animation
+    - **Player section**: Shows current player (`gamePlay.active.player`), their selected character (`gamePlay.active.character`), and dice/roll button
+    - **Opponent section**: Shows opponent player (`gamePlay.opponent.player`), their character (`gamePlay.opponent.character`), and dice/roll button
   - **Dice Roll Flow**:
     - Initially, dice values are not set; roll buttons displayed instead of dice
-    - Active player clicks roll → `active_player_roll` action → sets `gamePlay.active.dice` → dice shown after re-render
-    - Opponent clicks roll → `opponent_roll` action → sets `gamePlay.opponent.dice` → dice shown after re-render
+    - Active player clicks roll → `active_player_roll` action → sets `gamePlay.active.dice_roll` (list) → dice shown after re-render
+    - Opponent clicks roll → `opponent_roll` action → sets `gamePlay.opponent.dice_roll` (list) → dice shown after re-render
     - **Note**: Opponent roll button has `pointer-events` enabled (non-active players can interact)
+    - Number of dice rolled is based on character's `dice` value
+  - **Score Display**:
+    - After both players roll, scores are calculated: `sum(dice_roll) + (character.attack || 0)`
+    - Score displayed next to dice for each participant
+  - **Winner Effect**:
+    - Winner (higher score) gets golden badge with pulsing animation
+    - Winner's row has highlighted background
+  - **Continue Button**:
+    - Appears after both players have rolled
+    - Only active player can click
+    - Invokes `battle_end` action → reduces loser's health by 1 → transitions to `character_select` stage with next player (circular rotation) as new active player
   - All connected players see synchronized battle state
-  - Actions: `active_player_roll`, `opponent_roll`
+  - Actions: `active_player_roll`, `opponent_roll`, `battle_end`
 
 # Key Components
 
