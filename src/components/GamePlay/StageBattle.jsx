@@ -1,11 +1,11 @@
 /**
  * Battle Stage
  *
- * Displays the current player and opponent facing each other in battle.
+ * Displays the active player and opponent facing each other in battle.
  * Shows character cards and dice/roll buttons for both players.
  *
  * Layout:
- * - First section: Current player (gamePlay.active.player) with their selected character and dice/roll button
+ * - First section: Active player (gamePlay.active.player) with their active character and dice/roll button
  * - Second section: Opponent player with their character and dice/roll button
  */
 import React from "react";
@@ -77,18 +77,18 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const { t } = useTranslation();
   const [diceStoppedCount, setDiceStoppedCount] = React.useState(0);
 
-  // Current player data
-  const currentPlayerName = gamePlay.active?.player;
-  const currentPlayer = currentPlayerName ? gamePlay.players[currentPlayerName] : null;
-  const selectedCharacterName = gamePlay.active?.character;
-  const selectedCharacter = currentPlayer?.characters[selectedCharacterName];
+  // Active player data
+  const activePlayerName = gamePlay.active?.player;
+  const activePlayer = activePlayerName ? gamePlay.players[activePlayerName] : null;
+  const activeCharacterName = gamePlay.active?.character;
+  const activeCharacter = activePlayer?.characters[activeCharacterName];
 
   // Opponent data
   const opponent = gamePlay.opponent;
   const opponentPlayer = opponent ? gamePlay.players[opponent.player] : null;
   const opponentCharacter = opponentPlayer?.characters[opponent.character];
 
-  if (!currentPlayer || !selectedCharacter || !opponent || !opponentCharacter) {
+  if (!activePlayer || !activeCharacter || !opponent || !opponentCharacter) {
     return <div className={styles.loading}>{t("loading")}</div>;
   }
 
@@ -135,7 +135,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   };
 
   const activeScore = activeDiceRoll
-    ? activeDiceRoll.reduce((sum, val) => sum + val, 0) + (selectedCharacter?.attack || 0)
+    ? activeDiceRoll.reduce((sum, val) => sum + val, 0) + (activeCharacter?.attack || 0)
     : null;
   const opponentScore = opponentDiceRoll
     ? opponentDiceRoll.reduce((sum, val) => sum + val, 0) + (opponentCharacter?.attack || 0)
@@ -147,9 +147,9 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   return (
     <div className={styles.battleContainer}>
       <BattleParticipant
-        playerName={currentPlayerName}
-        characterName={selectedCharacterName}
-        character={selectedCharacter}
+        playerName={activePlayerName}
+        characterName={activeCharacterName}
+        character={activeCharacter}
         diceValues={gamePlay.active?.dice_roll}
         onRoll={handleActivePlayerRoll}
         canRoll={active}
