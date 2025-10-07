@@ -12,6 +12,11 @@
   padding-inline: 20px;
 }
 
+.navbar.active {
+  outline: 2px solid white;
+  outline-offset: -2px;
+}
+
 .content {
   display: flex;
   align-items: center;

@@ -30,6 +30,10 @@
   overflow-y: auto;
 }
 
+.shared-area-disabled {
+  pointer-events: none;
+}
+
 .stage-title {
   font-size: 1.5rem;
   font-weight: bold;

@@ -6,14 +6,16 @@
 
 ## Dom Selection
 
-Use CSS class name selectors (e.g., `[class*="diceContainer"]`) or dedicated data attributes (e.g., `data-battle-participant`) to locate DOM elements in e2e tests. Avoid selecting elements by DOM type (e.g., `h2`, `div`, `span`) as these are fragile and can break when refactoring markup structure.
+Use dedicated data attributes (e.g., `data-battle-participant`, `data-character`) or CSS class name selectors (e.g., `[class*="diceContainer"]`) to locate DOM elements in e2e tests. Avoid selecting elements by DOM type (e.g., `h2`, `div`, `span`) or text content as these are fragile and can break when refactoring markup structure or translations.
 
 **Examples:**
 
 - **Good**: `page.locator('[data-battle-participant="player"]')`
+- **Good**: `page.locator('[data-character="knight"]')`
 - **Good**: `page.locator('[class*="diceContainer"]')`
 - **Avoid**: `page.locator('h2').filter({ hasText: 'player' })`
 - **Avoid**: `page.locator('div.container > span')`
+- **Avoid**: `page.getByText(/אביר/)` (text-based selectors break with translations)
 
 ## Running tests
 

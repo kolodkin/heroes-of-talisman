@@ -22,21 +22,21 @@ async function createTestGame(page) {
 async function validatePlayerCharacters(page, playerName) {
   const playerDiv = page.locator(`[data-player="${playerName}"]`);
 
-  // Validate player name appears
-  await expect(playerDiv.getByText(playerName)).toBeVisible();
+  // Validate player div is visible
+  await expect(playerDiv).toBeVisible();
 
   // Validate character cards appear (all 3 characters)
   await expect(playerDiv.getByAltText("knight")).toBeVisible();
   await expect(playerDiv.getByAltText("archer")).toBeVisible();
   await expect(playerDiv.getByAltText("mage")).toBeVisible();
 
-  // Validate character stats are visible
-  await expect(playerDiv.getByText(/אביר דרגה 1/)).toBeVisible();
-  await expect(playerDiv.getByText(/קשת דרגה 1/)).toBeVisible();
-  await expect(playerDiv.getByText(/קוסם דרגה 1/)).toBeVisible();
+  // Validate character stats are visible using data attributes
+  await expect(playerDiv.locator('[data-character="knight"][data-level="1"]')).toBeVisible();
+  await expect(playerDiv.locator('[data-character="archer"][data-level="1"]')).toBeVisible();
+  await expect(playerDiv.locator('[data-character="mage"][data-level="1"]')).toBeVisible();
 }
 
-async function testCharacterSelection(page) {
+async function testCharacterSelection(page, page2) {
   // Get the select button to locate the character selection area
   const selectButton = page.getByRole("button", { name: "בחר" });
   await expect(selectButton).toBeVisible();
@@ -50,6 +50,13 @@ async function testCharacterSelection(page) {
   const sharedAreaCard = page.locator('[alt="knight"]').nth(2).locator("..");
   await expect(sharedAreaCard).toHaveClass(/card-normal/);
   await screenshot(page, "shared-area-normal-cards");
+
+  // Test that non-active player (player2) cannot interact with SharedArea
+  const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
+  await expect(page2SharedArea).toBeVisible();
+
+  // Verify SharedArea has pointer-events: none
+  await expect(page2SharedArea).toHaveCSS("pointer-events", "none");
 
   // Player1 selects knight character (the one near the בחר button)
   // Click the knight that's a sibling/near the select button (in shared area, not player area)
@@ -97,7 +104,7 @@ async function testCharacterSelection(page) {
   await screenshot(page, "character-selected-confirmed");
 }
 
-async function testOpponentSelection(page) {
+async function testOpponentSelection(page, page2) {
   // Verify we're in opponent selection stage
   const selectButton = page.getByRole("button", { name: "בחר" });
   await expect(selectButton).toBeVisible();
@@ -108,15 +115,21 @@ async function testOpponentSelection(page) {
   const opponentDiv = page.locator('[data-player="player2"]').last();
   await expect(opponentDiv).toBeVisible();
 
-  // Verify opponent player2 starts minimized (no character images visible in shared area opponent card)
-  // The character names should be visible in Hebrew
-  await expect(opponentDiv.getByText(/אביר/)).toBeVisible(); // knight
-  await expect(opponentDiv.getByText(/קשת/)).toBeVisible(); // archer
-  await expect(opponentDiv.getByText(/קוסם/)).toBeVisible(); // mage
+  // Verify opponent player2 starts minimized (character data attributes visible)
+  await expect(opponentDiv.locator('[data-character="knight"]')).toBeVisible();
+  await expect(opponentDiv.locator('[data-character="archer"]')).toBeVisible();
+  await expect(opponentDiv.locator('[data-character="mage"]')).toBeVisible();
   await screenshot(page, "opponent-minimized");
 
-  // Click on opponent's knight character (minimized view)
-  await opponentDiv.getByText(/אביר/).click();
+  // Test that non-active player (player2) cannot interact with SharedArea
+  const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
+  await expect(page2SharedArea).toBeVisible();
+
+  // Verify SharedArea has pointer-events: none
+  await expect(page2SharedArea).toHaveCSS("pointer-events", "none");
+
+  // Click on opponent's knight character (minimized view) using data attribute
+  await opponentDiv.locator('[data-character="knight"]').click();
 
   // Wait for selection update (might not trigger game_update, but state should change)
   await page.waitForTimeout(500);
@@ -209,10 +222,10 @@ test("basic game flow", async ({ page }) => {
   await validatePlayerCharacters(page, "player2");
 
   // Test character selection flow
-  await testCharacterSelection(page);
+  await testCharacterSelection(page, page2);
 
   // Test opponent selection flow
-  await testOpponentSelection(page);
+  await testOpponentSelection(page, page2);
 
   // Test battle stage
   await testBattleStage(page);

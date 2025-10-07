@@ -22,6 +22,8 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         "text-2xl",
       )}
       onClick={onClick}
+      data-character={name}
+      data-level={character.level}
     >
       <img src={`/images/${name}.png`} alt={name} />
       <p className="w-full text-center font-bold">
