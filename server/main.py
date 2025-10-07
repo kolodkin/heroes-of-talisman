@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .env import REDIS_HOST, REDIS_PORT
 from .game_engine import GameEngine
 from .gameplay.models import __DEFAULT_GAME__, GamePlay
-from .models import Game as GameTable
+from .db_models import Game as GameTable
 from .database import get_db, AsyncSessionLocal
 
 logger = logging.getLogger("uvicorn")
@@ -241,10 +241,7 @@ async def actions_loop(websocket: WebSocket, redis_meta: RedisMeta):
 
         # Notify connected clients (outside session context)
         logger.info(f"Publishing game_update event to channel '{redis_meta.channel}'")
-        await redis_client.publish(
-            redis_meta.channel,
-            json.dumps(dict(event="game_update", event_action=action_name))
-        )
+        await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update", event_action=action_name)))
 
 
 @app.websocket("/ws/{gamename}/{username}")

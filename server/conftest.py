@@ -7,7 +7,7 @@ from sqlmodel import SQLModel
 
 from server.main import app
 from server.database import get_db
-from server.models import Game as GameTable
+from server.db_models import Game as GameTable
 
 
 # Set test database environment variable to match setup.sh
