@@ -1,6 +1,6 @@
 from typing import Dict
 
-from .base import Action
+from .action import Action
 from .connection import ConnectAction, LeaveAction, DisconnectAction
 from .stage_character_select import CharacterPressAction, CharacterSelectAction
 from .stage_opponent_selection import OpponentPressAction, OpponentSelectAction

@@ -7,8 +7,8 @@ selected characters and confirming selections to transition to battle.
 
 import pytest
 
-from server.actions.stage_character_select import CharacterPressAction, CharacterSelectAction
-from server.gameplay.models import (
+from .stage_character_select import CharacterPressAction, CharacterSelectAction
+from ..models import (
     GamePlay,
     Player,
     CharacterCard,

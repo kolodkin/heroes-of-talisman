@@ -8,8 +8,8 @@ and leaving actions.
 
 import pytest
 
-from server.actions.connection import ConnectAction, DisconnectAction, LeaveAction
-from server.gameplay.models import (
+from .connection import ConnectAction, DisconnectAction, LeaveAction
+from ..models import (
     GamePlay,
     CHARACTER_SELECT,
     CONNECTED,

@@ -1,7 +1,7 @@
 from typing import Dict
 
-from .base import Action
-from ..gameplay.models import (
+from .action import Action
+from ..models import (
     GamePlay,
     GameException,
     ReportedException,

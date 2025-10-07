@@ -3,7 +3,7 @@ from .gameplay.models import (
     GameException,
     ReportedException,
 )
-from .actions import (
+from .gameplay.actions import (
     ACTION_MAP,
 )
 

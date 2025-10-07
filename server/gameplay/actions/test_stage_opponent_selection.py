@@ -7,11 +7,11 @@ selected opponents and confirming selections to transition to battle.
 
 import pytest
 
-from server.actions.stage_opponent_selection import (
+from .stage_opponent_selection import (
     OpponentPressAction,
     OpponentSelectAction,
 )
-from server.gameplay.models import (
+from ..models import (
     GamePlay,
     Player,
     CharacterCard,

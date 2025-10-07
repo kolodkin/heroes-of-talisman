@@ -6,8 +6,8 @@ This module implements actions for the opponent selection stage:
 - OpponentSelectAction: Confirms opponent selection and transitions to battle stage
 """
 
-from server.actions.base import Action
-from server.gameplay.models import (
+from .action import Action
+from ..models import (
     GamePlay,
     GameException,
     ReportedException,
