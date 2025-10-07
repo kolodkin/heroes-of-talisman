@@ -199,6 +199,27 @@ async function testBattleStage(page, page2) {
   const opponentDice = page.locator('[data-battle-role="opponent"] [class*="diceContainer"]');
   await expect(opponentDice).toBeVisible();
   await screenshot(page, "battle-both-dice-visible");
+
+  // Wait for dice roll animations to complete (rollDuration=1200ms + stopDuration=800ms = 2000ms total)
+  await page.waitForTimeout(2500);
+  await screenshot(page, "battle-scores-visible");
+
+  // Continue button should appear after dice animations complete
+  const continueButton = page.getByRole("button", { name: /המשך/i });
+  await expect(continueButton).toBeVisible();
+  await screenshot(page, "battle-continue-button-visible");
+
+  // Click continue to end battle
+  await continueButton.click();
+  await page.waitForTimeout(500);
+  await screenshot(page, "battle-ended");
+
+  // After battle, the next player (circular rotation) becomes active
+  // In this 2-player game, the next player after player1 is player2
+  // So page2 should now be active
+  await page2.waitForSelector('[data-shared-area-active="true"]', { timeout: TIMEOUT });
+  await screenshot(page, "battle-ended-page1");
+  await screenshot(page2, "battle-ended-page2-now-active");
 }
 
 test("basic game flow", async ({ page }) => {

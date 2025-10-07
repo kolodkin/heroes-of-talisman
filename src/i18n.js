@@ -40,6 +40,9 @@ const resources = {
       battle: {
         roll_the_dice: "גלגל את הקובייה",
         roll_the_dice_mult: "גלגל את הקוביות",
+        total: 'סה"כ',
+        winner: "מנצח",
+        continue: "המשך",
       },
       // cards: {
       //   talisman: "קמע",

@@ -106,12 +106,14 @@ Checklist of actions implemented in `server/gameplay/actions/`:
 
 **Battle Stage:**
 
-- [x] `active_player_roll` – roll dice for active player, sets `active.dice` value (`ActivePlayerRollAction`)
-- [x] `opponent_roll` – roll dice for opponent, sets `opponent.dice` value (`OpponentRollAction`)
+- [x] `active_player_roll` – roll dice for active player, sets `active.dice_roll` list (`ActivePlayerRollAction`)
+- [x] `opponent_roll` – roll dice for opponent, sets `opponent.dice_roll` list (`OpponentRollAction`)
+- [x] `battle_end` – end battle, reduce loser's health, transition to next turn (`BattleEndAction`)
 
 ### Stage: Battle
 
-The battle stage handles dice rolling for both the active player and opponent.
+The battle stage handles dice rolling for both the active player and opponent, followed by resolving the battle outcome.
 
 - **`ActivePlayerRollAction`**: Rolls dice for the active player based on their character's dice value and sets `active.dice_roll` to a list of rolled values. Validates that the player is active and the stage is `battle`.
-- **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle`. Note: This action can be invoked by any player (not just the active player), as the opponent needs to roll their own dice.
+- **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle`. Note: This action can be invoked by the opponent player (not the active player), as the opponent needs to roll their own dice.
+- **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.

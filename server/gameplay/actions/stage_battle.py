@@ -4,6 +4,7 @@ Battle Stage Actions
 This module implements actions for the battle stage:
 - ActivePlayerRollAction: Rolls dice for active player
 - OpponentRollAction: Rolls dice for opponent
+- BattleEndAction: Ends battle and reduces loser's health
 """
 
 import random
@@ -15,6 +16,7 @@ from ..models import (
     ActivePlayer3,
     Opponent3,
     BATTLE,
+    CHARACTER_SELECT,
 )
 
 

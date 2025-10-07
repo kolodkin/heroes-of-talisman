@@ -76,6 +76,7 @@ const Dice = ({
   stopDuration = 800,
   tilt = 5,
   tiltMargin = 5,
+  onStop,
 }) => {
   const [isRolling, setIsRolling] = useState(rollDuration > 0);
   const [rotation, setRotation] = useState(FACE_ROTATIONS[value] || FACE_ROTATIONS[1]);
@@ -131,13 +132,20 @@ const Dice = ({
       // Smoothly transition to final position
       setIsRolling(false);
       setRotation(adjustedTarget);
+
+      // Call onStop callback after animation completes (rollDuration + stopDuration)
+      if (onStop) {
+        setTimeout(() => {
+          onStop();
+        }, stopDuration);
+      }
     }, rollDuration);
 
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [value, rollDuration, rollInterval, rollSpeed, rollSpeedMargin, stopDuration, tilt, tiltMargin]);
+  }, [value, rollDuration, rollInterval, rollSpeed, rollSpeedMargin, stopDuration, tilt, tiltMargin, onStop]);
 
   return (
     <div className={styles.diceContainer}>

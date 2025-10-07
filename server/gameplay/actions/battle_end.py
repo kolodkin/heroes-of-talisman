@@ -1,0 +1,73 @@
+"""
+Battle End Action
+
+Ends the battle, calculates winner, and reduces loser's health by 1.
+"""
+
+from .action import Action
+from ..models import (
+    GamePlay,
+    GameException,
+    ReportedException,
+    ActivePlayer1,
+    BATTLE,
+    CHARACTER_SELECT,
+)
+
+
+class BattleEndAction(Action):
+    """
+    Action invoked when the active player presses continue after battle.
+
+    Calculates the winner based on dice + attack values, reduces loser's health by 1,
+    clears battle state, and transitions to character_select stage.
+    """
+
+    def run(self) -> GamePlay:
+        # Validate stage
+        if self.game.stage != BATTLE:
+            raise GameException(f"Cannot end battle in stage: {self.game.stage}")
+
+        # Validate user is the active player
+        if not self.game.active or self.game.active.player != self.user:
+            raise ReportedException("It's not your turn")
+
+        # Validate both players have rolled
+        if not hasattr(self.game.active, "dice_roll") or not self.game.active.dice_roll:
+            raise ReportedException("Active player hasn't rolled yet")
+
+        if not self.game.opponent or not hasattr(self.game.opponent, "dice_roll") or not self.game.opponent.dice_roll:
+            raise ReportedException("Opponent hasn't rolled yet")
+
+        # Get players and characters
+        active_player = self.game.players[self.game.active.player]
+        opponent_player = self.game.players[self.game.opponent.player]
+        active_character = active_player.characters[self.game.active.character]
+        opponent_character = opponent_player.characters[self.game.opponent.character]
+
+        # Calculate scores
+        active_score = sum(self.game.active.dice_roll) + (active_character.attack or 0)
+        opponent_score = sum(self.game.opponent.dice_roll) + (opponent_character.attack or 0)
+
+        # Determine loser and reduce health
+        if active_score > opponent_score:
+            # Active player wins, opponent loses health
+            opponent_character.health = max(0, opponent_character.health - 1)
+        elif opponent_score > active_score:
+            # Opponent wins, active player loses health
+            active_character.health = max(0, active_character.health - 1)
+        # If tied, no one loses health
+
+        # Get next player (circular rotation)
+        player_names = list(self.game.players.keys())
+        current_active_index = player_names.index(self.game.active.player)
+        next_player_index = (current_active_index + 1) % len(player_names)
+        next_player_name = player_names[next_player_index]
+
+        # Clear battle state and transition to next turn
+        self.game.active = ActivePlayer1(player=next_player_name)
+        self.game.opponent = None
+        self.game.stage = CHARACTER_SELECT
+        self.game.stage_meta = None
+
+        return self.game
