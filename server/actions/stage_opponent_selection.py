@@ -11,7 +11,7 @@ from server.gameplay.models import (
     GamePlay,
     GameException,
     ReportedException,
-    Opponent,
+    Opponent2,
     BATTLE,
     OPPONENT_SELECTION,
 )
@@ -33,7 +33,7 @@ class OpponentPressAction(Action):
             )
 
         # Validate user is the active player
-        if self.game.playing != self.user:
+        if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
 
         # Validate user exists
@@ -56,7 +56,7 @@ class OpponentPressAction(Action):
             )
 
         # Set selected opponent in stage metadata
-        self.game.stage_meta = Opponent(player=opponent, character=character)
+        self.game.stage_meta = Opponent2(player=opponent, character=character)
 
         return self.game
 
@@ -77,16 +77,16 @@ class OpponentSelectAction(Action):
             )
 
         # Validate user is the active player
-        if self.game.playing != self.user:
+        if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
 
         # Validate user exists
         if self.user not in self.game.players:
             raise GameException("Player not in game")
 
-        # Validate stage_meta is set and is an Opponent
+        # Validate stage_meta is set and is an Opponent2
         if not self.game.stage_meta or not isinstance(
-            self.game.stage_meta, Opponent
+            self.game.stage_meta, Opponent2
         ):
             raise ReportedException("No opponent selected")
 

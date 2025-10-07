@@ -27,7 +27,7 @@ def test_connect_then_disconnect_then_reconnect():
 
     assert game.players["player1"].status == CONNECTED
     assert game.stage == CHARACTER_SELECT
-    assert game.playing == "player1"
+    assert game.active.player == "player1"
 
     # Disconnect
     disconnect_action = DisconnectAction("player1", game)
@@ -53,7 +53,7 @@ def test_multiple_players_connect_disconnect_leave():
         game = connect_action.run()
 
     assert len(game.players) == 3
-    assert game.playing == "player1"  # First player should be playing
+    assert game.active.player == "player1"  # First player should be active
 
     # Disconnect player2
     disconnect_action = DisconnectAction("player2", game)

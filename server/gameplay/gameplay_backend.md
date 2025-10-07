@@ -37,10 +37,12 @@ Actions may change the game stage, but not necessarily. Some actions update game
 **Example Flow:**
 
 1. Stage: `character_select`
+   - `active` contains `ActivePlayer1` with the active player name
 2. Action: `character_press` → Updates selected character in stage_meta, stays in same stage
-3. Action: `character_select` → Confirms character selection, advances to `opponent_selection` stage
+3. Action: `character_select` → Confirms character selection, updates `active` to `ActivePlayer2` with player and character, advances to `opponent_selection` stage
 4. Stage: `opponent_selection`
-5. Action: `opponent_press` → Updates selected opponent and character in stage_meta, stays in same stage
-6. Action: `opponent_select` → Confirms opponent selection, advances to `battle` stage
+   - `active` contains `ActivePlayer2` with player and selected character
+5. Action: `opponent_press` → Updates selected opponent and character in stage_meta (as `Opponent2`), stays in same stage
+6. Action: `opponent_select` → Confirms opponent selection, sets `opponent` field with `Opponent2`, advances to `battle` stage
 
 ## Key Features

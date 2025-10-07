@@ -89,7 +89,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
         <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
         {(() => {
           const currentPlayer = gamePlay.players[username];
-          const isActivePlayer = gamePlay.playing === username;
+          const isActivePlayer = gamePlay.active?.player === username;
 
           switch (gamePlay.stage) {
             case "character_select":
@@ -105,7 +105,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
               return (
                 <StageOpponentSelection
                   players={gamePlay.players}
-                  activePlayer={gamePlay.playing}
+                  activePlayer={gamePlay.active?.player}
                   sendAction={sendAction}
                   active={isActivePlayer}
                   selectedOpponent={gamePlay.stage_meta}

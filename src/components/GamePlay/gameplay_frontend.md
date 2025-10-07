@@ -119,7 +119,7 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 - **StageOpponentSelection** (`opponent_selection` stage): Player selects opponent and their character
   - Displays all opponents with their characters (starting minimized)
-  - **Opponent Filtering**: Opponents are filtered based on `gamePlay.playing` (the active player), not the viewer
+  - **Opponent Filtering**: Opponents are filtered based on `gamePlay.active.player` (the active player), not the viewer
     - All players see the same opponent selection menu
     - The active player (whose turn it is) is excluded from the opponents list
   - Players can be expanded to see full character details
@@ -128,7 +128,7 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 - **StageBattle** (`battle` stage): Displays the battle between current player and opponent
   - **Layout**: Two vertically aligned sections
-    - **Player section**: Shows current player (`gamePlay.playing`), their selected character (`gamePlay.selected_character`), and dice
+    - **Player section**: Shows current player (`gamePlay.active.player`), their selected character (`gamePlay.active.character`), and dice
     - **Opponent section**: Shows opponent player (`gamePlay.opponent.player`), their character (`gamePlay.opponent.character`), and dice with roll animation
   - **Dice Display**:
     - Player dice: Static display

@@ -14,6 +14,7 @@ from server.gameplay.models import (
     GameException,
     ReportedException,
     CharacterSelectMeta,
+    ActivePlayer2,
     OPPONENT_SELECTION,
     CHARACTER_SELECT,
 )
@@ -33,7 +34,7 @@ class CharacterPressAction(Action):
             raise GameException(f"Cannot select character in stage: {self.game.stage}")
 
         # Validate user is the active player
-        if self.game.playing != self.user:
+        if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
 
         # Validate user exists
@@ -65,7 +66,7 @@ class CharacterSelectAction(Action):
             raise GameException(f"Cannot confirm selection in stage: {self.game.stage}")
 
         # Validate user is the active player
-        if self.game.playing != self.user:
+        if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
 
         # Validate user exists
@@ -77,8 +78,8 @@ class CharacterSelectAction(Action):
         if character not in player.characters:
             raise ReportedException(f"Character {character} not available")
 
-        # Set selected character in game metadata
-        self.game.selected_character = character
+        # Update active player with selected character
+        self.game.active = ActivePlayer2(player=self.user, character=character)
 
         # Transition to opponent_selection stage
         self.game.stage = OPPONENT_SELECTION

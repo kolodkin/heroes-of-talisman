@@ -12,6 +12,8 @@ from server.gameplay.models import (
     GamePlay,
     Player,
     CharacterCard,
+    ActivePlayer1,
+    ActivePlayer2,
     GameException,
     ReportedException,
     CHARACTER_DEFAULT_STATS,
@@ -26,7 +28,7 @@ from server.gameplay.models import (
 
 def test_character_press_action_valid():
     """Test pressing a character highlights it in stage_meta"""
-    game = GamePlay(stage=CHARACTER_SELECT, playing="player1")
+    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
@@ -42,7 +44,7 @@ def test_character_press_action_valid():
 
 def test_character_press_action_not_active_player():
     """Test pressing character when not active player raises error"""
-    game = GamePlay(stage=CHARACTER_SELECT, playing="player1")
+    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
@@ -57,7 +59,7 @@ def test_character_press_action_not_active_player():
 
 def test_character_press_action_wrong_stage():
     """Test pressing character in wrong stage raises error"""
-    game = GamePlay(stage=BATTLE, playing="player1")
+    game = GamePlay(stage=BATTLE, active=ActivePlayer1(player="player1"))
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
@@ -71,7 +73,7 @@ def test_character_press_action_wrong_stage():
 
 def test_character_press_action_invalid_character():
     """Test pressing non-existent character raises error"""
-    game = GamePlay(stage=CHARACTER_SELECT, playing="player1")
+    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     game.players["player1"] = Player(name="player1", characters={})
 
     action = CharacterPressAction("player1", game)
@@ -82,7 +84,7 @@ def test_character_press_action_invalid_character():
 
 def test_character_select_action_valid():
     """Test confirming character selection transitions to opponent_selection"""
-    game = GamePlay(stage=CHARACTER_SELECT, playing="player1")
+    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
@@ -91,14 +93,16 @@ def test_character_select_action_valid():
     action = CharacterSelectAction("player1", game)
     updated_game = action.run(character=KNIGHT)
 
-    assert updated_game.selected_character == KNIGHT
+    assert updated_game.active.player == "player1"
+    assert updated_game.active.character == KNIGHT
+    assert isinstance(updated_game.active, ActivePlayer2)
     assert updated_game.stage == OPPONENT_SELECTION
     assert updated_game.stage_meta is None  # Cleared after transition
 
 
 def test_character_select_action_not_active_player():
     """Test confirming selection when not active player raises error"""
-    game = GamePlay(stage=CHARACTER_SELECT, playing="player1")
+    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
@@ -113,7 +117,7 @@ def test_character_select_action_not_active_player():
 
 def test_character_select_action_wrong_stage():
     """Test confirming selection in wrong stage raises error"""
-    game = GamePlay(stage=BATTLE, playing="player1")
+    game = GamePlay(stage=BATTLE, active=ActivePlayer1(player="player1"))
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
@@ -127,7 +131,7 @@ def test_character_select_action_wrong_stage():
 
 def test_character_select_action_invalid_character():
     """Test confirming non-existent character raises error"""
-    game = GamePlay(stage=CHARACTER_SELECT, playing="player1")
+    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     game.players["player1"] = Player(name="player1", characters={})
 
     action = CharacterSelectAction("player1", game)

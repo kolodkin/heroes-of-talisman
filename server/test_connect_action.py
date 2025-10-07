@@ -12,6 +12,7 @@ from server.gameplay.models import (
     GamePlay,
     Player,
     CharacterCard,
+    ActivePlayer1,
     ReportedException,
     CHARACTER_DEFAULT_STATS,
     CHARACTER_SELECT,
@@ -40,7 +41,7 @@ def test_connect_action_new_player():
     assert ARCHER in updated_game.players["player1"].characters
     assert MAGE in updated_game.players["player1"].characters
     assert updated_game.stage == CHARACTER_SELECT
-    assert updated_game.playing == "player1"
+    assert updated_game.active.player == "player1"
 
 
 def test_connect_action_existing_player_reconnect():
@@ -88,7 +89,7 @@ def test_connect_action_second_player():
     """Test connecting a second player to a game with one player"""
     game = GamePlay()
     game.stage = CHARACTER_SELECT
-    game.playing = "player1"
+    game.active = ActivePlayer1(player="player1")
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
@@ -100,7 +101,7 @@ def test_connect_action_second_player():
     assert "player2" in updated_game.players
     assert updated_game.players["player2"].status == CONNECTED
     assert updated_game.stage == CHARACTER_SELECT
-    assert updated_game.playing == "player1"  # Playing player should not change
+    assert updated_game.active.player == "player1"  # Active player should not change
 
 
 def test_connect_action_stage_none():
@@ -112,7 +113,7 @@ def test_connect_action_stage_none():
     updated_game = action.run()
 
     assert updated_game.stage == CHARACTER_SELECT
-    assert updated_game.playing == "player1"
+    assert updated_game.active.player == "player1"
 
 
 def test_connect_action_character_stats():

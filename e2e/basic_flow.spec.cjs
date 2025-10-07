@@ -154,11 +154,9 @@ async function testBattleStage(page) {
 
   // Verify player's character card is visible (mage was selected)
   await expect(playerBattleRow.getByAltText("mage")).toBeVisible();
-  await screenshot(page, "battle-player-character");
 
   // Verify opponent's character card is visible (knight was selected)
   await expect(opponentBattleRow.getByAltText("knight")).toBeVisible();
-  await screenshot(page, "battle-opponent-character");
 
   // Verify dice are visible for both participants
   const playerDice = playerBattleRow.locator('[class*="diceContainer"]');
