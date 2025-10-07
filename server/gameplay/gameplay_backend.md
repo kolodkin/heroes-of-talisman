@@ -113,5 +113,5 @@ Checklist of actions implemented in `server/gameplay/actions/`:
 
 The battle stage handles dice rolling for both the active player and opponent.
 
-- **`ActivePlayerRollAction`**: Rolls a dice for the active player and sets `active.dice` to the rolled value. Validates that the player is active and the stage is `battle`.
-- **`OpponentRollAction`**: Rolls a dice for the opponent and sets `opponent.dice` to the rolled value. Validates that the stage is `battle`. Note: This action can be invoked by any player (not just the active player), as the opponent needs to roll their own dice.
+- **`ActivePlayerRollAction`**: Rolls dice for the active player based on their character's dice value and sets `active.dice_roll` to a list of rolled values. Validates that the player is active and the stage is `battle`.
+- **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle`. Note: This action can be invoked by any player (not just the active player), as the opponent needs to roll their own dice.

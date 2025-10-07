@@ -172,6 +172,7 @@ async function testBattleStage(page, page2) {
   await expect(opponentBattleRow.getByAltText("knight")).toBeVisible();
 
   // Initially, roll buttons should be visible instead of dice
+  // Note: The translation key will be either "roll_the_dice" or "roll_the_dices" depending on character's dice value
   const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
   const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
   await expect(activeRollButton).toBeVisible();

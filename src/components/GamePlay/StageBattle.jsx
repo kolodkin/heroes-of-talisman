@@ -16,15 +16,23 @@ import Dice from "../Dice";
 import commonStyles from "../Common.module.css";
 import styles from "./StageBattle.module.css";
 
-const BattleParticipant = ({ playerName, characterName, character, diceValue, onRoll, canRoll, role }) => {
+const BattleParticipant = ({ playerName, characterName, character, diceValues, onRoll, canRoll, role }) => {
   const { t } = useTranslation();
+
+  // Determine the number of dice based on character's dice value
+  const numDice = character?.dice || 1;
+  const rollKey = numDice === 1 ? "battle.roll_the_dice" : "battle.roll_the_dice_mult";
 
   return (
     <div className={styles.battleRow} data-battle-participant={playerName} data-battle-role={role}>
       <h2 className={styles.playerName}>{playerName}</h2>
       <CharacterCard name={characterName} character={character} isSelected={false} size="small" />
-      {diceValue !== undefined && diceValue !== null ? (
-        <Dice value={diceValue} />
+      {diceValues && diceValues.length > 0 ? (
+        <div className={styles.diceGroup}>
+          {diceValues.map((value, index) => (
+            <Dice key={index} value={value} />
+          ))}
+        </div>
       ) : (
         <button
           className={className(commonStyles.gamebtn, commonStyles.submitButton, styles.rollButton)}
@@ -33,7 +41,7 @@ const BattleParticipant = ({ playerName, characterName, character, diceValue, on
           style={{ pointerEvents: canRoll ? "auto" : "none" }}
           data-roll-button
         >
-          {t("battle.roll")}
+          {t(rollKey)}
         </button>
       )}
     </div>
@@ -77,7 +85,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         playerName={currentPlayerName}
         characterName={selectedCharacterName}
         character={selectedCharacter}
-        diceValue={gamePlay.active?.dice_roll}
+        diceValues={gamePlay.active?.dice_roll}
         onRoll={handleActivePlayerRoll}
         canRoll={active}
         role="active"
@@ -86,7 +94,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         playerName={opponent.player}
         characterName={opponent.character}
         character={opponentCharacter}
-        diceValue={opponent.dice_roll}
+        diceValues={opponent.dice_roll}
         onRoll={handleOpponentRoll}
         canRoll={currentUser === opponent.player}
         role="opponent"
