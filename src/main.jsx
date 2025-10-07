@@ -5,6 +5,7 @@ import "./index.css";
 import "./i18n";
 import HomePage from "./components/HomePage.jsx";
 import GameHandler from "./components/GamePlay/GameHandler.jsx";
+import DiceView from "./components/DiceView.jsx";
 import { ToastContainer } from "react-toastify";
 
 createRoot(document.getElementById("root")).render(
@@ -12,6 +13,7 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/dice" element={<DiceView />} />
         <Route path="games/:gamename/:username" element={<GameHandler />} />
       </Routes>
     </BrowserRouter>
