@@ -106,3 +106,6 @@ def test_check_game_name_not_unique(client):
     response = client.post("/check-game-name", json={"name": game_name})
     assert response.status_code == 200
     assert response.json() == {"isUnique": False}
+
+    # Delete the game
+    client.delete(f"/api/games/{game_name}")

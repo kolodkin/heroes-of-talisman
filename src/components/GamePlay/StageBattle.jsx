@@ -5,7 +5,7 @@
  * Shows character cards and dice for both players.
  *
  * Layout:
- * - First section: Current player (gamePlay.playing) with their selected character and dice
+ * - First section: Current player (gamePlay.active.player) with their selected character and dice
  * - Second section: Opponent player with their character and dice (showing roll animation)
  */
 import React from "react";
@@ -28,9 +28,9 @@ const StageBattle = ({ gamePlay, rollDuration = 2000 }) => {
   const { t } = useTranslation();
 
   // Current player data
-  const currentPlayerName = gamePlay.playing;
-  const currentPlayer = gamePlay.players[currentPlayerName];
-  const selectedCharacterName = gamePlay.selected_character;
+  const currentPlayerName = gamePlay.active?.player;
+  const currentPlayer = currentPlayerName ? gamePlay.players[currentPlayerName] : null;
+  const selectedCharacterName = gamePlay.active?.character;
   const selectedCharacter = currentPlayer?.characters[selectedCharacterName];
 
   // Opponent data

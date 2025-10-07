@@ -7,6 +7,7 @@ from ..gameplay.models import (
     ReportedException,
     Player,
     CharacterCard,
+    ActivePlayer1,
     CHARACTER_DEFAULT_STATS,
     KNIGHT,
     ARCHER,
@@ -31,10 +32,10 @@ class ConnectAction(Action):
 
             self.players[self.user] = Player(name=self.user, status=CONNECTED, cards=[], characters=characters)
 
-        if self.game.playing is None:
+        if self.game.active is None:
             if self.game.stage is None:
                 self.game.stage = CHARACTER_SELECT
-            self.game.playing = self.user
+            self.game.active = ActivePlayer1(player=self.user)
 
         self.player.status = CONNECTED
         return self.game

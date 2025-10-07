@@ -50,12 +50,32 @@ class CharacterSelectMeta(BaseModel):
     selected: str  # Currently highlighted character
 
 
-class Opponent(BaseModel):
-    """Selected opponent for battle"""
+class ActivePlayer1(BaseModel):
+    """Selected character for battle"""
 
-    player: str  # Opponent player name
-    character: str  # Opponent character name
-    dice_roll: int = 0  # Dice roll value for battle
+    player: str  # Character name
+
+
+class ActivePlayer2(BaseModel):
+    player: str
+    character: str
+
+
+class ActivePlayer3(BaseModel):
+    player: str
+    character: str
+    dice_roll: int
+
+
+class Opponent2(BaseModel):
+    player: str
+    character: str
+
+
+class Opponent3(BaseModel):
+    player: str
+    character: str
+    dice_roll: int
 
 
 class Player(BaseModel):
@@ -67,11 +87,10 @@ class Player(BaseModel):
 
 class GamePlay(BaseModel):
     stage: STAGES_NAMES = CHARACTER_SELECT
-    playing: Optional[str] = None  # the player who is currently playing
+    active: Optional[ActivePlayer1 | ActivePlayer2 | ActivePlayer3] = None  # The active player and its selections
     players: dict[str, Player] = Field(default_factory=dict)
-    stage_meta: Optional[CharacterSelectMeta | Opponent] = None  # Stage-specific metadata
-    selected_character: Optional[str] = None  # Currently selected character for the playing player
-    opponent: Optional[Opponent] = None  # Selected opponent for battle
+    opponent: Optional[Opponent2 | Opponent3] = None  # Selected opponent for battle
+    stage_meta: Optional[CharacterSelectMeta | Opponent2] = None  # Temporary stage-specific metadata
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""

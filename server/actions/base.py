@@ -1,7 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-from ..gameplay.models import GamePlay, Player, GameException, ReportedException
+from ..gameplay.models import (
+    GamePlay,
+    Player,
+    GameException,
+    ReportedException,
+    ActivePlayer1,
+    ActivePlayer2,
+    ActivePlayer3,
+    Opponent2,
+    Opponent3,
+)
 
 
 class Action(ABC):
@@ -10,15 +20,6 @@ class Action(ABC):
         self.game: GamePlay = game
 
     # convenience helpers similar to GameEngine properties
-    @property
-    def players(self):
-        return self.game.players
-
-    @property
-    def player(self) -> Player:
-        if self.user not in self.players:
-            raise GameException("Player not in game")
-        return self.players[self.user]
 
     @property
     def stage(self) -> Optional[str]:
@@ -29,6 +30,28 @@ class Action(ABC):
         self.game.stage = value
 
     @property
+    def active(self) -> Optional[ActivePlayer1 | ActivePlayer2 | ActivePlayer3]:
+        return self.game.active
+
+    @active.setter
+    def active(self, value: Optional[ActivePlayer1 | ActivePlayer2 | ActivePlayer3]):
+        self.game.active = value
+
+    @property
+    def players(self):
+        return self.game.players
+
+    @players.setter
+    def players(self, value: dict[str, Player]):
+        self.game.players = value
+
+    @property
+    def player(self) -> Player:
+        if self.user not in self.players:
+            raise GameException("Player not in game")
+        return self.players[self.user]
+
+    @property
     def stage_meta(self) -> Optional[Dict[str, Any]]:
         return self.game.stage_meta
 
@@ -37,20 +60,12 @@ class Action(ABC):
         self.game.stage_meta = value
 
     @property
-    def selected_character(self) -> Optional[str]:
-        return self.game.selected_character
+    def opponent(self) -> Optional[Opponent2 | Opponent3]:
+        return self.game.opponent
 
-    @selected_character.setter
-    def selected_character(self, value: Optional[str]):
-        self.game.selected_character = value
-
-    @property
-    def deck(self) -> list[str]:
-        return self.game.deck
-
-    @deck.setter
-    def deck(self, value: list[str]):
-        self.game.deck = value
+    @opponent.setter
+    def opponent(self, value: Optional[Opponent2 | Opponent3]):
+        self.game.opponent = value
 
     def assert_stage(self, req_stage: str):
         if self.stage != req_stage:
