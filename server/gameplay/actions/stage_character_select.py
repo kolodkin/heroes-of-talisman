@@ -44,6 +44,10 @@ class CharacterPressAction(Action):
         if character not in player.characters:
             raise ReportedException(f"Character {character} not available")
 
+        # Validate character is alive
+        if not player.characters[character].is_alive:
+            raise ReportedException(f"Character {character} is dead and can't be selected")
+
         # Set selected character in stage metadata
         self.game.stage_meta = CharacterSelectMeta(selected=character)
 
@@ -75,6 +79,10 @@ class CharacterSelectAction(Action):
         player = self.game.players[self.user]
         if character not in player.characters:
             raise ReportedException(f"Character {character} not available")
+
+        # Validate character is alive
+        if not player.characters[character].is_alive:
+            raise ReportedException(f"Character {character} is dead and can't be selected")
 
         # Update active player with selected character
         self.game.active = ActivePlayer2(player=self.user, character=character)

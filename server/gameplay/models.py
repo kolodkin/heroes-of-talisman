@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 
 CONNECTED = "connected"
@@ -42,6 +42,12 @@ class CharacterCard(BaseModel):
     max_health: int
     dice: int
     attack: Optional[int] = None  # Only knight has attack
+
+    @computed_field
+    @property
+    def is_alive(self) -> bool:
+        """Character is alive if health > 0"""
+        return self.health > 0
 
 
 class CharacterSelectMeta(BaseModel):
@@ -102,7 +108,7 @@ class Player(BaseModel):
     name: str
     status: CONNECTION_STATUS = CONNECTED
     cards: list[str] = Field(default_factory=list)
-    characters: Dict[str, CharacterCard] = Field(default_factory=dict)
+    characters: Dict[CHARACTER_TYPES, CharacterCard] = Field(default_factory=dict)
 
 
 class GamePlay(BaseModel):
@@ -155,3 +161,11 @@ CHARACTER_DEFAULT_STATS = {
         "dice": 1,
     },
 }
+
+
+def init_characters(level: int = 1) -> Dict[CHARACTER_TYPES, CharacterCard]:
+    """Initialize all character types with default stats"""
+    return {
+        char_type: CharacterCard(level=level, **CHARACTER_DEFAULT_STATS[char_type])
+        for char_type in [KNIGHT, ARCHER, MAGE]
+    }
