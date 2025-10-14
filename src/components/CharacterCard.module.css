@@ -61,3 +61,15 @@
   width: 12px;
   height: 12px;
 }
+
+/* Alive character state */
+.alive {
+  /* Default state - no special styling needed */
+}
+
+/* Not alive character state */
+.not-alive {
+  opacity: 0.4;
+  filter: grayscale(100%);
+  cursor: not-allowed !important;
+}

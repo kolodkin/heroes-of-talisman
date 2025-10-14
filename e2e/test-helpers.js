@@ -29,3 +29,13 @@ export async function joinGame(page, playerName, gameName) {
   const connectedText = await connectedLog.args()[2].jsonValue();
   await test.info().attach(`${playerName}-connection-message`, { body: connectedText, contentType: "text/plain" });
 }
+
+/**
+ * Join a game directly by URL (simpler version without console log wait)
+ * Use this for preset games that already have players connected
+ * @param {string} waitForSelector - CSS selector to wait for (default: '[data-battle-participant]')
+ */
+export async function joinGameViaUrl(page, playerName, gameName, waitForSelector = "[data-battle-participant]") {
+  await page.goto(`/games/${encodeURIComponent(gameName)}/${encodeURIComponent(playerName)}`);
+  await page.waitForSelector(waitForSelector, { timeout: 5000 });
+}

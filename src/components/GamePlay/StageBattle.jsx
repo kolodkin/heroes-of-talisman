@@ -53,10 +53,16 @@ const BattleParticipant = ({
           {showScore && score !== null && score !== undefined && (
             <div className={styles.scoreDisplay}>
               <span className={styles.scoreLabel}>{t("battle.total")}:</span>
-              <span className={styles.scoreValue}>{score}</span>
+              <span className={styles.scoreValue} data-score>
+                {score}
+              </span>
             </div>
           )}
-          {winner && <div className={styles.winnerBadge}>{t("battle.winner")}</div>}
+          {winner && (
+            <div className={styles.winnerBadge} data-winner-badge>
+              {t("battle.winner")}
+            </div>
+          )}
         </>
       ) : (
         <button

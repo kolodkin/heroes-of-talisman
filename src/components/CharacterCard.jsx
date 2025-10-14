@@ -11,17 +11,30 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
   const nameStr = t(`characterNames.${name}`);
 
   const cardClass = size === "normal" ? styles["card-normal"] : styles["card-small"];
+  const isAlive = character.is_alive !== false; // Default to true if not specified
+
+  const handleClick = () => {
+    if (!isAlive) {
+      console.error(`Attempted to click not-alive character: ${name}. This should be prevented by CSS.`);
+      return;
+    }
+    if (onClick) {
+      onClick();
+    }
+  };
 
   return (
     <div
       className={className(
         { [commonStyles.selected]: isSelected },
+        { [styles.alive]: isAlive },
+        { [styles["not-alive"]]: !isAlive },
         commonStyles.gamebtn,
         styles.card,
         cardClass,
         "text-2xl",
       )}
-      onClick={onClick}
+      onClick={handleClick}
       data-character={name}
       data-level={character.level}
     >

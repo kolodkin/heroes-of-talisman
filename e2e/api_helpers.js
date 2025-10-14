@@ -23,6 +23,29 @@ export async function createGameViaAPI(gameName) {
 }
 
 /**
+ * Create a preset game via the server API
+ * @param {string} gameName - Name of the game to create
+ * @param {string} preset - Preset type (e.g., "battle_player_1_win", "battle_player_2_win", "battle_draw")
+ * @returns {Promise<void>}
+ */
+export async function createPresetGameViaAPI(gameName, preset) {
+  const response = await fetch(`${API_BASE_URL}/api/games/preset_games`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name: gameName, preset }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Failed to create preset game: ${error.detail || response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Delete a game via the server API
  * @param {string} gameName - Name of the game to delete
  * @returns {Promise<void>}
