@@ -91,3 +91,17 @@
   text-align: center;
   white-space: nowrap;
 }
+
+.character-alive {
+  /* Default state - no special styling needed */
+}
+
+.character-not-alive {
+  opacity: 0.4;
+  filter: grayscale(100%);
+  cursor: not-allowed !important;
+}
+
+.character-not-alive:hover {
+  background-color: #333;
+}

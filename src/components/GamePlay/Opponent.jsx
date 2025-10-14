@@ -16,22 +16,35 @@ const OpponentMinified = ({ player, selectedOpponent, onCharacterClick }) => {
   return (
     <div className={styles["opponent-minimized"]}>
       {player.characters &&
-        Object.entries(player.characters).map(([charName, character]) => (
-          <div
-            key={charName}
-            className={className(
-              styles["character-minimized"],
-              selectedOpponent?.character === charName && styles["character-selected"],
-            )}
-            onClick={() => onCharacterClick(charName)}
-            data-character={charName}
-          >
-            <span className={styles["character-name"]}>{t(`characterNames.${charName}`)}</span>
-            <span className={styles["character-level"]}>
-              {t("character_card.level")} {character.level}
-            </span>
-          </div>
-        ))}
+        Object.entries(player.characters).map(([charName, character]) => {
+          const isAlive = character.is_alive !== false;
+          const handleClick = () => {
+            if (!isAlive) {
+              console.error(`Attempted to click not-alive character: ${charName}. This should be prevented by CSS.`);
+              return;
+            }
+            onCharacterClick(charName);
+          };
+
+          return (
+            <div
+              key={charName}
+              className={className(
+                styles["character-minimized"],
+                selectedOpponent?.character === charName && styles["character-selected"],
+                isAlive && styles["character-alive"],
+                !isAlive && styles["character-not-alive"],
+              )}
+              onClick={handleClick}
+              data-character={charName}
+            >
+              <span className={styles["character-name"]}>{t(`characterNames.${charName}`)}</span>
+              <span className={styles["character-level"]}>
+                {t("character_card.level")} {character.level}
+              </span>
+            </div>
+          );
+        })}
     </div>
   );
 };

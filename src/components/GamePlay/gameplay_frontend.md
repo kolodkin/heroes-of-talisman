@@ -79,15 +79,6 @@ The application supports both RTL (Hebrew) and LTR layouts using CSS logical pro
 
 Game State and API interactions are handled within the [GameHandler](./GameHandler.jsx) component wrapping [GamePlay](./GamePlay.jsx) Component.
 
-## Routing
-
-The GamePlay component uses **React Router** for client-side navigation:
-
-- **Navigation**: Use `Link` component from `react-router-dom` for internal links
-- **Route Parameters**: Access game and player info via `useParams()` hook
-- **Programmatic Navigation**: Use `useNavigate()` hook for redirects
-- **Pattern**: All routes use React Router for SPA behavior (no full page reloads)
-
 ## Interactive
 
 Any player action that updates the gameplay state triggers a re-render for all connected players, ensuring synchronized game state across all clients.
@@ -170,6 +161,16 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 - **Minimizable**: Each player card can be collapsed using +/- toggle button
   - When expanded: Shows full character cards with all details
   - When minimized: Shows only character names and levels in a compact list
+
+### Dead Characters
+
+Characters with `is_alive=false` (health = 0) should be visually distinguished and non-interactive:
+
+- **Visual State**: Dead characters should be grayed out to indicate they are no longer available
+- **Disabled State**: Dead characters should be disabled and non-clickable
+- **Applies To**:
+  - Character selection stage (player's own characters)
+  - Opponent selection stage (opponent's characters)
 
 ## SharedArea
 
