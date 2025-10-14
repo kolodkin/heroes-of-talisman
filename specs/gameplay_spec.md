@@ -14,7 +14,7 @@ The game supports internationalization via react-i18next, currently configured f
 
 ## Backend Alignment
 
-Frontend components are designed to work seamlessly with the backend models outlined in [backend gameplay](/server/gameplay/gameplay_backend.md).
+Frontend components are designed to work seamlessly with the backend models outlined in [gameplay backend](/server/gameplay/gameplay_backend.md).
 
 ## Core Architecture
 
@@ -64,6 +64,18 @@ The engine expects a JSON game board as defined in backend "server/gameplay/mode
 ## Interactive
 
 Any player action that updates the gameplay state will trigger an update for all players in the game via the WebSocket connection. This update implicitly causes a re-render of the game UI for all connected players, ensuring synchronized game state across all clients.
+
+## Characters
+
+The game features three distinct character types:
+
+- **Knight**: Has the strongest attack skills and health
+- **Archer**: Has the highest health
+- **Mage**: Has the strongest special skills
+
+### Lifespan
+
+Once a character's health hits 0, it dies. A dead character can no longer be selected neither as an active player character nor as an opponent.
 
 ## Game Stages
 

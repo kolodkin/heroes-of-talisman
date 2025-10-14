@@ -80,10 +80,10 @@ To implement a new action, subclass `Action` and implement the `run` method. Use
 
 ### Stage: Character Select
 
-The character selection stage allows players to choose which character will act during their turn.
+The character selection stage allows players to choose which character will act during their turn. Dead characters (`is_alive=False`) cannot be selected.
 
-- **`CharacterPressAction`**: Sets `stage_meta['selected']` to the character name pressed by the active player. Validates that the player is active, the stage is `character_select`, and the character exists for this player.
-- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name and transitioning the game stage from `character_select` to `opponent_selection`. Clears `stage_meta` after transition.
+- **`CharacterPressAction`**: Sets `stage_meta['selected']` to the character name pressed by the active player. Validates that the player is active, the stage is `character_select`, the character exists for this player, and the character is alive (`is_alive=True`).
+- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name and transitioning the game stage from `character_select` to `opponent_selection`. Validates that the selected character is alive. Clears `stage_meta` after transition.
 
 **Actions:**
 
@@ -94,8 +94,8 @@ The character selection stage allows players to choose which character will act 
 
 The opponent selection stage allows players to choose an opponent and one of their characters for battle.
 
-- **`OpponentPressAction`**: Sets `stage_meta` to an `Opponent` object with the selected opponent player name and character. Validates that the player is active, the stage is `opponent_selection`, the opponent exists, is not the current player, and has the selected character.
-- **`OpponentSelectAction`**: Confirms the opponent selection by reading from `stage_meta`, setting `opponent` to the selected opponent, and transitioning the game stage from `opponent_selection` to `battle`. Clears `stage_meta` after transition.
+- **`OpponentPressAction`**: Sets `stage_meta` to an `Opponent` object with the selected opponent player name and character. Validates that the player is active, the stage is `opponent_selection`, the opponent exists, is not the current player, has the selected character, and the character is alive (`is_alive=True`).
+- **`OpponentSelectAction`**: Confirms the opponent selection by reading from `stage_meta`, setting `opponent` to the selected opponent, and transitioning the game stage from `opponent_selection` to `battle`. Validates that the opponent character is alive. Clears `stage_meta` after transition.
 
 **Actions:**
 
@@ -108,7 +108,7 @@ The battle stage handles dice rolling for both the active player and opponent, f
 
 - **`ActivePlayerRollAction`**: Rolls dice for the active player based on their character's dice value and sets `active.dice_roll` to a list of rolled values. Validates that the player is active and the stage is `battle`.
 - **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle`. Note: This action can be invoked by the opponent player (not the active player), as the opponent needs to roll their own dice.
-- **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
+- **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1 (which may set `is_alive=False` if health reaches 0), clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
 
 **Actions:**
 

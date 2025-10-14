@@ -55,6 +55,10 @@ class OpponentPressAction(Action):
                 f"Character {character} not available for opponent"
             )
 
+        # Validate character is alive
+        if not opponent_player.characters[character].is_alive:
+            raise ReportedException(f"Opponent character {character} is dead and can't be selected")
+
         # Set selected opponent in stage metadata
         self.game.stage_meta = Opponent2(player=opponent, character=character)
 
@@ -92,6 +96,13 @@ class OpponentSelectAction(Action):
 
         # Get opponent from stage_meta
         selected_opponent = self.game.stage_meta
+
+        # Validate opponent character is still alive
+        opponent_player = self.game.players[selected_opponent.player]
+        if not opponent_player.characters[selected_opponent.character].is_alive:
+            raise ReportedException(
+                f"Opponent character {selected_opponent.character} is dead and can't be selected"
+            )
 
         # Set opponent in game metadata
         self.game.opponent = selected_opponent

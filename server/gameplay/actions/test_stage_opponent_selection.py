@@ -25,17 +25,14 @@ from ..models import (
     KNIGHT,
     ARCHER,
     MAGE,
+    init_characters,
 )
 
 
 def test_opponent_press_action_valid():
     """Test pressing opponent's character highlights it in stage_meta"""
     game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
-    characters = {}
-    for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(
-            level=1, **CHARACTER_DEFAULT_STATS[char_type]
-        )
+    characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
@@ -54,11 +51,7 @@ def test_opponent_press_action_valid():
 def test_opponent_press_action_not_active_player():
     """Test pressing opponent when not active player raises error"""
     game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
-    characters = {}
-    for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(
-            level=1, **CHARACTER_DEFAULT_STATS[char_type]
-        )
+    characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
@@ -71,11 +64,7 @@ def test_opponent_press_action_not_active_player():
 def test_opponent_press_action_wrong_stage():
     """Test pressing opponent in wrong stage raises error"""
     game = GamePlay(stage=BATTLE, active=ActivePlayer2(player="player1", character=KNIGHT))
-    characters = {}
-    for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(
-            level=1, **CHARACTER_DEFAULT_STATS[char_type]
-        )
+    characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
@@ -88,11 +77,7 @@ def test_opponent_press_action_wrong_stage():
 def test_opponent_press_action_invalid_opponent():
     """Test pressing non-existent opponent raises error"""
     game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
-    characters = {}
-    for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(
-            level=1, **CHARACTER_DEFAULT_STATS[char_type]
-        )
+    characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = OpponentPressAction("player1", game)
@@ -104,11 +89,7 @@ def test_opponent_press_action_invalid_opponent():
 def test_opponent_press_action_self_as_opponent():
     """Test pressing self as opponent raises error"""
     game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
-    characters = {}
-    for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(
-            level=1, **CHARACTER_DEFAULT_STATS[char_type]
-        )
+    characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = OpponentPressAction("player1", game)
@@ -142,11 +123,7 @@ def test_opponent_press_action_invalid_character():
 def test_opponent_select_action_valid():
     """Test confirming opponent selection transitions to battle"""
     game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
-    characters = {}
-    for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(
-            level=1, **CHARACTER_DEFAULT_STATS[char_type]
-        )
+    characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
@@ -166,11 +143,7 @@ def test_opponent_select_action_valid():
 def test_opponent_select_action_not_active_player():
     """Test confirming selection when not active player raises error"""
     game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
-    characters = {}
-    for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(
-            level=1, **CHARACTER_DEFAULT_STATS[char_type]
-        )
+    characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
@@ -186,11 +159,7 @@ def test_opponent_select_action_not_active_player():
 def test_opponent_select_action_wrong_stage():
     """Test confirming selection in wrong stage raises error"""
     game = GamePlay(stage=BATTLE, active=ActivePlayer2(player="player1", character=KNIGHT))
-    characters = {}
-    for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(
-            level=1, **CHARACTER_DEFAULT_STATS[char_type]
-        )
+    characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
@@ -203,14 +172,45 @@ def test_opponent_select_action_wrong_stage():
 def test_opponent_select_action_no_opponent_selected():
     """Test confirming with no opponent selected raises error"""
     game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
-    characters = {}
-    for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(
-            level=1, **CHARACTER_DEFAULT_STATS[char_type]
-        )
+    characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = OpponentSelectAction("player1", game)
 
     with pytest.raises(ReportedException, match="No opponent selected"):
+        action.run()
+
+
+def test_opponent_press_action_dead_character():
+    """Test pressing a dead opponent character raises error"""
+    game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
+    characters_p1 = init_characters()
+    characters_p2 = init_characters()
+    # Kill opponent's knight
+    characters_p2[KNIGHT].health = 0
+    game.players["player1"] = Player(name="player1", characters=characters_p1)
+    game.players["player2"] = Player(name="player2", characters=characters_p2)
+
+    action = OpponentPressAction("player1", game)
+
+    with pytest.raises(ReportedException, match="is dead and can't be selected"):
+        action.run(opponent="player2", character=KNIGHT)
+
+
+def test_opponent_select_action_dead_character():
+    """Test confirming selection of a dead opponent character raises error"""
+    game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
+    characters_p1 = init_characters()
+    characters_p2 = init_characters()
+    # Kill opponent's knight
+    characters_p2[KNIGHT].health = 0
+    game.players["player1"] = Player(name="player1", characters=characters_p1)
+    game.players["player2"] = Player(name="player2", characters=characters_p2)
+
+    # Set stage_meta with dead character
+    game.stage_meta = Opponent2(player="player2", character=KNIGHT)
+
+    action = OpponentSelectAction("player1", game)
+
+    with pytest.raises(ReportedException, match="is dead and can't be selected"):
         action.run()
