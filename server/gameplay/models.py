@@ -140,7 +140,7 @@ class GamePlay(BaseModel):
         self.players.update(reordered_dict)
 
 
-__DEFAULT_GAME__ = GamePlay()
+DEFAULT_GAME = GamePlay()
 
 
 CHARACTER_DEFAULT_STATS = {

@@ -15,7 +15,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .env import REDIS_HOST, REDIS_PORT
 from .game_engine import GameEngine
-from .gameplay.models import __DEFAULT_GAME__, GamePlay
+from .gameplay.models import DEFAULT_GAME, GamePlay, STAGES_NAMES
+from .gameplay.debug_presets import get_debug_preset, DEBUG_PRESETS
 from .db_models import Game as GameTable
 from .database import get_db, AsyncSessionLocal
 
@@ -72,6 +73,12 @@ class Game(BaseModel):
     name: str
 
 
+class PresetGame(BaseModel):
+    name: str
+    preset: DEBUG_PRESETS
+    stage: STAGES_NAMES | None = None
+
+
 @router.post("/")
 async def add_game(new_game: Game, session: AsyncSession = Depends(get_db)):
     if len(new_game.name) == 0:
@@ -85,13 +92,35 @@ async def add_game(new_game: Game, session: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Game already exists")
 
     # Create new game with default data
-    game_data = __DEFAULT_GAME__.model_dump()
+    game_data = DEFAULT_GAME.model_dump()
     db_game = GameTable(name=new_game.name, data=game_data)
 
     session.add(db_game)
     await session.commit()
 
     return {"message": "Game added successfully"}
+
+
+@router.post("/preset_games")
+async def add_preset_game(preset_game: PresetGame, session: AsyncSession = Depends(get_db)):
+    if len(preset_game.name) == 0:
+        raise HTTPException(status_code=400, detail="Game name cannot be empty")
+
+    # Check if game already exists
+    result = await session.execute(select(GameTable).where(GameTable.name == preset_game.name))
+    existing_game = result.scalar_one_or_none()
+
+    if existing_game:
+        raise HTTPException(status_code=400, detail="Game already exists")
+
+    # Create new game with preset data
+    game_data = get_debug_preset(preset_game.preset, preset_game.stage)
+    db_game = GameTable(name=preset_game.name, data=game_data.model_dump())
+
+    session.add(db_game)
+    await session.commit()
+
+    return {"message": "Preset game added successfully"}
 
 
 @router.get("/")
@@ -125,7 +154,7 @@ async def reset_game(gamename: str, session: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
 
     # Reset game data to default
-    game.data = __DEFAULT_GAME__.model_dump()
+    game.data = DEFAULT_GAME.model_dump()
     await session.commit()
 
     # Notify connected clients
