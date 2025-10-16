@@ -30,9 +30,9 @@ def calculate_winner(game: GamePlay) -> tuple[int, int]:
     Calculate scores for active player and opponent.
     Returns (active_score, opponent_score).
     """
-    if not game.active or not hasattr(game.active, "dice_roll"):
+    if not game.active or not isinstance(game.active, (ActivePlayer3, ActivePlayer4)):
         raise GameException("Active player has no dice roll")
-    if not game.opponent or not hasattr(game.opponent, "dice_roll"):
+    if not game.opponent or not isinstance(game.opponent, (Opponent3, Opponent4)):
         raise GameException("Opponent has no dice roll")
 
     # Get players and characters
@@ -54,9 +54,9 @@ def set_winner_if_both_rolled(game: GamePlay) -> None:
     Modifies game in place.
     """
     # Check if both have rolled
-    if not game.active or not hasattr(game.active, "dice_roll") or not game.active.dice_roll:
+    if not game.active or not isinstance(game.active, (ActivePlayer3, ActivePlayer4)) or not game.active.dice_roll:
         return
-    if not game.opponent or not hasattr(game.opponent, "dice_roll") or not game.opponent.dice_roll:
+    if not game.opponent or not isinstance(game.opponent, (Opponent3, Opponent4)) or not game.opponent.dice_roll:
         return
 
     # Calculate winner
@@ -99,8 +99,8 @@ class ActivePlayerRollAction(Action):
         if self.user not in self.game.players:
             raise GameException("Player not in game")
 
-        # Validate active is ActivePlayer2 (has player and character but no dice yet)
-        if not hasattr(self.game.active, "character"):
+        # Validate active is ActivePlayer2 or higher (has player and character but no dice yet)
+        if not isinstance(self.game.active, (ActivePlayer2, ActivePlayer3, ActivePlayer4)):
             raise GameException("Active player has no character selected")
 
         # Get character's dice value
@@ -143,8 +143,8 @@ class OpponentRollAction(Action):
         if self.game.opponent.player != self.user:
             raise ReportedException("You are not the opponent")
 
-        # Validate opponent is Opponent2 (has player and character but no dice yet)
-        if not hasattr(self.game.opponent, "character"):
+        # Validate opponent is Opponent2 or higher (has player and character but no dice yet)
+        if not isinstance(self.game.opponent, (Opponent2, Opponent3, Opponent4)):
             raise GameException("Opponent has no character selected")
 
         # Get character's dice value
@@ -183,14 +183,14 @@ class RerollAction(Action):
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
 
-        # Validate both players have rolled
-        if not hasattr(self.game.active, "dice_roll") or not self.game.active.dice_roll:
+        # Validate both players have rolled (must be ActivePlayer3/4 and Opponent3/4)
+        if not isinstance(self.game.active, (ActivePlayer3, ActivePlayer4)) or not self.game.active.dice_roll:
             raise GameException("Active player has not rolled yet")
-        if not self.game.opponent or not hasattr(self.game.opponent, "dice_roll") or not self.game.opponent.dice_roll:
+        if not self.game.opponent or not isinstance(self.game.opponent, (Opponent3, Opponent4)) or not self.game.opponent.dice_roll:
             raise GameException("Opponent has not rolled yet")
 
-        # Validate it's actually a draw
-        if not hasattr(self.game.active, "winner") or not hasattr(self.game.opponent, "winner"):
+        # Validate winner has been determined (must be ActivePlayer4/Opponent4)
+        if not isinstance(self.game.active, ActivePlayer4) or not isinstance(self.game.opponent, Opponent4):
             raise GameException("Winner not determined yet")
 
         if self.game.active.winner or self.game.opponent.winner:

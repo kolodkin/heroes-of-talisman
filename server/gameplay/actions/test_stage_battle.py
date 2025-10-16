@@ -86,11 +86,9 @@ def test_active_player_roll_triggers_winner_calculation():
     action = ActivePlayerRollAction("player1", game)
     updated_game = action.run()
 
-    # Both should be upgraded to Player4/Opponent4 with winner fields
+    # Both should be upgraded to Player4/Opponent4 (which have winner fields)
     assert isinstance(updated_game.active, ActivePlayer4)
     assert isinstance(updated_game.opponent, Opponent4)
-    assert hasattr(updated_game.active, "winner")
-    assert hasattr(updated_game.opponent, "winner")
 
 
 def test_active_player_roll_wrong_stage():
@@ -213,11 +211,9 @@ def test_opponent_roll_triggers_winner_calculation():
     action = OpponentRollAction("player2", game)
     updated_game = action.run()
 
-    # Both should be upgraded to Player4/Opponent4 with winner fields
+    # Both should be upgraded to Player4/Opponent4 (which have winner fields)
     assert isinstance(updated_game.active, ActivePlayer4)
     assert isinstance(updated_game.opponent, Opponent4)
-    assert hasattr(updated_game.active, "winner")
-    assert hasattr(updated_game.opponent, "winner")
 
 
 def test_opponent_roll_wrong_stage():
@@ -297,17 +293,13 @@ def test_reroll_action_valid_draw():
     action = RerollAction("player1", game)
     updated_game = action.run()
 
-    # Verify both players downgraded to Player2/Opponent2 (no dice, no winner)
+    # Verify both players downgraded to Player2/Opponent2 (no dice_roll, no winner)
     assert isinstance(updated_game.active, ActivePlayer2)
     assert isinstance(updated_game.opponent, Opponent2)
     assert updated_game.active.player == "player1"
     assert updated_game.active.character == KNIGHT
-    assert not hasattr(updated_game.active, "dice_roll")
-    assert not hasattr(updated_game.active, "winner")
     assert updated_game.opponent.player == "player2"
     assert updated_game.opponent.character == ARCHER
-    assert not hasattr(updated_game.opponent, "dice_roll")
-    assert not hasattr(updated_game.opponent, "winner")
 
 
 def test_reroll_action_wrong_stage():
@@ -485,8 +477,6 @@ def test_set_winner_if_both_rolled_does_nothing_when_not_both_rolled():
 
     set_winner_if_both_rolled(game)
 
-    # Should remain unchanged
+    # Should remain unchanged (ActivePlayer3/Opponent2 don't have winner)
     assert isinstance(game.active, ActivePlayer3)
     assert isinstance(game.opponent, Opponent2)
-    assert not hasattr(game.active, "winner")
-    assert not hasattr(game.opponent, "winner")

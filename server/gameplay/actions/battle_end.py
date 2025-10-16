@@ -10,6 +10,10 @@ from ..models import (
     GameException,
     ReportedException,
     ActivePlayer1,
+    ActivePlayer3,
+    ActivePlayer4,
+    Opponent3,
+    Opponent4,
     BATTLE,
     CHARACTER_SELECT,
 )
@@ -32,11 +36,11 @@ class BattleEndAction(Action):
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
 
-        # Validate both players have rolled
-        if not hasattr(self.game.active, "dice_roll") or not self.game.active.dice_roll:
+        # Validate both players have rolled (must be ActivePlayer3/4 and Opponent3/4)
+        if not isinstance(self.game.active, (ActivePlayer3, ActivePlayer4)) or not self.game.active.dice_roll:
             raise ReportedException("Active player hasn't rolled yet")
 
-        if not self.game.opponent or not hasattr(self.game.opponent, "dice_roll") or not self.game.opponent.dice_roll:
+        if not self.game.opponent or not isinstance(self.game.opponent, (Opponent3, Opponent4)) or not self.game.opponent.dice_roll:
             raise ReportedException("Opponent hasn't rolled yet")
 
         # Get players and characters
