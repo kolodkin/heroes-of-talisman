@@ -133,12 +133,18 @@ Each game stage has its own dedicated component that renders the appropriate UI 
   - **Winner Effect**:
     - Winner (higher score) gets golden badge with pulsing animation
     - Winner's row has highlighted background
+  - **Draw Handling**:
+    - When both players roll and scores are equal (draw), no winner badge is shown
+    - **Reroll Button** appears instead of continue button
+    - Only active player can click reroll button
+    - Invokes `action_reroll` action → resets both players' dice rolls → returns to initial battle state
+    - Players can re-roll until there is a winner
   - **Continue Button**:
-    - Appears after both players have rolled
+    - Appears after both players have rolled AND there is a winner
     - Only active player can click
     - Invokes `battle_end` action → reduces loser's health by 1 → transitions to `character_select` stage with next player (circular rotation) as new active player
   - All connected players see synchronized battle state
-  - Actions: `active_player_roll`, `opponent_roll`, `battle_end`
+  - Actions: `active_player_roll`, `opponent_roll`, `action_reroll`, `battle_end`
 
 # Key Components
 

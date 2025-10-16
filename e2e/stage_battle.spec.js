@@ -83,6 +83,12 @@ test("battle stage - player 1 wins", async ({ page }) => {
   await verifyWinner(page, "active");
   await screenshot(page, "player1-wins");
 
+  // Verify continue button appears and click it
+  const continueButton = page.locator("[data-continue-button]");
+  await expect(continueButton).toBeVisible();
+  await continueButton.click();
+  await screenshot(page, "after-continue-click");
+
   // Cleanup
   await page2.close();
   await deleteGameViaAPI(gameName);
@@ -118,12 +124,18 @@ test("battle stage - player 2 wins", async ({ page }) => {
   await verifyWinner(page, "opponent");
   await screenshot(page, "player2-wins");
 
+  // Verify continue button appears and click it
+  const continueButton = page.locator("[data-continue-button]");
+  await expect(continueButton).toBeVisible();
+  await continueButton.click();
+  await screenshot(page, "after-continue-click");
+
   // Cleanup
   await page2.close();
   await deleteGameViaAPI(gameName);
 });
 
-test("battle stage - draw", async ({ page }) => {
+test("battle stage - draw with reroll", async ({ page }) => {
   const gameName = "battle_draw_test";
 
   // Create preset game with draw
@@ -159,7 +171,29 @@ test("battle stage - draw", async ({ page }) => {
   await expect(activeScore).not.toBeVisible();
   await expect(opponentScore).not.toBeVisible();
 
-  await screenshot(page, "draw");
+  // Verify reroll button appears
+  const rerollButton = page.locator("[data-reroll-button]");
+  await expect(rerollButton).toBeVisible();
+
+  await screenshot(page, "draw-before-reroll");
+
+  // Verify continue button does NOT appear
+  const continueButton = page.locator("[data-continue-button]");
+  await expect(continueButton).not.toBeVisible();
+
+  // Click reroll button
+  await rerollButton.click();
+  await screenshot(page, "after-reroll");
+
+  // Verify dice rolls are reset - roll buttons should be visible again
+  const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
+  const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
+  await expect(activeRollButton).toBeVisible();
+  await expect(opponentRollButton).toBeVisible();
+
+  // Verify dice are no longer visible after reroll
+  await expect(activeDice.first()).not.toBeVisible();
+  await expect(opponentDice.first()).not.toBeVisible();
 
   // Cleanup
   await page2.close();
