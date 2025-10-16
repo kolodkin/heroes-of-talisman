@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Literal
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 
 CONNECTED = "connected"
@@ -26,17 +26,65 @@ class ReportedException(GameException):
     pass
 
 
-class Card(BaseModel):
+def recursive_db_model_dump(model: BaseModel) -> dict:
+    """
+    Recursively dump model for database storage.
+    Calls db_model_dump() on all nested StrictModel instances to exclude computed fields.
+    """
+    result = {}
+
+    # Iterate over all fields and their values
+    for field_name, field_value in model:
+        if isinstance(field_value, BaseModel):
+            # Nested model - call its db_model_dump if it's a StrictModel
+            if hasattr(field_value, 'db_model_dump'):
+                result[field_name] = field_value.db_model_dump()
+            else:
+                result[field_name] = field_value.model_dump()
+        elif isinstance(field_value, dict):
+            # Dict of values (possibly models)
+            result[field_name] = {
+                k: v.db_model_dump() if isinstance(v, BaseModel) and hasattr(v, 'db_model_dump')
+                   else v.model_dump() if isinstance(v, BaseModel)
+                   else v
+                for k, v in field_value.items()
+            }
+        elif isinstance(field_value, (list, tuple, set)):
+            # Collection of values (possibly models) - preserve collection type
+            processed_items = [
+                item.db_model_dump() if isinstance(item, BaseModel) and hasattr(item, 'db_model_dump')
+                else item.model_dump() if isinstance(item, BaseModel)
+                else item
+                for item in field_value
+            ]
+            # Preserve the original collection type
+            result[field_name] = type(field_value)(processed_items)
+        else:
+            # Primitive value
+            result[field_name] = field_value
+
+    return result
+
+
+class StrictModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    def db_model_dump(self) -> dict:
+        """Recursively use self.db_model_dump() on all nested models using recursive_model_dump()"""
+        return recursive_db_model_dump(self)
+
+
+class Card(StrictModel):
     face_up: bool = True
     selected: bool = False
 
 
-class Deck(BaseModel):
+class Deck(StrictModel):
     cards: list[Card] = Field(default_factory=list)
     visible: bool = True
 
 
-class CharacterCard(BaseModel):
+class CharacterCard(StrictModel):
     level: int
     health: int
     max_health: int
@@ -49,31 +97,34 @@ class CharacterCard(BaseModel):
         """Character is alive if health > 0"""
         return self.health > 0
 
+    def db_model_dump(self) -> dict:
+        return self.model_dump(exclude={"is_alive"})
 
-class CharacterSelectMeta(BaseModel):
+
+class CharacterSelectMeta(StrictModel):
     """Stage metadata for character selection stage"""
 
     selected: str  # Currently highlighted character
 
 
-class ActivePlayer1(BaseModel):
+class ActivePlayer1(StrictModel):
     """Selected character for battle"""
 
     player: str  # Character name
 
 
-class ActivePlayer2(BaseModel):
+class ActivePlayer2(StrictModel):
     player: str
     character: str
 
 
-class ActivePlayer3(BaseModel):
+class ActivePlayer3(StrictModel):
     player: str
     character: str
     dice_roll: list[int]
 
 
-class ActivePlayer4(BaseModel):
+class ActivePlayer4(StrictModel):
     player: str
     character: str
     dice_roll: list[int]
@@ -83,18 +134,18 @@ class ActivePlayer4(BaseModel):
 ActivePlayer = ActivePlayer1 | ActivePlayer2 | ActivePlayer3 | ActivePlayer4
 
 
-class Opponent2(BaseModel):
+class Opponent2(StrictModel):
     player: str
     character: str
 
 
-class Opponent3(BaseModel):
+class Opponent3(StrictModel):
     player: str
     character: str
     dice_roll: list[int]
 
 
-class Opponent4(BaseModel):
+class Opponent4(StrictModel):
     player: str
     character: str
     dice_roll: list[int]
@@ -104,14 +155,14 @@ class Opponent4(BaseModel):
 Opponent = Opponent2 | Opponent3 | Opponent4
 
 
-class Player(BaseModel):
+class Player(StrictModel):
     name: str
     status: CONNECTION_STATUS = CONNECTED
     cards: list[str] = Field(default_factory=list)
     characters: Dict[CHARACTER_TYPES, CharacterCard] = Field(default_factory=dict)
 
 
-class GamePlay(BaseModel):
+class GamePlay(StrictModel):
     stage: STAGES_NAMES = CHARACTER_SELECT
     active: Optional[ActivePlayer] = None  # The active player and its selections
     players: dict[str, Player] = Field(default_factory=dict)

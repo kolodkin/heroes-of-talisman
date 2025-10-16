@@ -92,7 +92,7 @@ async def add_game(new_game: Game, session: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Game already exists")
 
     # Create new game with default data
-    game_data = DEFAULT_GAME.model_dump()
+    game_data = DEFAULT_GAME.db_model_dump()
     db_game = GameTable(name=new_game.name, data=game_data)
 
     session.add(db_game)
@@ -115,7 +115,7 @@ async def add_preset_game(preset_game: PresetGame, session: AsyncSession = Depen
 
     # Create new game with preset data
     game_data = get_debug_preset(preset_game.preset, preset_game.stage)
-    db_game = GameTable(name=preset_game.name, data=game_data.model_dump())
+    db_game = GameTable(name=preset_game.name, data=game_data.db_model_dump())
 
     session.add(db_game)
     await session.commit()
@@ -154,7 +154,7 @@ async def reset_game(gamename: str, session: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
 
     # Reset game data to default
-    game.data = DEFAULT_GAME.model_dump()
+    game.data = DEFAULT_GAME.db_model_dump()
     await session.commit()
 
     # Notify connected clients
@@ -265,7 +265,7 @@ async def actions_loop(websocket: WebSocket, redis_meta: RedisMeta):
             logger.info(f"Sending game state to user '{game_engine.username}'")
 
             # Save to database (game_db is already locked)
-            game_db.data = game_engine.game.model_dump()
+            game_db.data = game_engine.game.db_model_dump()
             await session.commit()
 
         # Notify connected clients (outside session context)
@@ -301,7 +301,7 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
             game_engine.run_action("disconnect")
 
             # Save to database
-            game_db.data = game_engine.game.model_dump()
+            game_db.data = game_engine.game.db_model_dump()
             await session.commit()
 
             # Notify connected clients
