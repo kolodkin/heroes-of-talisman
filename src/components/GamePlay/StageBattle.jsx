@@ -112,6 +112,9 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   // Show winner when all dice have stopped AND winner is set in backend
   const showWinner = diceStoppedCount >= totalExpectedDice && (activeIsWinner || opponentIsWinner);
 
+  // Detect draw: both rolled, all dice stopped, but neither is winner
+  const isDraw = diceStoppedCount >= totalExpectedDice && bothRolled && !activeIsWinner && !opponentIsWinner;
+
   const handleDiceStop = useCallback(() => {
     setDiceStoppedCount((prev) => prev + 1);
   }, []);
@@ -132,6 +135,14 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const handleContinue = () => {
     if (active) {
       sendAction("battle_end", {});
+    }
+  };
+
+  const handleReroll = () => {
+    if (active) {
+      sendAction("action_reroll", {});
+      // Reset dice stopped count for next rolls
+      setDiceStoppedCount(0);
     }
   };
 
@@ -179,8 +190,20 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
           onClick={handleContinue}
           disabled={!active}
           style={{ pointerEvents: active ? "auto" : "none" }}
+          data-continue-button
         >
           {t("battle.continue")}
+        </button>
+      )}
+      {isDraw && (
+        <button
+          className={className(commonStyles.gamebtn, commonStyles.submitButton, styles.continueButton)}
+          onClick={handleReroll}
+          disabled={!active}
+          style={{ pointerEvents: active ? "auto" : "none" }}
+          data-reroll-button
+        >
+          {t("battle.reroll")}
         </button>
       )}
     </div>

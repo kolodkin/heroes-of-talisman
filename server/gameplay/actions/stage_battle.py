@@ -4,6 +4,7 @@ Battle Stage Actions
 This module implements actions for the battle stage:
 - ActivePlayerRollAction: Rolls dice for active player
 - OpponentRollAction: Rolls dice for opponent
+- RerollAction: Resets dice rolls in case of a draw
 - BattleEndAction: Ends battle and reduces loser's health
 """
 
@@ -13,8 +14,10 @@ from ..models import (
     GamePlay,
     GameException,
     ReportedException,
+    ActivePlayer2,
     ActivePlayer3,
     ActivePlayer4,
+    Opponent2,
     Opponent3,
     Opponent4,
     BATTLE,
@@ -159,5 +162,48 @@ class OpponentRollAction(Action):
 
         # If active has also rolled, calculate winner and upgrade both
         set_winner_if_both_rolled(self.game)
+
+        return self.game
+
+
+class RerollAction(Action):
+    """
+    Action invoked when both players rolled and the result is a draw.
+
+    Resets both active and opponent dice rolls, downgrading them back to
+    ActivePlayer2 and Opponent2 (no dice_roll, no winner).
+    """
+
+    def run(self) -> GamePlay:
+        # Validate stage
+        if self.game.stage != BATTLE:
+            raise GameException(f"Cannot reroll in stage: {self.game.stage}")
+
+        # Validate user is the active player
+        if not self.game.active or self.game.active.player != self.user:
+            raise ReportedException("It's not your turn")
+
+        # Validate both players have rolled
+        if not hasattr(self.game.active, "dice_roll") or not self.game.active.dice_roll:
+            raise GameException("Active player has not rolled yet")
+        if not self.game.opponent or not hasattr(self.game.opponent, "dice_roll") or not self.game.opponent.dice_roll:
+            raise GameException("Opponent has not rolled yet")
+
+        # Validate it's actually a draw
+        if not hasattr(self.game.active, "winner") or not hasattr(self.game.opponent, "winner"):
+            raise GameException("Winner not determined yet")
+
+        if self.game.active.winner or self.game.opponent.winner:
+            raise GameException("Cannot reroll when there is a winner")
+
+        # Reset to ActivePlayer2 and Opponent2 (remove dice_roll and winner)
+        self.game.active = ActivePlayer2(
+            player=self.game.active.player,
+            character=self.game.active.character
+        )
+        self.game.opponent = Opponent2(
+            player=self.game.opponent.player,
+            character=self.game.opponent.character
+        )
 
         return self.game

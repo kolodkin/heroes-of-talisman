@@ -20,7 +20,7 @@ const resources = {
       stageInstructions: {
         character_select: "בחר דמות",
         opponent_selection: "בחר את יריבך",
-        battle: "בחר דמות יריב לתקוף או דלג",
+        battle: "בחר דמות יריב לתקוף",
       },
       characterNames: {
         knight: "אביר",
@@ -43,6 +43,7 @@ const resources = {
         total: 'סה"כ',
         winner: "מנצח",
         continue: "המשך",
+        reroll: "גלגל מחדש",
       },
       // cards: {
       //   talisman: "קמע",
