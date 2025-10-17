@@ -21,6 +21,8 @@ from ..models import (
     MAGE,
     CONNECTED,
     DISCONNECTED,
+    ARCHER_L1_ATTACK,
+    MAGE_L1_ATTACK,
 )
 
 
@@ -132,18 +134,18 @@ def test_connect_action_character_stats():
     assert knight.dice == CHARACTER_DEFAULT_STATS[KNIGHT]["dice"]
     assert knight.attack == CHARACTER_DEFAULT_STATS[KNIGHT]["attack"]
 
-    # Check archer stats (no attack)
+    # Check archer stats (no attack bonus)
     archer = player.characters[ARCHER]
     assert archer.level == 1
     assert archer.health == CHARACTER_DEFAULT_STATS[ARCHER]["health"]
     assert archer.max_health == CHARACTER_DEFAULT_STATS[ARCHER]["max_health"]
     assert archer.dice == CHARACTER_DEFAULT_STATS[ARCHER]["dice"]
-    assert archer.attack is None
+    assert archer.attack == ARCHER_L1_ATTACK
 
-    # Check mage stats (no attack)
+    # Check mage stats (no attack bonus)
     mage = player.characters[MAGE]
     assert mage.level == 1
     assert mage.health == CHARACTER_DEFAULT_STATS[MAGE]["health"]
     assert mage.max_health == CHARACTER_DEFAULT_STATS[MAGE]["max_health"]
     assert mage.dice == CHARACTER_DEFAULT_STATS[MAGE]["dice"]
-    assert mage.attack is None
+    assert mage.attack == MAGE_L1_ATTACK

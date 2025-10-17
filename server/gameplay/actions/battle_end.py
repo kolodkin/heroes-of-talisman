@@ -48,8 +48,8 @@ class BattleEndAction(Action):
         opponent_character = self.opponent_character
 
         # Calculate scores
-        active_score = sum(self.game.active.dice_roll) + (active_character.attack or 0)
-        opponent_score = sum(self.game.opponent.dice_roll) + (opponent_character.attack or 0)
+        active_score = sum(self.game.active.dice_roll) + active_character.attack
+        opponent_score = sum(self.game.opponent.dice_roll) + opponent_character.attack
 
         # Determine loser and reduce health
         if active_score > opponent_score:
