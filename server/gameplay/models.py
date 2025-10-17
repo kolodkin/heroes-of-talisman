@@ -37,24 +37,28 @@ def recursive_db_model_dump(model: BaseModel) -> dict:
     for field_name, field_value in model:
         if isinstance(field_value, BaseModel):
             # Nested model - call its db_model_dump if it's a StrictModel
-            if hasattr(field_value, 'db_model_dump'):
+            if hasattr(field_value, "db_model_dump"):
                 result[field_name] = field_value.db_model_dump()
             else:
                 result[field_name] = field_value.model_dump()
         elif isinstance(field_value, dict):
             # Dict of values (possibly models)
             result[field_name] = {
-                k: v.db_model_dump() if isinstance(v, BaseModel) and hasattr(v, 'db_model_dump')
-                   else v.model_dump() if isinstance(v, BaseModel)
-                   else v
+                k: (
+                    v.db_model_dump()
+                    if isinstance(v, BaseModel) and hasattr(v, "db_model_dump")
+                    else v.model_dump() if isinstance(v, BaseModel) else v
+                )
                 for k, v in field_value.items()
             }
         elif isinstance(field_value, (list, tuple, set)):
             # Collection of values (possibly models) - preserve collection type
             processed_items = [
-                item.db_model_dump() if isinstance(item, BaseModel) and hasattr(item, 'db_model_dump')
-                else item.model_dump() if isinstance(item, BaseModel)
-                else item
+                (
+                    item.db_model_dump()
+                    if isinstance(item, BaseModel) and hasattr(item, "db_model_dump")
+                    else item.model_dump() if isinstance(item, BaseModel) else item
+                )
                 for item in field_value
             ]
             # Preserve the original collection type
@@ -89,7 +93,7 @@ class CharacterCard(StrictModel):
     health: int
     max_health: int
     dice: int
-    attack: Optional[int] = None  # Only knight has attack
+    attack: int
 
     @computed_field
     @property
@@ -193,23 +197,39 @@ class GamePlay(StrictModel):
 
 DEFAULT_GAME = GamePlay()
 
+KNIGHT_L1_DEFAULT_HEALTH = 2
+KNIGHT_L1_MAX_HEALTH = 2
+KNIGHT_L1_DICE = 1
+KNIGHT_L1_ATTACK = 1
+
+ARCHER_L1_DEFAULT_HEALTH = 3
+ARCHER_L1_MAX_HEALTH = 3
+ARCHER_L1_DICE = 1
+ARCHER_L1_ATTACK = 0
+
+MAGE_L1_DEFAULT_HEALTH = 2
+MAGE_L1_MAX_HEALTH = 2
+MAGE_L1_DICE = 1
+MAGE_L1_ATTACK = 0
 
 CHARACTER_DEFAULT_STATS = {
     "knight": {
-        "health": 2,
-        "max_health": 2,
-        "dice": 1,
-        "attack": 1,
+        "health": KNIGHT_L1_DEFAULT_HEALTH,
+        "max_health": KNIGHT_L1_MAX_HEALTH,
+        "dice": KNIGHT_L1_DICE,
+        "attack": KNIGHT_L1_ATTACK,
     },
     "archer": {
-        "health": 3,
-        "max_health": 3,
-        "dice": 1,
+        "health": ARCHER_L1_DEFAULT_HEALTH,
+        "max_health": ARCHER_L1_MAX_HEALTH,
+        "dice": ARCHER_L1_DICE,
+        "attack": ARCHER_L1_ATTACK,
     },
     "mage": {
-        "health": 2,
-        "max_health": 2,
-        "dice": 1,
+        "health": MAGE_L1_DEFAULT_HEALTH,
+        "max_health": MAGE_L1_MAX_HEALTH,
+        "dice": MAGE_L1_DICE,
+        "attack": MAGE_L1_ATTACK,
     },
 }
 

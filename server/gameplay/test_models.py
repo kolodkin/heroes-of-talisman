@@ -6,13 +6,19 @@ These tests verify model behavior including computed properties.
 
 import pytest
 
-from .models import CharacterCard, CHARACTER_DEFAULT_STATS, KNIGHT, init_characters
+from .models import (
+    CharacterCard,
+    CHARACTER_DEFAULT_STATS,
+    KNIGHT,
+    init_characters,
+    KNIGHT_L1_DEFAULT_HEALTH,
+)
 
 
 def test_character_is_alive_when_health_positive():
     """Test character is alive when health > 0"""
     characters = init_characters()
-    assert characters[KNIGHT].health == 2
+    assert characters[KNIGHT].health == KNIGHT_L1_DEFAULT_HEALTH
     assert characters[KNIGHT].is_alive is True
 
 

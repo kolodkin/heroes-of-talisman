@@ -24,6 +24,15 @@ from ..models import (
     MAGE,
     ARCHER,
     init_characters,
+    KNIGHT_L1_DEFAULT_HEALTH,
+    KNIGHT_L1_DICE,
+    KNIGHT_L1_ATTACK,
+    MAGE_L1_DEFAULT_HEALTH,
+    MAGE_L1_DICE,
+    MAGE_L1_ATTACK,
+    ARCHER_L1_DEFAULT_HEALTH,
+    ARCHER_L1_DICE,
+    ARCHER_L1_ATTACK,
 )
 
 
@@ -53,9 +62,9 @@ def test_active_character_with_active_player2():
     action = ConcreteAction("player1", game)
     character = action.active_character
 
-    assert character.health == 2  # Knight has 2 health
-    assert character.dice == 1
-    assert character.attack == 1
+    assert character.health == KNIGHT_L1_DEFAULT_HEALTH
+    assert character.dice == KNIGHT_L1_DICE
+    assert character.attack == KNIGHT_L1_ATTACK
 
 
 def test_active_character_with_active_player3():
@@ -72,9 +81,9 @@ def test_active_character_with_active_player3():
     action = ConcreteAction("player1", game)
     character = action.active_character
 
-    assert character.health == 2  # Mage has 2 health
-    assert character.dice == 1
-    assert character.attack is None
+    assert character.health == MAGE_L1_DEFAULT_HEALTH
+    assert character.dice == MAGE_L1_DICE
+    assert character.attack == MAGE_L1_ATTACK
 
 
 def test_active_character_with_active_player4():
@@ -91,9 +100,9 @@ def test_active_character_with_active_player4():
     action = ConcreteAction("player1", game)
     character = action.active_character
 
-    assert character.health == 3  # Archer has 3 health
-    assert character.dice == 1
-    assert character.attack is None
+    assert character.health == ARCHER_L1_DEFAULT_HEALTH
+    assert character.dice == ARCHER_L1_DICE
+    assert character.attack == ARCHER_L1_ATTACK
 
 
 def test_active_character_with_active_player1_fails():
@@ -149,9 +158,9 @@ def test_opponent_character_with_opponent2():
     action = ConcreteAction("player1", game)
     character = action.opponent_character
 
-    assert character.health == 2  # Mage has 2 health
-    assert character.dice == 1
-    assert character.attack is None
+    assert character.health == MAGE_L1_DEFAULT_HEALTH
+    assert character.dice == MAGE_L1_DICE
+    assert character.attack == MAGE_L1_ATTACK
 
 
 def test_opponent_character_with_opponent3():
@@ -170,9 +179,9 @@ def test_opponent_character_with_opponent3():
     action = ConcreteAction("player1", game)
     character = action.opponent_character
 
-    assert character.health == 3  # Archer has 3 health
-    assert character.dice == 1
-    assert character.attack is None
+    assert character.health == ARCHER_L1_DEFAULT_HEALTH
+    assert character.dice == ARCHER_L1_DICE
+    assert character.attack == ARCHER_L1_ATTACK
 
 
 def test_opponent_character_with_opponent4():
@@ -191,9 +200,9 @@ def test_opponent_character_with_opponent4():
     action = ConcreteAction("player1", game)
     character = action.opponent_character
 
-    assert character.health == 2
-    assert character.dice == 1
-    assert character.attack is None
+    assert character.health == MAGE_L1_DEFAULT_HEALTH
+    assert character.dice == MAGE_L1_DICE
+    assert character.attack == MAGE_L1_ATTACK
 
 
 def test_opponent_character_with_no_opponent_fails():
@@ -235,8 +244,8 @@ def test_player_property():
 
     assert player.name == "player1"
     assert KNIGHT in player.characters
-    assert player.characters[KNIGHT].health == 2  # Knight has 2 health
-    assert player.characters[KNIGHT].attack == 1
+    assert player.characters[KNIGHT].health == KNIGHT_L1_DEFAULT_HEALTH
+    assert player.characters[KNIGHT].attack == KNIGHT_L1_ATTACK
 
 
 def test_player_property_player_not_in_game_fails():
