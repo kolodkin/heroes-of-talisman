@@ -2,7 +2,9 @@
 
 ## Guidelines
 
-- In `basic.spec.js` tests, capture a screenshot after every view change.
+- In `basic.spec.js` tests, capture a screenshot after every UI update.
+- Skip screenshot capture when only backend state changes occur without visible UI updates.
+- Use `api_helpers.js` to call backend APIs directly in e2e tests for test setup or by demand. This allows faster test execution and more reliable state management compared to UI-only interactions.
 
 ## Dom Selection
 

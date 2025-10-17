@@ -35,7 +35,7 @@ def calculate_winner(game: GamePlay) -> tuple[int, int]:
     if not game.opponent or not isinstance(game.opponent, (Opponent3, Opponent4)):
         raise GameException("Opponent has no dice roll")
 
-    # Get players and characters
+    # Get characters
     active_player = game.players[game.active.player]
     opponent_player = game.players[game.opponent.player]
     active_character = active_player.characters[game.active.character]
@@ -103,13 +103,16 @@ class ActivePlayerRollAction(Action):
         if not isinstance(self.game.active, (ActivePlayer2, ActivePlayer3, ActivePlayer4)):
             raise GameException("Active player has no character selected")
 
-        # Get character's dice value
-        player = self.game.players[self.user]
-        character = player.characters[self.game.active.character]
+        # Get character's dice value using the property
+        character = self.active_character
         num_dice = character.dice
 
         # Roll dice
         dice_roll = [random.randint(1, 6) for _ in range(num_dice)]
+
+        # Validate dice count matches character's dice
+        if len(dice_roll) != num_dice:
+            raise GameException(f"Dice roll count {len(dice_roll)} does not match character dice {num_dice}")
 
         # Upgrade active to ActivePlayer3 with dice_roll
         self.game.active = ActivePlayer3(
@@ -147,13 +150,16 @@ class OpponentRollAction(Action):
         if not isinstance(self.game.opponent, (Opponent2, Opponent3, Opponent4)):
             raise GameException("Opponent has no character selected")
 
-        # Get character's dice value
-        player = self.game.players[self.user]
-        character = player.characters[self.game.opponent.character]
+        # Get character's dice value using the property
+        character = self.opponent_character
         num_dice = character.dice
 
         # Roll dice
         dice_roll = [random.randint(1, 6) for _ in range(num_dice)]
+
+        # Validate dice count matches character's dice
+        if len(dice_roll) != num_dice:
+            raise GameException(f"Dice roll count {len(dice_roll)} does not match character dice {num_dice}")
 
         # Upgrade opponent to Opponent3 with dice_roll
         self.game.opponent = Opponent3(
@@ -205,5 +211,66 @@ class RerollAction(Action):
             player=self.game.opponent.player,
             character=self.game.opponent.character
         )
+
+        return self.game
+
+
+class DebugSetBattleDiceRollsAction(Action):
+    """
+    DEBUG ONLY: Set dice rolls for battle participants to deterministic values.
+
+    This action is only used for debugging and testing purposes. It is NOT part
+    of the formal game flow and should never be used in production gameplay.
+
+    Allows setting specific dice roll values for both active player and opponent
+    to create deterministic test scenarios (e.g., ensuring player 1 always wins).
+
+    Args:
+        active_dice_roll: list of dice values for the active player
+        opponent_dice_roll: list of dice values for the opponent
+        Example: active_dice_roll=[6], opponent_dice_roll=[1]
+    """
+
+    def run(self, active_dice_roll: list[int], opponent_dice_roll: list[int]) -> GamePlay:
+        # Validate stage
+        if self.game.stage != BATTLE:
+            raise GameException(f"Cannot set dice rolls in stage: {self.game.stage}")
+
+        # Validate both players have rolled (must be ActivePlayer3/4 and Opponent3/4)
+        if not isinstance(self.game.active, (ActivePlayer3, ActivePlayer4)) or not self.game.active.dice_roll:
+            raise GameException("Active player has not rolled yet")
+        if not self.game.opponent or not isinstance(self.game.opponent, (Opponent3, Opponent4)) or not self.game.opponent.dice_roll:
+            raise GameException("Opponent has not rolled yet")
+
+        # Get character dice counts using properties
+        active_character = self.active_character
+        opponent_character = self.opponent_character
+
+        # Validate dice roll counts match character dice
+        if len(active_dice_roll) != active_character.dice:
+            raise GameException(
+                f"Active dice roll count {len(active_dice_roll)} does not match character dice {active_character.dice}"
+            )
+        if len(opponent_dice_roll) != opponent_character.dice:
+            raise GameException(
+                f"Opponent dice roll count {len(opponent_dice_roll)} does not match character dice {opponent_character.dice}"
+            )
+
+        # Update active player's dice roll
+        self.game.active = ActivePlayer3(
+            player=self.game.active.player,
+            character=self.game.active.character,
+            dice_roll=active_dice_roll
+        )
+
+        # Update opponent's dice roll
+        self.game.opponent = Opponent3(
+            player=self.game.opponent.player,
+            character=self.game.opponent.character,
+            dice_roll=opponent_dice_roll
+        )
+
+        # Recalculate winner based on new dice rolls
+        set_winner_if_both_rolled(self.game)
 
         return self.game

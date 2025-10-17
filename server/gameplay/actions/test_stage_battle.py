@@ -11,6 +11,7 @@ from .stage_battle import (
     ActivePlayerRollAction,
     OpponentRollAction,
     RerollAction,
+    DebugSetBattleDiceRollsAction,
     calculate_winner,
     set_winner_if_both_rolled,
 )
@@ -480,3 +481,136 @@ def test_set_winner_if_both_rolled_does_nothing_when_not_both_rolled():
     # Should remain unchanged (ActivePlayer3/Opponent2 don't have winner)
     assert isinstance(game.active, ActivePlayer3)
     assert isinstance(game.opponent, Opponent2)
+
+
+# ============================================================================
+# DebugSetBattleDiceRollsAction Tests
+# ============================================================================
+
+
+def test_debug_set_battle_dice_rolls_valid():
+    """Test debug action successfully sets dice rolls and recalculates winner"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=BATTLE,
+        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[1]),
+        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[6]),
+        players={
+            "player1": Player(name="player1", characters=characters),
+            "player2": Player(name="player2", characters=characters),
+        },
+    )
+
+    # Initially knight with dice=[1], attack=1 = 2, mage with dice=[6], attack=0 = 6
+    # Mage would win
+
+    action = DebugSetBattleDiceRollsAction("player1", game)
+    # Knight has 1 dice, mage has 1 dice
+    # Set knight dice to [6], mage dice to [1]
+    updated_game = action.run(active_dice_roll=[6], opponent_dice_roll=[1])
+
+    # After debug action: knight with dice=[6], attack=1 = 7, mage with dice=[1], attack=0 = 1
+    # Knight should win
+    assert isinstance(updated_game.active, ActivePlayer4)
+    assert isinstance(updated_game.opponent, Opponent4)
+    assert updated_game.active.dice_roll == [6]
+    assert updated_game.opponent.dice_roll == [1]
+    assert updated_game.active.winner is True
+    assert updated_game.opponent.winner is False
+
+
+def test_debug_set_battle_dice_rolls_creates_draw():
+    """Test debug action can create a draw scenario"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=BATTLE,
+        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[1]),
+        opponent=Opponent3(player="player2", character=ARCHER, dice_roll=[1]),
+        players={
+            "player1": Player(name="player1", characters=characters),
+            "player2": Player(name="player2", characters=characters),
+        },
+    )
+
+    action = DebugSetBattleDiceRollsAction("player1", game)
+    # Knight has 1 dice, archer has 1 dice
+    # Knight with dice=[5], attack=1 = 6, archer with dice=[6], attack=0 = 6
+    updated_game = action.run(active_dice_roll=[5], opponent_dice_roll=[6])
+
+    assert isinstance(updated_game.active, ActivePlayer4)
+    assert isinstance(updated_game.opponent, Opponent4)
+    assert updated_game.active.dice_roll == [5]
+    assert updated_game.opponent.dice_roll == [6]
+    assert updated_game.active.winner is False
+    assert updated_game.opponent.winner is False
+
+
+def test_debug_set_battle_dice_rolls_wrong_stage():
+    """Test debug action fails in wrong stage"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=CHARACTER_SELECT,
+        active=ActivePlayer1(player="player1"),
+        players={
+            "player1": Player(name="player1", characters=characters),
+        },
+    )
+
+    action = DebugSetBattleDiceRollsAction("player1", game)
+    with pytest.raises(GameException, match="Cannot set dice rolls in stage"):
+        action.run(active_dice_roll=[6], opponent_dice_roll=[6])
+
+
+def test_debug_set_battle_dice_rolls_active_not_rolled():
+    """Test debug action fails when active player hasn't rolled yet"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=BATTLE,
+        active=ActivePlayer2(player="player1", character=KNIGHT),
+        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[3]),
+        players={
+            "player1": Player(name="player1", characters=characters),
+            "player2": Player(name="player2", characters=characters),
+        },
+    )
+
+    action = DebugSetBattleDiceRollsAction("player1", game)
+    with pytest.raises(GameException, match="Active player has not rolled yet"):
+        action.run(active_dice_roll=[6], opponent_dice_roll=[6])
+
+
+def test_debug_set_battle_dice_rolls_opponent_not_rolled():
+    """Test debug action fails when opponent hasn't rolled yet"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=BATTLE,
+        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[6]),
+        opponent=Opponent2(player="player2", character=MAGE),
+        players={
+            "player1": Player(name="player1", characters=characters),
+            "player2": Player(name="player2", characters=characters),
+        },
+    )
+
+    action = DebugSetBattleDiceRollsAction("player1", game)
+    with pytest.raises(GameException, match="Opponent has not rolled yet"):
+        action.run(active_dice_roll=[6], opponent_dice_roll=[6])
+
+
+def test_debug_set_battle_dice_rolls_invalid_dice_count():
+    """Test debug action fails when dice count doesn't match character dice"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=BATTLE,
+        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[1]),
+        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[6]),
+        players={
+            "player1": Player(name="player1", characters=characters),
+            "player2": Player(name="player2", characters=characters),
+        },
+    )
+
+    action = DebugSetBattleDiceRollsAction("player1", game)
+    # Knight has 1 dice but we're passing 2 dice
+    with pytest.raises(GameException, match="Active dice roll count 2 does not match character dice 1"):
+        action.run(active_dice_roll=[6, 6], opponent_dice_roll=[1])
