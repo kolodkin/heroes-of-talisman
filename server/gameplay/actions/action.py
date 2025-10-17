@@ -4,13 +4,16 @@ from typing import Any, Dict, Optional
 from ..models import (
     GamePlay,
     Player,
+    CharacterCard,
     GameException,
     ReportedException,
     ActivePlayer1,
     ActivePlayer2,
     ActivePlayer3,
+    ActivePlayer4,
     Opponent2,
     Opponent3,
+    Opponent4,
 )
 
 
@@ -30,12 +33,26 @@ class Action(ABC):
         self.game.stage = value
 
     @property
-    def active(self) -> Optional[ActivePlayer1 | ActivePlayer2 | ActivePlayer3]:
+    def active(self) -> Optional[ActivePlayer1 | ActivePlayer2 | ActivePlayer3 | ActivePlayer4]:
         return self.game.active
 
     @active.setter
-    def active(self, value: Optional[ActivePlayer1 | ActivePlayer2 | ActivePlayer3]):
+    def active(self, value: Optional[ActivePlayer1 | ActivePlayer2 | ActivePlayer3 | ActivePlayer4]):
         self.game.active = value
+
+    @property
+    def active_character(self) -> CharacterCard:
+        """
+        Get the active player's character card.
+
+        Provides validation that active player exists and has a character selected.
+
+        Raises:
+            GameException: If active player is not set or has no character selected
+        """
+        if not self.active or not isinstance(self.active, (ActivePlayer2, ActivePlayer3, ActivePlayer4)):
+            raise GameException("Active player not set or has no character selected")
+        return self.game.players[self.active.player].characters[self.active.character]
 
     @property
     def players(self):
@@ -60,12 +77,26 @@ class Action(ABC):
         self.game.stage_meta = value
 
     @property
-    def opponent(self) -> Optional[Opponent2 | Opponent3]:
+    def opponent(self) -> Optional[Opponent2 | Opponent3 | Opponent4]:
         return self.game.opponent
 
     @opponent.setter
-    def opponent(self, value: Optional[Opponent2 | Opponent3]):
+    def opponent(self, value: Optional[Opponent2 | Opponent3 | Opponent4]):
         self.game.opponent = value
+
+    @property
+    def opponent_character(self) -> CharacterCard:
+        """
+        Get the opponent's character card.
+
+        Provides validation that opponent exists and has a character selected.
+
+        Raises:
+            GameException: If opponent is not set or has no character selected
+        """
+        if not self.opponent or not isinstance(self.opponent, (Opponent2, Opponent3, Opponent4)):
+            raise GameException("Opponent not set or has no character selected")
+        return self.game.players[self.opponent.player].characters[self.opponent.character]
 
     def assert_stage(self, req_stage: str):
         if self.stage != req_stage:

@@ -43,11 +43,9 @@ class BattleEndAction(Action):
         if not self.game.opponent or not isinstance(self.game.opponent, (Opponent3, Opponent4)) or not self.game.opponent.dice_roll:
             raise ReportedException("Opponent hasn't rolled yet")
 
-        # Get players and characters
-        active_player = self.game.players[self.game.active.player]
-        opponent_player = self.game.players[self.game.opponent.player]
-        active_character = active_player.characters[self.game.active.character]
-        opponent_character = opponent_player.characters[self.game.opponent.character]
+        # Get characters using properties
+        active_character = self.active_character
+        opponent_character = self.opponent_character
 
         # Calculate scores
         active_score = sum(self.game.active.dice_roll) + (active_character.attack or 0)

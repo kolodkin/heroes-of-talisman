@@ -1,5 +1,6 @@
 const { test, expect } = require("@playwright/test");
 const { TIMEOUT, screenshot, setupHomePage, joinGame } = require("./test-helpers.js");
+const { sendDebugActionViaWS } = require("./api_helpers.js");
 
 const GAME_NAME = "test basic flow";
 
@@ -185,6 +186,14 @@ async function testBattleStage(page, page2) {
   const opponentDice = page.locator('[data-battle-role="opponent"] [class*="diceContainer"]');
   await expect(opponentDice).toBeVisible();
   await screenshot(page, "battle-opponent-rolled");
+
+  // DEBUG: Set deterministic dice rolls to ensure player1 (mage) wins
+  // Player1 (active): mage has 1 dice, with attack=0, dice=[6] → score = 6
+  // Player2 (opponent): knight has 1 dice, with attack=1, dice=[1] → score = 2
+  await sendDebugActionViaWS(GAME_NAME, "player", "debug_set_battle_dice_rolls", {
+    active_dice_roll: [6],
+    opponent_dice_roll: [1],
+  });
 
   // Wait for dice animations to complete - continue button appears after animations
   const continueButton = page.getByRole("button", { name: /המשך/i });

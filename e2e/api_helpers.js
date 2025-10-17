@@ -76,3 +76,46 @@ export async function getGamesViaAPI() {
 
   return response.json();
 }
+
+/**
+ * Send a debug action via WebSocket
+ * @param {string} gameName - Name of the game
+ * @param {string} username - Username to send the action as
+ * @param {string} action - Action name (e.g., "debug_set_battle_dice_rolls")
+ * @param {object} data - Action data
+ * @returns {Promise<void>}
+ */
+export async function sendDebugActionViaWS(gameName, username, action, data) {
+  const wsUrl = `ws://localhost:8000/ws/${encodeURIComponent(gameName)}/${encodeURIComponent(username)}`;
+
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      const actionPayload = {
+        username,
+        action,
+        ...data,
+      };
+      ws.send(JSON.stringify(actionPayload));
+
+      // Wait a bit for the action to be processed
+      setTimeout(() => {
+        ws.close();
+        resolve();
+      }, 100);
+    };
+
+    ws.onerror = (error) => {
+      reject(new Error(`WebSocket error: ${error}`));
+    };
+
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.error) {
+        ws.close();
+        reject(new Error(`Action error: ${message.error}`));
+      }
+    };
+  });
+}
