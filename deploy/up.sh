@@ -68,8 +68,7 @@ fi
 
 echo ""
 echo "Deployment complete!"
-echo "Application available at http://localhost:8000"
-echo ""
+echo
 echo "To view logs: docker compose -p heroes-of-talisman logs -f"
 echo "To stop: docker compose -p heroes-of-talisman down"
 
