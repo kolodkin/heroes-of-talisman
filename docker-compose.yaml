@@ -27,6 +27,11 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-redis}
     volumes:
       - redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   server:
     # https://hub.docker.com/r/astral/uv

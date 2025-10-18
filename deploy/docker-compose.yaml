@@ -3,6 +3,56 @@
 # https://hub.docker.com/_/redis
 
 services:
+  # Database migration service
+  migrate:
+    image: python:3.12-slim-bookworm
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - ./:/app/deploy:ro
+    working_dir: /app
+    command: /app/deploy/entrypoint_migrate.sh
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+
+  # Application service (FastAPI + SPA)
+  app:
+    image: python:3.12-slim-bookworm
+    ports:
+      - ${APP_PORT:-8000}:8000
+    environment:
+      UVICORN_HOST: 0.0.0.0
+      UVICORN_PORT: 8000
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - ./:/app/deploy:ro
+    working_dir: /app
+    command: /app/deploy/entrypoint.sh
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://app:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   # PostgreSQL database service
   postgres:
     image: postgres:17.5
@@ -36,37 +86,6 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
-
-  # Application service (FastAPI + SPA)
-  app:
-    image: python:3.12-slim-bookworm
-    ports:
-      - ${APP_PORT:-8000}:8000
-    environment:
-      UVICORN_HOST: 0.0.0.0
-      UVICORN_PORT: 8000
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    volumes:
-      - ./:/app/deploy:ro
-    working_dir: /app
-    command: /app/deploy/entrypoint.sh
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: always
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://app:8000/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
 volumes:
   postgres:

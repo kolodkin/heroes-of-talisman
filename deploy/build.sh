@@ -38,6 +38,12 @@ echo "Copying wheel to deploy folder..."
 rm -f deploy/*.whl
 cp dist/*.whl deploy/
 
+# Copy alembic files to deploy folder
+echo "Copying alembic files to deploy folder..."
+rm -rf deploy/alembic
+cp -r alembic deploy/
+cp alembic.ini deploy/
+
 # Clean up any existing dist and www directories
 rm -rf dist
 rm -rf server/www
@@ -46,5 +52,6 @@ echo "Build complete!"
 echo "  - Frontend files in server/www/"
 echo "  - Requirements file: deploy/requirements.txt"
 echo "  - Python wheel in deploy/"
+echo "  - Alembic files in deploy/"
 
 popd > /dev/null

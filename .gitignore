@@ -220,3 +220,5 @@ CLAUDE.md
 server/www
 deploy/requirements.txt
 deploy/*.whl
+deploy/alembic
+deploy/alembic.ini
