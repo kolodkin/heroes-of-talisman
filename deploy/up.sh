@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+COMPOSE_BAKE=true # bake the docker-compose.yaml file into a single file
 
 # Production deployment script for Heroes of Talisman
 # Usage:
@@ -36,7 +37,7 @@ fi
 
 # Start docker-compose services from deploy directory
 echo "Starting deployment services..."
-docker compose -p heroes-of-talisman up -d
+docker compose -p heroes-of-talisman up -d --build
 
 # Wait for health check unless --nowait is specified
 if [[ "$NOWAIT" == "false" ]]; then
