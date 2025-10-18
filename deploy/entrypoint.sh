@@ -15,9 +15,6 @@ pip install -r /app/deploy/requirements.txt
 echo "Installing application package..."
 pip install /app/deploy/*.whl
 
-# Run database migrations (if needed)
-# python -m alembic upgrade head
-
 # Start the FastAPI server using uvicorn
 echo "Starting server..."
 uvicorn server.main:app --host "${UVICORN_HOST:-0.0.0.0}" --port "${UVICORN_PORT:-8000}"
