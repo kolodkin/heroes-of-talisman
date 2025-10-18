@@ -80,7 +80,7 @@ export default defineConfig({
     },
     {
       command: "uv run uvicorn server.main:app --port 8000",
-      url: "http://localhost:8000",
+      url: "http://localhost:8000/health",
       reuseExistingServer: !process.env.CI,
     },
   ],
