@@ -9,6 +9,9 @@ SCRIPT_DIR=$(dirname $(readlink -f $0))
 ROOT_DIR=$SCRIPT_DIR/..
 pushd $ROOT_DIR > /dev/null
 
+# Clean up any existing dist directory
+rm -rf dist
+
 # Build the frontend using Vite (output goes to dist/ directory)
 echo "Building frontend..."
 npm run build
@@ -34,6 +37,10 @@ uv build --wheel
 echo "Copying wheel to deploy folder..."
 rm -f deploy/*.whl
 cp dist/*.whl deploy/
+
+# Clean up any existing dist and www directories
+rm -rf dist
+rm -rf server/www
 
 echo "Build complete!"
 echo "  - Frontend files in server/www/"

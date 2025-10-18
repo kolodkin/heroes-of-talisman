@@ -41,17 +41,21 @@ docker compose -p heroes-of-talisman up -d
 # Wait for health check unless --nowait is specified
 if [[ "$NOWAIT" == "false" ]]; then
   echo ""
-  echo "Waiting for application to be healthy..."
+  echo "Waiting for application container to be healthy..."
 
-  # Wait up to 60 seconds for the health endpoint
+  # Wait for the app container to be healthy using docker's health check
+  CONTAINER_NAME="heroes-of-talisman-app-1"
   TIMEOUT=60
   ELAPSED=0
 
   while [ $ELAPSED -lt $TIMEOUT ]; do
-    if curl -f -s http://localhost:8000/health > /dev/null 2>&1; then
+    HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' $CONTAINER_NAME 2>/dev/null || echo "not_found")
+
+    if [ "$HEALTH_STATUS" = "healthy" ]; then
       echo "Application is healthy!"
       break
     fi
+
     sleep 2
     ELAPSED=$((ELAPSED + 2))
   done

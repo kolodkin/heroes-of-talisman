@@ -32,7 +32,7 @@ services:
     # https://hub.docker.com/r/astral/uv
     image: ghcr.io/astral-sh/uv:python3.12-bookworm
     ports:
-      - 8000:8000
+      - ${APP_PORT:-8000}:8000
     user: ${MY_UID}:${MY_GID}
     environment:
       UVICORN_HOST: 0.0.0.0
