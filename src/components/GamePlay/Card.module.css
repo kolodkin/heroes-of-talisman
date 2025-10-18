@@ -5,6 +5,7 @@
   background-color: transparent;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .card:hover {

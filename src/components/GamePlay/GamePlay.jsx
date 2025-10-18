@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import className from "classnames";
 import styles from "./GamePlay.module.css";
+import commonStyles from "../Common.module.css";
 import Card from "./Card";
 import CharacterCard from "../CharacterCard";
 import StageCharacterSelect from "./StageCharacterSelect";
@@ -10,7 +11,7 @@ import StageBattle from "./StageBattle";
 
 const PlayersCards = ({ player }) => {
   return (
-    <div className={styles["player-characters"]}>
+    <div className={commonStyles.cardsContainer} data-player-cards>
       {player.characters &&
         Object.entries(player.characters).map(([charName, character]) => (
           <Card key={charName} faceUp={true}>
