@@ -11,6 +11,7 @@ import { useScrollAlignment } from "../../hooks/useScrollAlignment";
 import CharacterCard from "../CharacterCard";
 import styles from "./Opponent.module.css";
 import commonStyles from "../Common.module.css";
+import WithDisconnectedOverlay from "../WithDisconnectedOverlay";
 
 const OpponentMinified = ({ player, selectedOpponent, onCharacterClick }) => {
   const { t } = useTranslation();
@@ -65,40 +66,42 @@ const Opponent = ({ playerName, player, selectedOpponent, onCharacterClick }) =>
   };
 
   return (
-    <div className={styles.opponent} data-player={playerName}>
-      <div className={styles["opponent-header"]}>
-        <div className={styles["opponent-name"]}>{playerName}</div>
-        <button
-          className={styles["toggle-button"]}
-          onClick={toggleExpanded}
-          aria-label={isExpanded ? "Minimize player" : "Expand player"}
-        >
-          {isExpanded ? "−" : "+"}
-        </button>
-      </div>
-
-      {isExpanded ? (
-        <div ref={expandedContainerRef} className={commonStyles.cardsContainer} data-opponent-cards-expanded>
-          {player.characters &&
-            Object.entries(player.characters).map(([charName, character]) => (
-              <CharacterCard
-                key={charName}
-                name={charName}
-                character={character}
-                isSelected={selectedOpponent?.player === playerName && selectedOpponent?.character === charName}
-                onClick={() => handleCharacterClick(charName)}
-                size="normal"
-              />
-            ))}
+    <WithDisconnectedOverlay player={player}>
+      <div className={styles.opponent} data-player={playerName}>
+        <div className={styles["opponent-header"]}>
+          <div className={styles["opponent-name"]}>{playerName}</div>
+          <button
+            className={styles["toggle-button"]}
+            onClick={toggleExpanded}
+            aria-label={isExpanded ? "Minimize player" : "Expand player"}
+          >
+            {isExpanded ? "−" : "+"}
+          </button>
         </div>
-      ) : (
-        <OpponentMinified
-          player={player}
-          selectedOpponent={selectedOpponent?.player === playerName ? selectedOpponent : null}
-          onCharacterClick={handleCharacterClick}
-        />
-      )}
-    </div>
+
+        {isExpanded ? (
+          <div ref={expandedContainerRef} className={commonStyles.cardsContainer} data-opponent-cards-expanded>
+            {player.characters &&
+              Object.entries(player.characters).map(([charName, character]) => (
+                <CharacterCard
+                  key={charName}
+                  name={charName}
+                  character={character}
+                  isSelected={selectedOpponent?.player === playerName && selectedOpponent?.character === charName}
+                  onClick={() => handleCharacterClick(charName)}
+                  size="normal"
+                />
+              ))}
+          </div>
+        ) : (
+          <OpponentMinified
+            player={player}
+            selectedOpponent={selectedOpponent?.player === playerName ? selectedOpponent : null}
+            onCharacterClick={handleCharacterClick}
+          />
+        )}
+      </div>
+    </WithDisconnectedOverlay>
   );
 };
 

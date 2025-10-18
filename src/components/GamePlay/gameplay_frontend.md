@@ -168,6 +168,16 @@ Each game stage has its own dedicated component that renders the appropriate UI 
   - When expanded: Shows full character cards with all details
   - When minimized: Shows only character names and levels in a compact list
 
+### Disconnected Players
+
+When a player is disconnected (`player.status === "disconnected"`), a dark overlay with disconnected text appears over their player card:
+
+- **Visual Display**: Dark semi-transparent overlay (rgba(0, 0, 0, 0.7)) with centered disconnected text
+- **Implementation**: Uses the reusable `WithDisconnectedOverlay` component that wraps player cards
+- **Styling**: Overlay covers entire card content with centered muted text (#999)
+- **Visibility**: Appears in both minimized and expanded views, in both players menu and opponent selection
+- **Data Attribute**: Uses `data-disconnected-indicator` for test selection
+
 ### Dead Characters
 
 Characters with `is_alive=false` (health = 0) should be visually distinguished and non-interactive:
