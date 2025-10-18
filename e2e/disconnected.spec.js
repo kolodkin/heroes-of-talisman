@@ -26,10 +26,10 @@ test("test disconnected player overlay in battle stage", async ({ page }) => {
     // Wait for player2 to appear in player1's players menu
     await page.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
 
-    // Verify player2 does not have disconnected indicator
-    const player2Wrapper = page.locator('[data-player-disconnected="player2"]');
-    await expect(player2Wrapper).toBeVisible();
-    await expect(player2Wrapper.locator("[data-disconnected-indicator]")).not.toBeVisible();
+    // Verify player2 is connected
+    const player2Card = page.locator('[data-player="player2"]').first();
+    await expect(player2Card).toBeVisible();
+    await expect(player2Card).toHaveAttribute("data-status", "connected");
     await screenshot(page, "both-players-connected");
 
     // Close player2's session to trigger disconnect
@@ -38,13 +38,12 @@ test("test disconnected player overlay in battle stage", async ({ page }) => {
     // Wait for disconnection to propagate
     await page.waitForTimeout(500);
 
-    // Verify disconnected overlay appears on player2's card
-    const disconnectedIndicator = player2Wrapper.locator("[data-disconnected-indicator]");
-    await expect(disconnectedIndicator).toBeVisible();
+    // Verify player2 has disconnected status
+    await expect(player2Card).toHaveAttribute("data-status", "disconnected");
 
-    // Verify player1 does not have disconnected indicator (still connected)
-    const player1Wrapper = page.locator('[data-player-disconnected="player1"]');
-    await expect(player1Wrapper.locator("[data-disconnected-indicator]")).not.toBeVisible();
+    // Verify player1 is still connected
+    const player1Card = page.locator('[data-player="player1"]').first();
+    await expect(player1Card).toHaveAttribute("data-status", "connected");
     await screenshot(page, "player2-disconnected");
   } finally {
     // Cleanup: Delete game via API
@@ -73,10 +72,10 @@ test("test disconnected player overlay in opponent selection stage", async ({ pa
     await setupHomePage(page2);
     await joinGame(page2, "player2", gameName);
 
-    // Verify player2 appears in opponent selection without disconnected indicator
-    const player2OpponentWrapper = page.locator('[data-player-disconnected="player2"]').first();
-    await expect(player2OpponentWrapper).toBeVisible();
-    await expect(player2OpponentWrapper.locator("[data-disconnected-indicator]")).not.toBeVisible();
+    // Verify player2 appears in opponent selection and is connected
+    const player2OpponentCard = page.locator('[data-player="player2"]').first();
+    await expect(player2OpponentCard).toBeVisible();
+    await expect(player2OpponentCard).toHaveAttribute("data-status", "connected");
     await screenshot(page, "both-players-connected");
 
     // Close player2's session to trigger disconnect
@@ -85,14 +84,12 @@ test("test disconnected player overlay in opponent selection stage", async ({ pa
     // Wait for disconnection to propagate
     await page.waitForTimeout(500);
 
-    // Verify disconnected overlay appears in opponent selection area
-    const disconnectedIndicator = player2OpponentWrapper.locator("[data-disconnected-indicator]");
-    await expect(disconnectedIndicator).toBeVisible();
+    // Verify player2 has disconnected status in opponent selection area
+    await expect(player2OpponentCard).toHaveAttribute("data-status", "disconnected");
 
-    // Verify overlay also appears in players menu on the right
-    const player2MenuWrapper = page.locator('[data-player-disconnected="player2"]').last();
-    const menuDisconnectedIndicator = player2MenuWrapper.locator("[data-disconnected-indicator]");
-    await expect(menuDisconnectedIndicator).toBeVisible();
+    // Verify player2 also has disconnected status in players menu on the right
+    const player2MenuCard = page.locator('[data-player="player2"]').last();
+    await expect(player2MenuCard).toHaveAttribute("data-status", "disconnected");
     await screenshot(page, "player2-disconnected");
   } finally {
     // Cleanup: Delete game via API

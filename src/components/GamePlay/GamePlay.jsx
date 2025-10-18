@@ -8,7 +8,7 @@ import CharacterCard from "../CharacterCard";
 import StageCharacterSelect from "./StageCharacterSelect";
 import StageOpponentSelection from "./StageOpponentSelection";
 import StageBattle from "./StageBattle";
-import WithDisconnectedOverlay from "../WithDisconnectedOverlay";
+import Player from "../Player";
 
 const PlayersCards = ({ player }) => {
   return (
@@ -71,21 +71,19 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
           const playerDom = isMinimized ? <PlayersMinified player={player} /> : <PlayersCards player={player} />;
 
           return (
-            <WithDisconnectedOverlay key={player.name} player={player}>
-              <div className={styles.player} data-player={player.name}>
-                <div className={styles["player-header"]}>
-                  <div className={styles["player-name"]}>{player.name}</div>
-                  <button
-                    className={styles["toggle-button"]}
-                    onClick={() => togglePlayerMinimized(player.name)}
-                    aria-label={isMinimized ? "Expand player" : "Minimize player"}
-                  >
-                    {isMinimized ? "+" : "−"}
-                  </button>
-                </div>
-                {playerDom}
+            <Player key={player.name} player={player} className={styles.player}>
+              <div className={styles["player-header"]}>
+                <div className={styles["player-name"]}>{player.name}</div>
+                <button
+                  className={styles["toggle-button"]}
+                  onClick={() => togglePlayerMinimized(player.name)}
+                  aria-label={isMinimized ? "Expand player" : "Minimize player"}
+                >
+                  {isMinimized ? "+" : "−"}
+                </button>
               </div>
-            </WithDisconnectedOverlay>
+              {playerDom}
+            </Player>
           );
         })}
       </div>

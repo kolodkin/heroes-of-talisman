@@ -1,27 +1,27 @@
 /**
- * WithDisconnectedOverlay Component
+ * Player Component
  *
  * A reusable wrapper component that displays a dark overlay with "disconnected" text
  * when the player status is "disconnected".
  *
  * Usage:
- * <WithDisconnectedOverlay player={player}>
+ * <Player player={player} className={styles.player}>
  *   <YourPlayerCard />
- * </WithDisconnectedOverlay>
+ * </Player>
  */
 import React from "react";
 import { useTranslation } from "react-i18next";
-import styles from "./WithDisconnectedOverlay.module.css";
+import styles from "./Player.module.css";
 
-const WithDisconnectedOverlay = ({ player, children }) => {
+const Player = ({ player, className, children }) => {
   const { t } = useTranslation();
   const isDisconnected = player?.status === "disconnected";
 
   return (
-    <div className={styles.container} data-player-disconnected={player?.name}>
+    <div className={`${styles.container} ${className}`} data-player={player?.name} data-status={player?.status}>
       {children}
       {isDisconnected && (
-        <div className={styles["disconnected-overlay"]} data-disconnected-indicator>
+        <div className={styles["disconnected-overlay"]}>
           <div className={styles["disconnected-text"]}>{t("disconnected")}</div>
         </div>
       )}
@@ -29,4 +29,4 @@ const WithDisconnectedOverlay = ({ player, children }) => {
   );
 };
 
-export default WithDisconnectedOverlay;
+export default Player;
