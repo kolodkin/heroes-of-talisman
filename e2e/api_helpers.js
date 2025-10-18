@@ -26,15 +26,21 @@ export async function createGameViaAPI(gameName) {
  * Create a preset game via the server API
  * @param {string} gameName - Name of the game to create
  * @param {string} preset - Preset type (e.g., "battle_player_1_win", "battle_player_2_win", "battle_draw")
+ * @param {string} [stage] - Optional stage override (e.g., "opponent_selection", "battle")
  * @returns {Promise<void>}
  */
-export async function createPresetGameViaAPI(gameName, preset) {
+export async function createPresetGameViaAPI(gameName, preset, stage = null) {
+  const body = { name: gameName, preset };
+  if (stage !== null) {
+    body.stage = stage;
+  }
+
   const response = await fetch(`${API_BASE_URL}/api/games/preset_games`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name: gameName, preset }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {

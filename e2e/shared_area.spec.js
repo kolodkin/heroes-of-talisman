@@ -1,121 +1,172 @@
 import { test, expect } from "@playwright/test";
-import { createGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
-import { TIMEOUT, screenshot, setupHomePage, joinGame } from "./test-helpers.js";
+import { createPresetGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
+import { screenshot } from "./test-helpers.js";
 
-test("cards maintain minimum size and enable horizontal scroll on narrow viewport", async ({ page }) => {
-  const testName = "shared-area-scroll";
-  const gameName = `test-${testName}`;
+test("shared area dynamic alignment - character selection stage", async ({ page }) => {
+  const gameName = "test-shared-area-alignment";
+  const playerName = "player1";
 
-  // Setup: Create game via API
-  await deleteGameViaAPI(gameName); // Clean up if exists
-  await createGameViaAPI(gameName);
+  // Setup: Create game in character selection stage using default preset
+  await deleteGameViaAPI(gameName);
+  await createPresetGameViaAPI(gameName, "default");
 
   try {
-    // Navigate to home and join game
-    await setupHomePage(page);
-    await joinGame(page, "player1", gameName);
-    await screenshot(page, "player1-joined");
+    // Navigate directly to the game
+    await page.goto(`http://localhost:5173/games/${gameName}/${playerName}`);
+    await page.waitForSelector('h2:has-text("בחר דמות")', { timeout: 5000 });
+    await screenshot(page, "character-select-loaded");
 
-    // Add a second player so we have opponent selection stage
-    const page2 = await page.context().newPage();
-    await setupHomePage(page2);
-    await joinGame(page2, "player2", gameName);
-    await page.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
-    await screenshot(page, "player2-joined");
+    // Test 1: Narrow viewport - should align to start with scroll
+    await page.setViewportSize({ width: 700, height: 900 });
+    await page.waitForTimeout(200); // Wait for hook to detect scroll
 
-    // Test 1: Narrow viewport - Player menu cards
-    await page.setViewportSize({ width: 350, height: 900 });
-    await screenshot(page, "narrow-viewport-350");
+    const narrowViewportInfo = await page.evaluate(() => {
+      const heading = Array.from(document.querySelectorAll("h2")).find((h) => h.textContent.includes("בחר דמות"));
+      if (!heading) return { error: "heading not found" };
 
-    // Get player1's card container using data attribute
-    const player1Container = page.locator('[data-player="player1"] [data-player-cards]');
-    await expect(player1Container).toBeAttached();
+      const outerWrapper = heading.nextElementSibling;
+      const cardsWrapper = outerWrapper.firstElementChild;
+      const cardsContainer = cardsWrapper.querySelector('[class*="cardsContainer"]');
 
-    // Verify all 3 character cards exist in the DOM
-    const player1Div = page.locator('[data-player="player1"]');
-    await expect(player1Div.locator('[data-character="knight"]')).toBeAttached();
-    await expect(player1Div.locator('[data-character="archer"]')).toBeAttached();
-    await expect(player1Div.locator('[data-character="mage"]')).toBeAttached();
-
-    // Verify container has horizontal scroll enabled
-    const containerScrollInfo = await player1Container.evaluate((el) => {
-      const styles = window.getComputedStyle(el);
       return {
-        scrollWidth: el.scrollWidth,
-        clientWidth: el.clientWidth,
-        canScroll: el.scrollWidth > el.clientWidth,
-        overflowX: styles.overflowX,
-        flexWrap: styles.flexWrap,
+        wrapperAlignSelf: window.getComputedStyle(cardsWrapper).alignSelf,
+        canScroll: cardsContainer.scrollWidth > cardsContainer.clientWidth,
+        scrollWidth: cardsContainer.scrollWidth,
+        clientWidth: cardsContainer.clientWidth,
       };
     });
 
-    expect(containerScrollInfo.canScroll).toBe(true);
-    expect(containerScrollInfo.overflowX).toBe("auto");
-    expect(containerScrollInfo.flexWrap).toBe("nowrap");
+    // Verify alignment to start and scroll enabled
+    expect(narrowViewportInfo.wrapperAlignSelf).toBe("flex-start");
+    expect(narrowViewportInfo.canScroll).toBe(true);
+    await screenshot(page, "narrow-aligned-start");
 
-    // Test 2: Player2's menu should also have scroll
-    const player2Container = page.locator('[data-player="player2"] [data-player-cards]');
-    await expect(player2Container).toBeAttached();
+    // Verify first card (mage in RTL) is visible
+    await expect(page.locator('[data-character="mage"]').first()).toBeInViewport();
 
-    const player2ScrollInfo = await player2Container.evaluate((el) => {
-      const styles = window.getComputedStyle(el);
-      return {
-        scrollWidth: el.scrollWidth,
-        clientWidth: el.clientWidth,
-        canScroll: el.scrollWidth > el.clientWidth,
-        overflowX: styles.overflowX,
-        flexWrap: styles.flexWrap,
-      };
+    // Scroll to the end (left in RTL) to show last card (knight)
+    await page.evaluate(() => {
+      const heading = Array.from(document.querySelectorAll("h2")).find((h) => h.textContent.includes("בחר דמות"));
+      const outerWrapper = heading.nextElementSibling;
+      const cardsWrapper = outerWrapper.firstElementChild;
+      const cardsContainer = cardsWrapper.querySelector('[class*="cardsContainer"]');
+
+      // In RTL, scroll to the left (negative scrollLeft)
+      cardsContainer.scrollLeft = -cardsContainer.scrollWidth;
     });
+    await page.waitForTimeout(100); // Wait for scroll to complete
+    await screenshot(page, "narrow-scrolled-to-end");
 
-    expect(player2ScrollInfo.canScroll).toBe(true);
-    expect(player2ScrollInfo.overflowX).toBe("auto");
-    expect(player2ScrollInfo.flexWrap).toBe("nowrap");
-    await screenshot(page, "player-menus-scrollable");
+    // Verify last card (knight in RTL) is visible after scrolling
+    await expect(page.locator('[data-character="knight"]').first()).toBeInViewport();
 
-    // Test 3: Verify cards maintain size (flex-shrink: 0)
-    // Get a card from the player menu (which uses Card wrapper)
-    const cardInPlayerMenu = page.locator('[data-player="player1"] [data-player-cards] [data-character="knight"]');
-    const cardShrinkInfo = await cardInPlayerMenu.evaluate((card) => {
-      // Check the parent Card component for flex-shrink
-      const cardWrapper = card.closest('[class*="card"]');
-      const cardStyles = window.getComputedStyle(cardWrapper || card);
-      const charCardStyles = window.getComputedStyle(card);
-      return {
-        cardWrapperFlexShrink: cardWrapper ? window.getComputedStyle(cardWrapper).flexShrink : null,
-        charCardFlexShrink: charCardStyles.flexShrink,
-        width: card.offsetWidth,
-      };
-    });
-
-    // Debug: log the flex-shrink values
-    console.log("Card shrink info:", cardShrinkInfo);
-
-    // Either the Card wrapper or the CharacterCard should have flex-shrink: 0
-    const hasFlexShrink0 = cardShrinkInfo.cardWrapperFlexShrink === "0" || cardShrinkInfo.charCardFlexShrink === "0";
-    expect(hasFlexShrink0).toBe(true);
-    expect(cardShrinkInfo.width).toBeGreaterThan(80); // Cards should maintain minimum size (small cards are ~100px)
-
-    // Test 4: Wide viewport - verify no scroll needed
+    // Test 2: Wide viewport - should center with no scroll
     await page.setViewportSize({ width: 1200, height: 900 });
-    await screenshot(page, "wide-viewport-1200");
+    await page.waitForTimeout(200); // Wait for hook to re-detect
 
-    const wideViewportScrollInfo = await player1Container.evaluate((el) => {
-      const styles = window.getComputedStyle(el);
+    const wideViewportInfo = await page.evaluate(() => {
+      const heading = Array.from(document.querySelectorAll("h2")).find((h) => h.textContent.includes("בחר דמות"));
+      const outerWrapper = heading.nextElementSibling;
+      const cardsWrapper = outerWrapper.firstElementChild;
+      const cardsContainer = cardsWrapper.querySelector('[class*="cardsContainer"]');
+
       return {
-        scrollWidth: el.scrollWidth,
-        clientWidth: el.clientWidth,
-        canScroll: el.scrollWidth > el.clientWidth,
+        wrapperAlignSelf: window.getComputedStyle(cardsWrapper).alignSelf,
+        canScroll: cardsContainer.scrollWidth > cardsContainer.clientWidth,
       };
     });
 
-    // On wide viewport, scroll should not be needed (or minimal)
-    expect(wideViewportScrollInfo.canScroll).toBe(false);
+    // Verify centered and no scroll
+    expect(wideViewportInfo.wrapperAlignSelf).toBe("center");
+    expect(wideViewportInfo.canScroll).toBe(false);
+    await screenshot(page, "wide-centered");
 
-    // Clean up
-    await page2.close();
+    // All cards should be visible
+    await expect(page.locator('[data-character="mage"]').first()).toBeInViewport();
+    await expect(page.locator('[data-character="archer"]').first()).toBeInViewport();
+    await expect(page.locator('[data-character="knight"]').first()).toBeInViewport();
   } finally {
-    // Cleanup: Delete game via API
+    await deleteGameViaAPI(gameName);
+  }
+});
+
+test("shared area dynamic alignment - opponent selection stage", async ({ page }) => {
+  const gameName = "test-opponent-alignment";
+  const playerName = "player1";
+
+  // Setup: Create game in opponent selection stage
+  await deleteGameViaAPI(gameName);
+  await createPresetGameViaAPI(gameName, "opponent_selection_preset");
+
+  try {
+    // Navigate directly to the game
+    await page.goto(`http://localhost:5173/games/${gameName}/${playerName}`);
+    await page.waitForSelector('h2:has-text("בחר את יריבך")', { timeout: 5000 });
+    await screenshot(page, "opponent-select-loaded");
+
+    // Expand first opponent to see character cards (look in shared area)
+    const firstOpponent = page.locator('[data-shared-area-active="true"] [data-player="player2"]').first();
+    await firstOpponent.locator('button[aria-label="Expand player"]').click();
+    await screenshot(page, "opponent-expanded");
+
+    // Test 1: Narrow viewport - expanded character cards should have scroll
+    await page.setViewportSize({ width: 700, height: 900 });
+    await page.waitForTimeout(200); // Wait for hook to detect scroll
+
+    const narrowViewportInfo = await page.evaluate(() => {
+      const expandedCards = document.querySelector("[data-opponent-cards-expanded]");
+      if (!expandedCards) return { error: "expanded cards not found" };
+
+      return {
+        canScroll: expandedCards.scrollWidth > expandedCards.clientWidth,
+        scrollWidth: expandedCards.scrollWidth,
+        clientWidth: expandedCards.clientWidth,
+      };
+    });
+
+    // Verify scroll is enabled for character cards
+    expect(narrowViewportInfo.canScroll).toBe(true);
+    await screenshot(page, "opponent-narrow-with-scroll");
+
+    // Verify first character card (mage in RTL) is visible
+    await expect(firstOpponent.locator('[data-character="mage"]').first()).toBeInViewport();
+
+    // Scroll to the end (left in RTL) to show last card (knight)
+    await page.evaluate(() => {
+      const expandedCards = document.querySelector("[data-opponent-cards-expanded]");
+      if (expandedCards) {
+        // In RTL, scroll to the left (negative scrollLeft)
+        expandedCards.scrollLeft = -expandedCards.scrollWidth;
+      }
+    });
+    await page.waitForTimeout(100); // Wait for scroll to complete
+    await screenshot(page, "opponent-narrow-scrolled-to-end");
+
+    // Verify last card (knight in RTL) is visible after scrolling
+    await expect(firstOpponent.locator('[data-character="knight"]').first()).toBeInViewport();
+
+    // Test 2: Wide viewport - no scroll needed
+    await page.setViewportSize({ width: 1200, height: 900 });
+    await page.waitForTimeout(200); // Wait for hook to re-detect
+
+    const wideViewportInfo = await page.evaluate(() => {
+      const expandedCards = document.querySelector("[data-opponent-cards-expanded]");
+      if (!expandedCards) return { error: "expanded cards not found" };
+
+      return {
+        canScroll: expandedCards.scrollWidth > expandedCards.clientWidth,
+      };
+    });
+
+    // Verify no scroll needed
+    expect(wideViewportInfo.canScroll).toBe(false);
+    await screenshot(page, "opponent-wide-no-scroll");
+
+    // All cards should be visible
+    await expect(firstOpponent.locator('[data-character="mage"]').first()).toBeInViewport();
+    await expect(firstOpponent.locator('[data-character="archer"]').first()).toBeInViewport();
+    await expect(firstOpponent.locator('[data-character="knight"]').first()).toBeInViewport();
+  } finally {
     await deleteGameViaAPI(gameName);
   }
 });
