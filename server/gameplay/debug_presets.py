@@ -5,10 +5,12 @@ from .models import (
     DEFAULT_GAME,
     STAGES_NAMES,
     Player,
+    ActivePlayer2,
     ActivePlayer4,
     Opponent4,
     BATTLE,
     CHARACTER_SELECT,
+    OPPONENT_SELECTION,
     KNIGHT,
     MAGE,
     ARCHER,
@@ -22,6 +24,7 @@ BATTLE_DRAW = "battle_draw"
 KNIGHT_NOT_ALIVE = "knight_not_alive"
 MAGE_NOT_ALIVE = "mage_not_alive"
 ARCHER_NOT_ALIVE = "archer_not_alive"
+OPPONENT_SELECTION_PRESET = "opponent_selection_preset"
 DEBUG_PRESETS = Literal[
     "default",
     "health_1",
@@ -31,6 +34,7 @@ DEBUG_PRESETS = Literal[
     "knight_not_alive",
     "mage_not_alive",
     "archer_not_alive",
+    "opponent_selection_preset",
 ]
 
 
@@ -115,6 +119,16 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[STAGES_NAMES] = None
             stage=CHARACTER_SELECT,
             players={
                 "player1": Player(name="player1", characters=characters),
+                "player2": Player(name="player2", characters=init_characters()),
+            },
+        )
+    elif preset == "opponent_selection_preset":
+        # Opponent selection stage - player1 has selected knight
+        ret = GamePlay(
+            stage=OPPONENT_SELECTION,
+            active=ActivePlayer2(player="player1", character=KNIGHT),
+            players={
+                "player1": Player(name="player1", characters=init_characters()),
                 "player2": Player(name="player2", characters=init_characters()),
             },
         )
