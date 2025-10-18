@@ -1,89 +1,89 @@
 .homepage {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    min-height: 100vh;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-    overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  min-height: 100vh;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
 }
 
 .homepage-container {
-    position: relative;
-    z-index: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .homepage::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('/background1.png') no-repeat center center fixed;
-    opacity: 0.5;
-    /* Adjust the opacity to make the background image transparent */
-    z-index: 0;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("/images/background1.png") no-repeat center center fixed;
+  opacity: 0.5;
+  /* Adjust the opacity to make the background image transparent */
+  z-index: 0;
 }
 
 .input-container {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .homepage h1 {
-    font-size: 3.2em;
-    line-height: 1.1;
+  font-size: 3.2em;
+  line-height: 1.1;
 }
 
 .homepage input[type="text"] {
-    background-color: #333333;
-    color: #ffffff;
-    border: 1px solid #444444;
-    padding: 5px;
-    margin-left: 10px;
+  background-color: #333333;
+  color: #ffffff;
+  border: 1px solid #444444;
+  padding: 5px;
+  margin-left: 10px;
 }
 
 .homepage button {
-    background-color: #444444;
-    color: #ffffff;
-    border: none;
-    padding: 5px 10px;
-    margin-left: 10px;
-    cursor: pointer;
+  background-color: #444444;
+  color: #ffffff;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 10px;
+  cursor: pointer;
 }
 
 .homepage button:hover {
-    background-color: #555555;
+  background-color: #555555;
 }
 
 .homepage ul {
-    list-style-type: none;
-    padding: 0;
+  list-style-type: none;
+  padding: 0;
 }
 
 .homepage li {
-    margin: 5px 0;
+  margin: 5px 0;
 }
 
 .homepage li button {
-    width: 100%;
-    background-color: #333333;
-    color: #ffffff;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+  width: 100%;
+  background-color: #333333;
+  color: #ffffff;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .homepage li button:hover {
-    background-color: #444444;
+  background-color: #444444;
 }
 
 .homepage .game-list-item {
-    display: flex;
+  display: flex;
 }
 
 .homepage .game-list-delete {
-    width: 3.5em;
+  width: 3.5em;
 }
