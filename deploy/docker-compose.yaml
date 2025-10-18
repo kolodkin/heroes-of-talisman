@@ -5,16 +5,16 @@
 services:
   # Database migration service
   migrate:
-    image: python:3.12-slim-bookworm
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-    volumes:
-      - ./:/app/deploy:ro
-    working_dir: /app
-    command: /app/deploy/entrypoint_migrate.sh
+    working_dir: /app/deploy
+    command: alembic upgrade head
     depends_on:
       postgres:
         condition: service_healthy
@@ -22,9 +22,11 @@ services:
 
   # Application service (FastAPI + SPA)
   app:
-    image: python:3.12-slim-bookworm
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - ${APP_PORT:-8000}:8000
+      - ${APP_PORT:-80}:8000
     environment:
       UVICORN_HOST: 0.0.0.0
       UVICORN_PORT: 8000
@@ -34,10 +36,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-    volumes:
-      - ./:/app/deploy:ro
     working_dir: /app
-    command: /app/deploy/entrypoint.sh
+    command: uvicorn server.main:app --host 0.0.0.0 --port 8000
     depends_on:
       postgres:
         condition: service_healthy

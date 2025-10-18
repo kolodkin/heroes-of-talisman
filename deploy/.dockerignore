@@ -2,8 +2,6 @@
 *
 
 # Only include deployment artifacts
-!entrypoint.sh
-!entrypoint_migrate.sh
 !requirements.txt
 !*.whl
 !alembic.ini

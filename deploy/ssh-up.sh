@@ -1,19 +1,26 @@
 #!/bin/bash
 
 # SSH Deploy Script
-# Usage: ./deploy/ssh-deploy.sh user@host
+# Usage:
+#   ./deploy/ssh-up.sh user@host              - Deploy without rebuilding
+#   ./deploy/ssh-up.sh user@host --build      - Build and deploy
 
 set -e
 
-# Check if SSH connection string is provided
-if [ -z "$1" ]; then
+# Check if SSH connection string is provided (and doesn't start with --)
+if [ -z "$1" ] || [[ "$1" == --* ]]; then
     echo "Error: SSH connection string required"
-    echo "Usage: $0 user@host"
+    echo "Usage: $0 user@host [--build]"
     exit 1
 fi
 
+# Change to deploy directory
+SCRIPT_DIR=$(dirname $(readlink -f $0))
+
+pushd $SCRIPT_DIR > /dev/null
+
+
 SSH_TARGET="$1"
-DEPLOY_DIR="deploy"
 REMOTE_DEPLOY_DIR="~/deploy"
 
 # Parse flags
@@ -30,15 +37,14 @@ done
 
 echo "=== SSH Deploy ==="
 echo "Target: $SSH_TARGET"
-echo "Local deploy dir: $DEPLOY_DIR"
 echo "Remote deploy dir: $REMOTE_DEPLOY_DIR"
 echo "Build: $BUILD"
 echo ""
 
-# Check if deploy directory exists locally
-if [ ! -d "$DEPLOY_DIR" ]; then
-    echo "Error: Deploy directory '$DEPLOY_DIR' not found"
-    exit 1
+# Execute build.sh when the --build flag is present
+if [[ "$BUILD" == "true" ]]; then
+  echo "Running build.sh..."
+  ./build.sh
 fi
 
 # Cleanup remote deployment
@@ -60,7 +66,7 @@ ssh "$SSH_TARGET" "mkdir -p $REMOTE_DEPLOY_DIR"
 
 # Copy deploy folder contents to remote
 echo "Copying deploy folder to remote..."
-scp -r "$DEPLOY_DIR"/* "$SSH_TARGET:$REMOTE_DEPLOY_DIR/"
+scp -r ./* "$SSH_TARGET:$REMOTE_DEPLOY_DIR/"
 
 # Make scripts executable on remote
 echo "Setting execute permissions on remote scripts..."
@@ -70,6 +76,8 @@ ssh "$SSH_TARGET" "chmod +x $REMOTE_DEPLOY_DIR/*.sh"
 echo ""
 echo "Running deployment on remote server..."
 ssh "$SSH_TARGET" "cd $REMOTE_DEPLOY_DIR && ./up.sh"
+
+popd > /dev/null
 
 echo ""
 echo "=== Deployment Complete ==="
