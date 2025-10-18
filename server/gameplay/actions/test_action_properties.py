@@ -18,7 +18,7 @@ from ..models import (
     Opponent3,
     Opponent4,
     GameException,
-    BATTLE,
+    BATTLE_DICE_ROLL,
     CHARACTER_SELECT,
     KNIGHT,
     MAGE,
@@ -71,7 +71,7 @@ def test_active_character_with_active_player3():
     """Test active_character property with ActivePlayer3"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE,
+        stage=BATTLE_DICE_ROLL,
         active=ActivePlayer3(player="player1", character=MAGE, dice_roll=[6]),
         players={
             "player1": Player(name="player1", characters=characters),
@@ -90,7 +90,7 @@ def test_active_character_with_active_player4():
     """Test active_character property with ActivePlayer4"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE,
+        stage=BATTLE_DICE_ROLL,
         active=ActivePlayer4(player="player1", character=ARCHER, dice_roll=[3], winner=True),
         players={
             "player1": Player(name="player1", characters=characters),
@@ -146,7 +146,7 @@ def test_opponent_character_with_opponent2():
     """Test opponent_character property with Opponent2"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE,
+        stage=BATTLE_DICE_ROLL,
         active=ActivePlayer2(player="player1", character=KNIGHT),
         opponent=Opponent2(player="player2", character=MAGE),
         players={
@@ -167,7 +167,7 @@ def test_opponent_character_with_opponent3():
     """Test opponent_character property with Opponent3"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE,
+        stage=BATTLE_DICE_ROLL,
         active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[6]),
         opponent=Opponent3(player="player2", character=ARCHER, dice_roll=[3]),
         players={
@@ -188,7 +188,7 @@ def test_opponent_character_with_opponent4():
     """Test opponent_character property with Opponent4"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE,
+        stage=BATTLE_DICE_ROLL,
         active=ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[6], winner=True),
         opponent=Opponent4(player="player2", character=MAGE, dice_roll=[1], winner=False),
         players={
@@ -273,7 +273,7 @@ def test_stage_property_get():
     """Test stage property getter"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE,
+        stage=BATTLE_DICE_ROLL,
         active=ActivePlayer1(player="player1"),
         players={
             "player1": Player(name="player1", characters=characters),
@@ -281,7 +281,7 @@ def test_stage_property_get():
     )
 
     action = ConcreteAction("player1", game)
-    assert action.stage == BATTLE
+    assert action.stage == BATTLE_DICE_ROLL
 
 
 def test_stage_property_set():
@@ -296,9 +296,9 @@ def test_stage_property_set():
     )
 
     action = ConcreteAction("player1", game)
-    action.stage = BATTLE
-    assert action.stage == BATTLE
-    assert game.stage == BATTLE
+    action.stage = BATTLE_DICE_ROLL
+    assert action.stage == BATTLE_DICE_ROLL
+    assert game.stage == BATTLE_DICE_ROLL
 
 
 # ============================================================================
@@ -348,7 +348,7 @@ def test_opponent_property_get():
     characters = init_characters()
     opponent = Opponent2(player="player2", character=ARCHER)
     game = GamePlay(
-        stage=BATTLE,
+        stage=BATTLE_DICE_ROLL,
         active=ActivePlayer2(player="player1", character=KNIGHT),
         opponent=opponent,
         players={
@@ -367,7 +367,7 @@ def test_opponent_property_set():
     """Test opponent property setter"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE,
+        stage=BATTLE_DICE_ROLL,
         active=ActivePlayer2(player="player1", character=KNIGHT),
         opponent=None,
         players={

@@ -143,7 +143,7 @@ def test_add_preset_game_health_1(client):
 
 def test_add_preset_game_with_stage(client):
     """Test adding a preset game with specific stage"""
-    game_data = {"name": "preset_stage_game", "preset": "health_1", "stage": "battle"}
+    game_data = {"name": "preset_stage_game", "preset": "health_1", "stage": "battle_dice_roll"}
     response = client.post("/api/games/preset_games", json=game_data)
     assert response.status_code == 200
     assert response.json() == {"message": "Preset game added successfully"}

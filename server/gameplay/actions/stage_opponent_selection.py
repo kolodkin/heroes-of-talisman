@@ -12,7 +12,7 @@ from ..models import (
     GameException,
     ReportedException,
     Opponent2,
-    BATTLE,
+    BATTLE_DICE_ROLL,
     OPPONENT_SELECTION,
 )
 
@@ -107,8 +107,8 @@ class OpponentSelectAction(Action):
         # Set opponent in game metadata
         self.game.opponent = selected_opponent
 
-        # Transition to battle stage
-        self.game.stage = BATTLE
+        # Transition to battle dice roll stage
+        self.game.stage = BATTLE_DICE_ROLL
         self.game.stage_meta = None  # Clear stage metadata
 
         return self.game

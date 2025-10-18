@@ -190,6 +190,7 @@ async function testBattleStage(page, page2) {
   // DEBUG: Set deterministic dice rolls to ensure player1 (mage) wins
   // Player1 (active): mage has 1 dice, with attack=0, dice=[6] → score = 6
   // Player2 (opponent): knight has 1 dice, with attack=1, dice=[1] → score = 2
+  // This will automatically transition to battle_end stage since there's a winner
   await sendDebugActionViaWS(GAME_NAME, "player", "debug_set_battle_dice_rolls", {
     active_dice_roll: [6],
     opponent_dice_roll: [1],

@@ -19,7 +19,7 @@ from ..models import (
     CHARACTER_DEFAULT_STATS,
     CHARACTER_SELECT,
     OPPONENT_SELECTION,
-    BATTLE,
+    BATTLE_DICE_ROLL,
     KNIGHT,
     ARCHER,
     MAGE,
@@ -56,7 +56,7 @@ def test_character_press_action_not_active_player():
 
 def test_character_press_action_wrong_stage():
     """Test pressing character in wrong stage raises error"""
-    game = GamePlay(stage=BATTLE, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=BATTLE_DICE_ROLL, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
@@ -108,7 +108,7 @@ def test_character_select_action_not_active_player():
 
 def test_character_select_action_wrong_stage():
     """Test confirming selection in wrong stage raises error"""
-    game = GamePlay(stage=BATTLE, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=BATTLE_DICE_ROLL, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
