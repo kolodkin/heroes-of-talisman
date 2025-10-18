@@ -86,12 +86,6 @@
   background-color: #555;
 }
 
-.player-characters {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
 .player-minimized {
   display: flex;
   flex-direction: column;

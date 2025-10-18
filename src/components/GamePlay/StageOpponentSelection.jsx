@@ -14,6 +14,7 @@ import React from "react";
 import className from "classnames";
 import { useTranslation } from "react-i18next";
 import { notify } from "../../utils/notify";
+import { useScrollAlignment } from "../../hooks/useScrollAlignment";
 
 import styles from "./StageOpponentSelection.module.css";
 import submitButtonStyles from "./StageSubmitButton.module.css";
@@ -22,6 +23,7 @@ import Opponent from "./Opponent";
 
 const StageOpponentSelection = ({ players, activePlayer, sendAction, active, selectedOpponent = null }) => {
   const { t } = useTranslation();
+  const { containerRef, hasScroll } = useScrollAlignment();
 
   const handleCharacterClick = (playerName, characterName) => {
     if (!active) {
@@ -47,17 +49,19 @@ const StageOpponentSelection = ({ players, activePlayer, sendAction, active, sel
   const opponents = Object.entries(players).filter(([name, _]) => name !== activePlayer);
 
   return (
-    <div className="flex flex-col items-center space-y-3">
-      <div className={styles["opponents-container"]}>
-        {opponents.map(([playerName, player]) => (
-          <Opponent
-            key={playerName}
-            playerName={playerName}
-            player={player}
-            selectedOpponent={selectedOpponent}
-            onCharacterClick={handleCharacterClick}
-          />
-        ))}
+    <div className="flex flex-col items-center space-y-3 self-stretch">
+      <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
+        <div ref={containerRef} className={styles["opponents-container"]}>
+          {opponents.map(([playerName, player]) => (
+            <Opponent
+              key={playerName}
+              playerName={playerName}
+              player={player}
+              selectedOpponent={selectedOpponent}
+              onCharacterClick={handleCharacterClick}
+            />
+          ))}
+        </div>
       </div>
 
       <button

@@ -12,6 +12,7 @@
 import className from "classnames";
 import { useTranslation } from "react-i18next";
 import { notify } from "../../utils/notify";
+import { useScrollAlignment } from "../../hooks/useScrollAlignment";
 
 import styles from "./StageCharacterSelect.module.css";
 import submitButtonStyles from "./StageSubmitButton.module.css";
@@ -20,6 +21,7 @@ import CharacterCard from "../CharacterCard";
 
 const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacter = null }) => {
   const { t } = useTranslation();
+  const { containerRef, hasScroll } = useScrollAlignment();
 
   const handleCharacterClick = (name) => {
     if (!active) {
@@ -42,18 +44,20 @@ const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacte
   };
 
   return (
-    <div className="flex flex-col items-center space-y-3">
-      <div className="flex justify-center space-x-3 mb-8">
-        {Object.entries(characters).map(([name, character]) => (
-          <CharacterCard
-            key={name}
-            name={name}
-            character={character}
-            isSelected={name === selectedCharacter}
-            onClick={() => handleCharacterClick(name)}
-            size="normal"
-          />
-        ))}
+    <div className="flex flex-col items-center space-y-3 self-stretch">
+      <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
+        <div ref={containerRef} className={className(commonStyles.cardsContainer, "mb-8")}>
+          {Object.entries(characters).map(([name, character]) => (
+            <CharacterCard
+              key={name}
+              name={name}
+              character={character}
+              isSelected={name === selectedCharacter}
+              onClick={() => handleCharacterClick(name)}
+              size="normal"
+            />
+          ))}
+        </div>
       </div>
       <button
         className={className(

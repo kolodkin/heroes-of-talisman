@@ -39,3 +39,13 @@
   transform: translateY(0);
   box-shadow: 0 0 5px rgba(99, 179, 237, 0.3);
 }
+
+/* Shared card container for horizontal scrolling */
+.cardsContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  max-width: 100%;
+}

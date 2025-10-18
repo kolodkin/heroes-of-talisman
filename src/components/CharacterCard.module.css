@@ -8,6 +8,14 @@
   border: 2px solid #333;
   border-radius: 8px;
   color: white;
+  flex-shrink: 0;
+}
+
+/* Selected state - compound selector for cards that also have selected class */
+.card:global([class*="selected"]) {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  border: 2px solid whitesmoke !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
 }
 
 /* Normal size (for SharedArea stages) */

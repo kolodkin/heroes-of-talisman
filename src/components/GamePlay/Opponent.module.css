@@ -5,6 +5,7 @@
   padding: 1rem;
   font-weight: bold;
   color: #fff;
+  max-width: 100%;
 }
 
 .opponent-header {
@@ -36,23 +37,6 @@
 
 .toggle-button:hover {
   background-color: #555;
-}
-
-.opponent-characters {
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-  flex-wrap: nowrap;
-  justify-content: center;
-  overflow-x: auto;
-}
-
-.opponent-minimized {
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-  flex-wrap: nowrap;
-  overflow-x: auto;
 }
 
 .character-minimized {
