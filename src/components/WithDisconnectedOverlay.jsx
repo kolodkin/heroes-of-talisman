@@ -18,7 +18,7 @@ const WithDisconnectedOverlay = ({ player, children }) => {
   const isDisconnected = player?.status === "disconnected";
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-player-disconnected={player?.name}>
       {children}
       {isDisconnected && (
         <div className={styles["disconnected-overlay"]} data-disconnected-indicator>
