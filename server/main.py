@@ -315,19 +315,31 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
 
 app.include_router(router, prefix="/api/games", tags=["games"])
 
-# Mount static files for SPA (CSS, JS, images, etc.)
+# Mount static files for SPA (must come after API routes to avoid conflicts)
 if STATIC_DIR.exists():
     app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
+    app.mount("/images", StaticFiles(directory=STATIC_DIR / "images"), name="images")
 
 
-# Serve index.html on root route (SPA entry point)
-@app.get("/")
-async def serve_spa():
-    """Serve the SPA index.html"""
+# Catch-all for SPA routes - serves static files or index.html
+@app.get("/{full_path:path}")
+async def spa_fallback(full_path: str):
+    # """Serve static files from root or fall back to index.html for SPA routing"""
+    # # Don't intercept WebSocket paths (they use different protocol)
+    # if full_path.startswith("ws/"):
+    #     raise HTTPException(status_code=404, detail="Not found")
+
+    # # Try to serve file from root (e.g., background1.png, vite.svg)
+    # file_path = STATIC_DIR / full_path
+    # if file_path.is_file():
+    #     return FileResponse(file_path)
+
+    # Fall back to index.html for SPA client-side routing
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return FileResponse(index_file)
     return PlainTextResponse("SPA not built. Run scripts/build.sh first.", status_code=404)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
