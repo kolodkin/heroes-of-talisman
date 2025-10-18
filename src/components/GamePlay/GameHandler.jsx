@@ -75,8 +75,8 @@ const GameHandler = () => {
   };
 
   useEffect(() => {
-    // handle strict mode re-render
-    if (isFirstRender.current) {
+    // Handle strict mode re-render in development only (production doesn't have double render)
+    if (import.meta.env.DEV && isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
