@@ -3,13 +3,12 @@ import { useTranslation } from "react-i18next";
 import className from "classnames";
 import styles from "./Navbar.module.css";
 
-function Navbar({ stage, playing }) {
+function Navbar({ stage, playing, isPlaying }) {
   const { gamename, username } = useParams();
   const { t } = useTranslation();
-  const isActivePlayer = playing === username;
 
   return (
-    <nav className={className(styles.navbar, { [styles.active]: isActivePlayer })}>
+    <nav className={className(styles.navbar, { [styles.active]: isPlaying })}>
       <div className={styles.content}>
         <div className={styles.startGroup}>
           <h1 className={styles.gameName}>{gamename || "Heroes of Talisman"}</h1>
