@@ -13,14 +13,14 @@ const resources = {
       stageNames: {
         character_select: "בחירת דמות",
         opponent_selection: "בחירת יריב",
-        card_draw: "שליפת קלף",
-        use_skill: "שימוש ביכולת",
-        battle: "קרב",
+        battle_dice_roll: "גלגול קוביות",
+        battle_end: "תוצאות קרב",
       },
       stageInstructions: {
         character_select: "בחר דמות",
         opponent_selection: "בחר את יריבך",
-        battle: "בחר דמות יריב לתקוף",
+        battle_dice_roll: "בחר דמות יריב לתקוף",
+        battle_end: "תוצאות הקרב",
       },
       characterNames: {
         knight: "אביר",

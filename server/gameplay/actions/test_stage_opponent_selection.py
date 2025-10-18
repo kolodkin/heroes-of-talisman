@@ -21,7 +21,7 @@ from ..models import (
     Opponent2,
     CHARACTER_DEFAULT_STATS,
     OPPONENT_SELECTION,
-    BATTLE,
+    BATTLE_DICE_ROLL,
     KNIGHT,
     ARCHER,
     MAGE,
@@ -63,7 +63,7 @@ def test_opponent_press_action_not_active_player():
 
 def test_opponent_press_action_wrong_stage():
     """Test pressing opponent in wrong stage raises error"""
-    game = GamePlay(stage=BATTLE, active=ActivePlayer2(player="player1", character=KNIGHT))
+    game = GamePlay(stage=BATTLE_DICE_ROLL, active=ActivePlayer2(player="player1", character=KNIGHT))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
@@ -136,7 +136,7 @@ def test_opponent_select_action_valid():
     assert updated_game.opponent is not None
     assert updated_game.opponent.player == "player2"
     assert updated_game.opponent.character == KNIGHT
-    assert updated_game.stage == BATTLE
+    assert updated_game.stage == BATTLE_DICE_ROLL
     assert updated_game.stage_meta is None  # Cleared after transition
 
 
@@ -158,7 +158,7 @@ def test_opponent_select_action_not_active_player():
 
 def test_opponent_select_action_wrong_stage():
     """Test confirming selection in wrong stage raises error"""
-    game = GamePlay(stage=BATTLE, active=ActivePlayer2(player="player1", character=KNIGHT))
+    game = GamePlay(stage=BATTLE_DICE_ROLL, active=ActivePlayer2(player="player1", character=KNIGHT))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)

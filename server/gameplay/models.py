@@ -9,8 +9,9 @@ CONNECTION_STATUS = Literal["connected", "disconnected"]
 
 CHARACTER_SELECT = "character_select"
 OPPONENT_SELECTION = "opponent_selection"
-BATTLE = "battle"
-STAGES_NAMES = Literal["character_select", "opponent_selection", "battle"]
+BATTLE_DICE_ROLL = "battle_dice_roll"
+BATTLE_END = "battle_end"
+STAGES_NAMES = Literal["character_select", "opponent_selection", "battle_dice_roll", "battle_end"]
 
 KNIGHT = "knight"
 ARCHER = "archer"

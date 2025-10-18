@@ -8,7 +8,8 @@ from .models import (
     ActivePlayer2,
     ActivePlayer4,
     Opponent4,
-    BATTLE,
+    BATTLE_DICE_ROLL,
+    BATTLE_END,
     CHARACTER_SELECT,
     OPPONENT_SELECTION,
     KNIGHT,
@@ -46,10 +47,10 @@ def set_health_1(game: GamePlay) -> GamePlay:
     return ret
 
 
-def create_battle_preset(active: ActivePlayer4, opponent: Opponent4) -> GamePlay:
+def create_battle_preset(active: ActivePlayer4, opponent: Opponent4, stage: STAGES_NAMES) -> GamePlay:
     """Create a battle preset with two players ready to show results"""
     game = GamePlay(
-        stage=BATTLE,
+        stage=stage,
         players={
             active.player: Player(name=active.player, characters=init_characters()),
             opponent.player: Player(name=opponent.player, characters=init_characters()),
@@ -72,6 +73,7 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[STAGES_NAMES] = None
         ret = create_battle_preset(
             ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[6], winner=True),
             Opponent4(player="player2", character=MAGE, dice_roll=[3], winner=False),
+            stage=BATTLE_END,
         )
     elif preset == "battle_player_2_win":
         # Player 1: mage (dice=[2], attack=0) = 2
@@ -80,6 +82,7 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[STAGES_NAMES] = None
         ret = create_battle_preset(
             ActivePlayer4(player="player1", character=MAGE, dice_roll=[2], winner=False),
             Opponent4(player="player2", character=KNIGHT, dice_roll=[5], winner=True),
+            stage=BATTLE_END,
         )
     elif preset == "battle_draw":
         # Player 1: knight (dice=[5], attack=1) = 6
@@ -88,6 +91,7 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[STAGES_NAMES] = None
         ret = create_battle_preset(
             ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[5], winner=False),
             Opponent4(player="player2", character=ARCHER, dice_roll=[6], winner=False),
+            stage=BATTLE_DICE_ROLL,
         )
     elif preset == "knight_not_alive":
         # Character select stage with knight dead (health=0)

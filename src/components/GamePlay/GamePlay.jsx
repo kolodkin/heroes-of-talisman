@@ -9,6 +9,7 @@ import StageCharacterSelect from "./StageCharacterSelect";
 import StageOpponentSelection from "./StageOpponentSelection";
 import StageBattle from "./StageBattle";
 import Player from "../Player";
+import { CHARACTER_SELECT, OPPONENT_SELECTION, BATTLE_DICE_ROLL, BATTLE_END } from "../../constants/stages";
 
 const PlayersCards = ({ player }) => {
   return (
@@ -91,7 +92,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
       <div
         className={className(styles["shared-area"], {
           [styles["shared-area-disabled"]]: gamePlay.active?.player !== username,
-          [styles["shared-area-battle"]]: gamePlay.stage === "battle",
+          [styles["shared-area-battle"]]: gamePlay.stage === BATTLE_DICE_ROLL || gamePlay.stage === BATTLE_END,
         })}
         data-shared-area-active={gamePlay.active?.player === username}
       >
@@ -101,7 +102,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
           const isActivePlayer = gamePlay.active?.player === username;
 
           switch (gamePlay.stage) {
-            case "character_select":
+            case CHARACTER_SELECT:
               return (
                 <StageCharacterSelect
                   characters={currentPlayer?.characters || {}}
@@ -110,7 +111,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                   selectedCharacter={gamePlay.stage_meta?.selected}
                 />
               );
-            case "opponent_selection":
+            case OPPONENT_SELECTION:
               return (
                 <StageOpponentSelection
                   players={gamePlay.players}
@@ -120,7 +121,8 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                   selectedOpponent={gamePlay.stage_meta}
                 />
               );
-            case "battle":
+            case BATTLE_DICE_ROLL:
+            case BATTLE_END:
               return (
                 <StageBattle
                   gamePlay={gamePlay}

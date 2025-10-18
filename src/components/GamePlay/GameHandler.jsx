@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 
 import GamePlay from "./GamePlay";
 import Navbar from "./Navbar";
+import { BATTLE_DICE_ROLL } from "../../constants/stages";
 
 const MAX_RECONNECT_RETRIES = 20;
 const RECONNECT_TIMEOUT_MS = 500;
@@ -116,7 +117,7 @@ const GameHandler = () => {
   // Determine if current user should have highlighted navbar
   const isActivePlayer = gamePlay?.active?.player === username;
   const isOpponentRoll =
-    gamePlay?.stage === "battle" && gamePlay?.opponent?.player === username && !gamePlay?.opponent?.dice_roll; // Opponent hasn't rolled yet
+    gamePlay?.stage === BATTLE_DICE_ROLL && gamePlay?.opponent?.player === username && !gamePlay?.opponent?.dice_roll; // Opponent hasn't rolled yet
   const isPlaying = isActivePlayer || isOpponentRoll;
 
   const disconnectedOverlay = !connected ? (

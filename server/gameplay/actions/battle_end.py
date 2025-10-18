@@ -14,7 +14,7 @@ from ..models import (
     ActivePlayer4,
     Opponent3,
     Opponent4,
-    BATTLE,
+    BATTLE_END,
     CHARACTER_SELECT,
 )
 
@@ -29,7 +29,7 @@ class BattleEndAction(Action):
 
     def run(self) -> GamePlay:
         # Validate stage
-        if self.game.stage != BATTLE:
+        if self.game.stage != BATTLE_END:
             raise GameException(f"Cannot end battle in stage: {self.game.stage}")
 
         # Validate user is the active player

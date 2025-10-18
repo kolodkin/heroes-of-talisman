@@ -20,7 +20,8 @@ from ..models import (
     Opponent2,
     Opponent3,
     Opponent4,
-    BATTLE,
+    BATTLE_DICE_ROLL,
+    BATTLE_END,
     CHARACTER_SELECT,
 )
 
@@ -51,6 +52,7 @@ def calculate_winner(game: GamePlay) -> tuple[int, int]:
 def set_winner_if_both_rolled(game: GamePlay) -> None:
     """
     If both active and opponent have rolled, calculate winner and upgrade to ActivePlayer4/Opponent4.
+    If there's a winner (not a draw), transition to BATTLE_END stage.
     Modifies game in place.
     """
     # Check if both have rolled
@@ -78,6 +80,10 @@ def set_winner_if_both_rolled(game: GamePlay) -> None:
         winner=opponent_is_winner,
     )
 
+    # If there's a winner (not a draw), transition to BATTLE_END
+    if active_is_winner or opponent_is_winner:
+        game.stage = BATTLE_END
+
 
 class ActivePlayerRollAction(Action):
     """
@@ -88,7 +94,7 @@ class ActivePlayerRollAction(Action):
 
     def run(self) -> GamePlay:
         # Validate stage
-        if self.game.stage != BATTLE:
+        if self.game.stage != BATTLE_DICE_ROLL:
             raise GameException(f"Cannot roll dice in stage: {self.game.stage}")
 
         # Validate user is the active player
@@ -135,7 +141,7 @@ class OpponentRollAction(Action):
 
     def run(self) -> GamePlay:
         # Validate stage
-        if self.game.stage != BATTLE:
+        if self.game.stage != BATTLE_DICE_ROLL:
             raise GameException(f"Cannot roll dice in stage: {self.game.stage}")
 
         # Validate opponent exists
@@ -182,7 +188,7 @@ class RerollAction(Action):
 
     def run(self) -> GamePlay:
         # Validate stage
-        if self.game.stage != BATTLE:
+        if self.game.stage != BATTLE_DICE_ROLL:
             raise GameException(f"Cannot reroll in stage: {self.game.stage}")
 
         # Validate user is the active player
@@ -232,8 +238,8 @@ class DebugSetBattleDiceRollsAction(Action):
     """
 
     def run(self, active_dice_roll: list[int], opponent_dice_roll: list[int]) -> GamePlay:
-        # Validate stage
-        if self.game.stage != BATTLE:
+        # Validate stage - allow both BATTLE_DICE_ROLL and BATTLE_END
+        if self.game.stage not in [BATTLE_DICE_ROLL, BATTLE_END]:
             raise GameException(f"Cannot set dice rolls in stage: {self.game.stage}")
 
         # Validate both players have rolled (must be ActivePlayer3/4 and Opponent3/4)
