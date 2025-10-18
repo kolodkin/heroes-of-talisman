@@ -6,7 +6,7 @@ const resources = {
     translation: {
       direction: "rtl",
       game_name: "Heroes of Talisman",
-      disconnected: "התנתקת מהמשחק",
+      disconnected: "התנתק",
       nav: {
         playing: "משחק",
       },

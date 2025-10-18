@@ -109,13 +109,6 @@ const GameHandler = () => {
     }
   };
 
-  const handleLeave = () => {
-    notify("notify.leaving_game");
-    sendAction("leave");
-    socketRef.current?.close();
-    navigate("/");
-  };
-
   if (!gamePlay) {
     return <div>Loading...</div>;
   }
