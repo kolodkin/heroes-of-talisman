@@ -1,0 +1,7 @@
+# Ignore everything by default
+*
+
+# Only include deployment artifacts
+!entrypoint.sh
+!requirements.txt
+!*.whl

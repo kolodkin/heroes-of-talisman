@@ -2,12 +2,13 @@ import logging
 import asyncio
 import json
 from http import HTTPStatus
+from pathlib import Path
 
-from fastapi import APIRouter, FastAPI, WebSocket, HTTPException, WebSocketDisconnect, Depends
-
+from fastapi import APIRouter, FastAPI, WebSocket, HTTPException, WebSocketDisconnect, Depends, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, FileResponse
 import uvicorn
 from redis.asyncio import Redis
 from sqlmodel import select
@@ -43,9 +44,8 @@ app.add_middleware(
 redis_client = Redis.from_url(f"redis://{REDIS_HOST}:{REDIS_PORT}")
 
 
-@app.get("/")
-async def root():
-    return PlainTextResponse("Welcome to 'Heroes of Talisman' game server!")
+# Static files directory for SPA
+STATIC_DIR = Path(__file__).parent / "www"
 
 
 @app.get("/health")
@@ -314,6 +314,20 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
 
 
 app.include_router(router, prefix="/api/games", tags=["games"])
+
+# Mount static files for SPA (CSS, JS, images, etc.)
+if STATIC_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
+
+
+# Serve index.html on root route (SPA entry point)
+@app.get("/")
+async def serve_spa():
+    """Serve the SPA index.html"""
+    index_file = STATIC_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return PlainTextResponse("SPA not built. Run scripts/build.sh first.", status_code=404)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
