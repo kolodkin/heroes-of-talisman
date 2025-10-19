@@ -58,6 +58,9 @@ const resources = {
         disconnected: "התתקת מהמשחק",
         leaving_game: "עוזב משחק",
       },
+      home: {
+        notify_empty: "אנא הזן שם",
+      },
     },
   },
 };

@@ -39,3 +39,28 @@ export async function joinGameViaUrl(page, playerName, gameName, waitForSelector
   await page.goto(`/games/${encodeURIComponent(gameName)}/${encodeURIComponent(playerName)}`);
   await page.waitForSelector(waitForSelector, { timeout: 5000 });
 }
+
+/**
+ * Wait for a toast notification to appear and optionally verify its content
+ * @param {Page} page - Playwright page object
+ * @param {Object} options - Options object
+ * @param {string} options.type - Toast type: 'error', 'success', 'info', 'warning' (optional)
+ * @param {string|RegExp} options.message - Expected message content (optional)
+ * @param {number} options.timeout - Timeout in ms (default: 3000)
+ * @returns {Promise<string>} The toast message text
+ */
+export async function waitForToast(page, { type, message, timeout = 3000 } = {}) {
+  const selector = type ? `.Toastify__toast--${type}` : ".Toastify__toast";
+  const toast = await page.waitForSelector(selector, { timeout, state: "visible" });
+  const toastText = await toast.textContent();
+
+  if (message) {
+    if (message instanceof RegExp) {
+      expect(toastText).toMatch(message);
+    } else {
+      expect(toastText).toContain(message);
+    }
+  }
+
+  return toastText;
+}
