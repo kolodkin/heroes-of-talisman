@@ -212,6 +212,7 @@ dist-ssr
 !.claude/skills/
 AGENTS.md
 CLAUDE.md
+.skill-example/
 
 # tmp
 *.tmp*
