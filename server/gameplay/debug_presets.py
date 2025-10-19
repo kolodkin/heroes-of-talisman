@@ -26,6 +26,7 @@ KNIGHT_NOT_ALIVE = "knight_not_alive"
 MAGE_NOT_ALIVE = "mage_not_alive"
 ARCHER_NOT_ALIVE = "archer_not_alive"
 OPPONENT_SELECTION_PRESET = "opponent_selection_preset"
+SINGLE_PLAYER = "single_player"
 DEBUG_PRESETS = Literal[
     "default",
     "health_1",
@@ -36,6 +37,7 @@ DEBUG_PRESETS = Literal[
     "mage_not_alive",
     "archer_not_alive",
     "opponent_selection_preset",
+    "single_player",
 ]
 
 
@@ -134,6 +136,14 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[STAGES_NAMES] = None
             players={
                 "player1": Player(name="player1", characters=init_characters()),
                 "player2": Player(name="player2", characters=init_characters()),
+            },
+        )
+    elif preset == "single_player":
+        # Character select stage with only one player (less than minimum 2 players)
+        ret = GamePlay(
+            stage=CHARACTER_SELECT,
+            players={
+                "player1": Player(name="player1", characters=init_characters()),
             },
         )
     else:
