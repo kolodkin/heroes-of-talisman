@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createPresetGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
-import { screenshot } from "./test-helpers.js";
+import { screenshot, FRONTEND_URL } from "./test-helpers.js";
 
 test("shared area dynamic alignment - character selection stage", async ({ page }) => {
   const gameName = "test-shared-area-alignment";
@@ -12,7 +12,7 @@ test("shared area dynamic alignment - character selection stage", async ({ page 
 
   try {
     // Navigate directly to the game
-    await page.goto(`http://localhost:5173/games/${gameName}/${playerName}`);
+    await page.goto(`${FRONTEND_URL}/games/${gameName}/${playerName}`);
     await page.waitForSelector('h2:has-text("בחר דמות")', { timeout: 5000 });
     await screenshot(page, "character-select-loaded");
 
@@ -100,7 +100,7 @@ test("shared area dynamic alignment - opponent selection stage", async ({ page }
 
   try {
     // Navigate directly to the game
-    await page.goto(`http://localhost:5173/games/${gameName}/${playerName}`);
+    await page.goto(`${FRONTEND_URL}/games/${gameName}/${playerName}`);
     await page.waitForSelector('h2:has-text("בחר את יריבך")', { timeout: 5000 });
     await screenshot(page, "opponent-select-loaded");
 
