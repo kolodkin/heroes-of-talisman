@@ -2,15 +2,15 @@
 
 # SSH Deploy Script
 # Usage:
-#   ./deploy/ssh-up.sh user@host              - Deploy without rebuilding
-#   ./deploy/ssh-up.sh user@host --build      - Build and deploy
+#   ./deploy/ssh-up.sh user@host              - Build and deploy
+#   ./deploy/ssh-up.sh user@host --nobuild    - Deploy without rebuilding
 
 set -e
 
 # Check if SSH connection string is provided (and doesn't start with --)
 if [ -z "$1" ] || [[ "$1" == --* ]]; then
     echo "Error: SSH connection string required"
-    echo "Usage: $0 user@host [--build]"
+    echo "Usage: $0 user@host [--nobuild]"
     exit 1
 fi
 
@@ -24,12 +24,12 @@ SSH_TARGET="$1"
 REMOTE_DEPLOY_DIR="~/deploy"
 
 # Parse flags
-BUILD=false
+BUILD=true
 
 for arg in "$@"; do
   case $arg in
-    --build)
-      BUILD=true
+    --nobuild)
+      BUILD=false
       ;;
   esac
 done
@@ -41,7 +41,7 @@ echo "Remote deploy dir: $REMOTE_DEPLOY_DIR"
 echo "Build: $BUILD"
 echo ""
 
-# Execute build.sh when the --build flag is present
+# Execute build.sh unless the --nobuild flag is present
 if [[ "$BUILD" == "true" ]]; then
   echo "Running build.sh..."
   ./build.sh

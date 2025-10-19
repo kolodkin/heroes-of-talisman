@@ -209,6 +209,7 @@ dist-ssr
 # AI instructions conversion
 .cursor/*
 .claude/*
+!.claude/skills/
 AGENTS.md
 CLAUDE.md
 
