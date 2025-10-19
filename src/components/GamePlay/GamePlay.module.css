@@ -17,6 +17,7 @@
 }
 
 .shared-area {
+  position: relative;
   flex: 1;
   border: 2px solid #333;
   border-radius: 8px;
@@ -109,4 +110,9 @@
 .character-level {
   color: #aaa;
   font-size: 0.85rem;
+}
+
+.minimum-player-text {
+  font-size: 1.5rem;
+  font-weight: bold;
 }

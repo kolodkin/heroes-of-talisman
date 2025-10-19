@@ -12,6 +12,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./Player.module.css";
+import commonStyles from "./Common.module.css";
 
 const Player = ({ player, className, children, showDisconnected = false }) => {
   const { t } = useTranslation();
@@ -21,8 +22,10 @@ const Player = ({ player, className, children, showDisconnected = false }) => {
     <div className={`${styles.container} ${className}`} data-player={player?.name} data-status={player?.status}>
       {children}
       {isDisconnected && showDisconnected && (
-        <div className={styles["disconnected-overlay"]}>
-          <div className={styles["disconnected-text"]}>{t("disconnected")}</div>
+        <div className={commonStyles["gray-overlay"]}>
+          <div className={`${commonStyles["gray-overlay-text"]} ${styles["disconnected-text"]}`}>
+            {t("disconnected")}
+          </div>
         </div>
       )}
     </div>

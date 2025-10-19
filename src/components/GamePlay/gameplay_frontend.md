@@ -27,6 +27,7 @@ This frontend engine provides a complete visualization system for card games fea
 ### Player Management
 
 - **Multi-Player Support**: 2-8 players with configurable layouts
+- **Minimum Players**: At least 2 players required for the game to start
 - **Turn Indicators**: Visual cues for active player
 - **Player Statistics**: Score, remaining cards, status
 
@@ -206,3 +207,6 @@ Characters with `is_alive=false` (health = 0) should be visually distinguished a
   - Only the active player (`gamePlay.active.player`) can interact with UI elements in SharedArea
   - Non-active players see the SharedArea with `pointer-events: none` to prevent all interactions
   - Stage components also receive `active` prop as defensive coding for programmatic checks
+- **Minimum Player Requirement**:
+  - When there are less than 2 players in the game (regardless of connection status), SharedArea displays a grayed overlay
+  - Overlay prevents any interaction until the minimum player count is reached
