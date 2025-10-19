@@ -321,24 +321,25 @@ if STATIC_DIR.exists():
     app.mount("/images", StaticFiles(directory=STATIC_DIR / "images"), name="images")
 
 
-# Catch-all for SPA routes - serves static files or index.html
-@app.get("/{full_path:path}")
-async def spa_fallback(full_path: str):
-    # """Serve static files from root or fall back to index.html for SPA routing"""
-    # # Don't intercept WebSocket paths (they use different protocol)
-    # if full_path.startswith("ws/"):
-    #     raise HTTPException(status_code=404, detail="Not found")
-
-    # # Try to serve file from root (e.g., background1.png, vite.svg)
-    # file_path = STATIC_DIR / full_path
-    # if file_path.is_file():
-    #     return FileResponse(file_path)
-
-    # Fall back to index.html for SPA client-side routing
+async def spa_index():
+    """Helper to serve index.html for SPA routing"""
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return FileResponse(index_file)
     return PlainTextResponse("SPA not built. Run scripts/build.sh first.", status_code=404)
+
+
+# SPA routes - serve index.html for client-side routing
+@app.get("/")
+async def spa_home():
+    """Serve index.html for home page"""
+    return await spa_index()
+
+
+@app.get("/games/{gamename}/{playername}")
+async def spa_game_page(gamename: str, playername: str):
+    """Serve index.html for game page"""
+    return await spa_index()
 
 
 if __name__ == "__main__":
