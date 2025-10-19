@@ -30,11 +30,7 @@ def main():
     examples = [
         ("Standard (all channels)", "rgb", 95),
         ("Red channel only", "r", 95),
-        ("Green channel only", "g", 95),
-        ("Blue channel only", "b", 95),
         ("Red + Green channels", "rg", 95),
-        ("Red + Blue channels", "rb", 95),
-        ("Green + Blue channels", "gb", 95),
     ]
 
     for description, channels, quality in examples:
