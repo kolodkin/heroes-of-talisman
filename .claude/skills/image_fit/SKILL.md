@@ -18,10 +18,11 @@ uv run python .claude/skills/image_fit/fit.py <image_path> [options]
 The script will:
 
 1. Open the specified image file
-2. Optionally auto-trim transparent/white borders
-3. Fit the image into target dimensions using specified mode
-4. Optionally add margin around the result
-5. Save the result with mode and dimensions in filename
+2. Detect background type from corners (transparent or white)
+3. Auto-trim borders when margin is requested with detected background
+4. Fit the image into target dimensions using specified mode
+5. Add margin with appropriate background color (transparent for RGBA images)
+6. Save the result with mode and dimensions in filename
 
 ## Options
 
@@ -55,20 +56,24 @@ fit.py image.jpg --width 800 --height 600 --mode stretch
 # Trim borders then fit
 fit.py image.jpg --width 800 --height 600 --trim
 
+# Add 8px margin - auto-detects background and trims first
+fit.py dragon.png --width 1024 --height 1024 --margin 8
+
 # Add 20px margin around fitted image
 fit.py image.jpg --width 800 --height 600 --margin 20
 
 # Trim, fill to 48x48, with quality setting
-fit.py icon.png --width 48 --height 48 --mode fill --trim --quality 90
+fit.py icon.png --width 48 --height 48 --mode fill --quality 90
 ```
 
 ## Notes
 
+- **Auto Background Detection**: The script checks corner pixels to detect if the image has transparent or white background. When margin is requested with detected background, it automatically trims first, then scales content, then adds the margin.
 - **Fit Mode** (default): Preserves aspect ratio. Result fits within target dimensions but may be smaller.
 - **Fill Mode**: Automatically trims, then scales and crops to fill exact dimensions. Perfect for creating icons and thumbnails.
 - **Stretch Mode**: Ignores aspect ratio and stretches to exact dimensions. May distort the image.
-- **Trim**: Auto-crops transparent or white borders before fitting. Automatically enabled in fill mode.
-- **Margin**: Adds transparent padding around the final image. Applied after fitting.
+- **Trim**: Auto-crops transparent or white borders before fitting. Automatically enabled in fill mode and when margin is used with detected background.
+- **Margin**: Adds padding around the final image. Uses transparent background for RGBA images, preserving transparency. Applied after fitting.
 - **Quality**: Only affects JPEG output. Higher values = better quality but larger file size.
 - **Output Naming**: Files are named `original_MODE_WIDTHxHEIGHT.ext` (e.g., `photo_fit_800x600.jpg`)
 

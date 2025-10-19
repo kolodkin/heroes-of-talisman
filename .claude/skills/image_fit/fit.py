@@ -18,6 +18,55 @@ except ImportError:
     from PIL import Image
 
 
+def detect_background_type(img: Image.Image) -> tuple:
+    """
+    Detect background type by checking corner pixels.
+    Returns (bg_type, bg_value) where:
+    - bg_type is 'transparent', 'white', or None
+    - bg_value is the RGB tuple for white backgrounds or None
+
+    Args:
+        img: PIL Image
+
+    Returns:
+        Tuple of (background_type, background_value)
+    """
+    if img.mode != 'RGBA':
+        return (None, None)
+
+    width, height = img.size
+    pixels = img.load()
+
+    # Sample all four corners
+    corners = [
+        (0, 0),
+        (width - 1, 0),
+        (0, height - 1),
+        (width - 1, height - 1)
+    ]
+
+    transparent_count = 0
+    white_count = 0
+
+    for x, y in corners:
+        pixel = pixels[x, y]
+        # Check if transparent (alpha < 128)
+        if len(pixel) == 4 and pixel[3] < 128:
+            transparent_count += 1
+        # Check if near-white (all RGB > 240)
+        elif pixel[0] > 240 and pixel[1] > 240 and pixel[2] > 240:
+            white_count += 1
+
+    # Determine predominant background type
+    if transparent_count >= 2:
+        return ('transparent', None)
+    elif white_count >= 2:
+        # Use white as background color
+        return ('white', (255, 255, 255))
+
+    return (None, None)
+
+
 def fit_image(
     input_path: str,
     width: int = None,
@@ -55,19 +104,27 @@ def fit_image(
         # Open image
         img = Image.open(input_path)
 
-        # Store original background color for margin
-        bg_color = None
-        if img.mode == 'RGBA':
-            bg_color = img.getpixel((0, 0))
-        else:
-            corner_pixel = img.getpixel((0, 0))
-            if isinstance(corner_pixel, int):
-                bg_color = (corner_pixel, corner_pixel, corner_pixel, 255)
-            else:
-                bg_color = (*corner_pixel, 255)
+        # Detect background type from corners
+        bg_type, bg_value = detect_background_type(img)
 
-        # Auto-trim for fill mode, or if explicitly requested
-        if trim or mode == "fill":
+        # Set background color based on detected type
+        if bg_type == 'transparent':
+            bg_color = (0, 0, 0, 0)  # Transparent
+        elif bg_type == 'white':
+            bg_color = (*bg_value, 255) if len(bg_value) == 3 else bg_value
+        else:
+            # Fallback to corner pixel
+            if img.mode == 'RGBA':
+                bg_color = img.getpixel((0, 0))
+            else:
+                corner_pixel = img.getpixel((0, 0))
+                if isinstance(corner_pixel, int):
+                    bg_color = (corner_pixel, corner_pixel, corner_pixel, 255)
+                else:
+                    bg_color = (*corner_pixel, 255)
+
+        # Auto-trim for fill mode, if explicitly requested, or if background detected with margin
+        if trim or mode == "fill" or (bg_type is not None and margin > 0):
             bbox = None
 
             if img.mode == 'RGBA':
@@ -109,8 +166,20 @@ def fit_image(
         target_height = height - (2 * margin)
 
         if mode == "fit":
-            # Preserve aspect ratio, fit within bounds
-            img.thumbnail((target_width, target_height), Image.Resampling.LANCZOS)
+            # Preserve aspect ratio, fit within bounds (scale up or down)
+            aspect_ratio = original_width / original_height
+            target_ratio = target_width / target_height
+
+            if aspect_ratio > target_ratio:
+                # Width is the limiting factor
+                new_width = target_width
+                new_height = int(target_width / aspect_ratio)
+            else:
+                # Height is the limiting factor
+                new_height = target_height
+                new_width = int(target_height * aspect_ratio)
+
+            img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
         elif mode == "fill":
             # Crop to fill the exact dimensions
@@ -215,8 +284,14 @@ Examples:
   # Trim borders then fit
   python fit.py image.jpg --width 800 --height 600 --trim
 
+  # Add 8px margin - auto-detects background and trims first
+  python fit.py dragon.png --width 1024 --height 1024 --margin 8
+
   # Add margin around fitted image
   python fit.py image.jpg --width 800 --height 600 --margin 20
+
+  # Trim and fill to exact 48x48 for icons
+  python fit.py icon.png --width 48 --height 48 --mode fill --quality 90
         """
     )
 
