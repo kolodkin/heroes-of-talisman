@@ -175,12 +175,14 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 ### Disconnected Players
 
-When a player is disconnected (`player.status === "disconnected"`), a dark overlay with disconnected text appears over their player card:
+When a player is disconnected (`player.status === "disconnected"`), a dark overlay with disconnected text can appear over their player card:
 
 - **Visual Display**: Dark semi-transparent overlay (rgba(0, 0, 0, 0.7)) with centered disconnected text
 - **Implementation**: Uses the reusable `Player` component that wraps player cards
 - **Styling**: Overlay covers entire card content with centered muted text (#999)
-- **Visibility**: Appears in both minimized and expanded views, in both players menu and opponent selection
+- **Visibility Control**: The `Player` component accepts a `showDisconnected` prop (defaults to `false`)
+  - **Players Menu**: `showDisconnected={true}` - overlay appears in both minimized and expanded views
+  - **Other contexts** (e.g., opponent selection, battle view): `showDisconnected={false}` (default) - no overlay shown
 
 ### Dead Characters
 
