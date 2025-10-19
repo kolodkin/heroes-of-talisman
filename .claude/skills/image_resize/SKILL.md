@@ -1,11 +1,11 @@
 ---
 name: image_resize
-description: Resize images with aspect ratio preservation, cropping, or stretching. Use this skill when the user needs to resize images.
+description: Resize, crop, and rotate images with aspect ratio preservation. Use this skill when the user needs to resize images by width/height, crop to specific coordinates, or rotate images.
 ---
 
 # Image Resize
 
-This skill provides a utility to resize images with various options including aspect ratio preservation, cropping to fill, or stretching.
+This skill provides utilities to resize images while preserving aspect ratio, crop to specific coordinates, and rotate images.
 
 ## Usage
 
@@ -18,17 +18,17 @@ uv run python .claude/skills/image_resize/resize.py <image_path> [options]
 The script will:
 
 1. Open the specified image file
-2. Resize according to specified dimensions and mode
-3. Save the result with dimensions appended to filename (e.g., `image_800x600.jpg`)
+2. Optionally crop to specific coordinates
+3. Optionally rotate by specified angle
+4. Optionally resize by width and/or height (preserving aspect ratio)
+5. Save the result with operations in filename
 
 ## Options
 
 - `-w, --width` - Target width in pixels
-- `-h, --height` - Target height in pixels
-- `-m, --mode` - Resize mode (default: "fit")
-  - `fit`: Preserve aspect ratio, fit within bounds
-  - `fill`: Crop to fill exact dimensions
-  - `stretch`: Ignore aspect ratio, stretch to exact dimensions
+- `--height` - Target height in pixels
+- `-c, --crop` - Crop box as "left,top,right,bottom" (e.g., "10,10,100,100")
+- `-r, --rotate` - Rotation angle in degrees (90, 180, 270, or any angle)
 - `-q, --quality` - JPEG quality (1-100, default: 95)
 
 ## Supported Formats
@@ -45,14 +45,23 @@ resize.py image.jpg --width 800
 # Resize to 600px height, auto-calculate width (preserve aspect ratio)
 resize.py image.jpg --height 600
 
-# Fit within 800x600 box (preserve aspect ratio, may be smaller)
+# Resize with both dimensions (scales to fit smaller dimension, preserves aspect)
 resize.py image.jpg --width 800 --height 600
 
-# Fill exact 800x600 (crop to fit, preserves aspect ratio)
-resize.py image.jpg --width 800 --height 600 --mode fill
+# Rotate 90 degrees clockwise
+resize.py image.jpg --rotate 90
 
-# Stretch to exact 800x600 (ignores aspect ratio)
-resize.py image.jpg --width 800 --height 600 --mode stretch
+# Rotate 180 degrees
+resize.py image.jpg --rotate 180
+
+# Crop to specific box (left, top, right, bottom)
+resize.py image.jpg --crop 10,10,500,400
+
+# Resize and rotate
+resize.py image.jpg --width 800 --rotate 90
+
+# Crop, resize, and rotate (operations applied in order: crop → rotate → resize)
+resize.py image.jpg --crop 0,0,500,500 --width 300 --rotate 90
 
 # Resize with custom JPEG quality
 resize.py photo.jpg --width 1920 --quality 85
@@ -60,13 +69,20 @@ resize.py photo.jpg --width 1920 --quality 85
 
 ## Notes
 
-- **Fit Mode** (default): Preserves aspect ratio. If both width and height are specified, the image will fit within those bounds (may be smaller than specified).
-- **Fill Mode**: Automatically trims transparent/empty space, then scales and crops to fill exact dimensions while preserving aspect ratio. Perfect for creating icons and thumbnails from images with padding.
-- **Stretch Mode**: Ignores aspect ratio and stretches to exact dimensions. May distort the image.
-- **Trim**: Automatically applied when using fill mode. Can also be explicitly enabled for fit/stretch modes.
-- **Margin**: Adds transparent padding around the final image. With fill mode, margin is added after trimming and resizing.
+- **Aspect Ratio**: Always preserved when resizing. If both width and height are specified, the image is scaled to fit the smaller dimension.
+- **Rotation**: Uses bicubic resampling for smooth results. The canvas expands to fit the rotated image (no cropping).
+- **Crop**: Applied first before any other operations. Coordinates are (left, top, right, bottom) in pixels from top-left corner.
+- **Operation Order**: Crop → Rotate → Resize
 - **Quality**: Only affects JPEG output. Higher values = better quality but larger file size.
-- **Output Naming**: Output files are named `original_WIDTHxHEIGHT.ext` (e.g., `photo_1920x1080.jpg`)
+- **Output Naming**: Files include operations in the name (e.g., `photo_crop_0_0_500_500_rot90_800x533.jpg`)
+
+## Use Cases
+
+- Resizing images for web use while maintaining quality
+- Creating rotated versions of images
+- Cropping to specific regions of interest
+- Batch processing images to specific dimensions
+- Preparing images for print with exact dimensions
 
 ## Requirements
 
