@@ -49,17 +49,9 @@ def main():
     # Examples covering all capabilities
     examples = [
         ("Basic: Remove white background", "basic", {}),
-        ("Custom threshold (50)", "threshold50", {"threshold": 50}),
         ("Fill with white", "fill_white", {"fill_color": "white"}),
-        ("Fill with black", "fill_black", {"fill_color": "black"}),
-        ("Fill with red (#FF0000)", "fill_red", {"fill_color": "#FF0000"}),
-        ("Fill with RGB (0,128,255)", "fill_rgb", {"fill_color": "0,128,255"}),
         ("Smooth edges (radius=2)", "smooth2", {"fill_color": "white", "smooth_edges": 2}),
-        ("Smooth edges (radius=5)", "smooth5", {"fill_color": "white", "smooth_edges": 5}),
-        ("Erode 1 iteration", "erode1", {"fill_color": "white", "erode": 1}),
-        ("Erode 2 iterations + smooth", "erode2_smooth", {"fill_color": "white", "erode": 2, "smooth_edges": 2}),
-        ("Semi-transparent fill (50%)", "semi_transparent", {"fill_color": "255,255,255,128", "smooth_edges": 2}),
-        ("Watermark effect (30% opacity)", "watermark", {"fill_color": "#00000050", "smooth_edges": 3}),
+        ("Erode + smooth (sharp edges)", "erode2_smooth", {"fill_color": "white", "erode": 2, "smooth_edges": 2}),
     ]
 
     success_count = 0

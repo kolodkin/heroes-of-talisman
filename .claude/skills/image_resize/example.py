@@ -45,14 +45,10 @@ def main():
 
     # Examples
     examples = [
-        ("Resize to width 32px (preserve aspect)", "width32", {"width": 32}),
         ("Resize to width 128px (preserve aspect)", "width128", {"width": 128}),
-        ("Resize to height 32px (preserve aspect)", "height32", {"height": 32}),
-        ("Resize to height 128px (preserve aspect)", "height128", {"height": 128}),
         ("Fit in 48x48 box (preserve aspect)", "fit48", {"width": 48, "height": 48, "mode": "fit"}),
         ("Fill 48x48 (crop to exact size)", "fill48", {"width": 48, "height": 48, "mode": "fill"}),
         ("Stretch to 48x96 (ignore aspect)", "stretch48x96", {"width": 48, "height": 96, "mode": "stretch"}),
-        ("Resize 32px with 8px margin", "margin", {"width": 32, "height": 32, "mode": "fit", "margin": 8}),
         ("Trim and resize to 48px", "trim", {"width": 48, "height": 48, "mode": "fit", "trim": True}),
     ]
 
