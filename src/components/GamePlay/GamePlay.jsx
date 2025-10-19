@@ -56,6 +56,9 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
     return null;
   }
 
+  // Check total player count (regardless of connection status)
+  const hasMinimumPlayers = playersArray.length >= 2;
+
   const togglePlayerMinimized = (playerName) => {
     setMinimizedPlayers((prev) => ({
       ...prev,
@@ -96,6 +99,13 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
         })}
         data-shared-area-active={gamePlay.active?.player === username}
       >
+        {!hasMinimumPlayers && (
+          <div className={commonStyles["gray-overlay"]} data-minimum-player-overlay>
+            <div className={`${commonStyles["gray-overlay-text"]} ${styles["minimum-player-text"]}`}>
+              {t("shared_area.player_minimum")}
+            </div>
+          </div>
+        )}
         <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
         {(() => {
           const currentPlayer = gamePlay.players[username];

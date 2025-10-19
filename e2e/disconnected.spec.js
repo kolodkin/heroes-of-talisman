@@ -33,7 +33,7 @@ test("test disconnected player overlay in players menu", async ({ page }) => {
     await expect(player2MenuCard).toHaveAttribute("data-status", "connected");
 
     // Verify no disconnected overlay initially
-    const player2DisconnectedOverlay = player2MenuCard.locator('[class*="disconnected-overlay"]');
+    const player2DisconnectedOverlay = player2MenuCard.locator('div[class*="gray-overlay"]').first();
     await expect(player2DisconnectedOverlay).not.toBeVisible();
     await screenshot(page, "both-players-connected");
 
@@ -48,13 +48,13 @@ test("test disconnected player overlay in players menu", async ({ page }) => {
 
     // Verify disconnected overlay appears in players menu
     await expect(player2DisconnectedOverlay).toBeVisible();
-    const disconnectedText = player2DisconnectedOverlay.locator('[class*="disconnected-text"]');
+    const disconnectedText = player2DisconnectedOverlay.locator('[class*="gray-overlay-text"]');
     await expect(disconnectedText).toBeVisible();
 
     // Verify player1 is still connected
     const player1MenuCard = page.locator('[data-player="player1"]').first();
     await expect(player1MenuCard).toHaveAttribute("data-status", "connected");
-    const player1DisconnectedOverlay = player1MenuCard.locator('[class*="disconnected-overlay"]');
+    const player1DisconnectedOverlay = player1MenuCard.locator('div[class*="gray-overlay"]').first();
     await expect(player1DisconnectedOverlay).not.toBeVisible();
     await screenshot(page, "player2-disconnected");
   } finally {

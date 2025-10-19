@@ -49,3 +49,26 @@
   overflow-x: auto;
   max-width: 100%;
 }
+
+/* Common gray overlay for disconnected players and minimum player requirement */
+.gray-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 8px;
+  pointer-events: all;
+}
+
+.gray-overlay-text {
+  color: #999;
+  text-align: center;
+  padding: 2rem;
+  max-width: 80%;
+}

@@ -10,6 +10,12 @@ const resources = {
       nav: {
         playing: "משחק",
       },
+      home: {
+        notify_empty: "אנא הזן שם",
+      },
+      shared_area: {
+        player_minimum: "צריך לפחות שני שחקנים במשחק כדי שניתן יהיה להתחיל את המשחק",
+      },
       stageNames: {
         character_select: "בחירת דמות",
         opponent_selection: "בחירת יריב",
@@ -57,9 +63,6 @@ const resources = {
         connected: "התחברת למשחק",
         disconnected: "התתקת מהמשחק",
         leaving_game: "עוזב משחק",
-      },
-      home: {
-        notify_empty: "אנא הזן שם",
       },
     },
   },
