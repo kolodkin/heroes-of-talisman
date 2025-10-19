@@ -72,7 +72,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
           const playerDom = isMinimized ? <PlayersMinified player={player} /> : <PlayersCards player={player} />;
 
           return (
-            <Player key={player.name} player={player} className={styles.player}>
+            <Player key={player.name} player={player} className={styles.player} showDisconnected={true}>
               <div className={styles["player-header"]}>
                 <div className={styles["player-name"]}>{player.name}</div>
                 <button
