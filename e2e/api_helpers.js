@@ -1,4 +1,6 @@
-const API_BASE_URL = "http://localhost:8000";
+const BACKEND_URL = `http://localhost:${process.env.APP_PORT ?? "8000"}`;
+const API_URL = `${BACKEND_URL}/api`;
+const WS_URL = `${BACKEND_URL.replace(/^http/, "ws")}/ws`;
 
 /**
  * Create a game via the server API
@@ -6,7 +8,7 @@ const API_BASE_URL = "http://localhost:8000";
  * @returns {Promise<void>}
  */
 export async function createGameViaAPI(gameName) {
-  const response = await fetch(`${API_BASE_URL}/api/games/`, {
+  const response = await fetch(`${API_URL}/games/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -41,7 +43,7 @@ export async function createPresetGameViaAPI(gameName, preset, stage = null) {
     body.stage = stage;
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/games/preset_games`, {
+  const response = await fetch(`${API_URL}/games/preset_games`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -63,7 +65,7 @@ export async function createPresetGameViaAPI(gameName, preset, stage = null) {
  * @returns {Promise<void>}
  */
 export async function deleteGameViaAPI(gameName) {
-  const response = await fetch(`${API_BASE_URL}/api/games/${gameName}`, {
+  const response = await fetch(`${API_URL}/games/${gameName}`, {
     method: "DELETE",
   });
 
@@ -80,7 +82,7 @@ export async function deleteGameViaAPI(gameName) {
  * @returns {Promise<string[]>} Array of game names
  */
 export async function getGamesViaAPI() {
-  const response = await fetch(`${API_BASE_URL}/api/games/`);
+  const response = await fetch(`${API_URL}/games/`);
 
   if (!response.ok) {
     throw new Error(`Failed to get games: ${response.statusText}`);
@@ -98,7 +100,7 @@ export async function getGamesViaAPI() {
  * @returns {Promise<void>}
  */
 export async function sendDebugActionViaWS(gameName, username, action, data) {
-  const wsUrl = `ws://localhost:8000/ws/${encodeURIComponent(gameName)}/${encodeURIComponent(username)}`;
+  const wsUrl = `${WS_URL}/${encodeURIComponent(gameName)}/${encodeURIComponent(username)}`;
 
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(wsUrl);

@@ -28,3 +28,15 @@ echo "# REDIS" >> .env
 echo REDIS_HOST=${REDIS_HOST:-localhost} >> .env
 echo REDIS_PORT=${REDIS_PORT:-6379} >> .env
 echo REDIS_PASSWORD=${REDIS_PASSWORD:-redis} >> .env
+
+echo "" >> .env
+echo "# APP" >> .env
+echo APP_PORT=${APP_PORT:-8000} >> .env
+
+echo "" >> .env
+echo "# WWW" >> .env
+echo WWW_PORT=${WWW_PORT:-5173} >> .env
+
+echo "" >> .env
+echo "# PLAYWRIGHT" >> .env
+echo PLAYWRIGHT_REPORT_PORT=${PLAYWRIGHT_REPORT_PORT:-9323} >> .env

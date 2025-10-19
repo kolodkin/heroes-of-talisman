@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 
+export const FRONTEND_URL = `http://localhost:${process.env.WWW_PORT ?? "5173"}`;
 export const TIMEOUT = 1000;
 
 export async function screenshot(page, name) {
