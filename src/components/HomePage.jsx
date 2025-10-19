@@ -4,8 +4,10 @@ import classNames from "classnames";
 
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const HomePage = () => {
+  const { t } = useTranslation();
   const [games, setGames] = useState([]);
   const [username, setUserName] = useState(localStorage.getItem("username") || "");
   const [newGameName, setNewGameName] = useState("");
@@ -73,7 +75,12 @@ const HomePage = () => {
   };
 
   const joinGame = (gameName) => {
-    navigate(`/games/${gameName}/${username}`);
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername) {
+      toast.error(t("home.notify_empty"));
+      return;
+    }
+    navigate(`/games/${gameName}/${trimmedUsername}`);
   };
 
   return (

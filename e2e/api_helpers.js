@@ -15,8 +15,14 @@ export async function createGameViaAPI(gameName) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(`Failed to create game: ${error.detail || response.statusText}`);
+    let errorMessage = response.statusText;
+    try {
+      const error = await response.json();
+      errorMessage = error.detail || errorMessage;
+    } catch {
+      // Response is not JSON, use statusText
+    }
+    throw new Error(`Failed to create game: ${errorMessage}`);
   }
 
   return response.json();
