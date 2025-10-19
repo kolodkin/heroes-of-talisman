@@ -27,6 +27,7 @@ This frontend engine provides a complete visualization system for card games fea
 ### Player Management
 
 - **Multi-Player Support**: 2-8 players with configurable layouts
+- **Minimum Players**: At least 2 players required for the game to start
 - **Turn Indicators**: Visual cues for active player
 - **Player Statistics**: Score, remaining cards, status
 
@@ -175,12 +176,14 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 ### Disconnected Players
 
-When a player is disconnected (`player.status === "disconnected"`), a dark overlay with disconnected text appears over their player card:
+When a player is disconnected (`player.status === "disconnected"`), a dark overlay with disconnected text can appear over their player card:
 
 - **Visual Display**: Dark semi-transparent overlay (rgba(0, 0, 0, 0.7)) with centered disconnected text
 - **Implementation**: Uses the reusable `Player` component that wraps player cards
 - **Styling**: Overlay covers entire card content with centered muted text (#999)
-- **Visibility**: Appears in both minimized and expanded views, in both players menu and opponent selection
+- **Visibility Control**: The `Player` component accepts a `showDisconnected` prop (defaults to `false`)
+  - **Players Menu**: `showDisconnected={true}` - overlay appears in both minimized and expanded views
+  - **Other contexts** (e.g., opponent selection, battle view): `showDisconnected={false}` (default) - no overlay shown
 
 ### Dead Characters
 
@@ -204,3 +207,6 @@ Characters with `is_alive=false` (health = 0) should be visually distinguished a
   - Only the active player (`gamePlay.active.player`) can interact with UI elements in SharedArea
   - Non-active players see the SharedArea with `pointer-events: none` to prevent all interactions
   - Stage components also receive `active` prop as defensive coding for programmatic checks
+- **Minimum Player Requirement**:
+  - When there are less than 2 players in the game (regardless of connection status), SharedArea displays a grayed overlay
+  - Overlay prevents any interaction until the minimum player count is reached

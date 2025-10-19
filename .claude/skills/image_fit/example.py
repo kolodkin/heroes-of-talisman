@@ -3,10 +3,11 @@
 Example usage of image_fit skill.
 
 Demonstrates all capabilities:
-- Fit mode (preserve aspect ratio within bounds)
+- Auto background detection from corners
+- Fit mode (preserve aspect ratio, scale up or down)
 - Fill mode (crop to exact dimensions)
 - Stretch mode (ignore aspect ratio)
-- Trim borders before fitting
+- Auto-trim with margin (detects background, trims, scales, adds margin)
 """
 
 import sys
@@ -42,10 +43,11 @@ def main():
 
     # Examples
     examples = [
-        ("Fit in 48x48 (preserve aspect)", "fit", {"width": 48, "height": 48, "mode": "fit"}),
-        ("Fill 48x48 (crop to exact size)", "fill", {"width": 48, "height": 48, "mode": "fill"}),
+        ("Fit in 48x48 (preserve aspect, scale up)", "fit", {"width": 48, "height": 48, "mode": "fit"}),
+        ("Fill 48x48 (auto-trim + crop)", "fill", {"width": 48, "height": 48, "mode": "fill"}),
         ("Stretch to 48x96 (ignore aspect)", "stretch", {"width": 48, "height": 96, "mode": "stretch"}),
-        ("Trim then fit to 48x48", "trim", {"width": 48, "height": 48, "mode": "fit", "trim": True}),
+        ("Auto-trim + margin (detects background)", "margin", {"width": 48, "height": 48, "mode": "fit", "margin": 4}),
+        ("Manual trim then fit", "trim", {"width": 48, "height": 48, "mode": "fit", "trim": True}),
     ]
 
     success_count = 0

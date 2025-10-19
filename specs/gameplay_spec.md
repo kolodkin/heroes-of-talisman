@@ -12,6 +12,11 @@ It is built on a tightly integrated system of React components and Pydantic mode
 
 The game supports internationalization via react-i18next, currently configured for Hebrew only.
 
+### Game Requirements
+
+- **Minimum Players**: At least 2 players are required for the game to start
+- Players do not need to be connected, but at least 2 players must have joined the game
+
 ## Backend Alignment
 
 Frontend components are designed to work seamlessly with the backend models outlined in [gameplay backend](/server/gameplay/gameplay_backend.md).

@@ -13,12 +13,12 @@ import argparse
 from pathlib import Path
 
 try:
-    from PIL import Image, ImageFilter
+    from PIL import Image, ImageFilter, ImageDraw
 except ImportError:
     print("Installing required package: Pillow...")
     import subprocess
     subprocess.check_call([sys.executable, "-m", "pip", "install", "Pillow"])
-    from PIL import Image, ImageFilter
+    from PIL import Image, ImageFilter, ImageDraw
 
 
 def parse_color(color_str: str) -> tuple:
@@ -55,11 +55,12 @@ def make_transparent(
 ) -> str:
     """
     Convert background color to transparent in an image.
+    Uses flood fill from edges to detect and remove background.
 
     Args:
         input_path: Path to the input image file
         bg_color: Background color to remove in hex format (e.g., "#FFFFFF", default: white)
-        threshold: Color distance threshold for matching background (0-255, default: 30)
+        threshold: Color distance threshold for flood fill matching (0-255, default: 30)
         fill_color: Optional color to fill all non-transparent pixels (hex format or "white"/"black")
         smooth_edges: Kernel size for edge smoothing (0 = no smoothing, 2-5 recommended)
         erode: Number of erosion iterations to shrink the non-transparent area (0 = none, 1-3 recommended)
@@ -97,33 +98,37 @@ def make_transparent(
     except Exception as e:
         raise ValueError(f"Failed to open image: {e}")
 
-    # Get pixel data
-    data = img.getdata()
+    # Use Pillow's built-in floodfill from edges
+    # Create a copy to work with
+    img_copy = img.copy()
+    width, height = img.size
 
-    # Create new pixel data with transparency
-    new_data = []
-    for item in data:
-        # Calculate color distance from background color
-        r_diff = abs(item[0] - bg_rgb[0])
-        g_diff = abs(item[1] - bg_rgb[1])
-        b_diff = abs(item[2] - bg_rgb[2])
-        color_distance = (r_diff + g_diff + b_diff) / 3  # Average distance
+    # Flood fill from all four corners
+    corners = [(0, 0), (width - 1, 0), (0, height - 1), (width - 1, height - 1)]
 
-        # If pixel is close to background color (within threshold), make it transparent
-        if color_distance <= threshold:
-            # Set alpha to 0 (fully transparent)
-            new_data.append((255, 255, 255, 0))
-        else:
-            # Keep pixel, optionally fill with solid color
-            if fill_rgba:
-                # Use fill color with its alpha channel
+    for x, y in corners:
+        try:
+            ImageDraw.floodfill(img_copy, (x, y), (0, 0, 0, 0), thresh=threshold)
+        except:
+            pass  # Skip if corner is not background
+
+    # Extract alpha from flood filled image
+    alpha = img_copy.split()[3]
+
+    # Apply to original image with optional fill color
+    if fill_rgba:
+        data = img.getdata()
+        alpha_data = alpha.getdata()
+        new_data = []
+        for i, item in enumerate(data):
+            if alpha_data[i] > 0:  # Non-transparent in flood fill
                 new_data.append(fill_rgba)
             else:
-                # Keep original pixel
-                new_data.append(item)
-
-    # Update image data
-    img.putdata(new_data)
+                new_data.append((0, 0, 0, 0))
+        img.putdata(new_data)
+    else:
+        # Use the flood filled alpha channel
+        img = img_copy
 
     # Extract alpha channel for processing
     alpha = img.split()[3]
@@ -158,24 +163,26 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Basic usage
-  python make_transparent.py logo.jpg
+  # Basic usage - remove white background
+  python transparent_bg.py image.jpg
 
-  # With custom threshold
-  python make_transparent.py logo.jpg --threshold 250
+  # Tighter tolerance for light-colored content
+  python transparent_bg.py dragon.png --threshold 5 --erode 4 --smooth-edges 2
 
-  # Fill non-transparent pixels with white and smooth edges
-  python make_transparent.py skull.png --fill-color white --smooth-edges 2
+  # Remove blue background
+  python transparent_bg.py image.jpg --bg-color "#0000FF" --threshold 10
 
-  # Custom fill color (hex or RGB)
-  python make_transparent.py icon.png --fill-color "#FF0000"
-  python make_transparent.py icon.png --fill-color "255,0,0"
+  # Remove green screen
+  python transparent_bg.py video.png --bg-color "#00FF00" --threshold 50
 
-  # Adjust edge smoothing radius
-  python make_transparent.py logo.png --smooth-edges 3
+  # Fill foreground with white and smooth edges
+  python transparent_bg.py icon.png --fill-color white --smooth-edges 2
 
-  # Shrink the white area to make it sharper
-  python make_transparent.py skull.png --fill-color white --erode 2 --smooth-edges 2
+  # Remove edge fringe with erosion
+  python transparent_bg.py photo.jpg --threshold 10 --erode 3 --smooth-edges 2
+
+  # Create watermark effect with semi-transparent fill
+  python transparent_bg.py logo.png --fill-color "255,255,255,128" --threshold 5
         """
     )
 
