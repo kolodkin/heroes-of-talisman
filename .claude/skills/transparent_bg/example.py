@@ -3,12 +3,11 @@
 Example usage of transparent_bg skill.
 
 Demonstrates all capabilities:
-- Basic background removal (white)
-- Custom background color removal
-- Custom threshold
+- Flood fill from edges for background removal
+- Custom threshold for color matching tolerance
 - Fill with solid color
-- Edge smoothing
-- Erosion (shrinking)
+- Edge smoothing for anti-aliasing
+- Erosion to remove edge fringe
 - Semi-transparent fills
 """
 
@@ -48,10 +47,11 @@ def main():
 
     # Examples covering all capabilities
     examples = [
-        ("Basic: Remove white background", "basic", {}),
-        ("Fill with white", "fill_white", {"fill_color": "white"}),
-        ("Smooth edges (radius=2)", "smooth2", {"fill_color": "white", "smooth_edges": 2}),
-        ("Erode + smooth (sharp edges)", "erode2_smooth", {"fill_color": "white", "erode": 2, "smooth_edges": 2}),
+        ("Basic: Remove white background (default threshold)", "basic", {}),
+        ("Tight threshold: Only very similar colors", "tight", {"threshold": 5}),
+        ("Fill with white + smooth edges", "fill_white", {"fill_color": "white", "smooth_edges": 2}),
+        ("Remove edge fringe: Erode + smooth", "clean_edges", {"threshold": 10, "erode": 3, "smooth_edges": 2}),
+        ("Semi-transparent fill (50% opacity)", "watermark", {"fill_color": "255,255,255,128", "threshold": 10}),
     ]
 
     success_count = 0
