@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "hdev": "vite --host 0.0.0.0",
+    "dev": "vite --port ${WWW_PORT:-5173}",
+    "hdev": "vite --host 0.0.0.0 --port ${WWW_PORT:-5173}",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
