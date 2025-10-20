@@ -64,6 +64,8 @@ services:
     restart: unless-stopped
     environment:
       VITE_PROXY_URL: ${VITE_PROXY_URL:-host.docker.internal}
+      # APP_PORT and WWW_PORT are needed for Vite to configure HMR and proxy correctly
+      # since the browser accesses these services externally to Docker
       APP_PORT: ${APP_PORT:-8000}
       WWW_PORT: ${WWW_PORT:-5173}
     volumes:
@@ -73,7 +75,7 @@ services:
       - ${PWD}/.docker/node_modules:${PWD}/node_modules
     working_dir: "${PWD}"
     ports:
-      - ${WWW_PORT:-5173}:5173
+      - ${WWW_PORT:-5173}:${WWW_PORT:-5173}
     user: ${MY_UID}:${MY_GID}
     command: /bin/bash -c "npm install && npm run hdev"
 
