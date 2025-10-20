@@ -64,6 +64,8 @@ services:
     restart: unless-stopped
     environment:
       VITE_PROXY_URL: ${VITE_PROXY_URL:-host.docker.internal}
+      APP_PORT: ${APP_PORT:-8000}
+      WWW_PORT: ${WWW_PORT:-5173}
     volumes:
       - .:${PWD}
       - ${HOME}/.cache:/.cache
