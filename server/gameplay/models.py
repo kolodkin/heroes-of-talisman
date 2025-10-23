@@ -118,6 +118,11 @@ class ActivePlayer1(StrictModel):
     player: str  # Character name
 
 
+class BattleResult(StrictModel):
+    winner: bool
+    score: int  # result of the battle, sum of dice_roll and attack
+
+
 class ActivePlayer2(StrictModel):
     player: str
     character: str
@@ -133,7 +138,7 @@ class ActivePlayer4(StrictModel):
     player: str
     character: str
     dice_roll: list[int]
-    winner: bool
+    result: BattleResult
 
 
 ActivePlayer = ActivePlayer1 | ActivePlayer2 | ActivePlayer3 | ActivePlayer4
@@ -154,7 +159,7 @@ class Opponent4(StrictModel):
     player: str
     character: str
     dice_roll: list[int]
-    winner: bool
+    result: BattleResult
 
 
 Opponent = Opponent2 | Opponent3 | Opponent4

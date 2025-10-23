@@ -101,8 +101,8 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   // Get dice rolls and winner status from game state
   const activeDiceRoll = gamePlay.active?.dice_roll;
   const opponentDiceRoll = opponent.dice_roll;
-  const activeIsWinner = gamePlay.active?.winner ?? false;
-  const opponentIsWinner = opponent?.winner ?? false;
+  const activeIsWinner = gamePlay.active?.result?.winner ?? false;
+  const opponentIsWinner = opponent?.result?.winner ?? false;
 
   const bothRolled = activeDiceRoll && opponentDiceRoll;
 
@@ -146,15 +146,9 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
     }
   };
 
-  // Calculate scores for display (only when winner is set)
-  const activeScore =
-    showWinner && activeDiceRoll
-      ? activeDiceRoll.reduce((sum, val) => sum + val, 0) + (activeCharacter?.attack || 0)
-      : null;
-  const opponentScore =
-    showWinner && opponentDiceRoll
-      ? opponentDiceRoll.reduce((sum, val) => sum + val, 0) + (opponentCharacter?.attack || 0)
-      : null;
+  // Get scores from backend (only when winner is set)
+  const activeScore = showWinner ? (gamePlay.active?.result?.score ?? null) : null;
+  const opponentScore = showWinner ? (opponent?.result?.score ?? null) : null;
 
   return (
     <div className={styles.battleContainer}>

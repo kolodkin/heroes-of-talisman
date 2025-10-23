@@ -17,6 +17,7 @@ from ..models import (
     Opponent2,
     Opponent3,
     Opponent4,
+    BattleResult,
     GameException,
     BATTLE_DICE_ROLL,
     CHARACTER_SELECT,
@@ -91,7 +92,7 @@ def test_active_character_with_active_player4():
     characters = init_characters()
     game = GamePlay(
         stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer4(player="player1", character=ARCHER, dice_roll=[3], winner=True),
+        active=ActivePlayer4(player="player1", character=ARCHER, dice_roll=[3], result=BattleResult(winner=True, score=3)),
         players={
             "player1": Player(name="player1", characters=characters),
         },
@@ -189,8 +190,8 @@ def test_opponent_character_with_opponent4():
     characters = init_characters()
     game = GamePlay(
         stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[6], winner=True),
-        opponent=Opponent4(player="player2", character=MAGE, dice_roll=[1], winner=False),
+        active=ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[6], result=BattleResult(winner=True, score=7)),
+        opponent=Opponent4(player="player2", character=MAGE, dice_roll=[1], result=BattleResult(winner=False, score=1)),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
