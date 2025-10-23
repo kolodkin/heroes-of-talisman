@@ -8,6 +8,7 @@ from .models import (
     ActivePlayer2,
     ActivePlayer4,
     Opponent4,
+    BattleResult,
     BATTLE_DICE_ROLL,
     BATTLE_END,
     CHARACTER_SELECT,
@@ -73,8 +74,8 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[STAGES_NAMES] = None
         # Player 2: mage (dice=[3], attack=0) = 3
         # Winner: player1
         ret = create_battle_preset(
-            ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[6], winner=True),
-            Opponent4(player="player2", character=MAGE, dice_roll=[3], winner=False),
+            ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[6], result=BattleResult(winner=True, score=7)),
+            Opponent4(player="player2", character=MAGE, dice_roll=[3], result=BattleResult(winner=False, score=3)),
             stage=BATTLE_END,
         )
     elif preset == "battle_player_2_win":
@@ -82,8 +83,8 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[STAGES_NAMES] = None
         # Player 2: knight (dice=[5], attack=1) = 6
         # Winner: player2
         ret = create_battle_preset(
-            ActivePlayer4(player="player1", character=MAGE, dice_roll=[2], winner=False),
-            Opponent4(player="player2", character=KNIGHT, dice_roll=[5], winner=True),
+            ActivePlayer4(player="player1", character=MAGE, dice_roll=[2], result=BattleResult(winner=False, score=2)),
+            Opponent4(player="player2", character=KNIGHT, dice_roll=[5], result=BattleResult(winner=True, score=6)),
             stage=BATTLE_END,
         )
     elif preset == "battle_draw":
@@ -91,8 +92,8 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[STAGES_NAMES] = None
         # Player 2: archer (dice=[6], attack=0) = 6
         # Draw: 6 == 6
         ret = create_battle_preset(
-            ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[5], winner=False),
-            Opponent4(player="player2", character=ARCHER, dice_roll=[6], winner=False),
+            ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[5], result=BattleResult(winner=False, score=6)),
+            Opponent4(player="player2", character=ARCHER, dice_roll=[6], result=BattleResult(winner=False, score=6)),
             stage=BATTLE_DICE_ROLL,
         )
     elif preset == "knight_not_alive":

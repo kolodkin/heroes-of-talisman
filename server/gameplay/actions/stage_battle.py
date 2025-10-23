@@ -66,18 +66,21 @@ def set_winner_if_both_rolled(game: GamePlay) -> None:
     active_is_winner = active_score > opponent_score
     opponent_is_winner = opponent_score > active_score
 
-    # Upgrade to ActivePlayer4 and Opponent4 with winner fields
+    # Import BattleResult at top of function to avoid circular imports
+    from ..models import BattleResult
+
+    # Upgrade to ActivePlayer4 and Opponent4 with result fields
     game.active = ActivePlayer4(
         player=game.active.player,
         character=game.active.character,
         dice_roll=game.active.dice_roll,
-        winner=active_is_winner,
+        result=BattleResult(winner=active_is_winner, score=active_score),
     )
     game.opponent = Opponent4(
         player=game.opponent.player,
         character=game.opponent.character,
         dice_roll=game.opponent.dice_roll,
-        winner=opponent_is_winner,
+        result=BattleResult(winner=opponent_is_winner, score=opponent_score),
     )
 
     # If there's a winner (not a draw), transition to BATTLE_END
@@ -205,7 +208,7 @@ class RerollAction(Action):
         if not isinstance(self.game.active, ActivePlayer4) or not isinstance(self.game.opponent, Opponent4):
             raise GameException("Winner not determined yet")
 
-        if self.game.active.winner or self.game.opponent.winner:
+        if self.game.active.result.winner or self.game.opponent.result.winner:
             raise GameException("Cannot reroll when there is a winner")
 
         # Reset to ActivePlayer2 and Opponent2 (remove dice_roll and winner)

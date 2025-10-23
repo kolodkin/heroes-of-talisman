@@ -289,8 +289,8 @@ def test_reroll_action_valid_draw():
     assert game.stage == BATTLE_DICE_ROLL
     assert isinstance(game.active, ActivePlayer4)
     assert isinstance(game.opponent, Opponent4)
-    assert game.active.winner is False
-    assert game.opponent.winner is False
+    assert game.active.result.winner is False
+    assert game.opponent.result.winner is False
 
     action = RerollAction("player1", game)
     updated_game = action.run()
@@ -374,8 +374,8 @@ def test_reroll_action_winner_exists():
     game = get_debug_preset("battle_player_1_win")
 
     # Verify initial state has a winner and is in BATTLE_END stage
-    assert game.active.winner is True
-    assert game.opponent.winner is False
+    assert game.active.result.winner is True
+    assert game.opponent.result.winner is False
     assert game.stage == BATTLE_END
 
     action = RerollAction("player1", game)
@@ -459,11 +459,13 @@ def test_set_winner_if_both_rolled_upgrades_to_player4():
 
     set_winner_if_both_rolled(game)
 
-    # Verify both upgraded with winner fields
+    # Verify both upgraded with result fields
     assert isinstance(game.active, ActivePlayer4)
     assert isinstance(game.opponent, Opponent4)
-    assert game.active.winner is True  # 6+1=7 > 3+0=3
-    assert game.opponent.winner is False
+    assert game.active.result.winner is True  # 6+1=7 > 3+0=3
+    assert game.opponent.result.winner is False
+    assert game.active.result.score == 7
+    assert game.opponent.result.score == 3
     # Verify stage transitioned to BATTLE_END
     assert game.stage == BATTLE_END
 
@@ -520,8 +522,10 @@ def test_debug_set_battle_dice_rolls_valid():
     assert isinstance(updated_game.opponent, Opponent4)
     assert updated_game.active.dice_roll == [6]
     assert updated_game.opponent.dice_roll == [1]
-    assert updated_game.active.winner is True
-    assert updated_game.opponent.winner is False
+    assert updated_game.active.result.winner is True
+    assert updated_game.opponent.result.winner is False
+    assert updated_game.active.result.score == 7
+    assert updated_game.opponent.result.score == 1
 
 
 def test_debug_set_battle_dice_rolls_creates_draw():
@@ -546,8 +550,10 @@ def test_debug_set_battle_dice_rolls_creates_draw():
     assert isinstance(updated_game.opponent, Opponent4)
     assert updated_game.active.dice_roll == [5]
     assert updated_game.opponent.dice_roll == [6]
-    assert updated_game.active.winner is False
-    assert updated_game.opponent.winner is False
+    assert updated_game.active.result.winner is False
+    assert updated_game.opponent.result.winner is False
+    assert updated_game.active.result.score == 6
+    assert updated_game.opponent.result.score == 6
 
 
 def test_debug_set_battle_dice_rolls_wrong_stage():
