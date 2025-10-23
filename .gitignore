@@ -210,9 +210,11 @@ dist-ssr
 .cursor/*
 .claude/*
 !.claude/skills/
+!.claude/commands/
 AGENTS.md
 CLAUDE.md
 .skill-example/
+
 
 # tmp
 *.tmp*
