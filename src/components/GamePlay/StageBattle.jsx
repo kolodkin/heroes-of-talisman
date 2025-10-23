@@ -60,7 +60,7 @@ const BattleParticipant = ({
           )}
           {winner && (
             <div className={styles.winnerBadge} data-winner-badge>
-              {t("battle.winner")}
+              <img src="/images/dragon_w.png" alt={t("battle.winner")} className={styles.winnerIcon} />
             </div>
           )}
         </>
