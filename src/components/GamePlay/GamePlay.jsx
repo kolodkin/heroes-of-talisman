@@ -6,10 +6,19 @@ import commonStyles from "../Common.module.css";
 import Card from "./Card";
 import CharacterCard from "../CharacterCard";
 import StageCharacterSelect from "./StageCharacterSelect";
+import StageAbilitySelection from "./StageAbilitySelection";
+import StageAbilityOpponentSelection from "./StageAbilityOpponentSelection";
 import StageOpponentSelection from "./StageOpponentSelection";
 import StageBattle from "./StageBattle";
 import Player from "../Player";
-import { CHARACTER_SELECT, OPPONENT_SELECTION, BATTLE_DICE_ROLL, BATTLE_END } from "../../constants/stages";
+import {
+  CHARACTER_SELECT,
+  ABILITY_SELECTION,
+  ABILITY_OPPONENT_SELECTION,
+  OPPONENT_SELECTION,
+  BATTLE_DICE_ROLL,
+  BATTLE_END,
+} from "../../constants/stages";
 
 const PlayersCards = ({ player }) => {
   return (
@@ -108,7 +117,6 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
         )}
         <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
         {(() => {
-          const currentPlayer = gamePlay.players[username];
           const activePlayer = gamePlay.players[gamePlay.active?.player];
           const isActivePlayer = gamePlay.active?.player === username;
 
@@ -120,6 +128,26 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                   sendAction={sendAction}
                   active={isActivePlayer}
                   selectedCharacter={gamePlay.stage_meta?.selected}
+                />
+              );
+            case ABILITY_SELECTION:
+              const selectedCharacter = activePlayer?.characters?.[gamePlay.active?.character];
+              return (
+                <StageAbilitySelection
+                  abilities={selectedCharacter?.abilities || []}
+                  sendAction={sendAction}
+                  active={isActivePlayer}
+                  selectedAbility={gamePlay.stage_meta?.selected}
+                />
+              );
+            case ABILITY_OPPONENT_SELECTION:
+              return (
+                <StageAbilityOpponentSelection
+                  players={gamePlay.players}
+                  activePlayer={gamePlay.active?.player}
+                  sendAction={sendAction}
+                  active={isActivePlayer}
+                  selectedOpponent={gamePlay.stage_meta}
                 />
               );
             case OPPONENT_SELECTION:

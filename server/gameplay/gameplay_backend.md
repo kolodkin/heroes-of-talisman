@@ -125,25 +125,24 @@ The character selection stage allows players to choose which character will act 
 The ability selection stage allows players to choose which ability to use from their selected character's available abilities.
 
 - **`AbilityPressAction`**: Sets `stage_meta['selected']` to the ability name pressed by the active player. Validates that the player is active, the stage is `ability_selection`, and the ability is available for the selected character.
-- **`AbilitySelectAction`**: Confirms the ability selection by storing the selected ability in `stage_meta` and transitioning the game stage from `ability_selection` to `ability_opponent_selection`. Validates that the ability is available for the character.
+- **`AbilitySelectAction`**: Confirms the ability selection by storing the selected ability object in `GamePlay.ability` and transitioning the game stage from `ability_selection` to `ability_opponent_selection`. Clears `stage_meta` after confirmation. Validates that the ability is available for the character.
 
 **Actions:**
 
-- [x] `ability_press` – highlight selected ability (`AbilityPressAction`)
-- [x] `ability_select` – confirm ability selection and transition to ability_opponent_selection (`AbilitySelectAction`)
+- [x] `ability_press` – highlight selected ability in stage_meta (`AbilityPressAction`)
+- [x] `ability_select` – confirm ability selection, store in GamePlay.ability, and transition to ability_opponent_selection (`AbilitySelectAction`)
 
 ### Stage: Ability Opponent Selection
 
 The ability opponent selection stage allows players to choose which opponent and opponent character to apply the selected ability to.
 
-- Similar to opponent selection, but for targeting abilities
-- Validates that the opponent character is alive (`is_alive=True`)
-- After selection, applies the ability's effects to the target character and transitions to `opponent_selection`
+- **`AbilityOpponentPressAction`**: Sets `stage_meta` to an `Opponent2` object with the selected opponent player name and character. Validates that the player is active, the stage is `ability_opponent_selection`, the opponent exists, is not the current player, has the selected character, and the character is alive (`is_alive=True`).
+- **`AbilityOpponentSelectAction`**: Confirms the ability target selection by reading from `stage_meta`, applying the ability's effects to the target character, storing the target in `GamePlay.ability_opponent`, clearing `stage_meta`, and transitioning the game stage from `ability_opponent_selection` to `opponent_selection`. Validates that the opponent character is still alive.
 
 **Actions:**
 
-- [ ] `ability_opponent_press` – highlight selected opponent and character for ability target (to be implemented)
-- [ ] `ability_opponent_select` – confirm ability target and apply effects, transition to opponent_selection (to be implemented)
+- [x] `ability_opponent_press` – highlight selected opponent and character in stage_meta (`AbilityOpponentPressAction`)
+- [x] `ability_opponent_select` – confirm ability target, apply effects to target character, store in GamePlay.ability_opponent, and transition to opponent_selection (`AbilityOpponentSelectAction`)
 
 ### Stage: Opponent Selection
 

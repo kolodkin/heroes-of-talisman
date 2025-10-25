@@ -100,14 +100,15 @@ class AbilitySelectAction(Action):
         if ability not in available_abilities:
             raise ReportedException(f"Ability {ability} not available for this character")
 
-        # Store selected ability in active player (we'll need to extend ActivePlayer model)
-        # For now, store in stage_meta as we transition
-        from ..models import StrictModel
+        # Store selected ability in GamePlay.ability
+        ability_obj = next((a for a in character.abilities if a.name == ability), None)
+        if not ability_obj:
+            raise GameException(f"Ability {ability} not found in character abilities")
 
-        class AbilitySelectMeta(StrictModel):
-            ability: str
+        self.game.ability = ability_obj
 
-        self.game.stage_meta = AbilitySelectMeta(ability=ability)
+        # Clear stage_meta after selection
+        self.game.stage_meta = None
 
         # Transition to ability_opponent_selection stage
         self.game.stage = ABILITY_OPPONENT_SELECTION
