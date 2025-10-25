@@ -76,6 +76,36 @@ To implement a new action, subclass `Action` and implement the `run` method. Use
 - [x] `leave` – remove a player from the game (`LeaveAction`)
 - [x] `disconnect` – mark a player as disconnected (`DisconnectAction`)
 
+## Abilities & Effects
+
+Each character has one or more abilities that can be used during their turn. When an ability is selected and applied to a target opponent character, it triggers one or more effects.
+
+### Ability System
+
+- **Ability**: Contains a name, description, and a list of effects to apply
+- **Effects**: Applied to the target character when the ability is used
+- **Effect Lifecycle**: Each effect has a `dispose_action` that determines when it is removed from the character
+
+### Available Abilities
+
+- **Knight L1**: Battle Howl - `AttackNegBonusEffect`
+- **Archer L1**: Bouncing Arrow - `RerollDiceEffect`
+- **Mage L1**: Freeze - `SkipTurnEffect`
+
+### Effect Types
+
+- **SkipTurnEffect**: Character cannot participate in the next turn
+- **AttackBonusEffect**: Increases character's attack by a specified value
+- **AttackNegBonusEffect**: Decreases character's attack by a specified value (negative bonus)
+- **RerollDiceEffect**: Character can reroll dice if they lose the battle
+
+### Character Effects
+
+Characters have an `effects` list that stores all active effects applied to them. Each effect includes:
+
+- `source`: The ability that created this effect
+- `dispose_action`: The action at which the effect is automatically removed
+
 ## Stages
 
 ### Stage: Character Select
@@ -88,7 +118,32 @@ The character selection stage allows players to choose which character will act 
 **Actions:**
 
 - [x] `character_press` – highlight selected character (`CharacterPressAction`)
-- [x] `character_select` – confirm character selection and transition to opponent_selection (`CharacterSelectAction`)
+- [x] `character_select` – confirm character selection and transition to ability_selection (`CharacterSelectAction`)
+
+### Stage: Ability Selection
+
+The ability selection stage allows players to choose which ability to use from their selected character's available abilities.
+
+- **`AbilityPressAction`**: Sets `stage_meta['selected']` to the ability name pressed by the active player. Validates that the player is active, the stage is `ability_selection`, and the ability is available for the selected character.
+- **`AbilitySelectAction`**: Confirms the ability selection by storing the selected ability in `stage_meta` and transitioning the game stage from `ability_selection` to `ability_opponent_selection`. Validates that the ability is available for the character.
+
+**Actions:**
+
+- [x] `ability_press` – highlight selected ability (`AbilityPressAction`)
+- [x] `ability_select` – confirm ability selection and transition to ability_opponent_selection (`AbilitySelectAction`)
+
+### Stage: Ability Opponent Selection
+
+The ability opponent selection stage allows players to choose which opponent and opponent character to apply the selected ability to.
+
+- Similar to opponent selection, but for targeting abilities
+- Validates that the opponent character is alive (`is_alive=True`)
+- After selection, applies the ability's effects to the target character and transitions to `opponent_selection`
+
+**Actions:**
+
+- [ ] `ability_opponent_press` – highlight selected opponent and character for ability target (to be implemented)
+- [ ] `ability_opponent_select` – confirm ability target and apply effects, transition to opponent_selection (to be implemented)
 
 ### Stage: Opponent Selection
 

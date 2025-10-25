@@ -18,7 +18,7 @@ from ..models import (
     ReportedException,
     CHARACTER_DEFAULT_STATS,
     CHARACTER_SELECT,
-    OPPONENT_SELECTION,
+    ABILITY_SELECTION,
     BATTLE_DICE_ROLL,
     KNIGHT,
     ARCHER,
@@ -78,7 +78,7 @@ def test_character_press_action_invalid_character():
 
 
 def test_character_select_action_valid():
-    """Test confirming character selection transitions to opponent_selection"""
+    """Test confirming character selection transitions to ability_selection"""
     game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
@@ -89,7 +89,7 @@ def test_character_select_action_valid():
     assert updated_game.active.player == "player1"
     assert updated_game.active.character == KNIGHT
     assert isinstance(updated_game.active, ActivePlayer2)
-    assert updated_game.stage == OPPONENT_SELECTION
+    assert updated_game.stage == ABILITY_SELECTION
     assert updated_game.stage_meta is None  # Cleared after transition
 
 
