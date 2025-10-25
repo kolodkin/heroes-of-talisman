@@ -82,12 +82,21 @@ The game features three distinct character types:
 
 Once a character's health hits 0, it dies. A dead character can no longer be selected neither as an active player character nor as an opponent.
 
+## Abilities & Effects
+
+Each character has one or more abilities that can be used during their turn. When an ability is selected and applied to a target opponent character, it triggers one or more effects that modify gameplay (e.g., reduce attack, skip turn, reroll dice). Effects persist on the character until the end of their `dispose_action`.
+
+See [Backend GamePlay - Abilities & Effects](/server/gameplay/gameplay_backend.md#abilities--effects) for detailed implementation.
+
 ## Game Stages
 
 The game progresses through distinct stages during each player's turn. Upon completing all stages, the turn passes to the next player.
 
 ### Turn Stages
 
-1. **Character Select** - Player chooses which character will act during this turn
-2. **Opponent Selection** - Player selects an opponent and one of their characters for battle
-3. **Battle** - Combat between selected character and opponent's character
+1. **Character Select** (`character_select`) - Player chooses which character will act during this turn
+2. **Ability Selection** (`ability_selection`) - Player selects which ability to use from the character's available abilities
+3. **Ability Opponent Selection** (`ability_opponent_selection`) - Player selects an opponent and one of the opponent's characters to apply the ability to
+4. **Opponent Selection** (`opponent_selection`) - Player selects an opponent and one of the opponent's characters for battle
+5. **Battle Dice Roll** (`battle_dice_roll`) - Both players roll dice for combat
+6. **Battle End** (`battle_end`) - Combat results are calculated and applied

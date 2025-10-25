@@ -3,7 +3,7 @@ from typing import Literal, Optional
 from .models import (
     GamePlay,
     DEFAULT_GAME,
-    STAGES_NAMES,
+    StageName,
     Player,
     ActivePlayer2,
     ActivePlayer4,
@@ -50,7 +50,7 @@ def set_health_1(game: GamePlay) -> GamePlay:
     return ret
 
 
-def create_battle_preset(active: ActivePlayer4, opponent: Opponent4, stage: STAGES_NAMES) -> GamePlay:
+def create_battle_preset(active: ActivePlayer4, opponent: Opponent4, stage: StageName) -> GamePlay:
     """Create a battle preset with two players ready to show results"""
     game = GamePlay(
         stage=stage,
@@ -64,7 +64,7 @@ def create_battle_preset(active: ActivePlayer4, opponent: Opponent4, stage: STAG
     return game
 
 
-def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[STAGES_NAMES] = None) -> GamePlay:
+def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[StageName] = None) -> GamePlay:
     if preset == "default":
         ret = DEFAULT_GAME.model_copy(deep=True)
     elif preset == "health_1":
@@ -92,7 +92,9 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[STAGES_NAMES] = None
         # Player 2: archer (dice=[6], attack=0) = 6
         # Draw: 6 == 6
         ret = create_battle_preset(
-            ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[5], result=BattleResult(winner=False, score=6)),
+            ActivePlayer4(
+                player="player1", character=KNIGHT, dice_roll=[5], result=BattleResult(winner=False, score=6)
+            ),
             Opponent4(player="player2", character=ARCHER, dice_roll=[6], result=BattleResult(winner=False, score=6)),
             stage=BATTLE_DICE_ROLL,
         )

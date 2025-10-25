@@ -185,6 +185,20 @@ When a player is disconnected (`player.status === "disconnected"`), a dark overl
   - **Players Menu**: `showDisconnected={true}` - overlay appears in both minimized and expanded views
   - **Other contexts** (e.g., opponent selection, battle view): `showDisconnected={false}` (default) - no overlay shown
 
+## CharacterCard
+
+Character cards represent individual characters belonging to players. Each character has stats (health, attack, dice) and can have abilities and effects applied to them.
+
+**Data Model** (from backend):
+
+- `level`: Character level
+- `health`: Current health points
+- `max_health`: Maximum health points
+- `dice`: Number of dice to roll in battle
+- `attack`: Attack bonus value
+- `effects`: List of active effects applied to this character (each effect has `source` ability name)
+- `is_alive`: Computed property (true when health > 0)
+
 ### Dead Characters
 
 Characters with `is_alive=false` (health = 0) should be visually distinguished and non-interactive:
@@ -194,6 +208,17 @@ Characters with `is_alive=false` (health = 0) should be visually distinguished a
 - **Applies To**:
   - Character selection stage (player's own characters)
   - Opponent selection stage (opponent's characters)
+
+### Effects
+
+Active effects applied to characters should be displayed visually on character cards. A 'has_effect' icon should be displayed in card top left as overlay (position: absolute, inset-inline-start: 0, top: 0 with some margin).
+
+**Effect Visual Indicators:**
+
+- **SkipTurnEffect**: Display skip/freeze icon
+- **AttackBonusEffect**: Value added to attack stat, make attack text color blue
+- **AttackNegBonusEffect**: Value subtracted from attack stat, make attack text color red
+- **RerollDiceEffect**: Display reroll icon
 
 ## SharedArea
 

@@ -13,7 +13,7 @@ from ..models import (
     ReportedException,
     CharacterSelectMeta,
     ActivePlayer2,
-    OPPONENT_SELECTION,
+    ABILITY_SELECTION,
     CHARACTER_SELECT,
 )
 
@@ -87,8 +87,8 @@ class CharacterSelectAction(Action):
         # Update active player with selected character
         self.game.active = ActivePlayer2(player=self.user, character=character)
 
-        # Transition to opponent_selection stage
-        self.game.stage = OPPONENT_SELECTION
+        # Transition to ability_selection stage
+        self.game.stage = ABILITY_SELECTION
         self.game.stage_meta = None  # Clear stage metadata
 
         return self.game
