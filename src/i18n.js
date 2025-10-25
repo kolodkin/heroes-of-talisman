@@ -18,12 +18,16 @@ const resources = {
       },
       stageNames: {
         character_select: "בחירת דמות",
+        ability_selection: "בחירת יכולת",
+        ability_opponent_selection: "בחירת יעד ליכולת",
         opponent_selection: "בחירת יריב",
         battle_dice_roll: "גלגול קוביות",
         battle_end: "תוצאות קרב",
       },
       stageInstructions: {
         character_select: "בחר דמות",
+        ability_selection: "בחר יכולת",
+        ability_opponent_selection: "בחר יריב ודמות להחלת היכולת",
         opponent_selection: "בחר את יריבך",
         battle_dice_roll: "בחר דמות יריב לתקוף",
         battle_end: "תוצאות הקרב",
@@ -33,12 +37,34 @@ const resources = {
         archer: "קשת",
         mage: "קוסם",
       },
+      abilities: {
+        battle_howl: {
+          name: "שאגת קרב",
+          description: "2- להתקפה של הדמות היריבה",
+        },
+        bouncing_arrow: {
+          name: "חץ מקפץ",
+          description: "מאפשר לגלגל את הקובייה מחדש",
+        },
+        freeze: {
+          name: "הקפאה",
+          description: "מונע מהדמות להשתתף בשלב הבא",
+        },
+      },
       character_card: {
         level: "דרגה",
       },
       character_select: {
         submit: "בחר",
         select_character: "בחר דמות בבקשה",
+      },
+      ability_selection: {
+        submit: "בחר",
+        select_ability: "בחר יכולת בבקשה",
+      },
+      ability_opponent_selection: {
+        submit: "בחר",
+        select_opponent: "בחר יריב ודמות בבקשה",
       },
       opponent_selection: {
         select_opponent: "בחר יריב ודמות בבקשה",

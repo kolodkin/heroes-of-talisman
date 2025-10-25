@@ -2,21 +2,36 @@ from typing import Dict, Optional, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
-
+########################################################
+# Connection statuses
+########################################################
 CONNECTED = "connected"
 DISCONNECTED = "disconnected"
 CONNECTION_STATUSES = [CONNECTED, DISCONNECTED]
 ConnectionStatus = Literal[*CONNECTION_STATUSES]
 
+########################################################
+# Stages
+########################################################
 CHARACTER_SELECT = "character_select"
 ABILITY_SELECTION = "ability_selection"
 ABILITY_OPPONENT_SELECTION = "ability_opponent_selection"
 OPPONENT_SELECTION = "opponent_selection"
 BATTLE_DICE_ROLL = "battle_dice_roll"
 BATTLE_END = "battle_end"
-STAGES_NAMES = [CHARACTER_SELECT, ABILITY_SELECTION, ABILITY_OPPONENT_SELECTION, OPPONENT_SELECTION, BATTLE_DICE_ROLL, BATTLE_END]
+STAGES_NAMES = [
+    CHARACTER_SELECT,
+    ABILITY_SELECTION,
+    ABILITY_OPPONENT_SELECTION,
+    OPPONENT_SELECTION,
+    BATTLE_DICE_ROLL,
+    BATTLE_END,
+]
 StageName = Literal[*STAGES_NAMES]
 
+########################################################
+# Character types
+########################################################
 KNIGHT = "knight"
 ARCHER = "archer"
 MAGE = "mage"
@@ -29,7 +44,9 @@ FREEZE = "freeze"
 ABILITIES_NAMES: list[str] = [BATTLE_HOWL, BOUNCING_ARROW, FREEZE]
 AbilityName = Literal[*ABILITIES_NAMES]
 
-# Action names
+########################################################
+# Actions
+########################################################
 CONNECT = "connect"
 LEAVE = "leave"
 DISCONNECT = "disconnect"
@@ -37,6 +54,8 @@ CHARACTER_PRESS = "character_press"
 CHARACTER_SELECT_ACTION = "character_select"
 ABILITY_PRESS = "ability_press"
 ABILITY_SELECT = "ability_select"
+ABILITY_OPPONENT_PRESS = "ability_opponent_press"
+ABILITY_OPPONENT_SELECT = "ability_opponent_select"
 OPPONENT_PRESS = "opponent_press"
 OPPONENT_SELECT = "opponent_select"
 ACTIVE_PLAYER_ROLL = "active_player_roll"
@@ -53,6 +72,8 @@ ACTION_NAMES = [
     CHARACTER_SELECT_ACTION,
     ABILITY_PRESS,
     ABILITY_SELECT,
+    ABILITY_OPPONENT_PRESS,
+    ABILITY_OPPONENT_SELECT,
     OPPONENT_PRESS,
     OPPONENT_SELECT,
     ACTIVE_PLAYER_ROLL,
@@ -174,28 +195,24 @@ class AttackNegBonusEffect(Effect):
 
 class Ability(StrictModel):
     name: str
-    description: str
     effects: list[Effect] = Field(default_factory=list)  # effects that are applied when the ability is used
 
 
 ABILITIES_MAP: dict[AbilityName, Ability] = {
     BATTLE_HOWL: Ability(
         name=BATTLE_HOWL,
-        description="Battle Howl",
         effects=[
             AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2),
         ],
     ),
     BOUNCING_ARROW: Ability(
         name=BOUNCING_ARROW,
-        description="Bouncing Arrow",
         effects=[
             RerollDiceEffect(source=BOUNCING_ARROW),
         ],
     ),
     FREEZE: Ability(
         name=FREEZE,
-        description="Freeze",
         effects=[
             SkipTurnEffect(source=FREEZE),
         ],
@@ -298,12 +315,17 @@ class Player(StrictModel):
     characters: Dict[ChatacterType, CharacterCard] = Field(default_factory=dict)
 
 
+########################################################
+# GamePlay model
+########################################################
 class GamePlay(StrictModel):
     stage: StageName = CHARACTER_SELECT
-    active: Optional[ActivePlayer] = None  # The active player and its selections
     players: dict[str, Player] = Field(default_factory=dict)
+    active: Optional[ActivePlayer] = None  # The active player and its selections
+    ability: Optional[Ability] = None  # Selected ability
+    ability_opponent: Optional[Opponent2] = None  # Selected ability opponent
     opponent: Optional[Opponent] = None  # Selected opponent for battle
-    stage_meta: Optional[CharacterSelectMeta | Opponent2] = None  # Temporary stage-specific metadata
+    stage_meta: Optional[Ability | CharacterSelectMeta | Opponent2] = None  # Temporary stage-specific metadata
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""

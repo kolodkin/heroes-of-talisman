@@ -8,6 +8,8 @@ from ..models import (
     CHARACTER_SELECT_ACTION,
     ABILITY_PRESS,
     ABILITY_SELECT,
+    ABILITY_OPPONENT_PRESS,
+    ABILITY_OPPONENT_SELECT,
     OPPONENT_PRESS,
     OPPONENT_SELECT,
     ACTIVE_PLAYER_ROLL,
@@ -20,6 +22,7 @@ from .action import Action
 from .connection import ConnectAction, LeaveAction, DisconnectAction
 from .stage_character_select import CharacterPressAction, CharacterSelectAction
 from .stage_ability_selection import AbilityPressAction, AbilitySelectAction
+from .stage_ability_opponent_selection import AbilityOpponentPressAction, AbilityOpponentSelectAction
 from .stage_opponent_selection import OpponentPressAction, OpponentSelectAction
 from .stage_battle import ActivePlayerRollAction, OpponentRollAction, RerollAction, DebugSetBattleDiceRollsAction
 from .battle_end import BattleEndAction
@@ -33,6 +36,8 @@ ACTION_MAP: Dict[str, type[Action]] = {
     CHARACTER_SELECT_ACTION: CharacterSelectAction,
     ABILITY_PRESS: AbilityPressAction,
     ABILITY_SELECT: AbilitySelectAction,
+    ABILITY_OPPONENT_PRESS: AbilityOpponentPressAction,
+    ABILITY_OPPONENT_SELECT: AbilityOpponentSelectAction,
     OPPONENT_PRESS: OpponentPressAction,
     OPPONENT_SELECT: OpponentSelectAction,
     ACTIVE_PLAYER_ROLL: ActivePlayerRollAction,

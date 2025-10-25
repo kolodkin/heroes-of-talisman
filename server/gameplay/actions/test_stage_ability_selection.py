@@ -138,8 +138,9 @@ def test_ability_select_action_valid():
     updated_game = action.run(ability=BATTLE_HOWL)
 
     assert updated_game.stage == ABILITY_OPPONENT_SELECTION
-    assert updated_game.stage_meta is not None
-    assert updated_game.stage_meta.ability == BATTLE_HOWL
+    assert updated_game.ability is not None
+    assert updated_game.ability.name == BATTLE_HOWL
+    assert updated_game.stage_meta is None
 
 
 def test_ability_select_action_not_active_player():
@@ -204,7 +205,9 @@ def test_ability_select_action_archer():
     updated_game = action.run(ability=BOUNCING_ARROW)
 
     assert updated_game.stage == ABILITY_OPPONENT_SELECTION
-    assert updated_game.stage_meta.ability == BOUNCING_ARROW
+    assert updated_game.ability is not None
+    assert updated_game.ability.name == BOUNCING_ARROW
+    assert updated_game.stage_meta is None
 
 
 def test_ability_select_action_mage():
@@ -220,4 +223,6 @@ def test_ability_select_action_mage():
     updated_game = action.run(ability=FREEZE)
 
     assert updated_game.stage == ABILITY_OPPONENT_SELECTION
-    assert updated_game.stage_meta.ability == FREEZE
+    assert updated_game.ability is not None
+    assert updated_game.ability.name == FREEZE
+    assert updated_game.stage_meta is None
