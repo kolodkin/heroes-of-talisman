@@ -40,7 +40,7 @@ const resources = {
       abilities: {
         battle_howl: {
           name: "שאגת קרב",
-          description: "2- להתקפה של הדמות היריבה",
+          description: "-2 להתקפה של הדמות היריבה",
         },
         bouncing_arrow: {
           name: "חץ מקפץ",
