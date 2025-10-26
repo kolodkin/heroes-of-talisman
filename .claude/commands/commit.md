@@ -55,3 +55,4 @@ This project uses pre-commit hooks that may modify files during commit (formatti
 - Always use HEREDOC format for multi-line commit messages
 - Keep commit messages concise but descriptive
 - ALWAYS get user approval before creating the commit
+- If command runs again: restart from step 1
