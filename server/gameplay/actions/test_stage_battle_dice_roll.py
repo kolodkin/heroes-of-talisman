@@ -15,6 +15,7 @@ from .stage_battle import (
     calculate_winner,
     set_winner_if_both_rolled,
 )
+from .battle_end import BattleEndAction
 from ..models import (
     GamePlay,
     Player,
@@ -27,6 +28,8 @@ from ..models import (
     Opponent4,
     GameException,
     ReportedException,
+    AttackNegBonusEffect,
+    SkipTurnEffect,
     BATTLE_DICE_ROLL,
     BATTLE_END,
     CHARACTER_SELECT,
@@ -34,6 +37,8 @@ from ..models import (
     KNIGHT,
     ARCHER,
     MAGE,
+    BATTLE_HOWL,
+    FREEZE,
     init_characters,
 )
 from ..debug_presets import get_debug_preset

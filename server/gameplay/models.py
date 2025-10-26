@@ -148,19 +148,26 @@ class StrictModel(BaseModel):
 class Effect(StrictModel):
     """
     Base class for all effects.
+    Effects are disposed at the end of battle by default.
     """
 
     source: AbilityName
-    # at the end of this action, the effect is disposed (removed from the character effects list)
-    dispose_action: ActionName  # Action name in which the effect should be disposed, sometimes with custom conditions.
+
+
+class UseOnceEffect(Effect):
+    """
+    Effect that can only be used once.
+    Once used, sets the 'used' flag to True and won't be reused.
+    """
+
+    used: bool = False
 
 
 class SkipTurnEffect(Effect):
     """
-    Charachter can't participate in the next turn.
+    Character can't participate in the next turn.
     """
 
-    dispose_action: ActionName = BATTLE_END_ACTION
     skip_next_turn: bool = True
 
 
@@ -169,18 +176,15 @@ class AttackBonusEffect(Effect):
     Character's attack is increased by the value of the effect.
     """
 
-    dispose_action: ActionName = BATTLE_END_ACTION
     attack_bonus: int
 
 
-class RerollDiceEffect(Effect):
+class RerollDiceEffect(UseOnceEffect):
     """
     Character's dice are rerolled if lost the battle.
-    At the end of the battle, the effect is disposed if the character lost the battle
-    causes the BATTLE_END_ACTION action to invoke RerollAction (reroll the dice).
+    This is a use-once effect - after being used, it won't be available again.
     """
 
-    dispose_action: ActionName = BATTLE_END_ACTION
     reroll_dice: bool = True
 
 
@@ -189,7 +193,6 @@ class AttackNegBonusEffect(Effect):
     Character's attack is decreased by the value of the effect.
     """
 
-    dispose_action: ActionName = BATTLE_END_ACTION
     attack_neg_bonus: int
 
 

@@ -60,6 +60,19 @@ class BattleEndAction(Action):
             active_character.health = max(0, active_character.health - 1)
         # If tied, no one loses health
 
+        # Clear effects from both characters (effects are disposed at battle end by default)
+        # UseOnceEffect effects are only removed if they were used (used=True)
+        from ..models import UseOnceEffect
+
+        active_character.effects = [
+            effect for effect in active_character.effects
+            if isinstance(effect, UseOnceEffect) and not effect.used
+        ]
+        opponent_character.effects = [
+            effect for effect in opponent_character.effects
+            if isinstance(effect, UseOnceEffect) and not effect.used
+        ]
+
         # Get next player (circular rotation)
         player_names = list(self.game.players.keys())
         current_active_index = player_names.index(self.game.active.player)
