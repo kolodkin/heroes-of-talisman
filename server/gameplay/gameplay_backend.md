@@ -82,29 +82,30 @@ Each character has one or more abilities that can be used during their turn. Whe
 
 ### Ability System
 
-- **Ability**: Contains a name, description, and a list of effects to apply
+- **Ability**: Contains a name and a list of effects to apply (description is managed via i18n)
 - **Effects**: Applied to the target character when the ability is used
-- **Effect Lifecycle**: Each effect has a `dispose_action` that determines when it is removed from the character
+- **Effect Lifecycle**: All effects are automatically disposed at the end of battle (battle_end stage) by default
 
 ### Available Abilities
 
-- **Knight L1**: Battle Howl - `AttackNegBonusEffect`
-- **Archer L1**: Bouncing Arrow - `RerollDiceEffect`
-- **Mage L1**: Freeze - `SkipTurnEffect`
+- **Knight L1**: Battle Howl - `AttackNegBonusEffect` (reduces opponent attack by 2)
+- **Archer L1**: Bouncing Arrow - `RerollDiceEffect` (allows reroll on loss, use-once)
+- **Mage L1**: Freeze - `SkipTurnEffect` (opponent skips next turn)
 
 ### Effect Types
 
+- **Effect** (base class): All effects have a `source` field indicating which ability created them
+- **UseOnceEffect**: Effects that can only be used once. After being used, the `used` flag is set to `True` and the effect won't be reused
 - **SkipTurnEffect**: Character cannot participate in the next turn
 - **AttackBonusEffect**: Increases character's attack by a specified value
 - **AttackNegBonusEffect**: Decreases character's attack by a specified value (negative bonus)
-- **RerollDiceEffect**: Character can reroll dice if they lose the battle
+- **RerollDiceEffect** (extends UseOnceEffect): Character can reroll dice if they lose the battle, but only once
 
 ### Character Effects
 
 Characters have an `effects` list that stores all active effects applied to them. Each effect includes:
 
-- `source`: The ability that created this effect
-- `dispose_action`: The action at which the effect is automatically removed
+- `source`: The ability that created this effect (required)
 
 ## Stages
 

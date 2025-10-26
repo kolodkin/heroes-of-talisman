@@ -84,7 +84,13 @@ Once a character's health hits 0, it dies. A dead character can no longer be sel
 
 ## Abilities & Effects
 
-Each character has one or more abilities that can be used during their turn. When an ability is selected and applied to a target opponent character, it triggers one or more effects that modify gameplay (e.g., reduce attack, skip turn, reroll dice). Effects persist on the character until the end of their `dispose_action`.
+Each character has one or more abilities that can be used during their turn. When an ability is selected and applied to a target opponent character, it triggers one or more effects that modify gameplay (e.g., reduce attack, skip turn, reroll dice).
+
+### Effect Lifecycle
+
+- **Default Disposal**: All effects are automatically disposed at the end of battle (battle_end stage)
+- **Use-Once Effects**: Some effects (like `RerollDiceEffect`) inherit from `UseOnceEffect` and can only be used once. After being used, the `used` flag is set to `True` and the effect won't be reused
+- **Persistence**: Effects remain active on the character from the moment they're applied until battle ends
 
 See [Backend GamePlay - Abilities & Effects](/server/gameplay/gameplay_backend.md#abilities--effects) for detailed implementation.
 
