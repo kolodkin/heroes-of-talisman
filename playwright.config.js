@@ -21,14 +21,14 @@ export default defineConfig({
   globalSetup: "./e2e/global-setup.js",
   /* Global teardown - runs after all tests to clean up test games */
   globalTeardown: "./e2e/global-teardown.js",
-  /* Run tests sequentially to avoid PostgreSQL connection pool exhaustion */
-  fullyParallel: false,
+  /* Run tests in files in parallel */
+  fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Limit workers to prevent database connection exhaustion */
-  workers: process.env.CI ? 1 : 2,
+  /* Opt out of parallel tests on CI. */
+  workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [["html", { open: "never" }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
