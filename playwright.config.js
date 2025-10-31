@@ -82,11 +82,17 @@ export default defineConfig({
       command: "npm run dev",
       url: `http://localhost:${process.env.WWW_PORT ?? "5173"}`,
       reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      stdout: "pipe",
+      stderr: "pipe",
     },
     {
       command: `uv run uvicorn server.main:app --port ${process.env.APP_PORT ?? "8000"}`,
       url: `http://localhost:${process.env.APP_PORT ?? "8000"}/health`,
       reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+      stdout: "pipe",
+      stderr: "pipe",
     },
   ],
 });
