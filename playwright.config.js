@@ -34,6 +34,8 @@ const browserArgs = getBrowserArgs();
  */
 export default defineConfig({
   testDir: "./e2e",
+  /* Global teardown - runs after all tests to clean up test games */
+  globalTeardown: "./e2e/global-teardown.js",
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
