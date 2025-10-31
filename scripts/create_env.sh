@@ -40,3 +40,4 @@ echo WWW_PORT=${WWW_PORT:-5173} >> .env
 echo "" >> .env
 echo "# PLAYWRIGHT" >> .env
 echo PLAYWRIGHT_REPORT_PORT=${PLAYWRIGHT_REPORT_PORT:-9323} >> .env
+echo PLAYWRIGHT_SINGLE_PROCESS=${PLAYWRIGHT_SINGLE_PROCESS:-false} >> .env

@@ -6,6 +6,9 @@ ROOT_DIR=$SCRIPT_DIR/..
 
 cd $ROOT_DIR
 
+# Set environment variable for Playwright single-process mode (needed in containerized environments)
+export PLAYWRIGHT_SINGLE_PROCESS=true
+
 echo "=========================================="
 echo "Setting up Heroes of Talisman for Claude Code environment..."
 echo "=========================================="
