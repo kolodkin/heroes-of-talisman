@@ -1,16 +1,20 @@
 #!/bin/bash
-set -e
+# Disable exit on error - we want to continue even if some steps fail
+set +e
 
 SCRIPT_DIR=$(dirname $(readlink -f $0))
 ROOT_DIR=$SCRIPT_DIR/..
 
 cd $ROOT_DIR
 
+echo "=========================================="
 echo "Setting up Heroes of Talisman for Claude Code environment..."
+echo "=========================================="
 
 # Fix PostgreSQL SSL configuration if needed
 if [ -f /etc/postgresql/16/main/postgresql.conf ]; then
-    echo "Configuring PostgreSQL..."
+    echo ""
+    echo "Step 1: Configuring PostgreSQL..."
 
     # Disable SSL to avoid certificate permission issues
     sed -i 's/ssl = on/ssl = off/' /etc/postgresql/16/main/postgresql.conf 2>/dev/null || true
@@ -21,34 +25,93 @@ if [ -f /etc/postgresql/16/main/postgresql.conf ]; then
     # Configure authentication for TCP connections (md5 password auth)
     sed -i 's/host    all             all             127.0.0.1\/32            scram-sha-256/host    all             all             127.0.0.1\/32            md5/' /etc/postgresql/16/main/pg_hba.conf 2>/dev/null || true
 
-    # Start PostgreSQL service
-    echo "Starting PostgreSQL service..."
-    service postgresql start || echo "Warning: Could not start PostgreSQL service"
+    # Check if postgres is already running
+    if pg_isready -h localhost -p 5432 -U postgres >/dev/null 2>&1; then
+        echo "  ✓ PostgreSQL is already running"
+    else
+        echo "  → Starting PostgreSQL service..."
+        service postgresql start || echo "  ⚠ Warning: Could not start PostgreSQL service"
+        sleep 2
+    fi
 
-    # Wait for postgres to be ready
-    sleep 2
-
-    # Set postgres user password
-    echo "Setting PostgreSQL password..."
-    su - postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres';\"" || echo "Warning: Could not set postgres password"
+    # Set postgres user password (only if not already set correctly)
+    echo "  → Setting PostgreSQL password..."
+    su - postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres';\"" >/dev/null 2>&1 || echo "  ⚠ Warning: Could not set postgres password"
 
     # Restart to apply authentication changes
-    echo "Restarting PostgreSQL to apply configuration..."
-    service postgresql restart || echo "Warning: Could not restart PostgreSQL"
-
-    # Wait for postgres to be ready again
+    echo "  → Restarting PostgreSQL to apply configuration..."
+    service postgresql restart >/dev/null 2>&1 || echo "  ⚠ Warning: Could not restart PostgreSQL"
     sleep 2
+
+    if pg_isready -h localhost -p 5432 -U postgres >/dev/null 2>&1; then
+        echo "  ✓ PostgreSQL is ready"
+    else
+        echo "  ✗ PostgreSQL is not responding"
+    fi
+else
+    echo "  ⚠ PostgreSQL config not found, skipping..."
 fi
 
 # Check if Redis is needed and warn if not available
-if ! command -v redis-server >/dev/null 2>&1; then
-    echo "Warning: Redis is not installed. Some features may not work."
+echo ""
+echo "Step 2: Checking Redis..."
+if command -v redis-server >/dev/null 2>&1; then
+    echo "  ✓ Redis is installed"
+else
+    echo "  ⚠ Warning: Redis is not installed. Some features may not work."
 fi
 
-# Run the main setup script with --no-docker flag
-echo "Running main setup script..."
-bash "$SCRIPT_DIR/setup" --no-docker
+# Install Python dependencies
+echo ""
+echo "Step 3: Installing Python dependencies..."
+echo "  → Running uv sync..."
+uv sync
+
+# Create environment file
+echo ""
+echo "Step 4: Setting up environment variables..."
+echo "  → Creating .env file..."
+./scripts/create_env.sh
+
+# Run database migrations
+echo ""
+echo "Step 5: Running database migrations..."
+if pg_isready -h localhost -p 5432 -U postgres >/dev/null 2>&1; then
+    echo "  → Running alembic migrations..."
+    source .venv/bin/activate && alembic upgrade head
+    echo "  ✓ Migrations complete"
+else
+    echo "  ✗ PostgreSQL not ready, skipping migrations"
+fi
+
+# Install pre-commit hooks
+echo ""
+echo "Step 6: Installing git hooks..."
+echo "  → Installing pre-commit hooks..."
+source .venv/bin/activate && pre-commit install >/dev/null 2>&1
+echo "  ✓ Pre-commit hooks installed"
+
+# Install npm dependencies
+echo ""
+echo "Step 7: Installing npm dependencies..."
+echo "  → Running npm install (this may take a while)..."
+npm install
+echo "  ✓ npm packages installed"
+
+# Install playwright
+echo ""
+echo "Step 8: Installing Playwright browsers..."
+echo "  → Installing Playwright chromium (this may take a while)..."
+npx playwright install --with-deps chromium
+echo "  ✓ Playwright installed"
 
 echo ""
-echo "Setup complete for Claude Code environment!"
-echo "You can now run tests with: source .venv/bin/activate && pytest"
+echo "=========================================="
+echo "✓ Setup complete for Claude Code environment!"
+echo "=========================================="
+echo ""
+echo "You can now:"
+echo "  • Run tests: source .venv/bin/activate && pytest"
+echo "  • Start server: npm run dev:server"
+echo "  • Start frontend: npm run dev"
+echo ""
