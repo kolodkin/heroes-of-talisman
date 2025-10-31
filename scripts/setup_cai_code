@@ -1,6 +1,5 @@
 #!/bin/bash
-# Disable exit on error - we want to continue even if some steps fail
-set +e
+set -e
 
 SCRIPT_DIR=$(dirname $(readlink -f $0))
 ROOT_DIR=$SCRIPT_DIR/..
@@ -47,63 +46,37 @@ if [ -f /etc/postgresql/16/main/postgresql.conf ]; then
         echo "  ✓ PostgreSQL is ready"
     else
         echo "  ✗ PostgreSQL is not responding"
+        exit 1
     fi
 else
     echo "  ⚠ PostgreSQL config not found, skipping..."
 fi
 
-# Check if Redis is needed and warn if not available
+# Start Redis if available
 echo ""
-echo "Step 2: Checking Redis..."
+echo "Step 2: Starting Redis..."
 if command -v redis-server >/dev/null 2>&1; then
-    echo "  ✓ Redis is installed"
+    if redis-cli ping >/dev/null 2>&1; then
+        echo "  ✓ Redis is already running"
+    else
+        echo "  → Starting Redis server..."
+        redis-server --daemonize yes --port 6379
+        sleep 1
+        if redis-cli ping >/dev/null 2>&1; then
+            echo "  ✓ Redis is ready"
+        else
+            echo "  ⚠ Warning: Redis failed to start"
+        fi
+    fi
 else
     echo "  ⚠ Warning: Redis is not installed. Some features may not work."
 fi
 
-# Install Python dependencies
+# Run the main setup script with --no-docker flag
 echo ""
-echo "Step 3: Installing Python dependencies..."
-echo "  → Running uv sync..."
-uv sync
-
-# Create environment file
-echo ""
-echo "Step 4: Setting up environment variables..."
-echo "  → Creating .env file..."
-./scripts/create_env.sh
-
-# Run database migrations
-echo ""
-echo "Step 5: Running database migrations..."
-if pg_isready -h localhost -p 5432 -U postgres >/dev/null 2>&1; then
-    echo "  → Running alembic migrations..."
-    source .venv/bin/activate && alembic upgrade head
-    echo "  ✓ Migrations complete"
-else
-    echo "  ✗ PostgreSQL not ready, skipping migrations"
-fi
-
-# Install pre-commit hooks
-echo ""
-echo "Step 6: Installing git hooks..."
-echo "  → Installing pre-commit hooks..."
-source .venv/bin/activate && pre-commit install >/dev/null 2>&1
-echo "  ✓ Pre-commit hooks installed"
-
-# Install npm dependencies
-echo ""
-echo "Step 7: Installing npm dependencies..."
-echo "  → Running npm install (this may take a while)..."
-npm install
-echo "  ✓ npm packages installed"
-
-# Install playwright
-echo ""
-echo "Step 8: Installing Playwright browsers..."
-echo "  → Installing Playwright chromium (this may take a while)..."
-npx playwright install --with-deps chromium
-echo "  ✓ Playwright installed"
+echo "Step 3: Running main setup script..."
+echo "=========================================="
+bash "$SCRIPT_DIR/setup" --no-docker
 
 echo ""
 echo "=========================================="
@@ -112,6 +85,7 @@ echo "=========================================="
 echo ""
 echo "You can now:"
 echo "  • Run tests: source .venv/bin/activate && pytest"
+echo "  • Run e2e tests: npm run e2e"
 echo "  • Start server: npm run dev:server"
 echo "  • Start frontend: npm run dev"
 echo ""
