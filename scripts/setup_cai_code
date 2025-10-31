@@ -1,0 +1,54 @@
+#!/bin/bash
+set -e
+
+SCRIPT_DIR=$(dirname $(readlink -f $0))
+ROOT_DIR=$SCRIPT_DIR/..
+
+cd $ROOT_DIR
+
+echo "Setting up Heroes of Talisman for Claude Code environment..."
+
+# Fix PostgreSQL SSL configuration if needed
+if [ -f /etc/postgresql/16/main/postgresql.conf ]; then
+    echo "Configuring PostgreSQL..."
+
+    # Disable SSL to avoid certificate permission issues
+    sed -i 's/ssl = on/ssl = off/' /etc/postgresql/16/main/postgresql.conf 2>/dev/null || true
+
+    # Configure authentication for local postgres user (trust for local socket)
+    sed -i 's/local   all             postgres                                peer/local   all             postgres                                trust/' /etc/postgresql/16/main/pg_hba.conf 2>/dev/null || true
+
+    # Configure authentication for TCP connections (md5 password auth)
+    sed -i 's/host    all             all             127.0.0.1\/32            scram-sha-256/host    all             all             127.0.0.1\/32            md5/' /etc/postgresql/16/main/pg_hba.conf 2>/dev/null || true
+
+    # Start PostgreSQL service
+    echo "Starting PostgreSQL service..."
+    service postgresql start || echo "Warning: Could not start PostgreSQL service"
+
+    # Wait for postgres to be ready
+    sleep 2
+
+    # Set postgres user password
+    echo "Setting PostgreSQL password..."
+    su - postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres';\"" || echo "Warning: Could not set postgres password"
+
+    # Restart to apply authentication changes
+    echo "Restarting PostgreSQL to apply configuration..."
+    service postgresql restart || echo "Warning: Could not restart PostgreSQL"
+
+    # Wait for postgres to be ready again
+    sleep 2
+fi
+
+# Check if Redis is needed and warn if not available
+if ! command -v redis-server >/dev/null 2>&1; then
+    echo "Warning: Redis is not installed. Some features may not work."
+fi
+
+# Run the main setup script with --no-docker flag
+echo "Running main setup script..."
+bash "$SCRIPT_DIR/setup" --no-docker
+
+echo ""
+echo "Setup complete for Claude Code environment!"
+echo "You can now run tests with: source .venv/bin/activate && pytest"
