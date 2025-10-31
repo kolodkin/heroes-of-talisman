@@ -21,8 +21,8 @@ export default defineConfig({
   globalSetup: "./e2e/global-setup.js",
   /* Global teardown - runs after all tests to clean up test games */
   globalTeardown: "./e2e/global-teardown.js",
-  /* Run tests in files in parallel */
-  fullyParallel: true,
+  /* Run tests sequentially to avoid PostgreSQL connection pool exhaustion */
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
