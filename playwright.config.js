@@ -47,27 +47,11 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         headless: true,
-        launchOptions: {
-          headless: true,
-          args: [
-            ...(process.env.PLAYWRIGHT_SINGLE_PROCESS === "true"
-              ? [
-                  // Single-process mode for containerized/restricted environments
-                  "--single-process",
-                  "--no-zygote",
-                ]
-              : []),
-            // Common stability flags
-            "--disable-gpu",
-            "--disable-dev-shm-usage",
-            "--disable-setuid-sandbox",
-            "--no-sandbox",
-            "--disable-web-security",
-            "--disable-features=IsolateOrigins,site-per-process",
-            "--disable-blink-features=AutomationControlled",
-            "--disable-software-rasterizer",
-          ],
-        },
+        ...(process.env.PLAYWRIGHT_CHROMIUM_ARGS && {
+          launchOptions: {
+            args: process.env.PLAYWRIGHT_CHROMIUM_ARGS.split(",").map((arg) => arg.trim()),
+          },
+        }),
       },
     },
 

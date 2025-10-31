@@ -2,55 +2,56 @@
 
 ## Environment Variables
 
-### `PLAYWRIGHT_SINGLE_PROCESS`
+### `PLAYWRIGHT_CHROMIUM_ARGS`
 
-Controls whether Chromium runs in single-process mode during tests.
+Comma-separated list of Chromium launch arguments to use during tests.
 
-**Default**: `false`
+**Default**: Empty (uses Chromium defaults, no custom args)
 
-**When to set to `true`**:
+**When to set**:
 
 - Running tests in containerized environments (Docker, Claude Code, etc.)
-- Chromium crashes with multi-process mode
+- Chromium crashes with default configuration
 - Restricted system environments with limited process spawning
 
 **How to set**:
 
 ```bash
 # In .env file
-PLAYWRIGHT_SINGLE_PROCESS=true
+PLAYWRIGHT_CHROMIUM_ARGS=--single-process,--no-zygote,--disable-gpu
 
 # Or via environment
-export PLAYWRIGHT_SINGLE_PROCESS=true
+export PLAYWRIGHT_CHROMIUM_ARGS="--single-process,--no-zygote,--disable-gpu"
 npm run e2e
 ```
 
 **Automatically set by**:
 
-- `scripts/setup_cai_code` - Sets to `true` for Claude Code environments
+- `scripts/setup_cai_code` - Sets containerized environment flags for Claude Code
 
 **Performance Note**:
 
-- Single-process mode is **slower** than multi-process mode
-- Only enable when necessary for stability
-- Normal development machines should use `false` (default)
+- Custom args (especially `--single-process`) are **slower** than Chromium defaults
+- Only set when necessary for stability
+- Normal development machines should leave empty (default)
 
-## Chromium Flags
+## Recommended Chromium Flags for Containerized Environments
 
-The Playwright configuration applies different Chromium flags based on the environment:
+When `PLAYWRIGHT_CHROMIUM_ARGS` is needed (e.g., in Claude Code), use these flags:
 
-**Always Applied** (stability flags):
+```bash
+--single-process,--no-zygote,--disable-gpu,--disable-dev-shm-usage,--disable-setuid-sandbox,--no-sandbox,--disable-web-security,--disable-features=IsolateOrigins,site-per-process,--disable-blink-features=AutomationControlled,--disable-software-rasterizer
+```
 
-- `--disable-gpu`
-- `--disable-dev-shm-usage`
-- `--disable-setuid-sandbox`
-- `--no-sandbox`
-- `--disable-web-security`
-- `--disable-features=IsolateOrigins,site-per-process`
-- `--disable-blink-features=AutomationControlled`
-- `--disable-software-rasterizer`
+**Flag explanations**:
 
-**Conditionally Applied** (when `PLAYWRIGHT_SINGLE_PROCESS=true`):
-
-- `--single-process` - Run Chromium in single-process mode
+- `--single-process` - Run Chromium in single-process mode (prevents crashes in containers)
 - `--no-zygote` - Disable zygote process spawning
+- `--disable-gpu` - Disable GPU hardware acceleration
+- `--disable-dev-shm-usage` - Don't use /dev/shm shared memory
+- `--disable-setuid-sandbox` - Disable setuid sandbox
+- `--no-sandbox` - Disable sandboxing
+- `--disable-web-security` - Disable web security features
+- `--disable-features=IsolateOrigins,site-per-process` - Disable site isolation
+- `--disable-blink-features=AutomationControlled` - Hide automation detection
+- `--disable-software-rasterizer` - Disable software rasterizer
