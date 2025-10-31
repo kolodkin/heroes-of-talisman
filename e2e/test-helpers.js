@@ -1,7 +1,9 @@
 import { test, expect } from "@playwright/test";
 
 export const FRONTEND_URL = `http://localhost:${process.env.WWW_PORT ?? "5173"}`;
-export const TIMEOUT = 1000;
+// Increase timeout for containerized environments with single-process Chromium
+// Use longer timeout (30s) when custom Chromium args are set, otherwise 10s
+export const TIMEOUT = process.env.PLAYWRIGHT_CHROMIUM_ARGS ? 30000 : 10000;
 
 export async function screenshot(page, name) {
   const screenshot = await page.screenshot();
