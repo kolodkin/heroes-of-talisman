@@ -8,11 +8,15 @@ test("test players menu minified", async ({ page }) => {
 
   // Setup: Create game via API
   await deleteGameViaAPI(gameName); // Clean up if exists
-  await createGameViaAPI(gameName);
+  const createdGame = await createGameViaAPI(gameName);
 
   try {
     // Navigate to home and join game
     await setupHomePage(page);
+
+    // Verify the game button is available before trying to join
+    await page.waitForSelector(`button:has-text("${gameName}")`, { timeout: TIMEOUT });
+
     await joinGame(page, "player", gameName);
     await screenshot(page, "joined-game");
 

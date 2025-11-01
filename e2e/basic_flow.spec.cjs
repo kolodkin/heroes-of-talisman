@@ -97,11 +97,51 @@ async function testCharacterSelection(page, page2) {
   // Player1 confirms selection with בחר button
   await selectButton.click();
 
-  // Wait for game_update event
-  await page.waitForEvent("console", {
-    predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
-    timeout: TIMEOUT,
-  });
+  // Wait for transition to ability selection stage
+  await page.waitForSelector('[data-stage="ability_selection"]', { timeout: TIMEOUT });
+  await screenshot(page, "transitioned-to-ability-selection");
+}
+
+async function testAbilitySelection(page, page2) {
+  // Verify we're in ability selection stage
+  const selectButton = page.getByRole("button", { name: "בחר" });
+  await expect(selectButton).toBeVisible();
+  await screenshot(page, "ability-selection-start");
+
+  // Select the freeze ability using data-ability attribute
+  const sharedArea = page.locator('[data-shared-area-active="true"]');
+  const freezeAbility = sharedArea.locator('[data-ability="freeze"]');
+  await freezeAbility.click();
+  await screenshot(page, "ability-selected");
+
+  // Confirm ability selection with בחר button
+  await selectButton.click();
+
+  // Wait for transition to ability_opponent_selection stage
+  await page.waitForSelector('[data-stage="ability_opponent_selection"]', { timeout: TIMEOUT });
+  await screenshot(page, "transitioned-to-ability-opponent-selection");
+}
+
+async function testAbilityOpponentSelection(page, page2) {
+  // Verify we're in ability opponent selection stage
+  const selectButton = page.getByRole("button", { name: "בחר" });
+  await expect(selectButton).toBeVisible();
+  await screenshot(page, "ability-opponent-selection-start");
+
+  // Select opponent's knight character from the shared area
+  // In this stage, opponents are shown in minimized format with data-character attribute
+  const sharedArea = page.locator('[data-shared-area-active="true"]');
+  const opponentPlayer = sharedArea.locator('[data-player="player2"]');
+  const knightChar = opponentPlayer.locator('[data-character="knight"]');
+  await knightChar.click();
+  await screenshot(page, "ability-opponent-selected");
+
+  // Confirm selection
+  await selectButton.click();
+
+  // Wait for transition to opponent_selection stage
+  await page.waitForSelector('[data-stage="opponent_selection"]', { timeout: TIMEOUT });
+  await screenshot(page, "transitioned-to-opponent-selection");
 }
 
 async function testOpponentSelection(page, page2) {
@@ -139,12 +179,11 @@ async function testOpponentSelection(page, page2) {
 
   // Confirm opponent selection with בחר button
   await selectButton.click();
+  await screenshot(page, "after-opponent-select-click");
 
-  // Wait for game_update event that transitions to battle
-  await page.waitForEvent("console", {
-    predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
-    timeout: TIMEOUT,
-  });
+  // Wait for transition to battle_dice_roll stage
+  await page.waitForSelector('[data-stage="battle_dice_roll"]', { timeout: TIMEOUT });
+  await screenshot(page, "transitioned-to-battle-dice-roll");
 }
 
 async function testBattleStage(page, page2) {
@@ -252,6 +291,12 @@ test("basic game flow", async ({ page }) => {
 
   // Test character selection flow
   await testCharacterSelection(page, page2);
+
+  // Test ability selection flow
+  await testAbilitySelection(page, page2);
+
+  // Test ability opponent selection flow
+  await testAbilityOpponentSelection(page, page2);
 
   // Test opponent selection flow
   await testOpponentSelection(page, page2);
