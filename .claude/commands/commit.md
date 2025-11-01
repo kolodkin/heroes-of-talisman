@@ -56,3 +56,4 @@ This project uses pre-commit hooks that may modify files during commit (formatti
 - Keep commit messages concise but descriptive
 - ALWAYS get user approval before creating the commit
 - If command runs again: restart from step 1
+- Do NOT include "Generated with Claude Code" in commit messages

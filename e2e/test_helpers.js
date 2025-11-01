@@ -76,3 +76,16 @@ export async function waitForToast(page, { type, message, timeout = 3000 } = {})
 export async function waitForStage(page, stage, timeout = TIMEOUT) {
   await page.waitForSelector(`[data-game-stage="${stage}"]`, { timeout });
 }
+
+/**
+ * Wait for a game_update WebSocket message to be logged to the console
+ * @param {Page} page - Playwright page object
+ * @param {number} timeout - Timeout in ms (default: TIMEOUT constant)
+ * @returns {Promise<void>}
+ */
+export async function waitForGameUpdate(page, timeout = TIMEOUT) {
+  await page.waitForEvent("console", {
+    predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
+    timeout,
+  });
+}

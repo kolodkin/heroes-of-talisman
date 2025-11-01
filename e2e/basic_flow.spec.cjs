@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { TIMEOUT, screenshot, setupHomePage, joinGame, waitForStage } = require("./test_helpers.js");
+const { TIMEOUT, screenshot, setupHomePage, joinGame, waitForStage, waitForGameUpdate } = require("./test_helpers.js");
 const { sendDebugActionViaWS } = require("./api_helpers.js");
 
 const GAME_NAME = "test basic flow";
@@ -64,10 +64,7 @@ async function testCharacterSelection(page, page2) {
   await page.locator('[alt="knight"]').nth(2).click();
 
   // Wait for game_update event
-  await page.waitForEvent("console", {
-    predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
-    timeout: TIMEOUT,
-  });
+  await waitForGameUpdate(page);
   await screenshot(page, "knight-selected");
 
   // Verify knight is highlighted
@@ -78,10 +75,7 @@ async function testCharacterSelection(page, page2) {
   await page.locator('[alt="mage"]').nth(2).click();
 
   // Wait for game_update event
-  await page.waitForEvent("console", {
-    predicate: (msg) => msg.text().includes("onmessage") && msg.text().includes("game_update"),
-    timeout: TIMEOUT,
-  });
+  await waitForGameUpdate(page);
   await screenshot(page, "mage-selected");
 
   // Verify mage is highlighted and knight is not
