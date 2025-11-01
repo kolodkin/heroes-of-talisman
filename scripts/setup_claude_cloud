@@ -1,0 +1,164 @@
+#!/bin/bash
+set -e
+
+# Setup script for Claude Cloud / containerized environments
+# This script configures PostgreSQL, Redis, and runs the main setup
+
+SCRIPT_DIR=$(dirname $(readlink -f $0))
+ROOT_DIR=$SCRIPT_DIR/..
+
+cd $ROOT_DIR
+
+echo "======================================"
+echo "Claude Cloud Environment Setup"
+echo "======================================"
+
+# Check if running as root (common in containers)
+if [ "$EUID" -eq 0 ]; then
+    echo "⚠️  Running as root - this is expected in containerized environments"
+fi
+
+# Step 1: Configure PostgreSQL
+echo ""
+echo "Step 1: Configuring PostgreSQL..."
+echo "-----------------------------------"
+
+# Disable SSL in PostgreSQL (permission issues in containers)
+if grep -q "^ssl = on" /etc/postgresql/16/main/postgresql.conf 2>/dev/null; then
+    echo "Disabling SSL in PostgreSQL config..."
+    sed -i 's/^ssl = on/ssl = off/' /etc/postgresql/16/main/postgresql.conf
+fi
+
+# Set trust authentication for localhost (testing only!)
+if grep -q "host.*all.*all.*127.0.0.1/32.*scram-sha-256" /etc/postgresql/16/main/pg_hba.conf 2>/dev/null; then
+    echo "Setting trust authentication for localhost..."
+    sed -i 's/host.*all.*all.*127.0.0.1\/32.*scram-sha-256/host    all             all             127.0.0.1\/32            trust/' /etc/postgresql/16/main/pg_hba.conf
+fi
+
+# Fix config file ownership if needed
+POSTGRES_USER=$(ps aux | grep "postgres.*main" | grep -v grep | awk '{print $1}' | head -1)
+if [ ! -z "$POSTGRES_USER" ] && [ "$POSTGRES_USER" != "postgres" ]; then
+    echo "Fixing PostgreSQL config file ownership for user: $POSTGRES_USER..."
+    chown $POSTGRES_USER:$POSTGRES_USER /etc/postgresql/16/main/pg_hba.conf 2>/dev/null || true
+    chown $POSTGRES_USER:$POSTGRES_USER /etc/postgresql/16/main/postgresql.conf 2>/dev/null || true
+fi
+
+# Step 2: Start PostgreSQL
+echo ""
+echo "Step 2: Starting PostgreSQL..."
+echo "-------------------------------"
+
+# Check if PostgreSQL is already running
+if pg_isready -h localhost -p 5432 > /dev/null 2>&1; then
+    echo "✓ PostgreSQL is already running"
+else
+    echo "Starting PostgreSQL cluster..."
+    pg_ctlcluster 16 main start || echo "⚠️  PostgreSQL may already be running or failed to start"
+
+    # Wait for PostgreSQL to be ready
+    echo "Waiting for PostgreSQL to be ready..."
+    for i in {1..10}; do
+        if pg_isready -h localhost -p 5432 > /dev/null 2>&1; then
+            echo "✓ PostgreSQL is ready"
+            break
+        fi
+        sleep 1
+        if [ "$i" -eq 10 ]; then
+            echo "❌ PostgreSQL did not become ready in time"
+            exit 1
+        fi
+    done
+fi
+
+# Step 3: Start Redis
+echo ""
+echo "Step 3: Starting Redis..."
+echo "--------------------------"
+
+if redis-cli ping > /dev/null 2>&1; then
+    echo "✓ Redis is already running"
+else
+    echo "Starting Redis server..."
+    redis-server --daemonize yes
+
+    # Wait for Redis to be ready
+    sleep 1
+    if redis-cli ping > /dev/null 2>&1; then
+        echo "✓ Redis is ready"
+    else
+        echo "❌ Redis failed to start"
+        exit 1
+    fi
+fi
+
+# Step 4: Run main setup script
+echo ""
+echo "Step 4: Running main setup script..."
+echo "-------------------------------------"
+
+./scripts/setup --no-docker
+
+# Step 5: Configure Playwright browser args for containerized environment
+echo ""
+echo "Step 5: Configuring Playwright browser args..."
+echo "------------------------------------------------"
+
+# Set container-specific browser args in .env
+if [ -f .env ]; then
+    # Remove existing PLAYWRIGHT_BROWSER_ARGS line if present
+    grep -v "^PLAYWRIGHT_BROWSER_ARGS=" .env > .env.tmp 2>/dev/null || true
+    mv .env.tmp .env
+
+    # Add container-specific browser args
+    echo "" >> .env
+    echo "# Browser arguments for containerized/Claude Cloud environments" >> .env
+    echo "PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process" >> .env
+
+    echo "✓ Set PLAYWRIGHT_BROWSER_ARGS for containerized environment"
+    echo "  Flags: --single-process (critical), --no-sandbox, --disable-gpu, etc."
+else
+    echo "❌ .env file not found"
+    exit 1
+fi
+
+# Step 6: Verify services
+echo ""
+echo "Step 6: Verifying services..."
+echo "------------------------------"
+
+# Check PostgreSQL
+if pg_isready -h localhost -p 5432 > /dev/null 2>&1; then
+    echo "✓ PostgreSQL is running on port 5432"
+else
+    echo "❌ PostgreSQL is not responding"
+    exit 1
+fi
+
+# Check Redis
+if redis-cli ping > /dev/null 2>&1; then
+    echo "✓ Redis is running on port 6379"
+else
+    echo "❌ Redis is not responding"
+    exit 1
+fi
+
+# Step 7: Summary
+echo ""
+echo "======================================"
+echo "✓ Setup Complete!"
+echo "======================================"
+echo ""
+echo "Services running:"
+echo "  - PostgreSQL: localhost:5432"
+echo "  - Redis: localhost:6379"
+echo ""
+echo "Configuration:"
+echo "  - Playwright browser args: PLAYWRIGHT_BROWSER_ARGS in .env"
+echo "  - Configured for containerized environments (--single-process, etc.)"
+echo ""
+echo "To run tests:"
+echo "  Backend: uv run pytest -v"
+echo "  E2E:     CI=true npm run e2e"
+echo ""
+echo "Note: E2E tests use CI=true for retry support in containerized environments"
+echo ""
