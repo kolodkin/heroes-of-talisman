@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { TIMEOUT, screenshot, setupHomePage, joinGame } = require("./test-helpers.js");
+const { TIMEOUT, screenshot, setupHomePage, joinGame } = require("./test_helpers.js");
 const { sendDebugActionViaWS } = require("./api_helpers.js");
 
 const GAME_NAME = "test basic flow";

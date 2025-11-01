@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
-import { TIMEOUT, screenshot, setupHomePage, joinGame } from "./test-helpers.js";
+import { TIMEOUT, screenshot, setupHomePage, joinGame } from "./test_helpers.js";
 
 test("test disconnected player overlay in players menu", async ({ page }) => {
   const testName = "disconnected-players-menu";

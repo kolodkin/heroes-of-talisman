@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
-import { TIMEOUT, screenshot, setupHomePage, joinGame } from "./test-helpers.js";
+import { TIMEOUT, screenshot, setupHomePage, joinGame } from "./test_helpers.js";
 
 test("test players menu minified", async ({ page }) => {
   const testName = "players-menu-minified";

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createPresetGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
-import { screenshot } from "./test-helpers.js";
+import { screenshot } from "./test_helpers.js";
 
 test("minimum player overlay appears with single player", async ({ page }) => {
   const gameName = "test-minimum-players";

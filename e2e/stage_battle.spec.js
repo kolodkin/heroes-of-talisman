@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { screenshot, joinGameViaUrl } from "./test-helpers.js";
+import { screenshot, joinGameViaUrl } from "./test_helpers.js";
 import { createPresetGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
 
 /**
