@@ -92,6 +92,24 @@ export async function getGamesViaAPI() {
 }
 
 /**
+ * Delete all games with a given prefix via the server API
+ * @param {string} prefix - Prefix to match (case-insensitive)
+ * @returns {Promise<string[]>} Array of deleted game names
+ */
+export async function deleteGamesByPrefix(prefix) {
+  const games = await getGamesViaAPI();
+  const matchingGames = games.filter((game) => game.toLowerCase().startsWith(prefix.toLowerCase()));
+
+  const deletedGames = [];
+  for (const gameName of matchingGames) {
+    await deleteGameViaAPI(gameName);
+    deletedGames.push(gameName);
+  }
+
+  return deletedGames;
+}
+
+/**
  * Send a debug action via WebSocket
  * @param {string} gameName - Name of the game
  * @param {string} username - Username to send the action as

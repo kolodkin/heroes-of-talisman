@@ -16,7 +16,7 @@ export async function setupHomePage(page) {
 
 export async function joinGame(page, playerName, gameName) {
   await page.getByLabel("Enter your name:").fill(playerName);
-  const gameButton = page.getByRole("button", { name: gameName });
+  const gameButton = page.getByRole("button", { name: gameName, exact: true });
 
   const [connectedLog] = await Promise.all([
     page.waitForEvent("console", {
