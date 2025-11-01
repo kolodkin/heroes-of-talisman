@@ -1,11 +1,7 @@
-import { test, expect } from "@playwright/test";
 import { createGameViaAPI } from "./api_helpers.js";
-import { TIMEOUT, screenshot, setupHomePage, joinGame } from "./test_helpers.js";
+import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame } from "./test_helpers.js";
 
-test("test disconnected player overlay in players menu", async ({ page }) => {
-  const testName = "disconnected-players-menu";
-  const gameName = `test ${testName}`;
-
+test("disconnected player overlay in players menu", async ({ page, gameName }) => {
   // Setup: Create game via API
   await createGameViaAPI(gameName);
 

@@ -1,6 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { screenshot, joinGameViaUrl } from "./test_helpers.js";
 import { createPresetGameViaAPI } from "./api_helpers.js";
+import { test, expect, screenshot, joinGameViaUrl } from "./test_helpers.js";
 
 /**
  * Helper to verify battle stage is displayed with expected participants
@@ -53,9 +52,7 @@ async function verifyWinner(page, winnerRole) {
   });
 }
 
-test("battle stage - player 1 wins", async ({ page }) => {
-  const gameName = "test battle_p1_win_test";
-
+test("battle stage - player 1 wins", async ({ page, gameName }) => {
   // Create preset game with player 1 winning
   await createPresetGameViaAPI(gameName, "battle_player_1_win");
 
@@ -92,9 +89,7 @@ test("battle stage - player 1 wins", async ({ page }) => {
   await page2.close();
 });
 
-test("battle stage - player 2 wins", async ({ page }) => {
-  const gameName = "test battle_p2_win_test";
-
+test("battle stage - player 2 wins", async ({ page, gameName }) => {
   // Create preset game with player 2 winning
   await createPresetGameViaAPI(gameName, "battle_player_2_win");
 
@@ -131,9 +126,7 @@ test("battle stage - player 2 wins", async ({ page }) => {
   await page2.close();
 });
 
-test("battle stage - draw with reroll", async ({ page }) => {
-  const gameName = "test battle_draw_test";
-
+test("battle stage - draw with reroll", async ({ page, gameName }) => {
   // Create preset game with draw
   await createPresetGameViaAPI(gameName, "battle_draw");
 

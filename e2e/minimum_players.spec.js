@@ -1,9 +1,7 @@
-import { test, expect } from "@playwright/test";
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { screenshot } from "./test_helpers.js";
+import { test, expect, screenshot } from "./test_helpers.js";
 
-test("minimum player overlay appears with single player", async ({ page }) => {
-  const gameName = "test minimum players";
+test("minimum player overlay appears with single player", async ({ page, gameName }) => {
   const playerName = "player1";
 
   // Setup: Create game with only one player using single_player preset
@@ -36,8 +34,7 @@ test("minimum player overlay appears with single player", async ({ page }) => {
   await screenshot(page, "single-player-overlay-final");
 });
 
-test("minimum player overlay not present with two players", async ({ page }) => {
-  const gameName = "test two players";
+test("minimum player overlay not present with two players", async ({ page, gameName }) => {
   const playerName = "player1";
 
   // Setup: Create game with knight_not_alive preset (has 2 players)

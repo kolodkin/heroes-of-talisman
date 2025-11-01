@@ -1,11 +1,7 @@
-import { test, expect } from "@playwright/test";
 import { createGameViaAPI } from "./api_helpers.js";
-import { TIMEOUT, screenshot, setupHomePage, joinGame } from "./test_helpers.js";
+import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame } from "./test_helpers.js";
 
-test("test players menu minified", async ({ page }) => {
-  const testName = "players-menu-minified";
-  const gameName = `test ${testName}`;
-
+test("players menu minified", async ({ page, gameName }) => {
   // Setup: Create game via API
   const createdGame = await createGameViaAPI(gameName);
 

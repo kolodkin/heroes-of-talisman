@@ -1,9 +1,7 @@
-import { test, expect } from "@playwright/test";
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { screenshot, FRONTEND_URL } from "./test_helpers.js";
+import { test, expect, screenshot, FRONTEND_URL } from "./test_helpers.js";
 
-test("shared area dynamic alignment - character selection stage", async ({ page }) => {
-  const gameName = "test shared-area-alignment";
+test("shared area dynamic alignment - character selection stage", async ({ page, gameName }) => {
   const playerName = "player1";
 
   // Setup: Create game in character selection stage using default preset
@@ -85,8 +83,7 @@ test("shared area dynamic alignment - character selection stage", async ({ page 
   await expect(page.locator('[data-character="knight"]').first()).toBeInViewport();
 });
 
-test("shared area dynamic alignment - opponent selection stage", async ({ page }) => {
-  const gameName = "test opponent-alignment";
+test("shared area dynamic alignment - opponent selection stage", async ({ page, gameName }) => {
   const playerName = "player1";
 
   // Setup: Create game in opponent selection stage
