@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
-import { setupHomePage, screenshot, waitForToast } from "./test-helpers.js";
+import { setupHomePage, screenshot, waitForToast } from "./test_helpers.js";
 
 test("should show error toast when username is empty", async ({ page }) => {
   const gameName = "test-empty-username";

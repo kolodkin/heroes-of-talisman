@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { createPresetGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
-import { screenshot, FRONTEND_URL } from "./test-helpers.js";
+import { screenshot, FRONTEND_URL } from "./test_helpers.js";
 
 test("shared area dynamic alignment - character selection stage", async ({ page }) => {
   const gameName = "test-shared-area-alignment";
