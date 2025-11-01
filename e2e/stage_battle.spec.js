@@ -92,7 +92,7 @@ test("battle stage - player 1 wins", async ({ page }) => {
   // Cleanup - close all pages first to avoid WebSocket race condition
   await page2.close();
   await page.close();
-  await deleteGameViaAPI(gameName);
+  // Note: deleteGameViaAPI no longer needed - global teardown handles cleanup
 });
 
 test("battle stage - player 2 wins", async ({ page }) => {
@@ -134,7 +134,7 @@ test("battle stage - player 2 wins", async ({ page }) => {
   // Cleanup - close all pages first to avoid WebSocket race condition
   await page2.close();
   await page.close();
-  await deleteGameViaAPI(gameName);
+  // Note: deleteGameViaAPI no longer needed - global teardown handles cleanup
 });
 
 test("battle stage - draw with reroll", async ({ page }) => {
@@ -200,5 +200,5 @@ test("battle stage - draw with reroll", async ({ page }) => {
   // Cleanup - close all pages first to avoid WebSocket race condition
   await page2.close();
   await page.close();
-  await deleteGameViaAPI(gameName);
+  // Note: deleteGameViaAPI no longer needed - global teardown handles cleanup
 });

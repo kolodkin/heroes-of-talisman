@@ -73,7 +73,7 @@ test("character_select stage - knight not alive", async ({ page }) => {
 
   // Cleanup - close page first to avoid WebSocket race condition
   await page.close();
-  await deleteGameViaAPI(gameName);
+  // Note: deleteGameViaAPI no longer needed - global teardown handles cleanup
 });
 
 test("character_select stage - mage not alive", async ({ page }) => {
@@ -96,7 +96,7 @@ test("character_select stage - mage not alive", async ({ page }) => {
 
   // Cleanup - close page first to avoid WebSocket race condition
   await page.close();
-  await deleteGameViaAPI(gameName);
+  // Note: deleteGameViaAPI no longer needed - global teardown handles cleanup
 });
 
 test("character_select stage - archer not alive", async ({ page }) => {
@@ -119,5 +119,5 @@ test("character_select stage - archer not alive", async ({ page }) => {
 
   // Cleanup - close page first to avoid WebSocket race condition
   await page.close();
-  await deleteGameViaAPI(gameName);
+  // Note: deleteGameViaAPI no longer needed - global teardown handles cleanup
 });
