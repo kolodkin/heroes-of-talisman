@@ -4,7 +4,7 @@ A React-based UI engine for visualizing and interacting with card game states re
 
 related specs:
 
-- [gameplay spec](/specs/gameplay_spec.md)
+- [gameplay spec](/docs/gameplay_spec.md)
 - [gameplay backend spec](/server/gameplay/gameplay_backend.md)
 
 ## Overview
