@@ -82,11 +82,20 @@ When running as root in containers, Chromium requires special flags to bypass sa
 
 ### Environment Variable Configuration
 
-Browser arguments are configured via the `PLAYWRIGHT_BROWSER_ARGS` environment variable in `.env`:
+Browser arguments are configured via the `PLAYWRIGHT_BROWSER_ARGS` environment variable in `.env`.
+
+**Automatic Configuration**: The `./scripts/setup_claude_cloud` script automatically sets container-specific browser args:
 
 ```bash
-# .env
+# Automatically set by setup_claude_cloud
 PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process
+```
+
+**Default Behavior**: By default (via `./scripts/setup --no-docker`), `PLAYWRIGHT_BROWSER_ARGS` is empty, which uses minimal default flags:
+
+```bash
+# Default from create_env.sh for local/CI environments
+PLAYWRIGHT_BROWSER_ARGS=
 ```
 
 The args are comma-separated chromium flags. The config is automatically loaded by `playwright.config.js`:
@@ -122,12 +131,21 @@ const browserArgs = getBrowserArgs();
 To use different browser args, modify `PLAYWRIGHT_BROWSER_ARGS` in `.env`:
 
 ```bash
-# Minimal (for well-configured environments)
+# Empty (default for local/CI - uses minimal defaults from playwright.config.js)
+PLAYWRIGHT_BROWSER_ARGS=
+
+# Minimal (if you need basic sandboxing disabled)
 PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox
 
-# Full containerized support (recommended for Claude Cloud)
+# Full containerized support (automatically set by setup_claude_cloud)
 PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process
 ```
+
+**When to use each**:
+
+- **Empty** - Local development machines and well-configured CI/CD
+- **Minimal** - When running as root but not in containers
+- **Full** - Claude Cloud and containerized environments (auto-set by setup_claude_cloud)
 
 ## Running Tests
 

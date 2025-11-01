@@ -91,24 +91,35 @@ else
     fi
 fi
 
-# Step 4: Verify Playwright browser args
+# Step 4: Run main setup script
 echo ""
-echo "Step 4: Verifying Playwright browser args..."
-echo "----------------------------------------------"
-
-if grep -q "PLAYWRIGHT_BROWSER_ARGS" .env 2>/dev/null; then
-    echo "✓ PLAYWRIGHT_BROWSER_ARGS configured in .env"
-else
-    echo "⚠️  PLAYWRIGHT_BROWSER_ARGS not found in .env"
-    echo "   Using default browser args (minimal sandboxing)"
-fi
-
-# Step 5: Run main setup script
-echo ""
-echo "Step 5: Running main setup script..."
+echo "Step 4: Running main setup script..."
 echo "-------------------------------------"
 
 ./scripts/setup --no-docker
+
+# Step 5: Configure Playwright browser args for containerized environment
+echo ""
+echo "Step 5: Configuring Playwright browser args..."
+echo "------------------------------------------------"
+
+# Set container-specific browser args in .env
+if [ -f .env ]; then
+    # Remove existing PLAYWRIGHT_BROWSER_ARGS line if present
+    grep -v "^PLAYWRIGHT_BROWSER_ARGS=" .env > .env.tmp 2>/dev/null || true
+    mv .env.tmp .env
+
+    # Add container-specific browser args
+    echo "" >> .env
+    echo "# Browser arguments for containerized/Claude Cloud environments" >> .env
+    echo "PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process" >> .env
+
+    echo "✓ Set PLAYWRIGHT_BROWSER_ARGS for containerized environment"
+    echo "  Flags: --single-process (critical), --no-sandbox, --disable-gpu, etc."
+else
+    echo "❌ .env file not found"
+    exit 1
+fi
 
 # Step 6: Verify services
 echo ""
