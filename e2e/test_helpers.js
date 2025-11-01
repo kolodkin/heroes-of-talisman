@@ -65,3 +65,14 @@ export async function waitForToast(page, { type, message, timeout = 3000 } = {})
 
   return toastText;
 }
+
+/**
+ * Wait for the game to transition to a specific stage
+ * @param {Page} page - Playwright page object
+ * @param {string} stage - Stage name (e.g., 'character_select', 'ability_selection', 'battle_dice_roll')
+ * @param {number} timeout - Timeout in ms (default: TIMEOUT constant)
+ * @returns {Promise<void>}
+ */
+export async function waitForStage(page, stage, timeout = TIMEOUT) {
+  await page.waitForSelector(`[data-game-stage="${stage}"]`, { timeout });
+}

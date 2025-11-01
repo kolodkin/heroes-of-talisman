@@ -76,7 +76,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
   };
 
   return (
-    <div className={styles["game-play"]} data-stage={gamePlay.stage}>
+    <div className={styles["game-play"]} data-game-stage={gamePlay.stage}>
       <div className={styles["players-container"]}>
         {playersArray.map((player, index) => {
           const isMinimized = minimizedPlayers[player.name];

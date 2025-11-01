@@ -1,5 +1,5 @@
 const { test, expect } = require("@playwright/test");
-const { TIMEOUT, screenshot, setupHomePage, joinGame } = require("./test_helpers.js");
+const { TIMEOUT, screenshot, setupHomePage, joinGame, waitForStage } = require("./test_helpers.js");
 const { sendDebugActionViaWS } = require("./api_helpers.js");
 
 const GAME_NAME = "test basic flow";
@@ -98,7 +98,7 @@ async function testCharacterSelection(page, page2) {
   await selectButton.click();
 
   // Wait for transition to ability selection stage
-  await page.waitForSelector('[data-stage="ability_selection"]', { timeout: TIMEOUT });
+  await waitForStage(page, "ability_selection");
   await screenshot(page, "transitioned-to-ability-selection");
 }
 
@@ -118,7 +118,7 @@ async function testAbilitySelection(page, page2) {
   await selectButton.click();
 
   // Wait for transition to ability_opponent_selection stage
-  await page.waitForSelector('[data-stage="ability_opponent_selection"]', { timeout: TIMEOUT });
+  await waitForStage(page, "ability_opponent_selection");
   await screenshot(page, "transitioned-to-ability-opponent-selection");
 }
 
@@ -140,7 +140,7 @@ async function testAbilityOpponentSelection(page, page2) {
   await selectButton.click();
 
   // Wait for transition to opponent_selection stage
-  await page.waitForSelector('[data-stage="opponent_selection"]', { timeout: TIMEOUT });
+  await waitForStage(page, "opponent_selection");
   await screenshot(page, "transitioned-to-opponent-selection");
 }
 
@@ -182,7 +182,7 @@ async function testOpponentSelection(page, page2) {
   await screenshot(page, "after-opponent-select-click");
 
   // Wait for transition to battle_dice_roll stage
-  await page.waitForSelector('[data-stage="battle_dice_roll"]', { timeout: TIMEOUT });
+  await waitForStage(page, "battle_dice_roll");
   await screenshot(page, "transitioned-to-battle-dice-roll");
 }
 
