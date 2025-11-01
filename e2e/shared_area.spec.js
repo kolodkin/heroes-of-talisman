@@ -86,6 +86,7 @@ test("shared area dynamic alignment - character selection stage", async ({ page 
     await expect(page.locator('[data-character="archer"]').first()).toBeInViewport();
     await expect(page.locator('[data-character="knight"]').first()).toBeInViewport();
   } finally {
+    await page.close();
     await deleteGameViaAPI(gameName);
   }
 });
@@ -167,6 +168,7 @@ test("shared area dynamic alignment - opponent selection stage", async ({ page }
     await expect(firstOpponent.locator('[data-character="archer"]').first()).toBeInViewport();
     await expect(firstOpponent.locator('[data-character="knight"]').first()).toBeInViewport();
   } finally {
+    await page.close();
     await deleteGameViaAPI(gameName);
   }
 });

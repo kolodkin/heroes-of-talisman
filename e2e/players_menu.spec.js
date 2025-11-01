@@ -92,7 +92,8 @@ test("test players menu minified", async ({ page }) => {
     // Clean up
     await page2.close();
   } finally {
-    // Cleanup: Delete game via API
+    // Cleanup: Close main page first, then delete game via API
+    await page.close();
     await deleteGameViaAPI(gameName);
   }
 });

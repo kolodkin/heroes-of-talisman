@@ -39,6 +39,7 @@ test("should show error toast when username is empty", async ({ page }) => {
       contentType: "text/plain",
     });
   } finally {
+    await page.close();
     await deleteGameViaAPI(gameName);
   }
 });
@@ -80,6 +81,7 @@ test("should show error toast when username is only whitespace", async ({ page }
       contentType: "text/plain",
     });
   } finally {
+    await page.close();
     await deleteGameViaAPI(gameName);
   }
 });
@@ -109,6 +111,7 @@ test("should allow joining game with valid username", async ({ page }) => {
 
     await screenshot(page, "joined-game");
   } finally {
+    await page.close();
     await deleteGameViaAPI(gameName);
   }
 });
@@ -138,6 +141,7 @@ test("should trim whitespace from username when joining", async ({ page }) => {
 
     await screenshot(page, "joined-with-trimmed-username");
   } finally {
+    await page.close();
     await deleteGameViaAPI(gameName);
   }
 });

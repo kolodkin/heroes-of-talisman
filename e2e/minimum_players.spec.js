@@ -37,6 +37,7 @@ test("minimum player overlay appears with single player", async ({ page }) => {
 
     await screenshot(page, "single-player-overlay-final");
   } finally {
+    await page.close();
     await deleteGameViaAPI(gameName);
   }
 });
@@ -69,6 +70,7 @@ test("minimum player overlay not present with two players", async ({ page }) => 
 
     await screenshot(page, "two-players-interactive");
   } finally {
+    await page.close();
     await deleteGameViaAPI(gameName);
   }
 });

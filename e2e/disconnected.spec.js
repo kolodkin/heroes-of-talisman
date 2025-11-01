@@ -58,7 +58,8 @@ test("test disconnected player overlay in players menu", async ({ page }) => {
     await expect(player1DisconnectedOverlay).not.toBeVisible();
     await screenshot(page, "player2-disconnected");
   } finally {
-    // Cleanup: Delete game via API
+    // Cleanup: Close page first, then delete game via API
+    await page.close();
     await deleteGameViaAPI(gameName);
   }
 });

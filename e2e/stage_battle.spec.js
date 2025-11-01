@@ -89,8 +89,9 @@ test("battle stage - player 1 wins", async ({ page }) => {
   await continueButton.click();
   await screenshot(page, "after-continue-click");
 
-  // Cleanup
+  // Cleanup - close all pages first to avoid WebSocket race condition
   await page2.close();
+  await page.close();
   await deleteGameViaAPI(gameName);
 });
 
@@ -130,8 +131,9 @@ test("battle stage - player 2 wins", async ({ page }) => {
   await continueButton.click();
   await screenshot(page, "after-continue-click");
 
-  // Cleanup
+  // Cleanup - close all pages first to avoid WebSocket race condition
   await page2.close();
+  await page.close();
   await deleteGameViaAPI(gameName);
 });
 
@@ -195,7 +197,8 @@ test("battle stage - draw with reroll", async ({ page }) => {
   await expect(activeDice.first()).not.toBeVisible();
   await expect(opponentDice.first()).not.toBeVisible();
 
-  // Cleanup
+  // Cleanup - close all pages first to avoid WebSocket race condition
   await page2.close();
+  await page.close();
   await deleteGameViaAPI(gameName);
 });
