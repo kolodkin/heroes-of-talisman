@@ -10,7 +10,7 @@ This guide documents the setup process for running tests in Claude Cloud or simi
 
 # Run tests
 uv run pytest -v                 # Backend tests
-CI=true npm run e2e              # E2E tests
+npm run e2e              # E2E tests
 ```
 
 ## Requirements
@@ -82,14 +82,20 @@ When running as root in containers, Chromium requires special flags to bypass sa
 
 ### Environment Variable Configuration
 
-Browser arguments are configured via the `PLAYWRIGHT_BROWSER_ARGS` environment variable in `.env`.
+Browser arguments and CI mode are configured via environment variables in `.env`.
 
-**Automatic Configuration**: The `./scripts/setup_claude_cloud` script automatically sets container-specific browser args:
+**Automatic Configuration**: The `./scripts/setup_claude_cloud` script automatically exports environment variables before running the main setup:
 
 ```bash
-# Automatically set by setup_claude_cloud
-PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process
+# Exported by setup_claude_cloud before running ./scripts/setup
+export PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process
+export CI=true
 ```
+
+These exports ensure that:
+
+1. **PLAYWRIGHT_BROWSER_ARGS** is set with container-specific flags and written to `.env`
+2. **CI=true** enables Playwright retry logic and is written to `.env` for future test runs
 
 **Default Behavior**: By default (via `./scripts/setup --no-docker`), `PLAYWRIGHT_BROWSER_ARGS` is empty, which uses minimal default flags:
 
@@ -134,10 +140,7 @@ To use different browser args, modify `PLAYWRIGHT_BROWSER_ARGS` in `.env`:
 # Empty (default for local/CI - uses minimal defaults from playwright.config.js)
 PLAYWRIGHT_BROWSER_ARGS=
 
-# Minimal (if you need basic sandboxing disabled)
-PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox
-
-# Full containerized support (automatically set by setup_claude_cloud)
+# Containerized support (automatically set by setup_claude_cloud)
 PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process
 ```
 
@@ -160,43 +163,14 @@ uv run pytest -v
 
 ### E2E Tests
 
-E2E tests benefit from retry logic in containerized environments:
+E2E tests benefit from retry logic in containerized environments. The `CI=true` environment variable is automatically set by the setup script, which enables Playwright's retry functionality:
 
 ```bash
-# With retries (recommended)
-CI=true npm run e2e
-
-# Without retries (may be flaky)
 npm run e2e
+
+# CI=true is already set in .env by setup_claude_cloud
+# This enables retries (max: 2) per playwright.config.js
 ```
-
-**Expected Results**:
-
-- With `CI=true`: All 17 tests pass (marked as "flaky" if retries needed)
-- Without `CI=true`: 11-12 tests pass, 5-6 may fail due to timing
-
-## Known Issues
-
-### Test Flakiness
-
-E2E tests may be flaky due to:
-
-1. **Race Condition in Test Cleanup**
-   - Tests delete games at startup while WebSocket connections are still open
-   - Server throws "Game not found" and crashes handling the error
-   - **Impact**: First run of test may fail, retry succeeds
-   - **Workaround**: Use `CI=true` to enable retries
-
-2. **Service Instability**
-   - PostgreSQL/Redis may crash during extended test runs
-   - **Impact**: All tests fail until services restarted
-   - **Workaround**: Monitor services, restart with `./scripts/setup_claude_cloud`
-
-3. **API Error Parsing**
-   - Test helper assumes all errors are JSON
-   - Server sometimes returns plain text errors
-   - **Impact**: Tests fail with "SyntaxError: Unexpected token 'I'"
-   - **Status**: Application bug, not infrastructure issue
 
 ### Checking Service Health
 

@@ -4,7 +4,7 @@ A Pydantic-based engine for updating game state through [actions](#actions).
 
 related specs:
 
-- [gameplay spec](/specs/gameplay_spec.md)
+- [gameplay spec](/docs/gameplay_spec.md)
 - [gameplay frontend spec](/src/components/GamePlay/gameplay_frontend.md)
 
 ## Overview

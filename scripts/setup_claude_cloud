@@ -96,6 +96,9 @@ echo ""
 echo "Step 4: Running main setup script..."
 echo "-------------------------------------"
 
+export PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process
+export CI=true
+
 ./scripts/setup --no-docker
 
 # Step 5: Configure Playwright browser args for containerized environment
