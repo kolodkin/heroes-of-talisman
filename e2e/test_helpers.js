@@ -1,7 +1,34 @@
-import { test, expect } from "@playwright/test";
+import { test as base, expect } from "@playwright/test";
 
 export const FRONTEND_URL = `http://localhost:${process.env.WWW_PORT ?? "5173"}`;
 export const TIMEOUT = 1000;
+
+/**
+ * Extended test with gameName fixture
+ * Automatically generates unique game name and cleans up after test
+ */
+export const test = base.extend({
+  gameName: async ({}, use) => {
+    const testInfo = base.info();
+    const gameName = `test ${testInfo.title}`;
+
+    // Provide the game name to the test
+    await use(gameName);
+
+    // Cleanup: Delete the game after the test completes
+    try {
+      const API_URL = `http://localhost:${process.env.API_PORT ?? "8000"}`;
+      await fetch(`${API_URL}/api/games/${encodeURIComponent(gameName)}`, {
+        method: "DELETE",
+      });
+    } catch (error) {
+      // Ignore cleanup errors (game might not exist)
+      console.log(`Cleanup: Could not delete game "${gameName}":`, error.message);
+    }
+  },
+});
+
+export { expect };
 
 export async function screenshot(page, name) {
   const screenshot = await page.screenshot();

@@ -1,6 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { screenshot, joinGameViaUrl } from "./test_helpers.js";
 import { createPresetGameViaAPI } from "./api_helpers.js";
+import { test, expect, screenshot, joinGameViaUrl } from "./test_helpers.js";
 
 /**
  * Helper to verify character is not clickable (not alive)
@@ -48,9 +47,7 @@ async function verifyCharacterClickable(page, characterName) {
   await expect(character).toHaveClass(/selected/);
 }
 
-test("character_select stage - knight not alive", async ({ page }) => {
-  const gameName = "test knight not alive";
-
+test("character_select stage - knight not alive", async ({ page, gameName }) => {
   // Create preset game with knight dead
   await createPresetGameViaAPI(gameName, "knight_not_alive");
 
@@ -71,9 +68,7 @@ test("character_select stage - knight not alive", async ({ page }) => {
   await screenshot(page, "knight-not-alive-after-select");
 });
 
-test("character_select stage - mage not alive", async ({ page }) => {
-  const gameName = "test mage not alive";
-
+test("character_select stage - mage not alive", async ({ page, gameName }) => {
   // Create preset game with mage dead
   await createPresetGameViaAPI(gameName, "mage_not_alive");
 
@@ -89,9 +84,7 @@ test("character_select stage - mage not alive", async ({ page }) => {
   await screenshot(page, "mage-not-alive-after-select");
 });
 
-test("character_select stage - archer not alive", async ({ page }) => {
-  const gameName = "test archer not alive";
-
+test("character_select stage - archer not alive", async ({ page, gameName }) => {
   // Create preset game with archer dead
   await createPresetGameViaAPI(gameName, "archer_not_alive");
 

@@ -1,21 +1,27 @@
-import { test, expect } from "@playwright/test";
-import { TIMEOUT, screenshot, setupHomePage, joinGame, waitForStage, waitForGameUpdate } from "./test_helpers.js";
 import { sendDebugActionViaWS } from "./api_helpers.js";
+import {
+  test,
+  expect,
+  TIMEOUT,
+  screenshot,
+  setupHomePage,
+  joinGame,
+  waitForStage,
+  waitForGameUpdate,
+} from "./test_helpers.js";
 
-const GAME_NAME = "test basic flow";
-
-async function cleanupTestGame(page) {
-  const testGame = page.getByRole("button", { name: GAME_NAME, exact: true });
+async function cleanupTestGame(page, gameName) {
+  const testGame = page.getByRole("button", { name: gameName, exact: true });
   if (await testGame.count()) {
     await page.locator('[class*="game-list-item"]', { has: testGame }).getByRole("button", { name: "🗑️" }).click();
     await expect(testGame).toHaveCount(0);
   }
 }
 
-async function createTestGame(page) {
-  await page.getByLabel("Add New Game:").fill(GAME_NAME);
+async function createTestGame(page, gameName) {
+  await page.getByLabel("Add New Game:").fill(gameName);
   await page.getByRole("button", { name: "+" }).click();
-  const testGame = page.getByRole("button", { name: GAME_NAME, exact: true });
+  const testGame = page.getByRole("button", { name: gameName, exact: true });
   await expect(testGame).toBeVisible();
   return testGame;
 }
@@ -180,7 +186,7 @@ async function testOpponentSelection(page, page2) {
   await screenshot(page, "transitioned-to-battle-dice-roll");
 }
 
-async function testBattleStage(page, page2) {
+async function testBattleStage(page, page2, gameName) {
   // Wait for battle stage to load - verify battle participant is visible
   const playerBattleRow = page.locator('[data-battle-participant="player"]');
   await expect(playerBattleRow).toBeVisible();
@@ -224,7 +230,7 @@ async function testBattleStage(page, page2) {
   // Player1 (active): mage has 1 dice, with attack=0, dice=[6] → score = 6
   // Player2 (opponent): knight has 1 dice, with attack=1, dice=[1] → score = 2
   // This will automatically transition to battle_end stage since there's a winner
-  await sendDebugActionViaWS(GAME_NAME, "player", "debug_set_battle_dice_rolls", {
+  await sendDebugActionViaWS(gameName, "player", "debug_set_battle_dice_rolls", {
     active_dice_roll: [6],
     opponent_dice_roll: [1],
   });
@@ -245,17 +251,17 @@ async function testBattleStage(page, page2) {
   await screenshot(page2, "battle-ended-page2-now-active");
 }
 
-test("basic game flow", async ({ page }) => {
+test("basic game flow", async ({ page, gameName }) => {
   // Setup and create game
   await setupHomePage(page);
-  await cleanupTestGame(page);
+  await cleanupTestGame(page, gameName);
   await screenshot(page, "home");
 
-  await createTestGame(page);
+  await createTestGame(page, gameName);
   await screenshot(page, "home-with-test");
 
   // Player1 joins
-  await joinGame(page, "player", GAME_NAME);
+  await joinGame(page, "player", gameName);
   await screenshot(page, "joined-game");
 
   // Validate player1's characters
@@ -264,7 +270,7 @@ test("basic game flow", async ({ page }) => {
   // Player2 joins in new page
   const page2 = await page.context().newPage();
   await setupHomePage(page2);
-  await joinGame(page2, "player2", GAME_NAME);
+  await joinGame(page2, "player2", gameName);
 
   // Wait for player2's div to be visible before screenshot
   await page2.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
@@ -296,7 +302,7 @@ test("basic game flow", async ({ page }) => {
   await testOpponentSelection(page, page2);
 
   // Test battle stage
-  await testBattleStage(page, page2);
+  await testBattleStage(page, page2, gameName);
 
   // Clean up
   await page2.close();
@@ -304,6 +310,6 @@ test("basic game flow", async ({ page }) => {
   // Navigate back to home and delete the test game
   await page.goto("/");
   await screenshot(page, "homepage-before-cleanup");
-  await cleanupTestGame(page);
+  await cleanupTestGame(page, gameName);
   await screenshot(page, "homepage-after-cleanup");
 });

@@ -1,10 +1,7 @@
-import { test, expect } from "@playwright/test";
 import { createGameViaAPI } from "./api_helpers.js";
-import { setupHomePage, screenshot, waitForToast } from "./test_helpers.js";
+import { test, expect, setupHomePage, screenshot, waitForToast } from "./test_helpers.js";
 
-test("should show error toast when username is empty", async ({ page }) => {
-  const gameName = "test empty-username";
-
+test("should show error toast when username is empty", async ({ page, gameName }) => {
   // Setup: Create test game
   await createGameViaAPI(gameName);
 
@@ -38,9 +35,7 @@ test("should show error toast when username is empty", async ({ page }) => {
   });
 });
 
-test("should show error toast when username is only whitespace", async ({ page }) => {
-  const gameName = "test whitespace-username";
-
+test("should show error toast when username is only whitespace", async ({ page, gameName }) => {
   // Setup: Create test game
   await createGameViaAPI(gameName);
 
@@ -74,9 +69,7 @@ test("should show error toast when username is only whitespace", async ({ page }
   });
 });
 
-test("should allow joining game with valid username", async ({ page }) => {
-  const gameName = "test valid-username";
-
+test("should allow joining game with valid username", async ({ page, gameName }) => {
   // Setup: Create test game
   await createGameViaAPI(gameName);
 
@@ -98,9 +91,7 @@ test("should allow joining game with valid username", async ({ page }) => {
   await screenshot(page, "joined-game");
 });
 
-test("should trim whitespace from username when joining", async ({ page }) => {
-  const gameName = "test trim-username";
-
+test("should trim whitespace from username when joining", async ({ page, gameName }) => {
   // Setup: Create test game
   await createGameViaAPI(gameName);
 
