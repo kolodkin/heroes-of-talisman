@@ -1,6 +1,6 @@
-const { test, expect } = require("@playwright/test");
-const { TIMEOUT, screenshot, setupHomePage, joinGame, waitForStage, waitForGameUpdate } = require("./test_helpers.js");
-const { sendDebugActionViaWS } = require("./api_helpers.js");
+import { test, expect } from "@playwright/test";
+import { TIMEOUT, screenshot, setupHomePage, joinGame, waitForStage, waitForGameUpdate } from "./test_helpers.js";
+import { sendDebugActionViaWS } from "./api_helpers.js";
 
 const GAME_NAME = "test basic flow";
 
