@@ -80,31 +80,54 @@ redis-cli ping
 
 When running as root in containers, Chromium requires special flags to bypass sandboxing restrictions.
 
-**File**: `playwright.config.js`
+### Environment Variable Configuration
 
-```javascript
-projects: [
-  {
-    name: "chromium",
-    use: {
-      ...devices["Desktop Chrome"],
-      launchOptions: {
-        args: [
-          "--no-sandbox", // Required for root user
-          "--disable-setuid-sandbox", // Required for root user
-          "--single-process", // Prevents crashes in containers
-          "--disable-dev-shm-usage", // Avoid /dev/shm issues
-          "--disable-gpu", // Software rendering
-          "--disable-software-rasterizer",
-          "--disable-extensions",
-        ],
-      },
-    },
-  },
-];
+Browser arguments are configured via the `PLAYWRIGHT_BROWSER_ARGS` environment variable in `.env`:
+
+```bash
+# .env
+PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process
 ```
 
+The args are comma-separated chromium flags. The config is automatically loaded by `playwright.config.js`:
+
+```javascript
+const getBrowserArgs = () => {
+  if (process.env.PLAYWRIGHT_BROWSER_ARGS) {
+    return process.env.PLAYWRIGHT_BROWSER_ARGS.split(",")
+      .map((arg) => arg.trim())
+      .filter(Boolean);
+  }
+  // Default args for local development (minimal sandboxing issues)
+  return ["--no-sandbox", "--disable-setuid-sandbox"];
+};
+
+const browserArgs = getBrowserArgs();
+```
+
+### Browser Args Explained
+
+- `--no-sandbox` - Required for root user
+- `--disable-setuid-sandbox` - Required for root user
+- `--single-process` - **Critical**: Prevents crashes in containers
+- `--disable-dev-shm-usage` - Avoid /dev/shm issues
+- `--disable-gpu` - Software rendering
+- `--disable-software-rasterizer` - Disable GPU rasterization
+- `--disable-extensions` - No browser extensions
+
 **Critical Flag**: `--single-process` prevents Chromium crashes in containerized environments.
+
+### Customizing Browser Args
+
+To use different browser args, modify `PLAYWRIGHT_BROWSER_ARGS` in `.env`:
+
+```bash
+# Minimal (for well-configured environments)
+PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox
+
+# Full containerized support (recommended for Claude Cloud)
+PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process
+```
 
 ## Running Tests
 

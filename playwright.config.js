@@ -13,6 +13,23 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: resolve(__dirname, ".env") });
 
 /**
+ * Parse browser arguments from environment variable or use defaults
+ * PLAYWRIGHT_BROWSER_ARGS should be a comma-separated string of chromium flags
+ * Example: "--no-sandbox,--disable-gpu,--single-process"
+ */
+const getBrowserArgs = () => {
+  if (process.env.PLAYWRIGHT_BROWSER_ARGS) {
+    return process.env.PLAYWRIGHT_BROWSER_ARGS.split(",")
+      .map((arg) => arg.trim())
+      .filter(Boolean);
+  }
+  // Default args for local development (minimal sandboxing issues)
+  return ["--no-sandbox", "--disable-setuid-sandbox"];
+};
+
+const browserArgs = getBrowserArgs();
+
+/**
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
@@ -35,9 +52,9 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
 
-    /* Launch options for browsers - disable sandbox for running as root */
+    /* Launch options for browsers - configured via PLAYWRIGHT_BROWSER_ARGS env var */
     launchOptions: {
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: browserArgs,
     },
   },
 
@@ -48,15 +65,7 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         launchOptions: {
-          args: [
-            "--no-sandbox",
-            "--disable-setuid-sandbox",
-            "--disable-dev-shm-usage",
-            "--disable-gpu",
-            "--disable-software-rasterizer",
-            "--disable-extensions",
-            "--single-process",
-          ],
+          args: browserArgs,
         },
       },
     },

@@ -91,16 +91,28 @@ else
     fi
 fi
 
-# Step 4: Run main setup script
+# Step 4: Verify Playwright browser args
 echo ""
-echo "Step 4: Running main setup script..."
+echo "Step 4: Verifying Playwright browser args..."
+echo "----------------------------------------------"
+
+if grep -q "PLAYWRIGHT_BROWSER_ARGS" .env 2>/dev/null; then
+    echo "✓ PLAYWRIGHT_BROWSER_ARGS configured in .env"
+else
+    echo "⚠️  PLAYWRIGHT_BROWSER_ARGS not found in .env"
+    echo "   Using default browser args (minimal sandboxing)"
+fi
+
+# Step 5: Run main setup script
+echo ""
+echo "Step 5: Running main setup script..."
 echo "-------------------------------------"
 
 ./scripts/setup --no-docker
 
-# Step 5: Verify services
+# Step 6: Verify services
 echo ""
-echo "Step 5: Verifying services..."
+echo "Step 6: Verifying services..."
 echo "------------------------------"
 
 # Check PostgreSQL
@@ -119,7 +131,7 @@ else
     exit 1
 fi
 
-# Step 6: Summary
+# Step 7: Summary
 echo ""
 echo "======================================"
 echo "✓ Setup Complete!"
@@ -128,6 +140,10 @@ echo ""
 echo "Services running:"
 echo "  - PostgreSQL: localhost:5432"
 echo "  - Redis: localhost:6379"
+echo ""
+echo "Configuration:"
+echo "  - Playwright browser args: PLAYWRIGHT_BROWSER_ARGS in .env"
+echo "  - Configured for containerized environments (--single-process, etc.)"
 echo ""
 echo "To run tests:"
 echo "  Backend: uv run pytest -v"

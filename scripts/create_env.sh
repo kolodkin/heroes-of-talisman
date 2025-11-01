@@ -40,3 +40,6 @@ echo WWW_PORT=${WWW_PORT:-5173} >> .env
 echo "" >> .env
 echo "# PLAYWRIGHT" >> .env
 echo PLAYWRIGHT_REPORT_PORT=${PLAYWRIGHT_REPORT_PORT:-9323} >> .env
+echo "# Browser arguments for containerized/Claude Cloud environments" >> .env
+echo "# Use comma-separated list of chromium flags" >> .env
+echo PLAYWRIGHT_BROWSER_ARGS=${PLAYWRIGHT_BROWSER_ARGS:-"--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process"} >> .env
