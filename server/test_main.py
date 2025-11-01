@@ -18,9 +18,9 @@ def test_get_games_empty(client):
     assert response.json() == []
 
 
-def test_add_game(client):
+def test_add_game(client, gamename):
     """Test adding a new game"""
-    game_data = {"name": "test_game"}
+    game_data = {"name": gamename}
     response = client.post("/api/games/", json=game_data)
     assert response.status_code == 200
     assert response.json() == {"message": "Game added successfully"}
@@ -34,9 +34,9 @@ def test_add_game_empty_name(client):
     assert response.json() == {"detail": "Game name cannot be empty"}
 
 
-def test_add_game_duplicate(client):
+def test_add_game_duplicate(client, gamename):
     """Test adding a game with duplicate name"""
-    game_data = {"name": "duplicate_game"}
+    game_data = {"name": gamename}
 
     # Add first game
     response = client.post("/api/games/", json=game_data)
@@ -48,10 +48,10 @@ def test_add_game_duplicate(client):
     assert response.json() == {"detail": "Game already exists"}
 
 
-def test_get_games_with_data(client):
+def test_get_games_with_data(client, gamename):
     """Test getting games when games exist"""
     # Add some games
-    games = ["game1", "game2", "game3"]
+    games = [f"{gamename}-1", f"{gamename}-2", f"{gamename}-3"]
     for game_name in games:
         client.post("/api/games/", json={"name": game_name})
 
@@ -62,22 +62,20 @@ def test_get_games_with_data(client):
     assert set(result) == set(games)
 
 
-def test_delete_game(client):
+def test_delete_game(client, gamename):
     """Test deleting an existing game"""
-    game_name = "game_to_delete"
-
     # Add a game first
-    client.post("/api/games/", json={"name": game_name})
+    client.post("/api/games/", json={"name": gamename})
 
     # Delete the game
-    response = client.delete(f"/api/games/{game_name}")
+    response = client.delete(f"/api/games/{gamename}")
     assert response.status_code == 200
     assert response.json() == {"message": "Game deleted successfully"}
 
     # Verify game is deleted
     response = client.get("/api/games/")
     assert response.status_code == 200
-    assert game_name not in response.json()
+    assert gamename not in response.json()
 
 
 def test_delete_nonexistent_game(client):
@@ -95,65 +93,51 @@ def test_check_game_name_unique(client):
     assert response.json() == {"isUnique": True}
 
 
-def test_check_game_name_not_unique(client):
+def test_check_game_name_not_unique(client, gamename):
     """Test checking if a game name is not unique"""
-    game_name = "existing_game"
-
     # Add a game first
-    client.post("/api/games/", json={"name": game_name})
+    client.post("/api/games/", json={"name": gamename})
 
     # Check if name is unique
-    response = client.post("/check-game-name", json={"name": game_name})
+    response = client.post("/check-game-name", json={"name": gamename})
     assert response.status_code == 200
     assert response.json() == {"isUnique": False}
 
-    # Delete the game
-    client.delete(f"/api/games/{game_name}")
 
-
-def test_add_preset_game_default(client):
+def test_add_preset_game_default(client, gamename):
     """Test adding a preset game with default preset"""
-    game_data = {"name": "preset_default_game", "preset": "default"}
+    game_data = {"name": gamename, "preset": "default"}
     response = client.post("/api/games/preset_games", json=game_data)
     assert response.status_code == 200
     assert response.json() == {"message": "Preset game added successfully"}
 
     # Verify game exists
     response = client.get("/api/games/")
-    assert "preset_default_game" in response.json()
-
-    # Clean up
-    client.delete("/api/games/preset_default_game")
+    assert gamename in response.json()
 
 
-def test_add_preset_game_health_1(client):
+def test_add_preset_game_health_1(client, gamename):
     """Test adding a preset game with health_1 preset"""
-    game_data = {"name": "preset_health1_game", "preset": "health_1"}
+    game_data = {"name": gamename, "preset": "health_1"}
     response = client.post("/api/games/preset_games", json=game_data)
     assert response.status_code == 200
     assert response.json() == {"message": "Preset game added successfully"}
 
     # Verify game exists
     response = client.get("/api/games/")
-    assert "preset_health1_game" in response.json()
-
-    # Clean up
-    client.delete("/api/games/preset_health1_game")
+    assert gamename in response.json()
 
 
-def test_add_preset_game_with_stage(client):
+def test_add_preset_game_with_stage(client, gamename):
     """Test adding a preset game with specific stage"""
-    game_data = {"name": "preset_stage_game", "preset": "health_1", "stage": "battle_dice_roll"}
+    game_data = {"name": gamename, "preset": "health_1", "stage": "battle_dice_roll"}
     response = client.post("/api/games/preset_games", json=game_data)
     assert response.status_code == 200
     assert response.json() == {"message": "Preset game added successfully"}
 
     # Verify game exists
     response = client.get("/api/games/")
-    assert "preset_stage_game" in response.json()
-
-    # Clean up
-    client.delete("/api/games/preset_stage_game")
+    assert gamename in response.json()
 
 
 def test_add_preset_game_empty_name(client):
@@ -164,9 +148,9 @@ def test_add_preset_game_empty_name(client):
     assert response.json() == {"detail": "Game name cannot be empty"}
 
 
-def test_add_preset_game_duplicate(client):
+def test_add_preset_game_duplicate(client, gamename):
     """Test adding a preset game with duplicate name"""
-    game_data = {"name": "duplicate_preset_game", "preset": "default"}
+    game_data = {"name": gamename, "preset": "default"}
 
     # Add first game
     response = client.post("/api/games/preset_games", json=game_data)
@@ -176,6 +160,3 @@ def test_add_preset_game_duplicate(client):
     response = client.post("/api/games/preset_games", json=game_data)
     assert response.status_code == 400
     assert response.json() == {"detail": "Game already exists"}
-
-    # Clean up
-    client.delete("/api/games/duplicate_preset_game")
