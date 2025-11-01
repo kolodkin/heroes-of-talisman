@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { screenshot, joinGameViaUrl } from "./test_helpers.js";
-import { createPresetGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
+import { createPresetGameViaAPI } from "./api_helpers.js";
 
 /**
  * Helper to verify character is not clickable (not alive)
@@ -49,10 +49,9 @@ async function verifyCharacterClickable(page, characterName) {
 }
 
 test("character_select stage - knight not alive", async ({ page }) => {
-  const gameName = "knight_not_alive_test";
+  const gameName = "test knight not alive";
 
   // Create preset game with knight dead
-  await deleteGameViaAPI(gameName);
   await createPresetGameViaAPI(gameName, "knight_not_alive");
 
   // Player1 joins
@@ -70,16 +69,12 @@ test("character_select stage - knight not alive", async ({ page }) => {
   await verifyCharacterClickable(page, "mage");
 
   await screenshot(page, "knight-not-alive-after-select");
-
-  // Cleanup
-  await deleteGameViaAPI(gameName);
 });
 
 test("character_select stage - mage not alive", async ({ page }) => {
-  const gameName = "mage_not_alive_test";
+  const gameName = "test mage not alive";
 
   // Create preset game with mage dead
-  await deleteGameViaAPI(gameName);
   await createPresetGameViaAPI(gameName, "mage_not_alive");
 
   // Player1 joins
@@ -92,16 +87,12 @@ test("character_select stage - mage not alive", async ({ page }) => {
   await verifyCharacterClickable(page, "knight");
 
   await screenshot(page, "mage-not-alive-after-select");
-
-  // Cleanup
-  await deleteGameViaAPI(gameName);
 });
 
 test("character_select stage - archer not alive", async ({ page }) => {
-  const gameName = "archer_not_alive_test";
+  const gameName = "test archer not alive";
 
   // Create preset game with archer dead
-  await deleteGameViaAPI(gameName);
   await createPresetGameViaAPI(gameName, "archer_not_alive");
 
   // Player1 joins
@@ -114,7 +105,4 @@ test("character_select stage - archer not alive", async ({ page }) => {
   await verifyCharacterClickable(page, "knight");
 
   await screenshot(page, "archer-not-alive-after-select");
-
-  // Cleanup
-  await deleteGameViaAPI(gameName);
 });

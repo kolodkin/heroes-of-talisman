@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { screenshot, joinGameViaUrl } from "./test_helpers.js";
-import { createPresetGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
+import { createPresetGameViaAPI } from "./api_helpers.js";
 
 /**
  * Helper to verify battle stage is displayed with expected participants
@@ -54,10 +54,9 @@ async function verifyWinner(page, winnerRole) {
 }
 
 test("battle stage - player 1 wins", async ({ page }) => {
-  const gameName = "battle_p1_win_test";
+  const gameName = "test battle_p1_win_test";
 
   // Create preset game with player 1 winning
-  await deleteGameViaAPI(gameName); // Cleanup if exists
   await createPresetGameViaAPI(gameName, "battle_player_1_win");
 
   // Player1 joins
@@ -91,14 +90,12 @@ test("battle stage - player 1 wins", async ({ page }) => {
 
   // Cleanup
   await page2.close();
-  await deleteGameViaAPI(gameName);
 });
 
 test("battle stage - player 2 wins", async ({ page }) => {
-  const gameName = "battle_p2_win_test";
+  const gameName = "test battle_p2_win_test";
 
   // Create preset game with player 2 winning
-  await deleteGameViaAPI(gameName); // Cleanup if exists
   await createPresetGameViaAPI(gameName, "battle_player_2_win");
 
   // Player1 joins
@@ -132,14 +129,12 @@ test("battle stage - player 2 wins", async ({ page }) => {
 
   // Cleanup
   await page2.close();
-  await deleteGameViaAPI(gameName);
 });
 
 test("battle stage - draw with reroll", async ({ page }) => {
-  const gameName = "battle_draw_test";
+  const gameName = "test battle_draw_test";
 
   // Create preset game with draw
-  await deleteGameViaAPI(gameName); // Cleanup if exists
   await createPresetGameViaAPI(gameName, "battle_draw");
 
   // Player1 joins
@@ -197,5 +192,4 @@ test("battle stage - draw with reroll", async ({ page }) => {
 
   // Cleanup
   await page2.close();
-  await deleteGameViaAPI(gameName);
 });
