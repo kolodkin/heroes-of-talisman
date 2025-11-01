@@ -73,19 +73,21 @@ def setup_test_database():
     """Set up test database once for all tests"""
     # Create tables once at start using sync engine
     SQLModel.metadata.create_all(test_engine)
+
+    # Clean up test games before tests start
+    with TestSessionLocal() as session:
+        # Delete all games with names starting with "test" or "test-"
+        session.execute(
+            GameTable.__table__.delete().where((GameTable.name.like("test%")) | (GameTable.name.like("test-%")))
+        )
+        session.commit()
+
     yield
-    # Clean up is handled by setup script
 
 
 @pytest.fixture(scope="function")
 def client():
     """Create test client with database dependency override"""
-    # Clear any existing data
-    with TestSessionLocal() as session:
-        # Delete all games before each test
-        session.execute(GameTable.__table__.delete())
-        session.commit()
-
     # Override dependency
     app.dependency_overrides[get_db] = get_test_db
 
@@ -94,3 +96,15 @@ def client():
 
     # Clean up
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def gamename(request):
+    """Generate unique game name and clean up after test"""
+    name = f"test-{request.node.name}"
+    yield name
+
+    # Clean up this specific game and any games with this name as prefix after the test
+    with TestSessionLocal() as session:
+        session.execute(GameTable.__table__.delete().where(GameTable.name.like(f"{name}%")))
+        session.commit()
