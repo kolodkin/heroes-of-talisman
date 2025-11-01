@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { TIMEOUT, screenshot, setupHomePage, joinGame, waitForStage, waitForGameUpdate } from "./test_helpers.js";
 import { sendDebugActionViaWS } from "./api_helpers.js";
 
-const GAME_NAME = "test basic flow";
+const GAME_NAME = "test-basic-flow";
 
 async function cleanupTestGame(page) {
   const testGame = page.getByRole("button", { name: GAME_NAME, exact: true });

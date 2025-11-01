@@ -54,7 +54,7 @@ async function verifyWinner(page, winnerRole) {
 }
 
 test("battle stage - player 1 wins", async ({ page }) => {
-  const gameName = "battle_p1_win_test";
+  const gameName = "test-battle-p1-win";
 
   // Create preset game with player 1 winning
   await deleteGameViaAPI(gameName); // Cleanup if exists
@@ -95,7 +95,7 @@ test("battle stage - player 1 wins", async ({ page }) => {
 });
 
 test("battle stage - player 2 wins", async ({ page }) => {
-  const gameName = "battle_p2_win_test";
+  const gameName = "test-battle-p2-win";
 
   // Create preset game with player 2 winning
   await deleteGameViaAPI(gameName); // Cleanup if exists
@@ -136,7 +136,7 @@ test("battle stage - player 2 wins", async ({ page }) => {
 });
 
 test("battle stage - draw with reroll", async ({ page }) => {
-  const gameName = "battle_draw_test";
+  const gameName = "test-battle-draw";
 
   // Create preset game with draw
   await deleteGameViaAPI(gameName); // Cleanup if exists

@@ -49,7 +49,7 @@ async function verifyCharacterClickable(page, characterName) {
 }
 
 test("character_select stage - knight not alive", async ({ page }) => {
-  const gameName = "knight_not_alive_test";
+  const gameName = "test-knight-not-alive";
 
   // Create preset game with knight dead
   await deleteGameViaAPI(gameName);
@@ -76,7 +76,7 @@ test("character_select stage - knight not alive", async ({ page }) => {
 });
 
 test("character_select stage - mage not alive", async ({ page }) => {
-  const gameName = "mage_not_alive_test";
+  const gameName = "test-mage-not-alive";
 
   // Create preset game with mage dead
   await deleteGameViaAPI(gameName);
@@ -98,7 +98,7 @@ test("character_select stage - mage not alive", async ({ page }) => {
 });
 
 test("character_select stage - archer not alive", async ({ page }) => {
-  const gameName = "archer_not_alive_test";
+  const gameName = "test-archer-not-alive";
 
   // Create preset game with archer dead
   await deleteGameViaAPI(gameName);
