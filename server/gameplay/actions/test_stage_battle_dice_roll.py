@@ -630,3 +630,85 @@ def test_debug_set_battle_dice_rolls_invalid_dice_count():
     # Knight has 1 dice but we're passing 2 dice
     with pytest.raises(GameException, match="Active dice roll count 2 does not match character dice 1"):
         action.run(active_dice_roll=[6, 6], opponent_dice_roll=[1])
+
+
+# ============================================================================
+# Effects Total in Battle Tests
+# ============================================================================
+
+
+def test_calculate_winner_with_attack_bonus():
+    """Test calculate_winner includes attack_bonus from effects_total"""
+    from ..models import AttackBonusEffect, BATTLE_HOWL
+
+    characters = init_characters()
+    # Add attack bonus effect to knight
+    characters[KNIGHT].effects = [AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2)]
+
+    game = GamePlay(
+        stage=BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[4]),
+        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[4]),
+        players={
+            "player1": Player(name="player1", characters=characters),
+            "player2": Player(name="player2", characters=characters),
+        },
+    )
+
+    active_score, opponent_score = calculate_winner(game)
+
+    # Knight: dice=4 + base_attack=1 + attack_bonus=2 = 7
+    # Mage: dice=4 + base_attack=0 = 4
+    assert active_score == 7
+    assert opponent_score == 4
+
+
+def test_calculate_winner_with_attack_neg_bonus():
+    """Test calculate_winner includes attack_neg_bonus from effects_total"""
+    characters = init_characters()
+    # Add attack negative bonus effect to mage
+    characters[MAGE].effects = [AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2)]
+
+    game = GamePlay(
+        stage=BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[4]),
+        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[4]),
+        players={
+            "player1": Player(name="player1", characters=characters),
+            "player2": Player(name="player2", characters=characters),
+        },
+    )
+
+    active_score, opponent_score = calculate_winner(game)
+
+    # Knight: dice=4 + base_attack=1 = 5
+    # Mage: dice=4 + base_attack=0 + attack_neg_bonus=-2 = 2
+    assert active_score == 5
+    assert opponent_score == 2
+
+
+def test_calculate_winner_with_mixed_effects():
+    """Test calculate_winner with both attack_bonus and attack_neg_bonus"""
+    from ..models import AttackBonusEffect
+
+    characters = init_characters()
+    # Knight has bonus, Mage has penalty
+    characters[KNIGHT].effects = [AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=3)]
+    characters[MAGE].effects = [AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-1)]
+
+    game = GamePlay(
+        stage=BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[3]),
+        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[5]),
+        players={
+            "player1": Player(name="player1", characters=characters),
+            "player2": Player(name="player2", characters=characters),
+        },
+    )
+
+    active_score, opponent_score = calculate_winner(game)
+
+    # Knight: dice=3 + base_attack=1 + attack_bonus=3 = 7
+    # Mage: dice=5 + base_attack=0 + attack_neg_bonus=-1 = 4
+    assert active_score == 7
+    assert opponent_score == 4

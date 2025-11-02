@@ -35,18 +35,17 @@ class CharacterPressAction(Action):
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
 
-        # Validate user exists
-        if self.user not in self.game.players:
-            raise GameException("Player not in game")
-
         # Validate character exists for this player
-        player = self.game.players[self.user]
-        if character not in player.characters:
+        if character not in self.player.characters:
             raise ReportedException(f"Character {character} not available")
 
         # Validate character is alive
-        if not player.characters[character].is_alive:
+        if not self.player.characters[character].is_alive:
             raise ReportedException(f"Character {character} is dead and can't be selected")
+
+        # Validate character doesn't have skip_next_turn effect
+        if self.player.characters[character].effects_total.skip_next_turn:
+            raise ReportedException(f"Character {character} must skip this turn")
 
         # Set selected character in stage metadata
         self.game.stage_meta = CharacterSelectMeta(selected=character)
@@ -71,18 +70,17 @@ class CharacterSelectAction(Action):
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
 
-        # Validate user exists
-        if self.user not in self.game.players:
-            raise GameException("Player not in game")
-
         # Validate character exists for this player
-        player = self.game.players[self.user]
-        if character not in player.characters:
+        if character not in self.player.characters:
             raise ReportedException(f"Character {character} not available")
 
         # Validate character is alive
-        if not player.characters[character].is_alive:
+        if not self.player.characters[character].is_alive:
             raise ReportedException(f"Character {character} is dead and can't be selected")
+
+        # Validate character doesn't have skip_next_turn effect
+        if self.player.characters[character].effects_total.skip_next_turn:
+            raise ReportedException(f"Character {character} must skip this turn")
 
         # Update active player with selected character
         self.game.active = ActivePlayer2(player=self.user, character=character)

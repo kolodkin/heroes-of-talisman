@@ -30,6 +30,12 @@ def calculate_winner(game: GamePlay) -> tuple[int, int]:
     """
     Calculate scores for active player and opponent.
     Returns (active_score, opponent_score).
+
+    Scores are calculated by summing:
+    - Dice roll values
+    - Base attack
+    - Attack bonuses from effects_total.attack_bonus
+    - Attack penalties from effects_total.attack_neg_bonus
     """
     if not game.active or not isinstance(game.active, (ActivePlayer3, ActivePlayer4)):
         raise GameException("Active player has no dice roll")
@@ -42,9 +48,22 @@ def calculate_winner(game: GamePlay) -> tuple[int, int]:
     active_character = active_player.characters[game.active.character]
     opponent_character = opponent_player.characters[game.opponent.character]
 
-    # Calculate scores
-    active_score = sum(game.active.dice_roll) + active_character.attack
-    opponent_score = sum(game.opponent.dice_roll) + opponent_character.attack
+    # Calculate scores with effects
+    active_effects = active_character.effects_total
+    opponent_effects = opponent_character.effects_total
+
+    active_score = (
+        sum(game.active.dice_roll)
+        + active_character.attack
+        + active_effects.attack_bonus
+        + active_effects.attack_neg_bonus
+    )
+    opponent_score = (
+        sum(game.opponent.dice_roll)
+        + opponent_character.attack
+        + opponent_effects.attack_bonus
+        + opponent_effects.attack_neg_bonus
+    )
 
     return active_score, opponent_score
 

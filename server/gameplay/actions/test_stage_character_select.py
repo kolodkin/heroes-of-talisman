@@ -155,3 +155,35 @@ def test_character_select_action_dead_character():
 
     with pytest.raises(ReportedException, match="is dead and can't be selected"):
         action.run(character=KNIGHT)
+
+
+def test_character_press_action_skip_next_turn():
+    """Test pressing a character with skip_next_turn effect raises error"""
+    from ..models import SkipTurnEffect, FREEZE
+
+    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    characters = init_characters()
+    # Add skip turn effect to knight
+    characters[KNIGHT].effects = [SkipTurnEffect(source=FREEZE)]
+    game.players["player1"] = Player(name="player1", characters=characters)
+
+    action = CharacterPressAction("player1", game)
+
+    with pytest.raises(ReportedException, match="must skip this turn"):
+        action.run(character=KNIGHT)
+
+
+def test_character_select_action_skip_next_turn():
+    """Test confirming selection of a character with skip_next_turn effect raises error"""
+    from ..models import SkipTurnEffect, FREEZE
+
+    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    characters = init_characters()
+    # Add skip turn effect to knight
+    characters[KNIGHT].effects = [SkipTurnEffect(source=FREEZE)]
+    game.players["player1"] = Player(name="player1", characters=characters)
+
+    action = CharacterSelectAction("player1", game)
+
+    with pytest.raises(ReportedException, match="must skip this turn"):
+        action.run(character=KNIGHT)
