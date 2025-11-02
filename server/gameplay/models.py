@@ -233,6 +233,18 @@ class Deck(StrictModel):
     visible: bool = True
 
 
+class EffectsTotal(StrictModel):
+    """
+    Total of all effects applied to a character.
+    This model sums up all effects for easy access.
+    """
+
+    skip_next_turn: bool = False
+    attack_bonus: int = 0
+    attack_neg_bonus: int = 0
+    reroll_dice: bool = False
+
+
 class CharacterCard(StrictModel):
     level: int
     health: int
@@ -248,8 +260,30 @@ class CharacterCard(StrictModel):
         """Character is alive if health > 0"""
         return self.health > 0
 
+    @computed_field
+    @property
+    def effects_total(self) -> EffectsTotal:
+        """
+        Calculate the total of all effects applied to this character.
+        Returns an EffectsTotal model with summed values.
+        """
+        total = EffectsTotal()
+
+        for effect in self.effects:
+            if isinstance(effect, SkipTurnEffect):
+                total.skip_next_turn = total.skip_next_turn or effect.skip_next_turn
+            elif isinstance(effect, AttackBonusEffect):
+                total.attack_bonus += effect.attack_bonus
+            elif isinstance(effect, AttackNegBonusEffect):
+                total.attack_neg_bonus += effect.attack_neg_bonus
+            elif isinstance(effect, RerollDiceEffect):
+                # Only count if not used yet
+                total.reroll_dice = total.reroll_dice or (effect.reroll_dice and not effect.used)
+
+        return total
+
     def db_model_dump(self) -> dict:
-        return self.model_dump(exclude={"is_alive"})
+        return self.model_dump(exclude={"is_alive", "effects_total"})
 
 
 class CharacterSelectMeta(StrictModel):
