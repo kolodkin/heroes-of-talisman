@@ -81,3 +81,11 @@
   filter: grayscale(100%);
   cursor: not-allowed !important;
 }
+
+/* Frozen character state (skip_next_turn effect) */
+.frozen {
+  opacity: 0.6;
+  filter: brightness(0.8) hue-rotate(180deg);
+  border-color: #4a90e2 !important;
+  cursor: not-allowed !important;
+}

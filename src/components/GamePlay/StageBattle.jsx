@@ -35,6 +35,12 @@ const BattleParticipant = ({
   const numDice = character?.dice || 1;
   const rollKey = numDice === 1 ? "battle.roll_the_dice" : "battle.roll_the_dice_mult";
 
+  // Calculate total effect bonus from effects_total
+  const effectsTotal = character?.effects_total || {};
+  const attackBonus = effectsTotal.attack_bonus || 0;
+  const attackNegBonus = effectsTotal.attack_neg_bonus || 0;
+  const totalEffectBonus = attackBonus + attackNegBonus;
+
   return (
     <div
       className={className(styles.battleRow, { [styles.winner]: winner })}
@@ -49,6 +55,17 @@ const BattleParticipant = ({
             {diceValues.map((value, index) => (
               <Dice key={index} value={value} onStop={onDiceStop} />
             ))}
+            {totalEffectBonus !== 0 && (
+              <span
+                className={className(styles.effectBonus, {
+                  [styles.effectBonusPositive]: totalEffectBonus > 0,
+                  [styles.effectBonusNegative]: totalEffectBonus < 0,
+                })}
+                data-effect-bonus
+              >
+                {totalEffectBonus > 0 ? `+${totalEffectBonus}` : totalEffectBonus}
+              </span>
+            )}
           </div>
           {showScore && score !== null && score !== undefined && (
             <div className={styles.scoreDisplay}>

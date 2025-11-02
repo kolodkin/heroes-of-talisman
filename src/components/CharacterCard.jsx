@@ -12,10 +12,15 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
 
   const cardClass = size === "normal" ? styles["card-normal"] : styles["card-small"];
   const isAlive = character.is_alive !== false; // Default to true if not specified
+  const isFrozen = character.effects_total?.skip_next_turn || false;
 
   const handleClick = () => {
     if (!isAlive) {
       console.error(`Attempted to click not-alive character: ${name}. This should be prevented by CSS.`);
+      return;
+    }
+    if (isFrozen) {
+      console.error(`Attempted to click frozen character: ${name}. This should be prevented by CSS.`);
       return;
     }
     if (onClick) {
@@ -27,8 +32,9 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
     <div
       className={className(
         { [commonStyles.selected]: isSelected },
-        { [styles.alive]: isAlive },
+        { [styles.alive]: isAlive && !isFrozen },
         { [styles["not-alive"]]: !isAlive },
+        { [styles.frozen]: isFrozen },
         commonStyles.gamebtn,
         styles.card,
         cardClass,

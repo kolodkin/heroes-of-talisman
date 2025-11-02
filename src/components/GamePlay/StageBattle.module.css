@@ -46,6 +46,26 @@
   align-items: center;
 }
 
+.effectBonus {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  text-shadow: 0 0 8px currentColor;
+}
+
+.effectBonusPositive {
+  color: #48bb78;
+  background-color: rgba(72, 187, 120, 0.1);
+  border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.effectBonusNegative {
+  color: #f56565;
+  background-color: rgba(245, 101, 101, 0.1);
+  border: 1px solid rgba(245, 101, 101, 0.3);
+}
+
 .scoreDisplay {
   display: flex;
   align-items: center;
