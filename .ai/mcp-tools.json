@@ -8,7 +8,7 @@
       "command": "uvx",
       "args": ["postgres-mcp", "--access-mode=restricted"],
       "env": {
-        "DATABASE_URI": "postgresql://postgres:postgres@localhost:5433/postgres"
+        "DATABASE_URI": "postgresql://postgres:postgres@localhost:${POSTGRES_PORT:-5432}/postgres"
       }
     },
     "context7": {

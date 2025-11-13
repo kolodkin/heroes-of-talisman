@@ -6,6 +6,9 @@ ROOT_DIR=$SCRIPT_DIR/..
 
 cd $ROOT_DIR
 
+# Create environment variables
+./scripts/create_env.sh
+
 # check for docker command
 docker_installed=$(command -v docker >/dev/null 2>&1 && echo "true" || echo "false")
 
@@ -33,9 +36,6 @@ fi
 
 # Install dependencies
 uv sync
-
-# Create environment variables
-./scripts/create_env.sh
 
 # Install python pre-commit hooks
 uv run pre-commit install
@@ -81,7 +81,7 @@ fi
 
 # AI instructions conversion
 uv run .ai/ai.py -v
-# if claude command is available, run the conversion
-if command -v claude >/dev/null 2>&1; then
-  uv run .ai/claude_mcp_setup.py | bash | true
-fi
+# # if claude command is available, run the conversion
+# if command -v claude >/dev/null 2>&1; then
+#   uv run .ai/claude_mcp_setup.py | bash | true
+# fi
