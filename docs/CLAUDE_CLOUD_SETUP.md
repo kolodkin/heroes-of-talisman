@@ -89,13 +89,13 @@ Browser arguments and CI mode are configured via environment variables in `.env`
 ```bash
 # Exported by setup_claude_cloud before running ./scripts/setup
 export PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process
-export CI=true
+export CI_MODE=true
 ```
 
 These exports ensure that:
 
 1. **PLAYWRIGHT_BROWSER_ARGS** is set with container-specific flags and written to `.env`
-2. **CI=true** enables Playwright retry logic and is written to `.env` for future test runs
+2. **CI_MODE=true** enables Playwright retry logic and is written to `.env` for future test runs
 
 **Default Behavior**: By default (via `./scripts/setup --no-docker`), `PLAYWRIGHT_BROWSER_ARGS` is empty, which uses minimal default flags:
 
@@ -163,12 +163,12 @@ uv run pytest -v
 
 ### E2E Tests
 
-E2E tests benefit from retry logic in containerized environments. The `CI=true` environment variable is automatically set by the setup script, which enables Playwright's retry functionality:
+E2E tests benefit from retry logic in containerized environments. The `CI_MODE=true` environment variable is automatically set by the setup script, which enables Playwright's retry functionality:
 
 ```bash
 npm run e2e
 
-# CI=true is already set in .env by setup_claude_cloud
+# CI_MODE=true is already set in .env by setup_claude_cloud
 # This enables retries (max: 2) per playwright.config.js
 ```
 
