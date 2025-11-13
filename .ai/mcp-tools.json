@@ -10,6 +10,10 @@
       "env": {
         "DATABASE_URI": "postgresql://postgres:postgres@localhost:5433/postgres"
       }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
     }
   }
 }
