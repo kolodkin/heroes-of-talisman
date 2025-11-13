@@ -6,8 +6,11 @@ import "./i18n";
 import HomePage from "./components/HomePage.jsx";
 import GameHandler from "./components/GamePlay/GameHandler.jsx";
 import DiceView from "./components/DiceView.jsx";
+import Presets from "./components/Presets.jsx";
 import NotFound from "./components/NotFound.jsx";
 import { ToastContainer } from "react-toastify";
+
+const isDev = import.meta.env.DEV;
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -15,6 +18,7 @@ createRoot(document.getElementById("root")).render(
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/dice" element={<DiceView />} />
+        {isDev && <Route path="/presets" element={<Presets />} />}
         <Route path="games/:gamename/:username" element={<GameHandler />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
