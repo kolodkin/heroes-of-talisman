@@ -201,6 +201,18 @@ class Ability(StrictModel):
     effects: list[Effect] = Field(default_factory=list)  # effects that are applied when the ability is used
 
 
+class EffectTotal(StrictModel):
+    """
+    Aggregated effect totals for a character.
+    Combines all active effects into a single summary.
+    """
+
+    attack_bonus: int = 0
+    attack_neg_bonus: int = 0
+    skip_next_turn: bool = False
+    reroll_dice_available: bool = False
+
+
 ABILITIES_MAP: dict[AbilityName, Ability] = {
     BATTLE_HOWL: Ability(
         name=BATTLE_HOWL,
@@ -248,8 +260,28 @@ class CharacterCard(StrictModel):
         """Character is alive if health > 0"""
         return self.health > 0
 
+    @computed_field
+    @property
+    def effect(self) -> EffectTotal:
+        """Aggregate all active effects into a single EffectTotal"""
+        total = EffectTotal()
+
+        for eff in self.effects:
+            if isinstance(eff, AttackBonusEffect):
+                total.attack_bonus += eff.attack_bonus
+            elif isinstance(eff, AttackNegBonusEffect):
+                total.attack_neg_bonus += eff.attack_neg_bonus
+            elif isinstance(eff, SkipTurnEffect):
+                total.skip_next_turn = total.skip_next_turn or eff.skip_next_turn
+            elif isinstance(eff, RerollDiceEffect):
+                # Only available if not yet used
+                if not eff.used:
+                    total.reroll_dice_available = True
+
+        return total
+
     def db_model_dump(self) -> dict:
-        return self.model_dump(exclude={"is_alive"})
+        return self.model_dump(exclude={"is_alive", "effect"})
 
 
 class CharacterSelectMeta(StrictModel):
