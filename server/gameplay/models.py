@@ -1,6 +1,6 @@
-from typing import Dict, Optional, Literal
+from typing import Dict, Optional, Literal, Annotated, Union
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field, Discriminator
 
 ########################################################
 # Connection statuses
@@ -151,6 +151,7 @@ class Effect(StrictModel):
     Effects are disposed at the end of battle by default.
     """
 
+    name: Literal["effect"] = "effect"  # Discriminator field for polymorphic serialization
     source: AbilityName
 
 
@@ -160,6 +161,7 @@ class UseOnceEffect(Effect):
     Once used, sets the 'used' flag to True and won't be reused.
     """
 
+    name: Literal["use_once"] = "use_once"
     used: bool = False
 
 
@@ -168,6 +170,7 @@ class SkipTurnEffect(Effect):
     Character can't participate in the next turn.
     """
 
+    name: Literal["skip_turn"] = "skip_turn"
     skip_next_turn: bool = True
 
 
@@ -176,6 +179,7 @@ class AttackBonusEffect(Effect):
     Character's attack is increased by the value of the effect.
     """
 
+    name: Literal["attack_bonus"] = "attack_bonus"
     attack_bonus: int
 
 
@@ -185,6 +189,7 @@ class RerollDiceEffect(UseOnceEffect):
     This is a use-once effect - after being used, it won't be available again.
     """
 
+    name: Literal["reroll_dice"] = "reroll_dice"
     reroll_dice: bool = True
 
 
@@ -193,12 +198,20 @@ class AttackNegBonusEffect(Effect):
     Character's attack is decreased by the value of the effect.
     """
 
+    name: Literal["attack_neg_bonus"] = "attack_neg_bonus"
     attack_neg_bonus: int
+
+
+# Define EffectUnion for discriminated union of all effect types
+EffectUnion = Annotated[
+    Union[AttackBonusEffect, AttackNegBonusEffect, SkipTurnEffect, RerollDiceEffect, Effect],
+    Field(discriminator="name"),
+]
 
 
 class Ability(StrictModel):
     name: str
-    effects: list[Effect] = Field(default_factory=list)  # effects that are applied when the ability is used
+    effects: list[EffectUnion] = Field(default_factory=list)  # effects that are applied when the ability is used
 
 
 class EffectTotal(StrictModel):
@@ -246,13 +259,14 @@ class Deck(StrictModel):
 
 
 class CharacterCard(StrictModel):
+
     level: int
     health: int
     max_health: int
     dice: int
     attack: int
     abilities: list[Ability] = Field(default_factory=list)
-    effects: list[Effect] = Field(default_factory=list)
+    effects: list[EffectUnion] = Field(default_factory=list)
 
     @computed_field
     @property

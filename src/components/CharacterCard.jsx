@@ -4,7 +4,7 @@ import styles from "./CharacterCard.module.css";
 import commonStyles from "./Common.module.css";
 import { DiceIcon, HeartIcon } from "./Icons";
 
-const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `-${num}`) : "");
+const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `${num}`) : "");
 
 const CharacterCard = ({ name, character, isSelected, onClick, size = "small" }) => {
   const { t } = useTranslation();
@@ -12,6 +12,13 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
 
   const cardClass = size === "normal" ? styles["card-normal"] : styles["card-small"];
   const isAlive = character.is_alive !== false; // Default to true if not specified
+
+  // Calculate total attack with effects
+  const baseAttack = character.attack || 0;
+  const attackBonus = character.effect?.attack_bonus || 0;
+  const attackNegBonus = character.effect?.attack_neg_bonus || 0;
+  const totalAttack = baseAttack + attackBonus + attackNegBonus;
+  const netEffect = attackBonus + attackNegBonus; // Positive = bonus, negative = penalty
 
   const handleClick = () => {
     if (!isAlive) {
@@ -46,7 +53,17 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         {[...Array(character.dice).keys()].map((i) => (
           <DiceIcon color="white" fill="black" key={i} />
         ))}
-        {character.attack && <span className="font-bold">{signStr(character.attack)}</span>}
+        {totalAttack !== 0 && (
+          <span
+            className={className("font-bold", {
+              [styles["attack-bonus"]]: netEffect > 0,
+              [styles["attack-penalty"]]: netEffect < 0,
+            })}
+            dir="ltr"
+          >
+            {signStr(totalAttack)}
+          </span>
+        )}
       </div>
       <div className={className("flex items-center gap-1", styles.stats)}>
         <HeartIcon color="red" />

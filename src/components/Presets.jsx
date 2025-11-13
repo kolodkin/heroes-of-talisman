@@ -14,6 +14,7 @@ const PRESET_OPTIONS = [
   { value: "archer_not_alive", label: "Archer Not Alive" },
   { value: "opponent_selection_preset", label: "Opponent Selection" },
   { value: "single_player", label: "Single Player" },
+  { value: "battle_with_effects", label: "Battle with Effects" },
 ];
 
 const Presets = () => {
