@@ -97,7 +97,7 @@ echo "Step 4: Running main setup script..."
 echo "-------------------------------------"
 
 export PLAYWRIGHT_BROWSER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-gpu,--disable-software-rasterizer,--disable-extensions,--single-process
-export CI=true
+export CI_MODE=true
 
 ./scripts/setup --no-docker
 
@@ -161,7 +161,7 @@ echo "  - Configured for containerized environments (--single-process, etc.)"
 echo ""
 echo "To run tests:"
 echo "  Backend: uv run pytest -v"
-echo "  E2E:     CI=true npm run e2e"
+echo "  E2E:     CI_MODE=true npm run e2e"
 echo ""
-echo "Note: E2E tests use CI=true for retry support in containerized environments"
+echo "Note: E2E tests use CI_MODE=true for retry support in containerized environments"
 echo ""
