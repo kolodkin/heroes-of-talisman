@@ -1,0 +1,109 @@
+.presets {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.container {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.container h1 {
+  margin: 0 0 30px 0;
+  color: #333;
+  text-align: center;
+  font-size: 28px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputGroup label {
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.input,
+.select {
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+  color: #333;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.select {
+  cursor: pointer;
+  background-color: white;
+  color: #333;
+}
+
+.submitButton {
+  margin-top: 10px;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.submitButton:active {
+  transform: translateY(0);
+}
+
+.backButton {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.backButton:hover {
+  background-color: #667eea;
+  color: white;
+}

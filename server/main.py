@@ -71,6 +71,10 @@ async def health():
 
 class Game(BaseModel):
     name: str
+    preset: DEBUG_PRESETS | None = None
+    stage: StageName | None = None
+    player1_name: str | None = None
+    player2_name: str | None = None
 
 
 class PresetGame(BaseModel):
@@ -91,8 +95,14 @@ async def add_game(new_game: Game, session: AsyncSession = Depends(get_db)):
     if existing_game:
         raise HTTPException(status_code=400, detail="Game already exists")
 
-    # Create new game with default data
-    game_data = DEFAULT_GAME.db_model_dump()
+    # Create new game with preset data if provided, otherwise use default
+    if new_game.preset:
+        game_data = get_debug_preset(
+            new_game.preset, new_game.stage, new_game.player1_name, new_game.player2_name
+        ).db_model_dump()
+    else:
+        game_data = DEFAULT_GAME.db_model_dump()
+
     db_game = GameTable(name=new_game.name, data=game_data)
 
     session.add(db_game)

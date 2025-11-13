@@ -64,7 +64,16 @@ def create_battle_preset(active: ActivePlayer4, opponent: Opponent4, stage: Stag
     return game
 
 
-def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[StageName] = None) -> GamePlay:
+def get_debug_preset(
+    preset: DEBUG_PRESETS,
+    stage: Optional[StageName] = None,
+    player1_name: Optional[str] = None,
+    player2_name: Optional[str] = None,
+) -> GamePlay:
+    # Use default player names if not provided
+    p1_name = player1_name or "player1"
+    p2_name = player2_name or "player2"
+
     if preset == "default":
         ret = DEFAULT_GAME.model_copy(deep=True)
     elif preset == "health_1":
@@ -74,8 +83,8 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[StageName] = None) -
         # Player 2: mage (dice=[3], attack=0) = 3
         # Winner: player1
         ret = create_battle_preset(
-            ActivePlayer4(player="player1", character=KNIGHT, dice_roll=[6], result=BattleResult(winner=True, score=7)),
-            Opponent4(player="player2", character=MAGE, dice_roll=[3], result=BattleResult(winner=False, score=3)),
+            ActivePlayer4(player=p1_name, character=KNIGHT, dice_roll=[6], result=BattleResult(winner=True, score=7)),
+            Opponent4(player=p2_name, character=MAGE, dice_roll=[3], result=BattleResult(winner=False, score=3)),
             stage=BATTLE_END,
         )
     elif preset == "battle_player_2_win":
@@ -83,8 +92,8 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[StageName] = None) -
         # Player 2: knight (dice=[5], attack=1) = 6
         # Winner: player2
         ret = create_battle_preset(
-            ActivePlayer4(player="player1", character=MAGE, dice_roll=[2], result=BattleResult(winner=False, score=2)),
-            Opponent4(player="player2", character=KNIGHT, dice_roll=[5], result=BattleResult(winner=True, score=6)),
+            ActivePlayer4(player=p1_name, character=MAGE, dice_roll=[2], result=BattleResult(winner=False, score=2)),
+            Opponent4(player=p2_name, character=KNIGHT, dice_roll=[5], result=BattleResult(winner=True, score=6)),
             stage=BATTLE_END,
         )
     elif preset == "battle_draw":
@@ -93,9 +102,9 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[StageName] = None) -
         # Draw: 6 == 6
         ret = create_battle_preset(
             ActivePlayer4(
-                player="player1", character=KNIGHT, dice_roll=[5], result=BattleResult(winner=False, score=6)
+                player=p1_name, character=KNIGHT, dice_roll=[5], result=BattleResult(winner=False, score=6)
             ),
-            Opponent4(player="player2", character=ARCHER, dice_roll=[6], result=BattleResult(winner=False, score=6)),
+            Opponent4(player=p2_name, character=ARCHER, dice_roll=[6], result=BattleResult(winner=False, score=6)),
             stage=BATTLE_DICE_ROLL,
         )
     elif preset == "knight_not_alive":
@@ -105,8 +114,8 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[StageName] = None) -
         ret = GamePlay(
             stage=CHARACTER_SELECT,
             players={
-                "player1": Player(name="player1", characters=characters),
-                "player2": Player(name="player2", characters=init_characters()),
+                p1_name: Player(name=p1_name, characters=characters),
+                p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
     elif preset == "mage_not_alive":
@@ -116,8 +125,8 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[StageName] = None) -
         ret = GamePlay(
             stage=CHARACTER_SELECT,
             players={
-                "player1": Player(name="player1", characters=characters),
-                "player2": Player(name="player2", characters=init_characters()),
+                p1_name: Player(name=p1_name, characters=characters),
+                p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
     elif preset == "archer_not_alive":
@@ -127,18 +136,18 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[StageName] = None) -
         ret = GamePlay(
             stage=CHARACTER_SELECT,
             players={
-                "player1": Player(name="player1", characters=characters),
-                "player2": Player(name="player2", characters=init_characters()),
+                p1_name: Player(name=p1_name, characters=characters),
+                p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
     elif preset == "opponent_selection_preset":
         # Opponent selection stage - player1 has selected knight
         ret = GamePlay(
             stage=OPPONENT_SELECTION,
-            active=ActivePlayer2(player="player1", character=KNIGHT),
+            active=ActivePlayer2(player=p1_name, character=KNIGHT),
             players={
-                "player1": Player(name="player1", characters=init_characters()),
-                "player2": Player(name="player2", characters=init_characters()),
+                p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
     elif preset == "single_player":
@@ -146,7 +155,7 @@ def get_debug_preset(preset: DEBUG_PRESETS, stage: Optional[StageName] = None) -
         ret = GamePlay(
             stage=CHARACTER_SELECT,
             players={
-                "player1": Player(name="player1", characters=init_characters()),
+                p1_name: Player(name=p1_name, characters=init_characters()),
             },
         )
     else:
