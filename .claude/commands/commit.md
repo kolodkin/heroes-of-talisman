@@ -37,13 +37,16 @@ This project uses pre-commit hooks that may modify files during commit (formatti
 
 5. **Handle pre-commit hook modifications**: If the commit FAILED because files were modified by hooks:
    - The hooks run BEFORE the commit is created, so no commit exists yet
-   - Simply stage the hook changes and retry the commit:
+   - **IMPORTANT**: Only stage the files that were originally staged, NOT all modified files
+   - List the originally staged files explicitly:
      ```bash
-     git add -u && git commit -m "$(cat <<'EOF'
+     git add file1.py file2.py file3.py
+     git commit -m "$(cat <<'EOF'
      <same commit message>
      EOF
      )"
      ```
+   - Do NOT use `git add -u` as it will stage ALL modified tracked files, including unrelated changes
    - Do NOT use `--amend` in this scenario since no commit was created yet
 
 6. **Show result**: Display the final commit with `git log -1 --pretty=format:"%h %s%n%b"`
