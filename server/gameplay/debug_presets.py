@@ -6,7 +6,9 @@ from .models import (
     StageName,
     Player,
     ActivePlayer2,
+    ActivePlayer3,
     ActivePlayer4,
+    Opponent3,
     Opponent4,
     BattleResult,
     BATTLE_DICE_ROLL,
@@ -17,6 +19,11 @@ from .models import (
     MAGE,
     ARCHER,
     init_characters,
+    AttackBonusEffect,
+    AttackNegBonusEffect,
+    SkipTurnEffect,
+    BATTLE_HOWL,
+    FREEZE,
 )
 
 HEALTH_1 = "health_1"
@@ -28,6 +35,7 @@ MAGE_NOT_ALIVE = "mage_not_alive"
 ARCHER_NOT_ALIVE = "archer_not_alive"
 OPPONENT_SELECTION_PRESET = "opponent_selection_preset"
 SINGLE_PLAYER = "single_player"
+BATTLE_WITH_EFFECTS = "battle_with_effects"
 DEBUG_PRESETS = Literal[
     "default",
     "health_1",
@@ -39,6 +47,7 @@ DEBUG_PRESETS = Literal[
     "archer_not_alive",
     "opponent_selection_preset",
     "single_player",
+    "battle_with_effects",
 ]
 
 
@@ -156,6 +165,30 @@ def get_debug_preset(
             stage=CHARACTER_SELECT,
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
+            },
+        )
+    elif preset == "battle_with_effects":
+        # Battle dice roll stage with effects
+        # Player 1: knight with attack_bonus (+2)
+        # Player 2: mage with attack_neg_bonus (-2) and skip_turn
+        characters_p1 = init_characters()
+        characters_p1[KNIGHT].effects = [
+            AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2),
+        ]
+
+        characters_p2 = init_characters()
+        characters_p2[MAGE].effects = [
+            AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2),
+            SkipTurnEffect(source=FREEZE),
+        ]
+
+        ret = GamePlay(
+            stage=BATTLE_DICE_ROLL,
+            active=ActivePlayer3(player=p1_name, character=KNIGHT, dice_roll=[]),
+            opponent=Opponent3(player=p2_name, character=MAGE, dice_roll=[]),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
             },
         )
     else:
