@@ -1,7 +1,7 @@
 import os
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 
@@ -10,15 +10,18 @@ from server.database import get_db
 from server.db_models import Game as GameTable
 
 
-# Set test database environment variable to match setup.sh
-os.environ["POSTGRES_DB"] = "test_db"
+# Import environment variables
+from server.env import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_PORT
 
-# Import the updated database URL after setting the env var
-from server.env import DB_URL
+# Build test database URL with separate test_db database
+TEST_DB_NAME = "test_db"
+TEST_DB_URL = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{TEST_DB_NAME}"
 
+# Create URL to default postgres database for creating/dropping test_db
+POSTGRES_URL = f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/postgres"
 
 # Create synchronous test database engine
-test_engine = create_engine(DB_URL, echo=False)
+test_engine = create_engine(TEST_DB_URL, echo=False)
 
 TestSessionLocal = sessionmaker(
     bind=test_engine,
@@ -71,18 +74,24 @@ def get_test_db():
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_database():
     """Set up test database once for all tests"""
-    # Create tables once at start using sync engine
+    # Connect to default postgres database to create/drop test_db
+    postgres_engine = create_engine(POSTGRES_URL, isolation_level="AUTOCOMMIT", echo=False)
+
+    with postgres_engine.connect() as conn:
+        # Drop test database if it exists
+        conn.execute(text(f"DROP DATABASE IF EXISTS {TEST_DB_NAME}"))
+        # Create fresh test database using template0 to avoid collation mismatch
+        conn.execute(text(f"CREATE DATABASE {TEST_DB_NAME} TEMPLATE template0"))
+
+    postgres_engine.dispose()
+
+    # Create tables in test database
     SQLModel.metadata.create_all(test_engine)
 
-    # Clean up test games before tests start
-    with TestSessionLocal() as session:
-        # Delete all games with names starting with "test" or "test-"
-        session.execute(
-            GameTable.__table__.delete().where((GameTable.name.like("test%")) | (GameTable.name.like("test-%")))
-        )
-        session.commit()
-
     yield
+
+    # Note: Not dropping test_db after tests for debugging purposes
+    # The database will be dropped and recreated on the next test run
 
 
 @pytest.fixture(scope="function")

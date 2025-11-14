@@ -7,6 +7,7 @@ import HomePage from "./components/HomePage.jsx";
 import GameHandler from "./components/GamePlay/GameHandler.jsx";
 import DiceView from "./components/DiceView.jsx";
 import Presets from "./components/Presets.jsx";
+import IconGallery from "./components/IconGallery.jsx";
 import NotFound from "./components/NotFound.jsx";
 import { ToastContainer } from "react-toastify";
 
@@ -17,8 +18,9 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/dice" element={<DiceView />} />
+        {isDev && <Route path="/dice" element={<DiceView />} />}
         {isDev && <Route path="/presets" element={<Presets />} />}
+        {isDev && <Route path="/icons" element={<IconGallery />} />}
         <Route path="games/:gamename/:username" element={<GameHandler />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
