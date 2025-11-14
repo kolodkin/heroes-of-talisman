@@ -23,33 +23,38 @@ from .models import (
     AttackNegBonusEffect,
     SkipTurnEffect,
     RerollDiceEffect,
+    DrawCardEffect,
     BATTLE_HOWL,
     BOUNCING_ARROW,
     FREEZE,
 )
 
-HEALTH_1 = "health_1"
+ARCHER_BOUNCING_ARROW = "archer_bouncing_arrow"
+ARCHER_NOT_ALIVE = "archer_not_alive"
+BATTLE_DRAW = "battle_draw"
 BATTLE_PLAYER_1_WIN = "battle_player_1_win"
 BATTLE_PLAYER_2_WIN = "battle_player_2_win"
-BATTLE_DRAW = "battle_draw"
+BATTLE_WITH_EFFECTS = "battle_with_effects"
+HEALTH_1 = "health_1"
 KNIGHT_NOT_ALIVE = "knight_not_alive"
+KNIGHTS_ATTACK_BONUS_DRAW = "knights_attack_bonus_draw"
 MAGE_NOT_ALIVE = "mage_not_alive"
-ARCHER_NOT_ALIVE = "archer_not_alive"
 OPPONENT_SELECTION_PRESET = "opponent_selection_preset"
 SINGLE_PLAYER = "single_player"
-BATTLE_WITH_EFFECTS = "battle_with_effects"
 DEBUG_PRESETS = Literal[
     "default",
-    "health_1",
+    "archer_bouncing_arrow",
+    "archer_not_alive",
+    "battle_draw",
     "battle_player_1_win",
     "battle_player_2_win",
-    "battle_draw",
+    "battle_with_effects",
+    "health_1",
     "knight_not_alive",
+    "knights_attack_bonus_draw",
     "mage_not_alive",
-    "archer_not_alive",
     "opponent_selection_preset",
     "single_player",
-    "battle_with_effects",
 ]
 
 
@@ -189,6 +194,48 @@ def get_debug_preset(
             stage=BATTLE_DICE_ROLL,
             active=ActivePlayer3(player=p1_name, character=KNIGHT, dice_roll=[]),
             opponent=Opponent3(player=p2_name, character=MAGE, dice_roll=[]),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "archer_bouncing_arrow":
+        # Archer loses to mage but has Bouncing Arrow effect (reroll dice)
+        # Player 1: archer (dice=[2], attack=0) with BOUNCING_ARROW effect (RerollDiceEffect) = 2
+        # Player 2: mage (dice=[5], attack=0) = 5
+        # Result: archer loses (2 < 5), archer can use Bouncing Arrow to reroll
+        characters_p1 = init_characters()
+        characters_p1[ARCHER].effects = [
+            RerollDiceEffect(source=BOUNCING_ARROW),
+        ]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=BATTLE_DICE_ROLL,
+            active=ActivePlayer3(player=p1_name, character=ARCHER, dice_roll=[2]),
+            opponent=Opponent3(player=p2_name, character=MAGE, dice_roll=[5]),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "knights_attack_bonus_draw":
+        # Battle between 2 knights where one has positive attack bonus causing a draw
+        # Player 1: knight with attack_bonus (+2 from BATTLE_HOWL) -> dice=[4] + attack=1 + bonus=2 = 7
+        # Player 2: knight with no effects -> dice=[6] + attack=1 = 7
+        # Result: Draw (7 == 7)
+        characters_p1 = init_characters()
+        characters_p1[KNIGHT].effects = [
+            AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2),
+        ]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=BATTLE_DICE_ROLL,
+            active=ActivePlayer3(player=p1_name, character=KNIGHT, dice_roll=[4]),
+            opponent=Opponent3(player=p2_name, character=KNIGHT, dice_roll=[6]),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),

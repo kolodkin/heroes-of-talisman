@@ -2,8 +2,8 @@
 
 This document outlines the gameplay architecture and component hierarchy for the card game engine, detailing main components.
 
-- [FrontEnd GamePlay](/src/components/GamePlay/gameplay_frontend.md)
-- [BackEnd GamePlay](/server/gameplay/gameplay_backend.md)
+- [FrontEnd GamePlay](/docs/gameplay_frontend.md)
+- [BackEnd GamePlay](/docs/gameplay_backend.md)
 
 ## Overview
 
@@ -19,7 +19,7 @@ The game supports internationalization via react-i18next, currently configured f
 
 ## Backend Alignment
 
-Frontend components are designed to work seamlessly with the backend models outlined in [gameplay backend](/server/gameplay/gameplay_backend.md).
+Frontend components are designed to work seamlessly with the backend models outlined in [gameplay backend](/docs/gameplay_backend.md).
 
 ## Core Architecture
 
@@ -92,7 +92,7 @@ Each character has one or more abilities that can be used during their turn. Whe
 - **Use-Once Effects**: Some effects (like `RerollDiceEffect`) inherit from `UseOnceEffect` and can only be used once. After being used, the `used` flag is set to `True` and the effect won't be reused
 - **Persistence**: Effects remain active on the character from the moment they're applied until battle ends
 
-See [Backend GamePlay - Abilities & Effects](/server/gameplay/gameplay_backend.md#abilities--effects) for detailed implementation.
+See [Backend GamePlay - Abilities & Effects](/docs/gameplay_backend.md#abilities--effects) for detailed implementation.
 
 ## Game Stages
 
