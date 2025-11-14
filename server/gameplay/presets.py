@@ -213,8 +213,12 @@ def get_debug_preset(
 
         ret = GamePlay(
             stage=BATTLE_DICE_ROLL,
-            active=ActivePlayer3(player=p1_name, character=ARCHER, dice_roll=[2]),
-            opponent=Opponent3(player=p2_name, character=MAGE, dice_roll=[5]),
+            active=ActivePlayer4(
+                player=p1_name, character=ARCHER, dice_roll=[2], result=BattleResult(winner=False, score=2)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=MAGE, dice_roll=[5], result=BattleResult(winner=True, score=5)
+            ),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
@@ -234,8 +238,12 @@ def get_debug_preset(
 
         ret = GamePlay(
             stage=BATTLE_DICE_ROLL,
-            active=ActivePlayer3(player=p1_name, character=KNIGHT, dice_roll=[4]),
-            opponent=Opponent3(player=p2_name, character=KNIGHT, dice_roll=[6]),
+            active=ActivePlayer4(
+                player=p1_name, character=KNIGHT, dice_roll=[4], result=BattleResult(winner=False, score=7)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=KNIGHT, dice_roll=[6], result=BattleResult(winner=False, score=7)
+            ),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),

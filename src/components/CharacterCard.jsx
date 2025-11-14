@@ -21,6 +21,9 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
   const netEffect = attackBonus + attackNegBonus; // Positive = bonus, negative = penalty
   const hasReroll = character.effect?.reroll_dice_available || false;
 
+  // Get all effect names for data attribute
+  const effectNames = character.effects?.map((effect) => effect.name).join(",") || "";
+
   const handleClick = () => {
     if (!isAlive) {
       console.error(`Attempted to click not-alive character: ${name}. This should be prevented by CSS.`);
@@ -45,6 +48,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
       onClick={handleClick}
       data-character={name}
       data-level={character.level}
+      data-effects={effectNames}
     >
       <img src={`/images/${name}.png`} alt={name} />
       <p className="w-full text-center font-bold">
@@ -54,7 +58,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         {[...Array(character.dice).keys()].map((i) => (
           <DiceIcon color="white" fill="black" key={i} />
         ))}
-        {hasReroll && <RerollIcon color="white" fill="purple" data-reroll-icon />}
+        {hasReroll && <RerollIcon color="white" fill="purple" />}
         {totalAttack !== 0 && (
           <span
             className={className("font-bold", {

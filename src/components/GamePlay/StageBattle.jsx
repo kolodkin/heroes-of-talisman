@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import className from "classnames";
 import CharacterCard from "../CharacterCard";
 import Dice from "../Dice";
+import { RerollIcon } from "../Icons";
 import commonStyles from "../Common.module.css";
 import styles from "./StageBattle.module.css";
 
@@ -115,6 +116,11 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   // Detect draw: both rolled, all dice stopped, but neither is winner
   const isDraw = diceStoppedCount >= totalExpectedDice && bothRolled && !activeIsWinner && !opponentIsWinner;
 
+  // Detect if active player lost and has reroll effect available
+  const activeLost = diceStoppedCount >= totalExpectedDice && bothRolled && opponentIsWinner && !activeIsWinner;
+  const hasRerollEffect = activeCharacter?.effect?.reroll_dice_available ?? false;
+  const canUseRerollEffect = activeLost && hasRerollEffect;
+
   const handleDiceStop = useCallback(() => {
     setDiceStoppedCount((prev) => prev + 1);
   }, []);
@@ -141,6 +147,14 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const handleReroll = () => {
     if (active) {
       sendAction("action_reroll", {});
+      // Reset dice stopped count for next rolls
+      setDiceStoppedCount(0);
+    }
+  };
+
+  const handleRerollEffect = () => {
+    if (active) {
+      sendAction("action_reroll_effect", {});
       // Reset dice stopped count for next rolls
       setDiceStoppedCount(0);
     }
@@ -178,7 +192,19 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         winner={showWinner && opponentIsWinner}
         showScore={showWinner}
       />
-      {showWinner && (
+      {canUseRerollEffect ? (
+        <button
+          className={className(commonStyles.gamebtn, commonStyles.submitButton, styles.continueButton)}
+          onClick={handleRerollEffect}
+          disabled={!active}
+          style={{ pointerEvents: active ? "auto" : "none" }}
+          data-reroll-effect-button
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {t("battle.reroll")} <RerollIcon size={20} color="white" fill="purple" />
+          </span>
+        </button>
+      ) : showWinner ? (
         <button
           className={className(commonStyles.gamebtn, commonStyles.submitButton, styles.continueButton)}
           onClick={handleContinue}
@@ -188,8 +214,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         >
           {t("battle.continue")}
         </button>
-      )}
-      {isDraw && (
+      ) : isDraw ? (
         <button
           className={className(commonStyles.gamebtn, commonStyles.submitButton, styles.continueButton)}
           onClick={handleReroll}
@@ -199,7 +224,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         >
           {t("battle.reroll")}
         </button>
-      )}
+      ) : null}
     </div>
   );
 };

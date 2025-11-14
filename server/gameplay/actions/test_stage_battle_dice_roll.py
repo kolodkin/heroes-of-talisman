@@ -28,8 +28,10 @@ from ..models import (
     Opponent4,
     GameException,
     ReportedException,
+    AttackBonusEffect,
     AttackNegBonusEffect,
     SkipTurnEffect,
+    RerollDiceEffect,
     BATTLE_DICE_ROLL,
     BATTLE_END,
     CHARACTER_SELECT,
@@ -38,10 +40,11 @@ from ..models import (
     ARCHER,
     MAGE,
     BATTLE_HOWL,
+    BOUNCING_ARROW,
     FREEZE,
     init_characters,
 )
-from ..presets import get_debug_preset
+from ..presets import get_debug_preset, EFFECT_REROLL
 
 
 # ============================================================================
@@ -337,7 +340,7 @@ def test_reroll_action_not_active_player():
 
 
 def test_reroll_action_active_not_rolled():
-    """Test reroll fails when active player hasn't rolled yet"""
+    """Test reroll fails when active player hasn't rolled yet (not ActivePlayer4)"""
     characters = init_characters()
     game = GamePlay(
         stage=BATTLE_DICE_ROLL,
@@ -351,12 +354,13 @@ def test_reroll_action_active_not_rolled():
 
     action = RerollAction("player1", game)
 
-    with pytest.raises(GameException, match="Active player has not rolled yet"):
+    # RerollAction requires ActivePlayer4/Opponent4 with results, so this fails first
+    with pytest.raises(GameException, match="Cannot reroll when winner not determined"):
         action.run()
 
 
 def test_reroll_action_opponent_not_rolled():
-    """Test reroll fails when opponent hasn't rolled yet"""
+    """Test reroll fails when opponent hasn't rolled yet (not Opponent4)"""
     characters = init_characters()
     game = GamePlay(
         stage=BATTLE_DICE_ROLL,
@@ -370,7 +374,8 @@ def test_reroll_action_opponent_not_rolled():
 
     action = RerollAction("player1", game)
 
-    with pytest.raises(GameException, match="Opponent has not rolled yet"):
+    # RerollAction requires ActivePlayer4/Opponent4 with results, so this fails first
+    with pytest.raises(GameException, match="Cannot reroll when winner not determined"):
         action.run()
 
 
@@ -391,21 +396,20 @@ def test_reroll_action_winner_exists():
 
 
 def test_reroll_action_winner_not_determined():
-    """Test reroll fails when winner hasn't been determined yet (both rolled but no winner field)"""
-    characters = init_characters()
-    game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[6]),
-        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[3]),
-        players={
-            "player1": Player(name="player1", characters=characters),
-            "player2": Player(name="player2", characters=characters),
-        },
-    )
+    """Test reroll fails when there's a winner (ActivePlayer4/Opponent4 with winner=True)"""
+    # Use battle_player_1_win preset but keep stage as BATTLE_DICE_ROLL
+    game = get_debug_preset("battle_player_1_win", stage=BATTLE_DICE_ROLL)
+
+    # Verify state: player1 won (knight dice=[6] + attack=1 = 7 > mage dice=[3] = 3)
+    assert isinstance(game.active, ActivePlayer4)
+    assert isinstance(game.opponent, Opponent4)
+    assert game.active.result.winner is True
+    assert game.opponent.result.winner is False
 
     action = RerollAction("player1", game)
 
-    with pytest.raises(GameException, match="Winner not determined yet"):
+    # Should fail because there's a winner (not a draw)
+    with pytest.raises(GameException, match="Cannot reroll when there is a winner"):
         action.run()
 
 
@@ -630,3 +634,66 @@ def test_debug_set_battle_dice_rolls_invalid_dice_count():
     # Knight has 1 dice but we're passing 2 dice
     with pytest.raises(GameException, match="Active dice roll count 2 does not match character dice 1"):
         action.run(active_dice_roll=[6, 6], opponent_dice_roll=[1])
+
+
+# ============================================================================
+# Effect Action Tests
+# ============================================================================
+
+
+def test_reroll_effect_action():
+    """
+    Test RerollEffectAction behavior:
+    - Removes the first unused RerollDiceEffect
+    - Only removes first effect when multiple RerollDiceEffects exist
+    - Preserves non-RerollDiceEffect effects
+    - Resets game state for reroll
+    """
+    # Use the effect_reroll preset which has archer with RerollDiceEffect
+    game = get_debug_preset(EFFECT_REROLL)
+
+    # Add additional effects to test comprehensive behavior:
+    # - Second RerollDiceEffect (to test only first is removed)
+    # - AttackBonusEffect and SkipTurnEffect (to test other effects are preserved)
+    active_character = game.players[game.active.player].characters[game.active.character]
+    active_character.effects.append(RerollDiceEffect(source=BOUNCING_ARROW))
+    active_character.effects.append(AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2))
+    active_character.effects.append(SkipTurnEffect(source=FREEZE))
+
+    # Verify initial state: 4 effects total (1 original + 3 added)
+    assert len(active_character.effects) == 4
+    reroll_effects_count = sum(1 for eff in active_character.effects if isinstance(eff, RerollDiceEffect))
+    assert reroll_effects_count == 2
+    assert active_character.effect.reroll_dice_available
+
+    # Verify preset created game state as ActivePlayer4/Opponent4 (both rolled, winner calculated)
+    # Archer lost: dice=[2] = 2 < mage dice=[5] = 5
+    assert isinstance(game.active, ActivePlayer4)
+    assert isinstance(game.opponent, Opponent4)
+    assert game.active.result.winner is False
+    assert game.opponent.result.winner is True
+    assert game.stage == BATTLE_DICE_ROLL
+
+    # Perform reroll using RerollEffectAction
+    from ..actions import RerollEffectAction
+
+    action = RerollEffectAction("player1", game)
+    updated_game = action.run()
+
+    # Verify only ONE RerollDiceEffect was removed (first one), other effects preserved
+    active_character_after = updated_game.players[updated_game.active.player].characters[updated_game.active.character]
+    assert len(active_character_after.effects) == 3  # 4 - 1 = 3
+
+    # Verify one RerollDiceEffect remains
+    reroll_effects_after = [eff for eff in active_character_after.effects if isinstance(eff, RerollDiceEffect)]
+    assert len(reroll_effects_after) == 1
+
+    # Verify other effects are preserved
+    assert any(isinstance(eff, AttackBonusEffect) for eff in active_character_after.effects)
+    assert any(isinstance(eff, SkipTurnEffect) for eff in active_character_after.effects)
+
+    # Verify the game state was reset (reroll happened)
+    assert isinstance(updated_game.active, ActivePlayer2)
+    assert isinstance(updated_game.opponent, Opponent2)
+    assert not hasattr(updated_game.active, "dice_roll")
+    assert not hasattr(updated_game.opponent, "dice_roll")

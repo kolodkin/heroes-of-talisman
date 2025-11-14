@@ -15,7 +15,14 @@ export const HeartIcon = ({ size, color }) => (
 );
 
 export const RerollIcon = ({ size, color, fill }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    data-icon-reroll
+  >
     <circle cx="12" cy="12" r="10" fill={fill} stroke={color} strokeWidth="2" />
     <path
       d="M16 10 L16 6 L12 6 M16 6 C14.5 7.5 13 8.5 11 8.5 C8 8.5 6 6.5 6 4"
