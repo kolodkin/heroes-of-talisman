@@ -29,7 +29,7 @@ from .models import (
     FREEZE,
 )
 
-ARCHER_BOUNCING_ARROW = "archer_bouncing_arrow"
+EFFECT_REROLL = "effect_reroll"
 ARCHER_NOT_ALIVE = "archer_not_alive"
 BATTLE_DRAW = "battle_draw"
 BATTLE_PLAYER_1_WIN = "battle_player_1_win"
@@ -37,21 +37,21 @@ BATTLE_PLAYER_2_WIN = "battle_player_2_win"
 BATTLE_WITH_EFFECTS = "battle_with_effects"
 HEALTH_1 = "health_1"
 KNIGHT_NOT_ALIVE = "knight_not_alive"
-KNIGHTS_ATTACK_BONUS_DRAW = "knights_attack_bonus_draw"
+EFFECT_ATTACK_BONUS = "effect_attack_bonus"
 MAGE_NOT_ALIVE = "mage_not_alive"
 OPPONENT_SELECTION_PRESET = "opponent_selection_preset"
 SINGLE_PLAYER = "single_player"
 DEBUG_PRESETS = Literal[
     "default",
-    "archer_bouncing_arrow",
     "archer_not_alive",
     "battle_draw",
     "battle_player_1_win",
     "battle_player_2_win",
     "battle_with_effects",
+    "effect_attack_bonus",
+    "effect_reroll",
     "health_1",
     "knight_not_alive",
-    "knights_attack_bonus_draw",
     "mage_not_alive",
     "opponent_selection_preset",
     "single_player",
@@ -199,7 +199,7 @@ def get_debug_preset(
                 p2_name: Player(name=p2_name, characters=characters_p2),
             },
         )
-    elif preset == "archer_bouncing_arrow":
+    elif preset == "effect_reroll":
         # Archer loses to mage but has Bouncing Arrow effect (reroll dice)
         # Player 1: archer (dice=[2], attack=0) with BOUNCING_ARROW effect (RerollDiceEffect) = 2
         # Player 2: mage (dice=[5], attack=0) = 5
@@ -220,7 +220,7 @@ def get_debug_preset(
                 p2_name: Player(name=p2_name, characters=characters_p2),
             },
         )
-    elif preset == "knights_attack_bonus_draw":
+    elif preset == "effect_attack_bonus":
         # Battle between 2 knights where one has positive attack bonus causing a draw
         # Player 1: knight with attack_bonus (+2 from BATTLE_HOWL) -> dice=[4] + attack=1 + bonus=2 = 7
         # Player 2: knight with no effects -> dice=[6] + attack=1 = 7
