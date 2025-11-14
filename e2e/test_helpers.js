@@ -17,7 +17,7 @@ export const test = base.extend({
 
     // Cleanup: Delete the game after the test completes
     try {
-      const API_URL = `http://localhost:${process.env.API_PORT ?? "8000"}`;
+      const API_URL = `http://localhost:${process.env.APP_PORT ?? "8000"}`;
       await fetch(`${API_URL}/api/games/${encodeURIComponent(gameName)}`, {
         method: "DELETE",
       });
