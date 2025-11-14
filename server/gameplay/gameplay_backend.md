@@ -86,20 +86,32 @@ Each character has one or more abilities that can be used during their turn. Whe
 - **Effects**: Applied to the target character when the ability is used
 - **Effect Lifecycle**: All effects are automatically disposed at the end of battle (battle_end stage) by default
 
-### Available Abilities
-
-- **Knight L1**: Battle Howl - `AttackNegBonusEffect` (reduces opponent attack by 2)
-- **Archer L1**: Bouncing Arrow - `RerollDiceEffect` (allows reroll on loss, use-once)
-- **Mage L1**: Freeze - `SkipTurnEffect` (opponent skips next turn)
-
 ### Effect Types
 
-- **Effect** (base class): All effects have a `source` field indicating which ability created them
-- **UseOnceEffect**: Effects that can only be used once. After being used, the `used` flag is set to `True` and the effect won't be reused
-- **SkipTurnEffect**: Character cannot participate in the next turn
-- **AttackBonusEffect**: Increases character's attack by a specified value
-- **AttackNegBonusEffect**: Decreases character's attack by a specified value (negative bonus)
-- **RerollDiceEffect** (extends UseOnceEffect): Character can reroll dice if they lose the battle, but only once
+All effect classes are defined in `server/gameplay/models.py`:
+
+- **`Effect`** (base class, lines 148-155): All effects have a `source: AbilityName` field indicating which ability created them
+- **`UseOnceEffect`** (extends Effect, lines 158-165): Effects that can only be used once. After being used, the `used` flag is set to `True` and the effect won't be reused
+- **`SkipTurnEffect`** (extends Effect, lines 168-174): Character cannot participate in the next turn
+- **`AttackBonusEffect`** (extends Effect, lines 177-183): Increases character's attack by a specified value (`attack_bonus: int`)
+- **`AttackNegBonusEffect`** (extends Effect, lines 196-202): Decreases character's attack by a specified value (`attack_neg_bonus: int`, negative value)
+- **`RerollDiceEffect`** (extends UseOnceEffect, lines 186-193): Character can reroll dice if they lose the battle, but only once (`reroll_dice: bool = True`)
+
+### Available Abilities
+
+Ability definitions with their effects (defined in `server/gameplay/models.py:230-248`):
+
+- **Knight L1**: `BATTLE_HOWL`
+  - Activates: `AttackNegBonusEffect(attack_neg_bonus=-2)`
+  - Effect: Reduces opponent's attack by 2
+
+- **Archer L1**: `BOUNCING_ARROW`
+  - Activates: `RerollDiceEffect`
+  - Effect: Allows the target to reroll dice if they lose the battle (use-once)
+
+- **Mage L1**: `FREEZE`
+  - Activates: `SkipTurnEffect`
+  - Effect: Opponent skips their next turn
 
 ### Character Effects
 

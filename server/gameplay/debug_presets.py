@@ -22,7 +22,9 @@ from .models import (
     AttackBonusEffect,
     AttackNegBonusEffect,
     SkipTurnEffect,
+    RerollDiceEffect,
     BATTLE_HOWL,
+    BOUNCING_ARROW,
     FREEZE,
 )
 
@@ -169,11 +171,12 @@ def get_debug_preset(
         )
     elif preset == "battle_with_effects":
         # Battle dice roll stage with effects
-        # Player 1: knight with attack_bonus (+2)
-        # Player 2: mage with attack_neg_bonus (-2) and skip_turn
+        # Player 1: knight with attack_bonus (+2 from BATTLE_HOWL) and reroll_dice (from BOUNCING_ARROW)
+        # Player 2: mage with attack_neg_bonus (-2 from BATTLE_HOWL) and skip_turn (from FREEZE)
         characters_p1 = init_characters()
         characters_p1[KNIGHT].effects = [
             AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2),
+            RerollDiceEffect(source=BOUNCING_ARROW),
         ]
 
         characters_p2 = init_characters()

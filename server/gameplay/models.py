@@ -1,6 +1,6 @@
 from typing import Dict, Optional, Literal, Annotated, Union
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field, Discriminator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, Discriminator, model_validator
 
 ########################################################
 # Connection statuses
@@ -43,6 +43,21 @@ BOUNCING_ARROW = "bouncing_arrow"
 FREEZE = "freeze"
 ABILITIES_NAMES: list[str] = [BATTLE_HOWL, BOUNCING_ARROW, FREEZE]
 AbilityName = Literal[*ABILITIES_NAMES]
+
+# Effect names
+ATTACK_BONUS = "attack_bonus"
+ATTACK_NEG_BONUS = "attack_neg_bonus"
+REROLL_DICE = "reroll_dice"
+SKIP_TURN = "skip_turn"
+
+# Effect-to-Source mapping: defines which abilities can create which effects
+# This is used for validation to ensure effects have valid source abilities
+EFFECTS_SOURCE_ABILITY_MAP: dict[str, set[str]] = {
+    ATTACK_BONUS: {BATTLE_HOWL},  # AttackBonusEffect can come from BATTLE_HOWL
+    ATTACK_NEG_BONUS: {BATTLE_HOWL},  # AttackNegBonusEffect can come from BATTLE_HOWL
+    REROLL_DICE: {BOUNCING_ARROW},  # RerollDiceEffect can come from BOUNCING_ARROW
+    SKIP_TURN: {FREEZE},  # SkipTurnEffect can come from FREEZE
+}
 
 ########################################################
 # Actions
@@ -170,8 +185,19 @@ class SkipTurnEffect(Effect):
     Character can't participate in the next turn.
     """
 
-    name: Literal["skip_turn"] = "skip_turn"
+    name: Literal[SKIP_TURN] = SKIP_TURN
     skip_next_turn: bool = True
+
+    @model_validator(mode="after")
+    def validate_source(self) -> "SkipTurnEffect":
+        """Validate that source is valid for this effect type"""
+        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
+        if self.source not in valid_sources:
+            raise ValueError(
+                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
+                f"Valid sources: {valid_sources}"
+            )
+        return self
 
 
 class AttackBonusEffect(Effect):
@@ -179,8 +205,19 @@ class AttackBonusEffect(Effect):
     Character's attack is increased by the value of the effect.
     """
 
-    name: Literal["attack_bonus"] = "attack_bonus"
+    name: Literal[ATTACK_BONUS] = ATTACK_BONUS
     attack_bonus: int
+
+    @model_validator(mode="after")
+    def validate_source(self) -> "AttackBonusEffect":
+        """Validate that source is valid for this effect type"""
+        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
+        if self.source not in valid_sources:
+            raise ValueError(
+                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
+                f"Valid sources: {valid_sources}"
+            )
+        return self
 
 
 class RerollDiceEffect(UseOnceEffect):
@@ -189,8 +226,19 @@ class RerollDiceEffect(UseOnceEffect):
     This is a use-once effect - after being used, it won't be available again.
     """
 
-    name: Literal["reroll_dice"] = "reroll_dice"
+    name: Literal[REROLL_DICE] = REROLL_DICE
     reroll_dice: bool = True
+
+    @model_validator(mode="after")
+    def validate_source(self) -> "RerollDiceEffect":
+        """Validate that source is valid for this effect type"""
+        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
+        if self.source not in valid_sources:
+            raise ValueError(
+                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
+                f"Valid sources: {valid_sources}"
+            )
+        return self
 
 
 class AttackNegBonusEffect(Effect):
@@ -198,13 +246,24 @@ class AttackNegBonusEffect(Effect):
     Character's attack is decreased by the value of the effect.
     """
 
-    name: Literal["attack_neg_bonus"] = "attack_neg_bonus"
+    name: Literal[ATTACK_NEG_BONUS] = ATTACK_NEG_BONUS
     attack_neg_bonus: int
 
+    @model_validator(mode="after")
+    def validate_source(self) -> "AttackNegBonusEffect":
+        """Validate that source is valid for this effect type"""
+        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
+        if self.source not in valid_sources:
+            raise ValueError(
+                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
+                f"Valid sources: {valid_sources}"
+            )
+        return self
 
-# Define EffectUnion for discriminated union of all effect types
+
+# Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, SkipTurnEffect, RerollDiceEffect, Effect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, RerollDiceEffect, SkipTurnEffect],
     Field(discriminator="name"),
 ]
 

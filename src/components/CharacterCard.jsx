@@ -2,7 +2,7 @@ import className from "classnames";
 import { useTranslation } from "react-i18next";
 import styles from "./CharacterCard.module.css";
 import commonStyles from "./Common.module.css";
-import { DiceIcon, HeartIcon } from "./Icons";
+import { DiceIcon, HeartIcon, RerollIcon } from "./Icons";
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `${num}`) : "");
 
@@ -19,6 +19,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
   const attackNegBonus = character.effect?.attack_neg_bonus || 0;
   const totalAttack = baseAttack + attackBonus + attackNegBonus;
   const netEffect = attackBonus + attackNegBonus; // Positive = bonus, negative = penalty
+  const hasReroll = character.effect?.reroll_dice_available || false;
 
   const handleClick = () => {
     if (!isAlive) {
@@ -53,6 +54,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         {[...Array(character.dice).keys()].map((i) => (
           <DiceIcon color="white" fill="black" key={i} />
         ))}
+        {hasReroll && <RerollIcon color="white" fill="purple" data-reroll-icon />}
         {totalAttack !== 0 && (
           <span
             className={className("font-bold", {
