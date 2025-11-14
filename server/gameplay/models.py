@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Literal, Annotated, Union
+from typing import Dict, Optional, Literal, Annotated, Union, Self
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, Discriminator, model_validator
 
@@ -78,6 +78,7 @@ OPPONENT_SELECT = "opponent_select"
 ACTIVE_PLAYER_ROLL = "active_player_roll"
 OPPONENT_ROLL = "opponent_roll"
 ACTION_REROLL = "action_reroll"
+ACTION_REROLL_EFFECT = "action_reroll_effect"
 BATTLE_END_ACTION = "battle_end"
 DEBUG_SET_BATTLE_DICE_ROLLS = "debug_set_battle_dice_rolls"
 
@@ -96,6 +97,7 @@ ACTION_NAMES = [
     ACTIVE_PLAYER_ROLL,
     OPPONENT_ROLL,
     ACTION_REROLL,
+    ACTION_REROLL_EFFECT,
     BATTLE_END_ACTION,
     DEBUG_SET_BATTLE_DICE_ROLLS,
 ]
@@ -171,6 +173,17 @@ class Effect(StrictModel):
     name: Literal["effect"] = "effect"  # Discriminator field for polymorphic serialization
     source: AbilityName
 
+    @model_validator(mode="after")
+    def validate_source(self) -> Self:
+        """Validate that source is valid for this effect type"""
+        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
+        if self.source not in valid_sources and len(valid_sources) > 0:
+            raise ValueError(
+                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
+                f"Valid sources: {valid_sources}"
+            )
+        return self
+
 
 class UseOnceEffect(Effect):
     """
@@ -190,17 +203,6 @@ class SkipTurnEffect(Effect):
     name: Literal[SKIP_TURN] = SKIP_TURN
     skip_next_turn: bool = True
 
-    @model_validator(mode="after")
-    def validate_source(self) -> "SkipTurnEffect":
-        """Validate that source is valid for this effect type"""
-        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
-        if self.source not in valid_sources:
-            raise ValueError(
-                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
-                f"Valid sources: {valid_sources}"
-            )
-        return self
-
 
 class AttackBonusEffect(Effect):
     """
@@ -209,17 +211,6 @@ class AttackBonusEffect(Effect):
 
     name: Literal[ATTACK_BONUS] = ATTACK_BONUS
     attack_bonus: int
-
-    @model_validator(mode="after")
-    def validate_source(self) -> "AttackBonusEffect":
-        """Validate that source is valid for this effect type"""
-        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
-        if self.source not in valid_sources:
-            raise ValueError(
-                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
-                f"Valid sources: {valid_sources}"
-            )
-        return self
 
 
 class RerollDiceEffect(UseOnceEffect):
@@ -231,17 +222,6 @@ class RerollDiceEffect(UseOnceEffect):
     name: Literal[REROLL_DICE] = REROLL_DICE
     reroll_dice: bool = True
 
-    @model_validator(mode="after")
-    def validate_source(self) -> "RerollDiceEffect":
-        """Validate that source is valid for this effect type"""
-        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
-        if self.source not in valid_sources:
-            raise ValueError(
-                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
-                f"Valid sources: {valid_sources}"
-            )
-        return self
-
 
 class AttackNegBonusEffect(Effect):
     """
@@ -251,17 +231,6 @@ class AttackNegBonusEffect(Effect):
     name: Literal[ATTACK_NEG_BONUS] = ATTACK_NEG_BONUS
     attack_neg_bonus: int
 
-    @model_validator(mode="after")
-    def validate_source(self) -> "AttackNegBonusEffect":
-        """Validate that source is valid for this effect type"""
-        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
-        if self.source not in valid_sources:
-            raise ValueError(
-                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
-                f"Valid sources: {valid_sources}"
-            )
-        return self
-
 
 class DrawCardEffect(Effect):
     """
@@ -270,17 +239,6 @@ class DrawCardEffect(Effect):
 
     name: Literal[DRAW_CARD] = DRAW_CARD
     draw_count: int = 1
-
-    @model_validator(mode="after")
-    def validate_source(self) -> "DrawCardEffect":
-        """Validate that source is valid for this effect type"""
-        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
-        if self.source not in valid_sources and len(valid_sources) > 0:
-            raise ValueError(
-                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
-                f"Valid sources: {valid_sources}"
-            )
-        return self
 
 
 # Define EffectUnion for discriminated union of all effect types (without base classes)

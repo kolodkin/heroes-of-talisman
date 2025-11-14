@@ -15,6 +15,7 @@ from ..models import (
     ACTIVE_PLAYER_ROLL,
     OPPONENT_ROLL,
     ACTION_REROLL,
+    ACTION_REROLL_EFFECT,
     BATTLE_END_ACTION,
     DEBUG_SET_BATTLE_DICE_ROLLS,
 )
@@ -24,7 +25,7 @@ from .stage_character_select import CharacterPressAction, CharacterSelectAction
 from .stage_ability_selection import AbilityPressAction, AbilitySelectAction
 from .stage_ability_opponent_selection import AbilityOpponentPressAction, AbilityOpponentSelectAction
 from .stage_opponent_selection import OpponentPressAction, OpponentSelectAction
-from .stage_battle import ActivePlayerRollAction, OpponentRollAction, RerollAction, DebugSetBattleDiceRollsAction
+from .stage_battle import ActivePlayerRollAction, OpponentRollAction, RerollAction, RerollEffectAction, DebugSetBattleDiceRollsAction
 from .battle_end import BattleEndAction
 
 # Action mapping for dynamic action execution
@@ -43,6 +44,7 @@ ACTION_MAP: Dict[str, type[Action]] = {
     ACTIVE_PLAYER_ROLL: ActivePlayerRollAction,
     OPPONENT_ROLL: OpponentRollAction,
     ACTION_REROLL: RerollAction,
+    ACTION_REROLL_EFFECT: RerollEffectAction,
     BATTLE_END_ACTION: BattleEndAction,
     DEBUG_SET_BATTLE_DICE_ROLLS: DebugSetBattleDiceRollsAction,
 }

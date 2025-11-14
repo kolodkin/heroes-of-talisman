@@ -186,3 +186,77 @@ test("battle stage - draw with reroll", async ({ page, gameName }) => {
   // Cleanup
   await page2.close();
 });
+
+test("battle stage - reroll effect after loss", async ({ page, gameName }) => {
+  // Create preset game with reroll effect (archer with reroll vs mage, archer loses)
+  await createPresetGameViaAPI(gameName, "effect_reroll");
+
+  // Player1 joins (archer with reroll effect)
+  await joinGameViaUrl(page, "player1", gameName);
+
+  // Player2 joins (mage)
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName);
+
+  // Verify battle stage
+  await verifyBattleStage(page, "player1", "player2", "archer", "mage");
+
+  // Verify reroll effect is present in character card data-effects attribute
+  const activeCharacterCard = page.locator('[data-battle-role="active"] [data-character="archer"]');
+  await expect(activeCharacterCard).toHaveAttribute("data-effects", /reroll_dice/);
+  await screenshot(page, "reroll-effect-before-loss");
+
+  // Get scores - player1 (archer) should have lost (dice=[2] = 2 < mage dice=[5] = 5)
+  const player1Score = await getScore(page, "active");
+  const player2Score = await getScore(page, "opponent");
+  expect(player2Score).toBeGreaterThan(player1Score);
+  expect(player1Score).toBe(2);
+  expect(player2Score).toBe(5);
+
+  // Verify winner badge is shown for player 2 (opponent)
+  await verifyWinner(page, "opponent");
+
+  // Verify reroll effect button appears (player1 lost and has reroll effect)
+  const rerollEffectButton = page.locator("[data-reroll-effect-button]");
+  await expect(rerollEffectButton).toBeVisible();
+
+  // Verify reroll icon is visible inside the reroll effect button
+  const rerollIconInButton = page.locator("[data-reroll-effect-button] [data-icon-reroll]");
+  await expect(rerollIconInButton).toBeVisible();
+  await screenshot(page, "reroll-effect-button-visible");
+
+  // Verify continue button does NOT appear (reroll effect is the only option)
+  const continueButton = page.locator("[data-continue-button]");
+  await expect(continueButton).not.toBeVisible();
+
+  // Click reroll effect button
+  await rerollEffectButton.click();
+  await screenshot(page, "after-reroll-effect-click");
+
+  // Verify reroll effect is removed from data-effects attribute
+  await expect(activeCharacterCard).not.toHaveAttribute("data-effects", /reroll_dice/);
+
+  // Verify dice rolls are reset - roll buttons should be visible again (similar to regular reroll)
+  const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
+  const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
+  await expect(activeRollButton).toBeVisible();
+  await expect(opponentRollButton).toBeVisible();
+
+  // Verify dice are no longer visible after reroll
+  const activeDice = page.locator('[data-battle-role="active"] [class*="diceContainer"]');
+  const opponentDice = page.locator('[data-battle-role="opponent"] [class*="diceContainer"]');
+  await expect(activeDice.first()).not.toBeVisible();
+  await expect(opponentDice.first()).not.toBeVisible();
+
+  // Verify winner badge is gone
+  const opponentWinnerBadge = page.locator('[data-battle-role="opponent"] [data-winner-badge]');
+  await expect(opponentWinnerBadge).not.toBeVisible();
+
+  // Verify reroll effect button is also gone (since effect was used)
+  await expect(rerollEffectButton).not.toBeVisible();
+
+  await screenshot(page, "after-reroll-effect-complete");
+
+  // Cleanup
+  await page2.close();
+});
