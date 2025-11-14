@@ -8,4 +8,4 @@ To be completed
 
 ## Backend Alignment
 
-Backend models are designed to work seamlessly with the frontend components outlined in [frontend gameplay](/src/components/GamePlay/gameplay_frontend.md)
+Backend models are designed to work seamlessly with the frontend components outlined in [frontend gameplay](/docs/gameplay_frontend.md)

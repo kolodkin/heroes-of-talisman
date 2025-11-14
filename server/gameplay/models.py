@@ -49,6 +49,7 @@ ATTACK_BONUS = "attack_bonus"
 ATTACK_NEG_BONUS = "attack_neg_bonus"
 REROLL_DICE = "reroll_dice"
 SKIP_TURN = "skip_turn"
+DRAW_CARD = "draw_card"
 
 # Effect-to-Source mapping: defines which abilities can create which effects
 # This is used for validation to ensure effects have valid source abilities
@@ -57,6 +58,7 @@ EFFECTS_SOURCE_ABILITY_MAP: dict[str, set[str]] = {
     ATTACK_NEG_BONUS: {BATTLE_HOWL},  # AttackNegBonusEffect can come from BATTLE_HOWL
     REROLL_DICE: {BOUNCING_ARROW},  # RerollDiceEffect can come from BOUNCING_ARROW
     SKIP_TURN: {FREEZE},  # SkipTurnEffect can come from FREEZE
+    DRAW_CARD: set(),  # DrawCardEffect - TBD: add abilities that grant card draw
 }
 
 ########################################################
@@ -261,9 +263,29 @@ class AttackNegBonusEffect(Effect):
         return self
 
 
+class DrawCardEffect(Effect):
+    """
+    Character draws cards at the start of battle.
+    """
+
+    name: Literal[DRAW_CARD] = DRAW_CARD
+    draw_count: int = 1
+
+    @model_validator(mode="after")
+    def validate_source(self) -> "DrawCardEffect":
+        """Validate that source is valid for this effect type"""
+        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
+        if self.source not in valid_sources and len(valid_sources) > 0:
+            raise ValueError(
+                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
+                f"Valid sources: {valid_sources}"
+            )
+        return self
+
+
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, RerollDiceEffect, SkipTurnEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect],
     Field(discriminator="name"),
 ]
 
@@ -283,6 +305,7 @@ class EffectTotal(StrictModel):
     attack_neg_bonus: int = 0
     skip_next_turn: bool = False
     reroll_dice_available: bool = False
+    draw_card_count: int = 0
 
 
 ABILITIES_MAP: dict[AbilityName, Ability] = {
@@ -350,6 +373,8 @@ class CharacterCard(StrictModel):
                 # Only available if not yet used
                 if not eff.used:
                     total.reroll_dice_available = True
+            elif isinstance(eff, DrawCardEffect):
+                total.draw_card_count += eff.draw_count
 
         return total
 

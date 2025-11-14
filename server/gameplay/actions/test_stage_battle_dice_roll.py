@@ -41,7 +41,7 @@ from ..models import (
     FREEZE,
     init_characters,
 )
-from ..debug_presets import get_debug_preset
+from ..presets import get_debug_preset
 
 
 # ============================================================================

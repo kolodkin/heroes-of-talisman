@@ -42,14 +42,13 @@ When testing action classes (subclasses of `Action`):
 - If you find yourself repeatedly accessing nested game state, suggest adding a new property to the `Action` base class
 - Properties should encapsulate common access patterns and provide validation
 
-### Use debug_presets.py for Game State
+### Use presets.py for Game State
 
-- Use `get_debug_preset()` from `server/gameplay/debug_presets.py` to create preset game states for testing
-- Available presets: `battle_player_1_win`, `battle_player_2_win`, `battle_draw`, `knight_not_alive`, etc.
+- Use `get_debug_preset()` from `server/gameplay/presets.py` to create preset game states for testing
 - Example:
 
   ```python
-  from ..debug_presets import get_debug_preset
+  from ..presets import get_debug_preset
 
   def test_battle_action():
       game = get_debug_preset("battle_player_1_win")

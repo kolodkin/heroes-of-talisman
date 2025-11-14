@@ -5,16 +5,18 @@ import { useNavigate } from "react-router-dom";
 
 const PRESET_OPTIONS = [
   { value: "default", label: "Default" },
-  { value: "health_1", label: "Health 1" },
+  { value: "archer_bouncing_arrow", label: "Archer Bouncing Arrow" },
+  { value: "archer_not_alive", label: "Archer Not Alive" },
+  { value: "battle_draw", label: "Battle Draw" },
   { value: "battle_player_1_win", label: "Battle Player 1 Win" },
   { value: "battle_player_2_win", label: "Battle Player 2 Win" },
-  { value: "battle_draw", label: "Battle Draw" },
+  { value: "battle_with_effects", label: "Battle with Effects" },
+  { value: "health_1", label: "Health 1" },
   { value: "knight_not_alive", label: "Knight Not Alive" },
+  { value: "knights_attack_bonus_draw", label: "Knights Attack Bonus Draw" },
   { value: "mage_not_alive", label: "Mage Not Alive" },
-  { value: "archer_not_alive", label: "Archer Not Alive" },
   { value: "opponent_selection_preset", label: "Opponent Selection" },
   { value: "single_player", label: "Single Player" },
-  { value: "battle_with_effects", label: "Battle with Effects" },
 ];
 
 const Presets = () => {

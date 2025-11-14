@@ -6,7 +6,7 @@ These tests verify that the game correctly handles scenarios with less than 2 pl
 
 import pytest
 
-from .debug_presets import get_debug_preset, SINGLE_PLAYER
+from .presets import get_debug_preset, SINGLE_PLAYER
 from .models import CHARACTER_SELECT
 
 
