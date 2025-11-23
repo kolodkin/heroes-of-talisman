@@ -260,3 +260,48 @@ test("battle stage - reroll effect after loss", async ({ page, gameName }) => {
   // Cleanup
   await page2.close();
 });
+
+test("battle stage - draw with attack bonus effect", async ({ page, gameName }) => {
+  // Create preset game with draw caused by attack bonus effect
+  // Player 1: knight with attack_bonus (+2) -> dice=[4] + attack=1 + bonus=2 = 7
+  // Player 2: knight with no effects -> dice=[6] + attack=1 = 7
+  // Result: Draw (7 == 7)
+  await createPresetGameViaAPI(gameName, "effect_attack_bonus");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName);
+
+  // Player2 joins
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName);
+
+  // Verify battle stage
+  await verifyBattleStage(page, "player1", "player2", "knight", "knight");
+
+  // Verify attack bonus effect is present in player1's character card
+  const activeCharacterCard = page.locator('[data-battle-role="active"] [data-character="knight"]');
+  await expect(activeCharacterCard).toHaveAttribute("data-effects", /attack_bonus/);
+
+  // Verify reroll button is visible (indicates draw)
+  const rerollButton = page.locator("[data-reroll-button]");
+  await expect(rerollButton).toBeVisible();
+
+  await screenshot(page, "draw-with-attack-bonus");
+
+  // Verify continue button does NOT appear
+  const continueButton = page.locator("[data-continue-button]");
+  await expect(continueButton).not.toBeVisible();
+
+  // Click reroll button
+  await rerollButton.click();
+  await screenshot(page, "after-reroll-attack-bonus");
+
+  // Verify dice rolls are reset - roll buttons should be visible again
+  const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
+  const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
+  await expect(activeRollButton).toBeVisible();
+  await expect(opponentRollButton).toBeVisible();
+
+  // Cleanup
+  await page2.close();
+});
