@@ -2,7 +2,7 @@ import className from "classnames";
 import { useTranslation } from "react-i18next";
 import styles from "./CharacterCard.module.css";
 import commonStyles from "./Common.module.css";
-import { DiceIcon, HeartIcon, RerollIcon } from "./Icons";
+import { DiceIcon, HeartIcon, RerollIcon, SkipTurnIcon, NotAliveIcon } from "./Icons";
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `${num}`) : "");
 
@@ -12,6 +12,12 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
 
   const cardClass = size === "normal" ? styles["card-normal"] : styles["card-small"];
   const isAlive = character.is_alive !== false; // Default to true if not specified
+
+  // Check if character has skip_turn effect
+  const hasSkipTurn = character.effects?.some((effect) => effect.name === "skip_turn") || false;
+
+  // Character is selectable only if alive AND doesn't have skip_turn
+  const isSelectable = isAlive && !hasSkipTurn;
 
   // Calculate total attack with effects
   const baseAttack = character.attack || 0;
@@ -25,8 +31,8 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
   const effectNames = character.effects?.map((effect) => effect.name).join(",") || "";
 
   const handleClick = () => {
-    if (!isAlive) {
-      console.error(`Attempted to click not-alive character: ${name}. This should be prevented by CSS.`);
+    if (!isSelectable) {
+      console.error(`Attempted to click non-selectable character: ${name}. This should be prevented by CSS.`);
       return;
     }
     if (onClick) {
@@ -38,8 +44,8 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
     <div
       className={className(
         { [commonStyles.selected]: isSelected },
-        { [styles.alive]: isAlive },
-        { [styles["not-alive"]]: !isAlive },
+        { [styles.alive]: isSelectable },
+        { [styles["not-alive"]]: !isSelectable },
         commonStyles.gamebtn,
         styles.card,
         cardClass,
@@ -58,7 +64,6 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         {[...Array(character.dice).keys()].map((i) => (
           <DiceIcon color="white" fill="black" key={i} />
         ))}
-        {hasReroll && <RerollIcon color="white" fill="purple" />}
         {totalAttack !== 0 && (
           <span
             className={className("font-bold", {
@@ -70,6 +75,8 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
             {signStr(totalAttack)}
           </span>
         )}
+        {hasReroll && <RerollIcon color="white" fill="purple" />}
+        {hasSkipTurn && <SkipTurnIcon color="white" fill="orange" />}
       </div>
       <div className={className("flex items-center gap-1", styles.stats)}>
         <HeartIcon color="red" />
@@ -77,6 +84,15 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
           [{character.health}/{character.max_health}]
         </span>
       </div>
+      {!isAlive ? (
+        <div className={styles.overlay}>
+          <NotAliveIcon size={size === "normal" ? 64 : 32} color="white" fill="rgba(0, 0, 0, 0.7)" />
+        </div>
+      ) : hasSkipTurn ? (
+        <div className={styles.overlay}>
+          <SkipTurnIcon size={size === "normal" ? 64 : 32} color="white" fill="orange" />
+        </div>
+      ) : null}
     </div>
   );
 };

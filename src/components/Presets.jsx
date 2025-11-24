@@ -12,6 +12,7 @@ const PRESET_OPTIONS = [
   { value: "battle_with_effects", label: "Battle with Effects" },
   { value: "effect_attack_bonus", label: "Effect: Attack Bonus" },
   { value: "effect_reroll", label: "Effect: Reroll" },
+  { value: "effect_skip_turn", label: "Effect: Skip Turn" },
   { value: "health_1", label: "Health 1" },
   { value: "knight_not_alive", label: "Knight Not Alive" },
   { value: "mage_not_alive", label: "Mage Not Alive" },

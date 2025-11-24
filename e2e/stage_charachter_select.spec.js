@@ -99,3 +99,24 @@ test("character_select stage - archer not alive", async ({ page, gameName }) => 
 
   await screenshot(page, "archer-not-alive-after-select");
 });
+
+test("character_select stage - knight has skip_turn effect", async ({ page, gameName }) => {
+  // Create preset game with knight having skip_turn effect
+  await createPresetGameViaAPI(gameName, "effect_skip_turn");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
+
+  // Verify we're in character_select stage
+  await expect(page.locator('[data-character="knight"]').first()).toBeVisible();
+  await expect(page.locator('[data-character="mage"]').first()).toBeVisible();
+  await expect(page.locator('[data-character="archer"]').first()).toBeVisible();
+
+  // Verify knight has skip_turn effect and is not clickable
+  await verifyCharacterNotClickable(page, "knight", "knight-skip-turn-before-click");
+
+  // Verify mage is alive and clickable
+  await verifyCharacterClickable(page, "mage");
+
+  await screenshot(page, "knight-skip-turn-after-select");
+});
