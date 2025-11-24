@@ -38,6 +38,7 @@ BATTLE_WITH_EFFECTS = "battle_with_effects"
 HEALTH_1 = "health_1"
 KNIGHT_NOT_ALIVE = "knight_not_alive"
 EFFECT_ATTACK_BONUS = "effect_attack_bonus"
+EFFECT_SKIP_TURN = "effect_skip_turn"
 MAGE_NOT_ALIVE = "mage_not_alive"
 OPPONENT_SELECTION_PRESET = "opponent_selection_preset"
 SINGLE_PLAYER = "single_player"
@@ -50,6 +51,7 @@ DEBUG_PRESETS = Literal[
     "battle_with_effects",
     "effect_attack_bonus",
     "effect_reroll",
+    "effect_skip_turn",
     "health_1",
     "knight_not_alive",
     "mage_not_alive",
@@ -244,6 +246,25 @@ def get_debug_preset(
             opponent=Opponent4(
                 player=p2_name, character=KNIGHT, dice_roll=[6], result=BattleResult(winner=False, score=7)
             ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "effect_skip_turn":
+        # Knight has skip_turn effect from FREEZE, can't be selected in character select stage
+        # Player 1: knight with skip_turn effect (from FREEZE) - can't be selected
+        # Player 2: no effects
+        # Stage: CHARACTER_SELECT
+        characters_p1 = init_characters()
+        characters_p1[KNIGHT].effects = [
+            SkipTurnEffect(source=FREEZE),
+        ]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=CHARACTER_SELECT,
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
