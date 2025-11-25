@@ -11,6 +11,7 @@ from .models import (
     Opponent3,
     Opponent4,
     BattleResult,
+    ABILITY_SELECTION,
     BATTLE_DICE_ROLL,
     BATTLE_END,
     CHARACTER_SELECT,
@@ -29,6 +30,9 @@ from .models import (
     FREEZE,
 )
 
+ABILITY_SELECTION_KNIGHT = "ability_selection_knight"
+ABILITY_SELECTION_ARCHER = "ability_selection_archer"
+ABILITY_SELECTION_MAGE = "ability_selection_mage"
 EFFECT_REROLL = "effect_reroll"
 ARCHER_NOT_ALIVE = "archer_not_alive"
 BATTLE_DRAW = "battle_draw"
@@ -44,6 +48,9 @@ OPPONENT_SELECTION_PRESET = "opponent_selection_preset"
 SINGLE_PLAYER = "single_player"
 DEBUG_PRESETS = Literal[
     "default",
+    "ability_selection_knight",
+    "ability_selection_archer",
+    "ability_selection_mage",
     "archer_not_alive",
     "battle_draw",
     "battle_player_1_win",
@@ -94,6 +101,39 @@ def get_debug_preset(
 
     if preset == "default":
         ret = DEFAULT_GAME.model_copy(deep=True)
+    elif preset == "ability_selection_knight":
+        # Ability selection stage - player1 has selected knight
+        # Knight has BATTLE_HOWL which does NOT require ability_opponent_selection
+        ret = GamePlay(
+            stage=ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=KNIGHT),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_selection_archer":
+        # Ability selection stage - player1 has selected archer
+        # Archer has BOUNCING_ARROW which does NOT require ability_opponent_selection
+        ret = GamePlay(
+            stage=ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=ARCHER),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_selection_mage":
+        # Ability selection stage - player1 has selected mage
+        # Mage has FREEZE which REQUIRES ability_opponent_selection (SkipTurnEffect)
+        ret = GamePlay(
+            stage=ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=MAGE),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
     elif preset == "health_1":
         ret = set_health_1(DEFAULT_GAME)
     elif preset == "battle_player_1_win":
@@ -206,6 +246,7 @@ def get_debug_preset(
         # Player 1: archer (dice=[2], attack=0) with BOUNCING_ARROW effect (RerollDiceEffect) = 2
         # Player 2: mage (dice=[5], attack=0) = 5
         # Result: archer loses (2 < 5), archer can use Bouncing Arrow to reroll
+        # Stage stays BATTLE_DICE_ROLL because loser has reroll effect available
         characters_p1 = init_characters()
         characters_p1[ARCHER].effects = [
             RerollDiceEffect(source=BOUNCING_ARROW),

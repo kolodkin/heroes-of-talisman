@@ -12,7 +12,7 @@ A Claude Code skill for searching and downloading SVG icons from free online sou
   - **Feather Icons** - Minimalist open source icons
   - **Bootstrap Icons** - 2,000+ free icons from Bootstrap
   - **Tabler Icons** - 5,000+ free MIT-licensed icons
-- Automatic file naming with source prefix
+- License verification tool to ensure all sources use permissive licenses
 - Usage examples in JSX/TSX
 
 ## Installation
@@ -79,15 +79,26 @@ src/assets/icons/
 - `--limit, -l` (optional): Maximum results per source (default: 5)
 - `--verbose, -v` (optional): Verbose output
 
+## License Verification
+
+All icon sources have been verified to use permissive licenses suitable for commercial use. You can verify licenses anytime by running:
+
+```bash
+uv run python .claude/skills/svg_getter/scripts/sources_license_checker.py
+```
+
+This will check all sources and confirm they use MIT or ISC licenses.
+
 ## Files
 
 ```
 .claude/skills/svg_getter/
-├── SKILL.md                    # Skill configuration for Claude Code
-├── README.md                   # This file
+├── SKILL.md                        # Skill configuration for Claude Code
+├── README.md                       # This file
 └── scripts/
-    ├── svg_search.py          # Main search and download script
-    └── svg_search_bist.py     # Built-in self-test demo
+    ├── svg_search.py              # Main search and download script
+    ├── svg_search_bist.py         # Built-in self-test demo
+    └── sources_license_checker.py # License verification tool
 ```
 
 ## How It Works
@@ -95,7 +106,7 @@ src/assets/icons/
 1. The script uses GitHub API to list available icons in each source's repository
 2. Matches icons against your search query
 3. Downloads matching SVGs from jsDelivr CDN
-4. Saves them to your specified output directory with source-prefixed names
+4. Saves them to your specified output directory
 
 ## Limitations
 
@@ -105,12 +116,12 @@ src/assets/icons/
 
 ## License
 
-This skill is provided as-is. All icon libraries have their own licenses:
+This skill is provided as-is. All icon libraries use permissive licenses verified by our license checker:
 
-- Heroicons: MIT License
-- Lucide: ISC License
-- Feather Icons: MIT License
-- Bootstrap Icons: MIT License
-- Tabler Icons: MIT License
+- **Heroicons**: MIT License
+- **Lucide**: ISC License
+- **Feather Icons**: MIT License
+- **Bootstrap Icons**: MIT License
+- **Tabler Icons**: MIT License
 
-Always check the individual library licenses before using icons in commercial projects.
+All these licenses allow free commercial use. Run the license checker to view full license details and GitHub links.

@@ -120,3 +120,39 @@ test("character_select stage - knight has skip_turn effect", async ({ page, game
 
   await screenshot(page, "knight-skip-turn-after-select");
 });
+
+test("character_select stage - skip_turn effect removed after character selection", async ({ page, gameName }) => {
+  // Create preset game with knight having skip_turn effect
+  await createPresetGameViaAPI(gameName, "effect_skip_turn");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
+
+  // Player2 joins
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+
+  // Verify knight has skip_turn effect (data-effects attribute contains skip_turn)
+  const knightCard = page.locator('[data-character="knight"]').last();
+  await expect(knightCard).toHaveAttribute("data-effects", /skip_turn/);
+  await screenshot(page, "knight-has-skip-turn-effect");
+
+  // Select mage (knight can't be selected due to skip_turn)
+  await verifyCharacterClickable(page, "mage");
+
+  // Confirm selection with בחר button
+  const selectButton = page.getByRole("button", { name: "בחר" });
+  await selectButton.click();
+
+  // Wait for transition to ability_selection stage
+  await page.waitForSelector("[data-ability]", { timeout: 5000 });
+  await screenshot(page, "after-character-selection");
+
+  // Verify knight no longer has skip_turn effect (effect was removed)
+  // The data-effects attribute should no longer contain skip_turn
+  await expect(knightCard).not.toHaveAttribute("data-effects", /skip_turn/);
+  await screenshot(page, "knight-skip-turn-removed");
+
+  // Cleanup
+  await page2.close();
+});

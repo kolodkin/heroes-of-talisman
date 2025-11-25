@@ -6,6 +6,7 @@ This module implements actions for the opponent selection stage:
 - OpponentSelectAction: Confirms opponent selection and transitions to battle stage
 """
 
+import copy
 from .action import Action
 from ..models import (
     GamePlay,
@@ -14,6 +15,7 @@ from ..models import (
     Opponent2,
     BATTLE_DICE_ROLL,
     OPPONENT_SELECTION,
+    APPLY_TO_BATTLE_OPPONENT,
 )
 
 
@@ -99,13 +101,22 @@ class OpponentSelectAction(Action):
 
         # Validate opponent character is still alive
         opponent_player = self.game.players[selected_opponent.player]
-        if not opponent_player.characters[selected_opponent.character].is_alive:
+        opponent_character = opponent_player.characters[selected_opponent.character]
+        if not opponent_character.is_alive:
             raise ReportedException(
                 f"Opponent character {selected_opponent.character} is dead and can't be selected"
             )
 
         # Set opponent in game metadata
         self.game.opponent = selected_opponent
+
+        # Apply "battle_opponent" effects to the opponent's character
+        if self.game.ability:
+            for effect in self.game.ability.effects:
+                if effect.apply_to == APPLY_TO_BATTLE_OPPONENT:
+                    # Deep copy the effect to avoid modifying the original ability definition
+                    effect_copy = copy.deepcopy(effect)
+                    opponent_character.effects.append(effect_copy)
 
         # Transition to battle dice roll stage
         self.game.stage = BATTLE_DICE_ROLL

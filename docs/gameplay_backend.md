@@ -78,76 +78,70 @@ To implement a new action, subclass `Action` and implement the `run` method. Use
 
 ## Abilities & Effects
 
-Each character has one or more abilities that can be used during their turn. When an ability is selected and applied to a target opponent character, it triggers one or more effects.
+Each character has one or more abilities that can be used during their turn. When an ability is selected, it triggers one or more effects.
 
-### Ability System
+### Effect Base Class
 
-- **Ability**: Contains a name and a list of effects to apply (description is managed via i18n)
-- **Effects**: Applied to the target character when the ability is used
-- **Effect Lifecycle**: All effects are automatically disposed at the end of battle (battle_end stage) by default
+All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
+
+- `name`: Discriminator field for polymorphic serialization
+- `source`: The ability that created this effect
+- `dispose_actions`: List of action names when this effect should be disposed
+- `apply_to`: Target type (`'self'`, `'battle_opponent'`, or `'selected_opponent'`)
+
+### Effect Application Types
+
+- **Self** (`apply_to='self'`): Applied to active player's character in `AbilitySelectAction`
+- **Battle Opponent** (`apply_to='battle_opponent'`): Applied to battle opponent in `OpponentSelectAction`
+- **Selected Opponent** (`apply_to='selected_opponent'`): Requires `ability_opponent_selection` stage, applied in `AbilityOpponentSelectAction`
 
 ### Effect Types
 
-All effect classes are defined in `server/gameplay/models.py`:
-
-- **`Effect`** (base class, lines 148-155): All effects have a `source: AbilityName` field indicating which ability created them
-- **`UseOnceEffect`** (extends Effect, lines 158-165): Effects that can only be used once. After being used, the `used` flag is set to `True` and the effect won't be reused
-- **`SkipTurnEffect`** (extends Effect, lines 168-174): Character cannot participate in the next turn
-- **`AttackBonusEffect`** (extends Effect, lines 177-183): Increases character's attack by a specified value (`attack_bonus: int`)
-- **`AttackNegBonusEffect`** (extends Effect, lines 196-202): Decreases character's attack by a specified value (`attack_neg_bonus: int`, negative value)
-- **`RerollDiceEffect`** (extends UseOnceEffect, lines 186-193): Character can reroll dice if they lose the battle, but only once (`reroll_dice: bool = True`)
+| Effect                 | Description                | `dispose_actions`                        | `apply_to`          |
+| ---------------------- | -------------------------- | ---------------------------------------- | ------------------- |
+| `SkipTurnEffect`       | Character skips next turn  | `['character_select']`                   | `selected_opponent` |
+| `AttackBonusEffect`    | Increases attack by value  | `['battle_end']`                         | `self`              |
+| `AttackNegBonusEffect` | Decreases attack by value  | `['battle_end']`                         | `battle_opponent`   |
+| `RerollDiceEffect`     | Allows dice reroll on loss | `['battle_end', 'action_reroll_effect']` | `self`              |
+| `DrawCardEffect`       | Draws cards                | `['battle_end']`                         | `self`              |
 
 ### Available Abilities
 
-Ability definitions with their effects (defined in `server/gameplay/models.py:230-248`):
-
-- **Knight L1**: `BATTLE_HOWL`
-  - Activates: `AttackNegBonusEffect(attack_neg_bonus=-2)`
-  - Effect: Reduces opponent's attack by 2
-
-- **Archer L1**: `BOUNCING_ARROW`
-  - Activates: `RerollDiceEffect`
-  - Effect: Allows the target to reroll dice if they lose the battle (use-once)
-
-- **Mage L1**: `FREEZE`
-  - Activates: `SkipTurnEffect`
-  - Effect: Opponent skips their next turn
-
-### Character Effects
-
-Characters have an `effects` list that stores all active effects applied to them. Each effect includes:
-
-- `source`: The ability that created this effect (required)
+| Character | Ability          | Effect                                       |
+| --------- | ---------------- | -------------------------------------------- |
+| Knight L1 | `BATTLE_HOWL`    | `AttackNegBonusEffect(attack_neg_bonus=-2)`  |
+| Archer L1 | `BOUNCING_ARROW` | `RerollDiceEffect`                           |
+| Mage L1   | `FREEZE`         | `SkipTurnEffect` (requires target selection) |
 
 ## Stages
 
 ### Stage: Character Select
 
-The character selection stage allows players to choose which character will act during their turn. Dead characters (`is_alive=False`) cannot be selected.
+The character selection stage allows players to choose which character will act during their turn. Dead characters (`is_alive=False`) and characters with `SkipTurnEffect` cannot be selected.
 
 - **`CharacterPressAction`**: Sets `stage_meta['selected']` to the character name pressed by the active player. Validates that the player is active, the stage is `character_select`, the character exists for this player, and the character is alive (`is_alive=True`).
-- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name and transitioning the game stage from `character_select` to `opponent_selection`. Validates that the selected character is alive. Clears `stage_meta` after transition.
+- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name, **disposes all effects with `dispose_action='character_select'`** from the active player's characters (e.g., all SkipTurnEffects), and transitioning the game stage from `character_select` to `ability_selection`. Validates that the selected character is alive. Clears `stage_meta` after transition.
 
 **Actions:**
 
 - [x] `character_press` – highlight selected character (`CharacterPressAction`)
-- [x] `character_select` – confirm character selection and transition to ability_selection (`CharacterSelectAction`)
+- [x] `character_select` – confirm character selection, dispose character_select effects, and transition to ability_selection (`CharacterSelectAction`)
 
 ### Stage: Ability Selection
 
 The ability selection stage allows players to choose which ability to use from their selected character's available abilities.
 
 - **`AbilityPressAction`**: Sets `stage_meta['selected']` to the ability name pressed by the active player. Validates that the player is active, the stage is `ability_selection`, and the ability is available for the selected character.
-- **`AbilitySelectAction`**: Confirms the ability selection by storing the selected ability object in `GamePlay.ability` and transitioning the game stage from `ability_selection` to `ability_opponent_selection`. Clears `stage_meta` after confirmation. Validates that the ability is available for the character.
+- **`AbilitySelectAction`**: Confirms the ability selection by storing the selected ability object in `GamePlay.ability`. Transitions to `ability_opponent_selection` if the ability has effects requiring target selection (e.g., `SkipTurnEffect`), otherwise transitions directly to `opponent_selection`. Clears `stage_meta` after confirmation. Validates that the ability is available for the character.
 
 **Actions:**
 
 - [x] `ability_press` – highlight selected ability in stage_meta (`AbilityPressAction`)
-- [x] `ability_select` – confirm ability selection, store in GamePlay.ability, and transition to ability_opponent_selection (`AbilitySelectAction`)
+- [x] `ability_select` – confirm ability selection, store in GamePlay.ability, transition to ability_opponent_selection or opponent_selection based on ability effects (`AbilitySelectAction`)
 
 ### Stage: Ability Opponent Selection
 
-The ability opponent selection stage allows players to choose which opponent and opponent character to apply the selected ability to.
+The ability opponent selection stage allows players to choose which opponent character to apply the selected ability's effects to. **This stage is only used for abilities with effects that require target selection (e.g., `SkipTurnEffect`).** Other abilities skip this stage entirely.
 
 - **`AbilityOpponentPressAction`**: Sets `stage_meta` to an `Opponent2` object with the selected opponent player name and character. Validates that the player is active, the stage is `ability_opponent_selection`, the opponent exists, is not the current player, has the selected character, and the character is alive (`is_alive=True`).
 - **`AbilityOpponentSelectAction`**: Confirms the ability target selection by reading from `stage_meta`, applying the ability's effects to the target character, storing the target in `GamePlay.ability_opponent`, clearing `stage_meta`, and transitioning the game stage from `ability_opponent_selection` to `opponent_selection`. Validates that the opponent character is still alive.
@@ -173,12 +167,24 @@ The opponent selection stage allows players to choose an opponent and one of the
 
 The battle stage handles dice rolling for both the active player and opponent, followed by resolving the battle outcome.
 
-- **`ActivePlayerRollAction`**: Rolls dice for the active player based on their character's dice value and sets `active.dice_roll` to a list of rolled values. Validates that the player is active and the stage is `battle`.
-- **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle`. Note: This action can be invoked by the opponent player (not the active player), as the opponent needs to roll their own dice.
-- **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1 (which may set `is_alive=False` if health reaches 0), clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
+- **`ActivePlayerRollAction`**: Rolls dice for the active player based on their character's dice value and sets `active.dice_roll` to a list of rolled values. Validates that the player is active and the stage is `battle_dice_roll`.
+- **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle_dice_roll`. Note: This action can be invoked by the opponent player (not the active player), as the opponent needs to roll their own dice.
+- **`RerollAction`**: Resets dice rolls when both players rolled and the result is a draw. Downgrades `ActivePlayer4`/`Opponent4` back to `ActivePlayer2`/`Opponent2` for re-rolling.
+- **`RerollEffectAction`**: Allows the active player to use a `RerollDiceEffect` after losing a battle. Marks the effect as `used=True` and resets dice for re-rolling. Only available in `battle_dice_roll` stage when the loser has an unused reroll effect.
+- **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1 (which may set `is_alive=False` if health reaches 0), disposes effects with `dispose_action='battle_end'`, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
+
+**Stage Transition Logic:**
+
+When both players have rolled, the game calculates the winner and determines the next stage:
+
+- **Draw**: Stay in `battle_dice_roll` stage (players can reroll via `RerollAction`)
+- **Winner with loser having reroll effect**: Stay in `battle_dice_roll` stage (loser can use `RerollEffectAction`)
+- **Winner with no reroll available**: Transition to `battle_end` stage
 
 **Actions:**
 
 - [x] `active_player_roll` – roll dice for active player, sets `active.dice_roll` list (`ActivePlayerRollAction`)
 - [x] `opponent_roll` – roll dice for opponent, sets `opponent.dice_roll` list (`OpponentRollAction`)
-- [x] `battle_end` – end battle, reduce loser's health, transition to next turn (`BattleEndAction`)
+- [x] `action_reroll` – reset dice rolls on draw (`RerollAction`)
+- [x] `action_reroll_effect` – use reroll effect after losing, mark effect as used (`RerollEffectAction`)
+- [x] `battle_end` – end battle, reduce loser's health, dispose battle effects, transition to next turn (`BattleEndAction`)
