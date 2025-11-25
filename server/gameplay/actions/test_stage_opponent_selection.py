@@ -221,31 +221,27 @@ def test_opponent_select_action_dead_character():
         action.run()
 
 
-def test_opponent_select_action_applies_battle_opponent_effects():
-    """Test confirming opponent selection applies battle_opponent effects to opponent character"""
+def test_opponent_select_action_with_self_effect_ability():
+    """Test confirming opponent selection when ability has self effects (already applied in AbilitySelectAction)"""
     game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
     characters_p1 = init_characters()
     characters_p2 = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters_p1)
     game.players["player2"] = Player(name="player2", characters=characters_p2)
 
-    # Set ability to BATTLE_HOWL (has AttackNegBonusEffect with apply_to='battle_opponent')
+    # Set ability to BATTLE_HOWL (has AttackBonusEffect with apply_to='self')
+    # Note: Self effects are applied in AbilitySelectAction, not here
     game.ability = ABILITIES_MAP[BATTLE_HOWL]
 
     # Set stage_meta with selected opponent
     game.stage_meta = Opponent2(player="player2", character=MAGE)
 
-    # Verify opponent's mage has no effects before
-    assert len(game.players["player2"].characters[MAGE].effects) == 0
-
     action = OpponentSelectAction("player1", game)
     updated_game = action.run()
 
-    # Verify AttackNegBonusEffect was applied to opponent's mage
+    # Verify opponent's mage has no effects (self effects don't apply to opponent)
     opponent_mage = updated_game.players["player2"].characters[MAGE]
-    assert len(opponent_mage.effects) == 1
-    assert isinstance(opponent_mage.effects[0], AttackNegBonusEffect)
-    assert opponent_mage.effects[0].name == ATTACK_NEG_BONUS
-    assert opponent_mage.effects[0].attack_neg_bonus == -2
-    # Verify effect is reflected in effect totals
-    assert opponent_mage.effect.attack_neg_bonus == -2
+    assert len(opponent_mage.effects) == 0
+
+    # Verify game transitioned to battle stage
+    assert updated_game.stage == BATTLE_DICE_ROLL

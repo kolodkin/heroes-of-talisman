@@ -23,11 +23,6 @@ def test_effects_accept_valid_sources():
     assert attack_bonus.source == BATTLE_HOWL
     assert attack_bonus.attack_bonus == 2
 
-    # AttackNegBonusEffect accepts BATTLE_HOWL
-    attack_neg_bonus = AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2)
-    assert attack_neg_bonus.source == BATTLE_HOWL
-    assert attack_neg_bonus.attack_neg_bonus == -2
-
     # RerollDiceEffect accepts BOUNCING_ARROW
     reroll_dice = RerollDiceEffect(source=BOUNCING_ARROW)
     assert reroll_dice.source == BOUNCING_ARROW
@@ -44,11 +39,6 @@ def test_effects_reject_invalid_sources():
     # AttackBonusEffect rejects non-BATTLE_HOWL sources
     with pytest.raises(ValidationError) as exc_info:
         AttackBonusEffect(source=FREEZE, attack_bonus=2)
-    assert "Invalid source" in str(exc_info.value)
-
-    # AttackNegBonusEffect rejects non-BATTLE_HOWL sources
-    with pytest.raises(ValidationError) as exc_info:
-        AttackNegBonusEffect(source=BOUNCING_ARROW, attack_neg_bonus=-2)
     assert "Invalid source" in str(exc_info.value)
 
     # RerollDiceEffect rejects non-BOUNCING_ARROW sources
