@@ -48,7 +48,7 @@ const resources = {
         },
         freeze: {
           name: "הקפאה",
-          description: "מונע מהדמות להשתתף בשלב הבא",
+          description: "מונע מדמות לבחירתך להשתתף בסיבוב הבא",
         },
       },
       character_card: {

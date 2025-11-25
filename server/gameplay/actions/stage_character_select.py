@@ -12,6 +12,7 @@ from ..models import (
     GameException,
     ReportedException,
     CharacterSelectMeta,
+    AbilitySelectMeta,
     ActivePlayer2,
     ABILITY_SELECTION,
     CHARACTER_SELECT,
@@ -97,6 +98,14 @@ class CharacterSelectAction(Action):
 
         # Transition to ability_selection stage
         self.game.stage = ABILITY_SELECTION
-        self.game.stage_meta = None  # Clear stage metadata
+
+        # Auto-select if character has only one ability
+        selected_character = player.characters[character]
+        if len(selected_character.abilities) == 1:
+            self.game.stage_meta = AbilitySelectMeta(
+                selected=selected_character.abilities[0].name
+            )
+        else:
+            self.game.stage_meta = None
 
         return self.game

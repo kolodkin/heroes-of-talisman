@@ -369,6 +369,12 @@ class CharacterSelectMeta(StrictModel):
     selected: str  # Currently highlighted character
 
 
+class AbilitySelectMeta(StrictModel):
+    """Stage metadata for ability selection stage"""
+
+    selected: str  # Currently highlighted ability
+
+
 class ActivePlayer1(StrictModel):
     """Selected character for battle"""
 
@@ -439,7 +445,7 @@ class GamePlay(StrictModel):
     ability: Optional[Ability] = None  # Selected ability
     ability_opponent: Optional[Opponent2] = None  # Selected ability opponent
     opponent: Optional[Opponent] = None  # Selected opponent for battle
-    stage_meta: Optional[Ability | CharacterSelectMeta | Opponent2] = None  # Temporary stage-specific metadata
+    stage_meta: Optional[Ability | CharacterSelectMeta | AbilitySelectMeta | Opponent2] = None  # Temporary stage-specific metadata
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""

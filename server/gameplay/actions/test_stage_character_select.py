@@ -25,6 +25,7 @@ from ..models import (
     ARCHER,
     MAGE,
     FREEZE,
+    BATTLE_HOWL,
     init_characters,
 )
 
@@ -92,7 +93,9 @@ def test_character_select_action_valid():
     assert updated_game.active.character == KNIGHT
     assert isinstance(updated_game.active, ActivePlayer2)
     assert updated_game.stage == ABILITY_SELECTION
-    assert updated_game.stage_meta is None  # Cleared after transition
+    # Knight has only one ability, so it should be auto-selected
+    assert updated_game.stage_meta is not None
+    assert updated_game.stage_meta.selected == BATTLE_HOWL
 
 
 def test_character_select_action_not_active_player():

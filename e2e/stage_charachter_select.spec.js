@@ -145,13 +145,20 @@ test("character_select stage - skip_turn effect removed after character selectio
   await selectButton.click();
 
   // Wait for transition to ability_selection stage
-  await page.waitForSelector("[data-ability]", { timeout: 5000 });
+  const sharedArea = page.locator('[data-shared-area-active="true"]');
+  const freezeAbility = sharedArea.locator('[data-ability="freeze"]');
+  await expect(freezeAbility).toBeVisible();
   await screenshot(page, "after-character-selection");
 
   // Verify knight no longer has skip_turn effect (effect was removed)
   // The data-effects attribute should no longer contain skip_turn
   await expect(knightCard).not.toHaveAttribute("data-effects", /skip_turn/);
   await screenshot(page, "knight-skip-turn-removed");
+
+  // Verify the ability is auto-selected (has 'selected' class)
+  // Mage has only one ability (freeze), so it should be auto-selected
+  await expect(freezeAbility).toHaveClass(/selected/);
+  await screenshot(page, "ability-auto-selected");
 
   // Cleanup
   await page2.close();

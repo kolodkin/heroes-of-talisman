@@ -1,7 +1,7 @@
 import className from "classnames";
 import { useTranslation } from "react-i18next";
 import styles from "./AbilityCard.module.css";
-import commonStyles from "./Common.module.css";
+import cardStyles from "./Card.module.css";
 
 const AbilityCard = ({ ability, isSelected, onClick }) => {
   const { t } = useTranslation();
@@ -11,7 +11,7 @@ const AbilityCard = ({ ability, isSelected, onClick }) => {
 
   return (
     <div
-      className={className({ [commonStyles.selected]: isSelected }, commonStyles.gamebtn, styles.card, "text-2xl")}
+      className={className({ [cardStyles.selected]: isSelected }, cardStyles.card, styles.card, "text-2xl")}
       onClick={onClick}
       data-ability={ability.name}
     >
