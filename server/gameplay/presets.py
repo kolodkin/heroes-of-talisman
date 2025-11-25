@@ -11,6 +11,7 @@ from .models import (
     Opponent3,
     Opponent4,
     BattleResult,
+    AbilitySelectMeta,
     ABILITY_SELECTION,
     BATTLE_DICE_ROLL,
     BATTLE_END,
@@ -104,9 +105,11 @@ def get_debug_preset(
     elif preset == "ability_selection_knight":
         # Ability selection stage - player1 has selected knight
         # Knight has BATTLE_HOWL which does NOT require ability_opponent_selection
+        # Single ability is auto-selected
         ret = GamePlay(
             stage=ABILITY_SELECTION,
             active=ActivePlayer2(player=p1_name, character=KNIGHT),
+            stage_meta=AbilitySelectMeta(selected=BATTLE_HOWL),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),
@@ -115,9 +118,11 @@ def get_debug_preset(
     elif preset == "ability_selection_archer":
         # Ability selection stage - player1 has selected archer
         # Archer has BOUNCING_ARROW which does NOT require ability_opponent_selection
+        # Single ability is auto-selected
         ret = GamePlay(
             stage=ABILITY_SELECTION,
             active=ActivePlayer2(player=p1_name, character=ARCHER),
+            stage_meta=AbilitySelectMeta(selected=BOUNCING_ARROW),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),
@@ -126,9 +131,11 @@ def get_debug_preset(
     elif preset == "ability_selection_mage":
         # Ability selection stage - player1 has selected mage
         # Mage has FREEZE which REQUIRES ability_opponent_selection (SkipTurnEffect)
+        # Single ability is auto-selected
         ret = GamePlay(
             stage=ABILITY_SELECTION,
             active=ActivePlayer2(player=p1_name, character=MAGE),
+            stage_meta=AbilitySelectMeta(selected=FREEZE),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),

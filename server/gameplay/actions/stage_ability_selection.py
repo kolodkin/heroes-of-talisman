@@ -13,18 +13,13 @@ from ..models import (
     GamePlay,
     GameException,
     ReportedException,
+    AbilitySelectMeta,
     ABILITY_SELECTION,
     ABILITY_OPPONENT_SELECTION,
     OPPONENT_SELECTION,
     APPLY_TO_SELF,
     AbilityName,
 )
-
-
-class AbilitySelectMeta:
-    """Metadata for ability selection stage"""
-
-    selected: AbilityName  # Currently highlighted ability
 
 
 class AbilityPressAction(Action):
@@ -61,12 +56,6 @@ class AbilityPressAction(Action):
             raise ReportedException(f"Ability {ability} not available for this character")
 
         # Set selected ability in stage metadata
-        from ..models import StrictModel
-        from pydantic import Field
-
-        class AbilitySelectMeta(StrictModel):
-            selected: str
-
         self.game.stage_meta = AbilitySelectMeta(selected=ability)
 
         return self.game

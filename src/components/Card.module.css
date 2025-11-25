@@ -1,0 +1,19 @@
+/* Shared card styles for CharacterCard and AbilityCard */
+.card {
+  background-color: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 8px;
+}
+
+:global(.active-player) .card {
+  cursor: pointer;
+}
+
+:global(.active-player) .card:hover {
+  outline: 1px solid whitesmoke;
+}
+
+.selected {
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 2px solid whitesmoke;
+}

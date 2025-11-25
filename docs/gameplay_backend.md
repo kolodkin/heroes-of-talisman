@@ -120,7 +120,7 @@ All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
 The character selection stage allows players to choose which character will act during their turn. Dead characters (`is_alive=False`) and characters with `SkipTurnEffect` cannot be selected.
 
 - **`CharacterPressAction`**: Sets `stage_meta['selected']` to the character name pressed by the active player. Validates that the player is active, the stage is `character_select`, the character exists for this player, and the character is alive (`is_alive=True`).
-- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name, **disposes all effects with `dispose_action='character_select'`** from the active player's characters (e.g., all SkipTurnEffects), and transitioning the game stage from `character_select` to `ability_selection`. Validates that the selected character is alive. Clears `stage_meta` after transition.
+- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name, **disposes all effects with `dispose_action='character_select'`** from the active player's characters (e.g., all SkipTurnEffects), and transitioning the game stage from `character_select` to `ability_selection`. Validates that the selected character is alive. **Auto-selects ability**: If the selected character has only one ability, `stage_meta.selected` is automatically set to that ability's name for the ability selection stage; otherwise `stage_meta` is cleared.
 
 **Actions:**
 

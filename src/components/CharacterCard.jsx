@@ -1,7 +1,7 @@
 import className from "classnames";
 import { useTranslation } from "react-i18next";
 import styles from "./CharacterCard.module.css";
-import commonStyles from "./Common.module.css";
+import cardStyles from "./Card.module.css";
 import { DiceIcon, HeartIcon, RerollIcon, SkipTurnIcon, NotAliveIcon } from "./Icons";
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `${num}`) : "");
@@ -43,10 +43,10 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
   return (
     <div
       className={className(
-        { [commonStyles.selected]: isSelected },
+        { [cardStyles.selected]: isSelected },
         { [styles.alive]: isSelectable },
         { [styles["not-alive"]]: !isSelectable },
-        commonStyles.gamebtn,
+        cardStyles.card,
         styles.card,
         cardClass,
         "text-2xl",
