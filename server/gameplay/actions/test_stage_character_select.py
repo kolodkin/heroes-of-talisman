@@ -16,6 +16,7 @@ from ..models import (
     ActivePlayer2,
     GameException,
     ReportedException,
+    SkipTurnEffect,
     CHARACTER_DEFAULT_STATS,
     CHARACTER_SELECT,
     ABILITY_SELECTION,
@@ -23,6 +24,7 @@ from ..models import (
     KNIGHT,
     ARCHER,
     MAGE,
+    FREEZE,
     init_characters,
 )
 
@@ -155,3 +157,46 @@ def test_character_select_action_dead_character():
 
     with pytest.raises(ReportedException, match="is dead and can't be selected"):
         action.run(character=KNIGHT)
+
+
+def test_character_select_action_removes_skip_turn_effects():
+    """Test that character selection removes all SkipTurnEffects from active player's characters"""
+    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    characters = init_characters()
+
+    # Add SkipTurnEffect to knight (can't be selected this turn)
+    characters[KNIGHT].effects.append(SkipTurnEffect(source=FREEZE))
+    # Add SkipTurnEffect to archer too
+    characters[ARCHER].effects.append(SkipTurnEffect(source=FREEZE))
+
+    game.players["player1"] = Player(name="player1", characters=characters)
+
+    # Player selects mage (the only character without skip_turn)
+    action = CharacterSelectAction("player1", game)
+    updated_game = action.run(character=MAGE)
+
+    # Verify skip turn effects were removed from both knight and archer
+    assert len(updated_game.players["player1"].characters[KNIGHT].effects) == 0
+    assert len(updated_game.players["player1"].characters[ARCHER].effects) == 0
+    # Mage should still have no effects
+    assert len(updated_game.players["player1"].characters[MAGE].effects) == 0
+
+
+def test_character_select_action_removes_all_skip_turn_effects():
+    """Test that all SkipTurnEffects are removed (not just the first one)"""
+    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    characters = init_characters()
+
+    # Add two SkipTurnEffects to knight
+    characters[KNIGHT].effects.append(SkipTurnEffect(source=FREEZE))
+    characters[KNIGHT].effects.append(SkipTurnEffect(source=FREEZE))
+
+    game.players["player1"] = Player(name="player1", characters=characters)
+
+    # Player selects mage
+    action = CharacterSelectAction("player1", game)
+    updated_game = action.run(character=MAGE)
+
+    # Verify all skip turn effects were removed
+    knight_effects = updated_game.players["player1"].characters[KNIGHT].effects
+    assert len(knight_effects) == 0

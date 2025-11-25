@@ -3,9 +3,11 @@ Ability Selection Stage Actions
 
 This module implements actions for the ability selection stage:
 - AbilityPressAction: Highlights selected ability by setting stage_meta
-- AbilitySelectAction: Confirms ability selection and transitions to ability_opponent_selection stage
+- AbilitySelectAction: Confirms ability selection and transitions to ability_opponent_selection
+  (if ability requires opponent selection) or opponent_selection stage
 """
 
+import copy
 from .action import Action
 from ..models import (
     GamePlay,
@@ -13,6 +15,8 @@ from ..models import (
     ReportedException,
     ABILITY_SELECTION,
     ABILITY_OPPONENT_SELECTION,
+    OPPONENT_SELECTION,
+    APPLY_TO_SELF,
     AbilityName,
 )
 
@@ -72,7 +76,9 @@ class AbilitySelectAction(Action):
     """
     Action invoked when the Select button is pressed to confirm ability choice.
 
-    Stores the selected ability and transitions the game stage to 'ability_opponent_selection'.
+    Stores the selected ability and transitions the game stage to:
+    - 'ability_opponent_selection' if the ability has effects requiring target selection (e.g., SkipTurnEffect)
+    - 'opponent_selection' if the ability effects are applied to battle opponent automatically
     """
 
     def run(self, ability: AbilityName) -> GamePlay:
@@ -107,10 +113,20 @@ class AbilitySelectAction(Action):
 
         self.game.ability = ability_obj
 
+        # Apply "self" effects to the active player's character
+        for effect in ability_obj.effects:
+            if effect.apply_to == APPLY_TO_SELF:
+                # Deep copy the effect to avoid modifying the original ability definition
+                effect_copy = copy.deepcopy(effect)
+                character.effects.append(effect_copy)
+
         # Clear stage_meta after selection
         self.game.stage_meta = None
 
-        # Transition to ability_opponent_selection stage
-        self.game.stage = ABILITY_OPPONENT_SELECTION
+        # Transition to ability_opponent_selection if ability requires it, otherwise skip to opponent_selection
+        if ability_obj.requires_opponent_selection:
+            self.game.stage = ABILITY_OPPONENT_SELECTION
+        else:
+            self.game.stage = OPPONENT_SELECTION
 
         return self.game

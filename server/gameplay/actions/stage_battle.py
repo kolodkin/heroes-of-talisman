@@ -57,7 +57,8 @@ def calculate_winner(game: GamePlay) -> tuple[int, int]:
 def set_winner_if_both_rolled(game: GamePlay) -> None:
     """
     If both active and opponent have rolled, calculate winner and upgrade to ActivePlayer4/Opponent4.
-    If there's a winner (not a draw), transition to BATTLE_END stage.
+    If there's a winner (not a draw) and the loser has no reroll effect, transition to BATTLE_END stage.
+    If the loser has a reroll effect available, stay in BATTLE_DICE_ROLL to allow reroll.
     Modifies game in place.
     """
     # Check if both have rolled
@@ -88,8 +89,18 @@ def set_winner_if_both_rolled(game: GamePlay) -> None:
         result=BattleResult(winner=opponent_is_winner, score=opponent_score),
     )
 
-    # If there's a winner (not a draw), transition to BATTLE_END
+    # If there's a winner (not a draw), check if loser has reroll effect
     if active_is_winner or opponent_is_winner:
+        # Get the losing character
+        if opponent_is_winner:
+            # Active player lost - check if they have reroll available
+            active_player = game.players[game.active.player]
+            active_character = active_player.characters[game.active.character]
+            if active_character.effect.reroll_dice_available:
+                # Stay in BATTLE_DICE_ROLL to allow reroll
+                return
+
+        # No reroll available for loser, transition to BATTLE_END
         game.stage = BATTLE_END
 
 
@@ -261,10 +272,21 @@ class RerollEffectAction(Action):
     Action invoked when the active player uses a RerollDiceEffect after losing a battle.
 
     Similar to RerollAction but validates the active player lost (not a draw) and
-    removes the first RerollDiceEffect from the active character after the reroll.
+    marks the first RerollDiceEffect as used after the reroll.
+
+    Note: Game stays in BATTLE_DICE_ROLL stage when loser has reroll available,
+    so this action only needs to validate BATTLE_DICE_ROLL stage.
     """
 
     def run(self) -> GamePlay:
+        # Validate stage
+        if self.game.stage != BATTLE_DICE_ROLL:
+            raise GameException(f"Cannot use reroll effect in stage: {self.game.stage}")
+
+        # Validate user is the active player
+        if not self.game.active or self.game.active.player != self.user:
+            raise ReportedException("It's not your turn")
+
         # Validate active player lost (opponent won) - must be ActivePlayer4/Opponent4 with results
         if isinstance(self.game.active, ActivePlayer4) and isinstance(self.game.opponent, Opponent4):
             if not self.game.opponent.result.winner:
@@ -277,22 +299,14 @@ class RerollEffectAction(Action):
         if not active_character.effect.reroll_dice_available:
             raise GameException("No reroll effect available")
 
-        # Remove the first unused RerollDiceEffect from the active character
-        new_effects = []
-        reroll_removed = False
-        for effect in active_character.effects:
-            if isinstance(effect, RerollDiceEffect) and not effect.used and not reroll_removed:
-                # Skip this effect (remove it)
-                reroll_removed = True
-                continue
-            new_effects.append(effect)
-
-        # Update character's effects list
-        active_character.effects = new_effects
+        # Remove all RerollDiceEffects from the character
+        active_character.effects = [
+            effect for effect in active_character.effects
+            if not isinstance(effect, RerollDiceEffect)
+        ]
 
         # Use shared validation and reset logic
-        ret = validate_and_reset_reroll(self.game, self.user)
-        return ret
+        return validate_and_reset_reroll(self.game, self.user)
 
 
 class DebugSetBattleDiceRollsAction(Action):

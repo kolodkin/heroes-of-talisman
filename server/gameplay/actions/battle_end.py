@@ -60,17 +60,20 @@ class BattleEndAction(Action):
             active_character.health = max(0, active_character.health - 1)
         # If tied, no one loses health
 
-        # Clear effects from both characters (effects are disposed at battle end by default)
-        # UseOnceEffect effects are only removed if they were used (used=True)
-        from ..models import UseOnceEffect
+        # Dispose effects with 'battle_end' in their dispose_actions list
+        from ..models import BATTLE_END_ACTION
+
+        def should_keep_effect(effect):
+            """Returns True if effect should be kept after battle"""
+            return BATTLE_END_ACTION not in effect.dispose_actions
 
         active_character.effects = [
             effect for effect in active_character.effects
-            if isinstance(effect, UseOnceEffect) and not effect.used
+            if should_keep_effect(effect)
         ]
         opponent_character.effects = [
             effect for effect in opponent_character.effects
-            if isinstance(effect, UseOnceEffect) and not effect.used
+            if should_keep_effect(effect)
         ]
 
         # Get next player (circular rotation)

@@ -14,17 +14,22 @@ from .stage_opponent_selection import (
 from ..models import (
     GamePlay,
     Player,
+    Ability,
     CharacterCard,
     ActivePlayer2,
     GameException,
     ReportedException,
     Opponent2,
+    AttackNegBonusEffect,
     CHARACTER_DEFAULT_STATS,
     OPPONENT_SELECTION,
     BATTLE_DICE_ROLL,
     KNIGHT,
     ARCHER,
     MAGE,
+    BATTLE_HOWL,
+    ATTACK_NEG_BONUS,
+    ABILITIES_MAP,
     init_characters,
 )
 
@@ -214,3 +219,33 @@ def test_opponent_select_action_dead_character():
 
     with pytest.raises(ReportedException, match="is dead and can't be selected"):
         action.run()
+
+
+def test_opponent_select_action_applies_battle_opponent_effects():
+    """Test confirming opponent selection applies battle_opponent effects to opponent character"""
+    game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
+    characters_p1 = init_characters()
+    characters_p2 = init_characters()
+    game.players["player1"] = Player(name="player1", characters=characters_p1)
+    game.players["player2"] = Player(name="player2", characters=characters_p2)
+
+    # Set ability to BATTLE_HOWL (has AttackNegBonusEffect with apply_to='battle_opponent')
+    game.ability = ABILITIES_MAP[BATTLE_HOWL]
+
+    # Set stage_meta with selected opponent
+    game.stage_meta = Opponent2(player="player2", character=MAGE)
+
+    # Verify opponent's mage has no effects before
+    assert len(game.players["player2"].characters[MAGE].effects) == 0
+
+    action = OpponentSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Verify AttackNegBonusEffect was applied to opponent's mage
+    opponent_mage = updated_game.players["player2"].characters[MAGE]
+    assert len(opponent_mage.effects) == 1
+    assert isinstance(opponent_mage.effects[0], AttackNegBonusEffect)
+    assert opponent_mage.effects[0].name == ATTACK_NEG_BONUS
+    assert opponent_mage.effects[0].attack_neg_bonus == -2
+    # Verify effect is reflected in effect totals
+    assert opponent_mage.effect.attack_neg_bonus == -2

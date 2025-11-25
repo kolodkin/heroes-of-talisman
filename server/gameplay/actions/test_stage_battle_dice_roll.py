@@ -644,8 +644,7 @@ def test_debug_set_battle_dice_rolls_invalid_dice_count():
 def test_reroll_effect_action():
     """
     Test RerollEffectAction behavior:
-    - Removes the first unused RerollDiceEffect
-    - Only removes first effect when multiple RerollDiceEffects exist
+    - Removes all RerollDiceEffects from the character
     - Preserves non-RerollDiceEffect effects
     - Resets game state for reroll
     """
@@ -653,7 +652,7 @@ def test_reroll_effect_action():
     game = get_debug_preset(EFFECT_REROLL)
 
     # Add additional effects to test comprehensive behavior:
-    # - Second RerollDiceEffect (to test only first is removed)
+    # - Second RerollDiceEffect (to test all are removed)
     # - AttackBonusEffect and SkipTurnEffect (to test other effects are preserved)
     active_character = game.players[game.active.player].characters[game.active.character]
     active_character.effects.append(RerollDiceEffect(source=BOUNCING_ARROW))
@@ -668,6 +667,7 @@ def test_reroll_effect_action():
 
     # Verify preset created game state as ActivePlayer4/Opponent4 (both rolled, winner calculated)
     # Archer lost: dice=[2] = 2 < mage dice=[5] = 5
+    # Stage stays BATTLE_DICE_ROLL because loser has reroll effect available
     assert isinstance(game.active, ActivePlayer4)
     assert isinstance(game.opponent, Opponent4)
     assert game.active.result.winner is False
@@ -680,13 +680,16 @@ def test_reroll_effect_action():
     action = RerollEffectAction("player1", game)
     updated_game = action.run()
 
-    # Verify only ONE RerollDiceEffect was removed (first one), other effects preserved
+    # Verify all RerollDiceEffects are removed, other effects preserved
     active_character_after = updated_game.players[updated_game.active.player].characters[updated_game.active.character]
-    assert len(active_character_after.effects) == 3  # 4 - 1 = 3
+    assert len(active_character_after.effects) == 2  # Only AttackBonusEffect and SkipTurnEffect
 
-    # Verify one RerollDiceEffect remains
+    # Verify no RerollDiceEffects remain
     reroll_effects_after = [eff for eff in active_character_after.effects if isinstance(eff, RerollDiceEffect)]
-    assert len(reroll_effects_after) == 1
+    assert len(reroll_effects_after) == 0
+
+    # Verify reroll is no longer available
+    assert active_character_after.effect.reroll_dice_available is False
 
     # Verify other effects are preserved
     assert any(isinstance(eff, AttackBonusEffect) for eff in active_character_after.effects)

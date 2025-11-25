@@ -51,6 +51,14 @@ REROLL_DICE = "reroll_dice"
 SKIP_TURN = "skip_turn"
 DRAW_CARD = "draw_card"
 
+# Effect apply_to targets - specifies who receives the effect
+APPLY_TO_SELF = "self"  # Applied to active player's character when ability is selected
+APPLY_TO_BATTLE_OPPONENT = "battle_opponent"  # Applied to opponent when battle starts
+APPLY_TO_SELECTED_OPPONENT = "selected_opponent"  # Requires ability_opponent_selection stage
+
+APPLY_TO_TARGETS = [APPLY_TO_SELF, APPLY_TO_BATTLE_OPPONENT, APPLY_TO_SELECTED_OPPONENT]
+ApplyToTarget = Literal[*APPLY_TO_TARGETS]
+
 # Effect-to-Source mapping: defines which abilities can create which effects
 # This is used for validation to ensure effects have valid source abilities
 EFFECTS_SOURCE_ABILITY_MAP: dict[str, set[str]] = {
@@ -167,11 +175,14 @@ class StrictModel(BaseModel):
 class Effect(StrictModel):
     """
     Base class for all effects.
-    Effects are disposed at the end of battle by default.
+    Each effect specifies when it should be disposed via dispose_actions field.
+    Each effect specifies who receives the effect via apply_to field.
     """
 
     name: Literal["effect"] = "effect"  # Discriminator field for polymorphic serialization
     source: AbilityName
+    dispose_actions: list[ActionName]  # Action names when this effect should be disposed
+    apply_to: ApplyToTarget  # Who receives this effect
 
     @model_validator(mode="after")
     def validate_source(self) -> Self:
@@ -185,59 +196,68 @@ class Effect(StrictModel):
         return self
 
 
-class UseOnceEffect(Effect):
-    """
-    Effect that can only be used once.
-    Once used, sets the 'used' flag to True and won't be reused.
-    """
-
-    name: Literal["use_once"] = "use_once"
-    used: bool = False
-
-
 class SkipTurnEffect(Effect):
     """
     Character can't participate in the next turn.
+    Disposed after character selection.
+    Applied to selected opponent (requires ability_opponent_selection stage).
     """
 
     name: Literal[SKIP_TURN] = SKIP_TURN
+    dispose_actions: list[ActionName] = [CHARACTER_SELECT_ACTION]
+    apply_to: ApplyToTarget = APPLY_TO_SELECTED_OPPONENT
     skip_next_turn: bool = True
 
 
 class AttackBonusEffect(Effect):
     """
     Character's attack is increased by the value of the effect.
+    Disposed at battle end.
+    Applied to self (active player's character).
     """
 
     name: Literal[ATTACK_BONUS] = ATTACK_BONUS
+    dispose_actions: list[ActionName] = [BATTLE_END_ACTION]
+    apply_to: ApplyToTarget = APPLY_TO_SELF
     attack_bonus: int
 
 
-class RerollDiceEffect(UseOnceEffect):
+class RerollDiceEffect(Effect):
     """
     Character's dice are rerolled if lost the battle.
-    This is a use-once effect - after being used, it won't be available again.
+    Disposed at battle end or when the reroll effect action is used.
+    Applied to self (active player's character).
     """
 
     name: Literal[REROLL_DICE] = REROLL_DICE
+    dispose_actions: list[ActionName] = [BATTLE_END_ACTION, ACTION_REROLL_EFFECT]
+    apply_to: ApplyToTarget = APPLY_TO_SELF
     reroll_dice: bool = True
 
 
 class AttackNegBonusEffect(Effect):
     """
     Character's attack is decreased by the value of the effect.
+    Disposed at battle end.
+    Applied to battle opponent (no separate selection required).
     """
 
     name: Literal[ATTACK_NEG_BONUS] = ATTACK_NEG_BONUS
+    dispose_actions: list[ActionName] = [BATTLE_END_ACTION]
+    apply_to: ApplyToTarget = APPLY_TO_BATTLE_OPPONENT
     attack_neg_bonus: int
 
 
 class DrawCardEffect(Effect):
     """
     Character draws cards at the start of battle.
+    Disposed at battle end.
+    Applied to self (active player's character).
     """
 
     name: Literal[DRAW_CARD] = DRAW_CARD
+    dispose_actions: list[ActionName] = [BATTLE_END_ACTION]
+    apply_to: ApplyToTarget = APPLY_TO_SELF
     draw_count: int = 1
 
 
@@ -251,6 +271,11 @@ EffectUnion = Annotated[
 class Ability(StrictModel):
     name: str
     effects: list[EffectUnion] = Field(default_factory=list)  # effects that are applied when the ability is used
+
+    @property
+    def requires_opponent_selection(self) -> bool:
+        """Check if any effect requires opponent selection (via ability_opponent_selection stage)"""
+        return any(effect.apply_to == APPLY_TO_SELECTED_OPPONENT for effect in self.effects)
 
 
 class EffectTotal(StrictModel):
@@ -328,9 +353,7 @@ class CharacterCard(StrictModel):
             elif isinstance(eff, SkipTurnEffect):
                 total.skip_next_turn = total.skip_next_turn or eff.skip_next_turn
             elif isinstance(eff, RerollDiceEffect):
-                # Only available if not yet used
-                if not eff.used:
-                    total.reroll_dice_available = True
+                total.reroll_dice_available = True
             elif isinstance(eff, DrawCardEffect):
                 total.draw_card_count += eff.draw_count
 

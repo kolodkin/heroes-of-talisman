@@ -84,13 +84,9 @@ Once a character's health hits 0, it dies. A dead character can no longer be sel
 
 ## Abilities & Effects
 
-Each character has one or more abilities that can be used during their turn. When an ability is selected and applied to a target opponent character, it triggers one or more effects that modify gameplay (e.g., reduce attack, skip turn, reroll dice).
+Each character has one or more abilities that can be used during their turn. When an ability is selected, it triggers one or more effects that modify gameplay (e.g., reduce attack, skip turn, reroll dice).
 
-### Effect Lifecycle
-
-- **Default Disposal**: All effects are automatically disposed at the end of battle (battle_end stage)
-- **Use-Once Effects**: Some effects (like `RerollDiceEffect`) inherit from `UseOnceEffect` and can only be used once. After being used, the `used` flag is set to `True` and the effect won't be reused
-- **Persistence**: Effects remain active on the character from the moment they're applied until battle ends
+Effects are applied to different targets depending on their type: the active player's character, the battle opponent, or a selected opponent. Effects persist until disposed by specific game actions (e.g., battle end, character select).
 
 See [Backend GamePlay - Abilities & Effects](/docs/gameplay_backend.md#abilities--effects) for detailed implementation.
 
@@ -102,7 +98,7 @@ The game progresses through distinct stages during each player's turn. Upon comp
 
 1. **Character Select** (`character_select`) - Player chooses which character will act during this turn
 2. **Ability Selection** (`ability_selection`) - Player selects which ability to use from the character's available abilities
-3. **Ability Opponent Selection** (`ability_opponent_selection`) - Player selects an opponent and one of the opponent's characters to apply the ability to
+3. **Ability Opponent Selection** (`ability_opponent_selection`) - _(Only for effects requiring target selection, e.g., SkipTurnEffect)_ Player selects an opponent character to apply the ability to
 4. **Opponent Selection** (`opponent_selection`) - Player selects an opponent and one of the opponent's characters for battle
 5. **Battle Dice Roll** (`battle_dice_roll`) - Both players roll dice for combat
 6. **Battle End** (`battle_end`) - Combat results are calculated and applied

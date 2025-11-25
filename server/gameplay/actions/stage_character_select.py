@@ -3,7 +3,7 @@ Character Select Stage Actions
 
 This module implements actions for the character selection stage:
 - CharacterPressAction: Highlights selected character by setting stage_meta
-- CharacterSelectAction: Confirms selection and transitions to battle stage
+- CharacterSelectAction: Confirms selection, disposes effects, and transitions to ability_selection
 """
 
 from .action import Action
@@ -15,6 +15,7 @@ from ..models import (
     ActivePlayer2,
     ABILITY_SELECTION,
     CHARACTER_SELECT,
+    CHARACTER_SELECT_ACTION,
 )
 
 
@@ -58,8 +59,8 @@ class CharacterSelectAction(Action):
     """
     Action invoked when the Select button is pressed to confirm character choice.
 
-    Populates selected_character in game metadata and transitions the game
-    stage to 'opponent_selection'.
+    Populates selected_character in game metadata, disposes effects with
+    'character_select' in dispose_actions, and transitions the game stage to 'ability_selection'.
     """
 
     def run(self, character: str) -> GamePlay:
@@ -83,6 +84,13 @@ class CharacterSelectAction(Action):
         # Validate character is alive
         if not player.characters[character].is_alive:
             raise ReportedException(f"Character {character} is dead and can't be selected")
+
+        # Dispose effects with 'character_select' in dispose_actions from active player's characters
+        for char in player.characters.values():
+            char.effects = [
+                effect for effect in char.effects
+                if CHARACTER_SELECT_ACTION not in effect.dispose_actions
+            ]
 
         # Update active player with selected character
         self.game.active = ActivePlayer2(player=self.user, character=character)

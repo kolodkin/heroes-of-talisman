@@ -88,7 +88,7 @@ def test_effect_total_skip_turn():
 
 
 def test_effect_total_reroll_dice_available():
-    """Test that effect property sets reroll_dice_available when RerollDiceEffect is unused"""
+    """Test that effect property sets reroll_dice_available when RerollDiceEffect exists"""
     character = CharacterCard(
         level=1,
         health=10,
@@ -96,29 +96,12 @@ def test_effect_total_reroll_dice_available():
         dice=1,
         attack=2,
         abilities=[],
-        effects=[RerollDiceEffect(source=BOUNCING_ARROW, used=False)],
+        effects=[RerollDiceEffect(source=BOUNCING_ARROW)],
     )
 
     effect_total = character.effect
 
     assert effect_total.reroll_dice_available is True
-
-
-def test_effect_total_reroll_dice_used():
-    """Test that effect property doesn't set reroll_dice_available when RerollDiceEffect is used"""
-    character = CharacterCard(
-        level=1,
-        health=10,
-        max_health=10,
-        dice=1,
-        attack=2,
-        abilities=[],
-        effects=[RerollDiceEffect(source=BOUNCING_ARROW, used=True)],
-    )
-
-    effect_total = character.effect
-
-    assert effect_total.reroll_dice_available is False
 
 
 def test_effect_total_mixed_effects():
@@ -134,7 +117,7 @@ def test_effect_total_mixed_effects():
             AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2),
             AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-1),
             SkipTurnEffect(source=FREEZE),
-            RerollDiceEffect(source=BOUNCING_ARROW, used=False),
+            RerollDiceEffect(source=BOUNCING_ARROW),
             AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=1),
         ],
     )

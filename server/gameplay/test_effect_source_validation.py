@@ -32,7 +32,6 @@ def test_effects_accept_valid_sources():
     reroll_dice = RerollDiceEffect(source=BOUNCING_ARROW)
     assert reroll_dice.source == BOUNCING_ARROW
     assert reroll_dice.reroll_dice is True
-    assert reroll_dice.used is False
 
     # SkipTurnEffect accepts FREEZE
     skip_turn = SkipTurnEffect(source=FREEZE)
