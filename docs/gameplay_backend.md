@@ -109,7 +109,7 @@ All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
 
 | Character | Ability          | Effect                                       |
 | --------- | ---------------- | -------------------------------------------- |
-| Knight L1 | `BATTLE_HOWL`    | `AttackNegBonusEffect(attack_neg_bonus=-2)`  |
+| Knight L1 | `BATTLE_HOWL`    | `AttackBonusEffect(attack_bonus=2)`          |
 | Archer L1 | `BOUNCING_ARROW` | `RerollDiceEffect`                           |
 | Mage L1   | `FREEZE`         | `SkipTurnEffect` (requires target selection) |
 
@@ -170,8 +170,8 @@ The battle stage handles dice rolling for both the active player and opponent, f
 - **`ActivePlayerRollAction`**: Rolls dice for the active player based on their character's dice value and sets `active.dice_roll` to a list of rolled values. Validates that the player is active and the stage is `battle_dice_roll`.
 - **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle_dice_roll`. Note: This action can be invoked by the opponent player (not the active player), as the opponent needs to roll their own dice.
 - **`RerollAction`**: Resets dice rolls when both players rolled and the result is a draw. Downgrades `ActivePlayer4`/`Opponent4` back to `ActivePlayer2`/`Opponent2` for re-rolling.
-- **`RerollEffectAction`**: Allows the active player to use a `RerollDiceEffect` after losing a battle. Marks the effect as `used=True` and resets dice for re-rolling. Only available in `battle_dice_roll` stage when the loser has an unused reroll effect.
-- **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1 (which may set `is_alive=False` if health reaches 0), disposes effects with `dispose_action='battle_end'`, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
+- **`RerollEffectAction`**: Allows the active player to use a `RerollDiceEffect` after losing a battle. Removes the effect and resets dice for re-rolling. Only available in `battle_dice_roll` stage when the loser has a reroll effect.
+- **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1 (which may set `is_alive=False` if health reaches 0), disposes effects with `'battle_end'` in `dispose_actions`, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
 
 **Stage Transition Logic:**
 

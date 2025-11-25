@@ -63,7 +63,7 @@ ApplyToTarget = Literal[*APPLY_TO_TARGETS]
 # This is used for validation to ensure effects have valid source abilities
 EFFECTS_SOURCE_ABILITY_MAP: dict[str, set[str]] = {
     ATTACK_BONUS: {BATTLE_HOWL},  # AttackBonusEffect can come from BATTLE_HOWL
-    ATTACK_NEG_BONUS: {BATTLE_HOWL},  # AttackNegBonusEffect can come from BATTLE_HOWL
+    ATTACK_NEG_BONUS: set(),  # AttackNegBonusEffect - TBD: add abilities that grant attack penalty
     REROLL_DICE: {BOUNCING_ARROW},  # RerollDiceEffect can come from BOUNCING_ARROW
     SKIP_TURN: {FREEZE},  # SkipTurnEffect can come from FREEZE
     DRAW_CARD: set(),  # DrawCardEffect - TBD: add abilities that grant card draw
@@ -295,7 +295,7 @@ ABILITIES_MAP: dict[AbilityName, Ability] = {
     BATTLE_HOWL: Ability(
         name=BATTLE_HOWL,
         effects=[
-            AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2),
+            AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2),
         ],
     ),
     BOUNCING_ARROW: Ability(
