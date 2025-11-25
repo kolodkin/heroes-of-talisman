@@ -7,6 +7,7 @@ const AbilityCard = ({ ability, isSelected, onClick }) => {
   const { t } = useTranslation();
   const abilityName = t(`abilities.${ability.name}.name`);
   const abilityDescription = t(`abilities.${ability.name}.description`);
+  const imagePath = `/images/effects/${ability.name}.jpg`;
 
   return (
     <div
@@ -14,6 +15,7 @@ const AbilityCard = ({ ability, isSelected, onClick }) => {
       onClick={onClick}
       data-ability={ability.name}
     >
+      <img src={imagePath} alt={abilityName} className={styles.image} />
       <div className={styles.content}>
         <p className={styles.name}>{abilityName}</p>
         <p className={styles.description}>{abilityDescription}</p>
