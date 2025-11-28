@@ -16,6 +16,9 @@ const resources = {
       shared_area: {
         player_minimum: "צריך לפחות שני שחקנים במשחק כדי שניתן יהיה להתחיל את המשחק",
       },
+      players_menu: {
+        title: "שחקנים",
+      },
       stageNames: {
         character_select: "בחירת דמות",
         ability_selection: "בחירת יכולת",

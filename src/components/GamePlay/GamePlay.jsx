@@ -52,7 +52,7 @@ const PlayersMinified = ({ player }) => {
 
 const GamePlay = ({ username, gamePlay, sendAction }) => {
   const { t } = useTranslation();
-  const [minimizedPlayers, setMinimizedPlayers] = useState({});
+  const [isPlayersMinimized, setIsPlayersMinimized] = useState(true);
 
   if (!gamePlay || !gamePlay.players) {
     return null;
@@ -68,33 +68,29 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
   // Check total player count (regardless of connection status)
   const hasMinimumPlayers = playersArray.length >= 2;
 
-  const togglePlayerMinimized = (playerName) => {
-    setMinimizedPlayers((prev) => ({
-      ...prev,
-      [playerName]: !prev[playerName],
-    }));
+  const togglePlayersMinimized = () => {
+    setIsPlayersMinimized((prev) => !prev);
   };
 
   return (
     <div className={styles["game-play"]} data-game-stage={gamePlay.stage}>
       <div className={styles["players-container"]}>
-        {playersArray.map((player, index) => {
-          const isMinimized = minimizedPlayers[player.name];
-
-          const playerDom = isMinimized ? <PlayersMinified player={player} /> : <PlayersCards player={player} />;
+        <div className={styles["players-header"]}>
+          <span className={styles["players-title"]}>{t("players_menu.title")}</span>
+          <button
+            className={styles["toggle-button"]}
+            onClick={togglePlayersMinimized}
+            aria-label={isPlayersMinimized ? "Expand all players" : "Minimize all players"}
+          >
+            {isPlayersMinimized ? "+" : "−"}
+          </button>
+        </div>
+        {playersArray.map((player) => {
+          const playerDom = isPlayersMinimized ? <PlayersMinified player={player} /> : <PlayersCards player={player} />;
 
           return (
             <Player key={player.name} player={player} className={styles.player} showDisconnected={true}>
-              <div className={styles["player-header"]}>
-                <div className={styles["player-name"]}>{player.name}</div>
-                <button
-                  className={styles["toggle-button"]}
-                  onClick={() => togglePlayerMinimized(player.name)}
-                  aria-label={isMinimized ? "Expand player" : "Minimize player"}
-                >
-                  {isMinimized ? "+" : "−"}
-                </button>
-              </div>
+              <div className={styles["player-name"]}>{player.name}</div>
               {playerDom}
             </Player>
           );
