@@ -89,3 +89,28 @@
 .character-not-alive:hover {
   background-color: #333;
 }
+
+/* Mobile landscape adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+  .opponent {
+    padding: 0.5rem;
+  }
+
+  .opponent-header {
+    margin-bottom: 0.5rem;
+  }
+
+  .opponent-name {
+    font-size: 1rem;
+  }
+
+  .character-minimized {
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    min-width: 60px;
+  }
+
+  .character-level {
+    font-size: 0.65rem;
+  }
+}

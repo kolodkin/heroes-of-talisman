@@ -235,3 +235,38 @@ Active effects applied to characters should be displayed visually on character c
 - **Minimum Player Requirement**:
   - When there are less than 2 players in the game (regardless of connection status), SharedArea displays a grayed overlay
   - Overlay prevents any interaction until the minimum player count is reached
+
+# Mobile Layout Considerations
+
+The game is designed for landscape orientation on mobile devices. The horizontal row layout (players menu + shared area) is maintained across all screen sizes.
+
+## Portrait Orientation Overlay
+
+When a mobile device is in portrait mode (width < height), a full-screen overlay appears prompting the user to rotate their device to landscape mode:
+
+- **Trigger**: `@media (max-width: 915px) and (orientation: portrait)`
+- **Display**: Fixed overlay covering the entire viewport with dark background
+- **Content**: Rotating phone icon with "rotate to play" message (translated)
+- **Location**: `GamePlay.module.css` - `.portrait-overlay` class
+
+## Landscape Mobile Adjustments
+
+For mobile devices in landscape mode, the following adjustments are applied via media queries:
+
+- **Trigger**: `@media (max-height: 500px) and (orientation: landscape)`
+- **GamePlay Layout**:
+  - Reduced padding and gaps
+  - Smaller players container min-width
+  - Smaller toggle buttons
+- **Character Cards** (in `CharacterCard.module.css`):
+  - Normal size cards (SharedArea): 80px images instead of 160px
+  - Small size cards (Players menu): 50px images instead of 80px
+  - Reduced font sizes and padding throughout
+
+## Breakpoints Summary
+
+| Condition                                      | Behavior                           |
+| ---------------------------------------------- | ---------------------------------- |
+| Portrait + mobile (max-width: 915px)           | Show "rotate to landscape" overlay |
+| Landscape + short viewport (max-height: 500px) | Apply mobile-optimized sizes       |
+| Desktop/Large screens                          | Standard desktop layout            |
