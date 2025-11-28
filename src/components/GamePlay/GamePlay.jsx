@@ -74,6 +74,12 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
 
   return (
     <div className={styles["game-play"]} data-game-stage={gamePlay.stage}>
+      <div className={styles["portrait-overlay"]}>
+        <div className={styles["portrait-overlay-content"]}>
+          <span className={styles["rotate-icon"]}>📱</span>
+          <span>{t("mobile.rotate_to_play")}</span>
+        </div>
+      </div>
       <div className={styles["players-container"]}>
         <div className={styles["players-header"]}>
           <span className={styles["players-title"]}>{t("players_menu.title")}</span>

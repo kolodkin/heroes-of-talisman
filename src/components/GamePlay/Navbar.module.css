@@ -82,3 +82,42 @@
   font-size: 18px;
   font-weight: 600;
 }
+
+/* Mobile landscape adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+  .navbar {
+    height: 40px;
+    padding-inline: 10px;
+  }
+
+  .startGroup,
+  .endGroup {
+    gap: 10px;
+  }
+
+  .homeButton {
+    width: 30px;
+    height: 30px;
+  }
+
+  .gameName {
+    font-size: 16px;
+  }
+
+  .username {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+
+  .stage {
+    font-size: 14px;
+  }
+
+  .playing {
+    font-size: 12px;
+  }
+
+  .gameTitle {
+    font-size: 14px;
+  }
+}

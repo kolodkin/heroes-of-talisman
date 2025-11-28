@@ -19,6 +19,9 @@ const resources = {
       players_menu: {
         title: "שחקנים",
       },
+      mobile: {
+        rotate_to_play: "סובב את המכשיר לרוחב כדי לשחק",
+      },
       stageNames: {
         character_select: "בחירת דמות",
         ability_selection: "בחירת יכולת",
