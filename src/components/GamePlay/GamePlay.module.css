@@ -16,6 +16,22 @@
   min-width: 200px;
 }
 
+.players-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background-color: #2a2a2a;
+  border: 2px solid #555;
+  border-radius: 8px;
+}
+
+.players-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+}
+
 .shared-area {
   position: relative;
   flex: 1;
@@ -56,15 +72,9 @@
   color: #fff;
 }
 
-.player-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
 .player-name {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
 }
 
 .toggle-button {

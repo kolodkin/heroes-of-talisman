@@ -1,7 +1,7 @@
 import { createGameViaAPI } from "./api_helpers.js";
 import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame } from "./test_helpers.js";
 
-test("players menu minified", async ({ page, gameName }) => {
+test("players menu minified by default with global toggle", async ({ page, gameName }) => {
   // Setup: Create game via API
   const createdGame = await createGameViaAPI(gameName);
 
@@ -18,48 +18,38 @@ test("players menu minified", async ({ page, gameName }) => {
   const playerDiv = page.locator('[data-player="player"]');
   await expect(playerDiv).toBeVisible();
 
-  // Verify initial state - player menu is expanded (character cards visible)
+  // Find the global toggle button in the players header
+  const playersHeader = page.locator('[class*="players-header"]');
+  const toggleButton = playersHeader.getByRole("button", { name: /minimize|expand/i });
+  await expect(toggleButton).toBeVisible();
+
+  // Verify initial state - player menu is MINIFIED by default (toggle shows "+")
+  await expect(toggleButton).toHaveText("+");
+  await screenshot(page, "player-minimized-by-default");
+
+  // Character cards (images) should not be visible in minified state
+  await expect(playerDiv.getByAltText("knight")).not.toBeVisible();
+  await expect(playerDiv.getByAltText("archer")).not.toBeVisible();
+  await expect(playerDiv.getByAltText("mage")).not.toBeVisible();
+
+  // Character names and levels should be visible (in minimized format)
+  await expect(playerDiv.getByText(/אביר/)).toBeVisible(); // knight in Hebrew
+  await expect(playerDiv.getByText(/קשת/)).toBeVisible(); // archer in Hebrew
+  await expect(playerDiv.getByText(/קוסם/)).toBeVisible(); // mage in Hebrew
+  await expect(playerDiv.getByText(/דרגה 1/).first()).toBeVisible(); // level 1
+
+  // Click toggle button to expand all players
+  await toggleButton.click();
+  await screenshot(page, "after-expand-click");
+
+  // Verify expanded state
+  await expect(toggleButton).toHaveText("−");
   await expect(playerDiv.getByAltText("knight")).toBeVisible();
   await expect(playerDiv.getByAltText("archer")).toBeVisible();
   await expect(playerDiv.getByAltText("mage")).toBeVisible();
   await screenshot(page, "player-expanded");
 
-  // Find and verify the toggle button exists and shows "−" (expanded state)
-  const toggleButton = playerDiv.getByRole("button", { name: /minimize|expand/i });
-  await expect(toggleButton).toBeVisible();
-  await expect(toggleButton).toHaveText("−");
-
-  // Click toggle button to minimize
-  await toggleButton.click();
-  await screenshot(page, "after-minimize-click");
-
-  // Verify minimized state
-  // Toggle button should now show "+"
-  await expect(toggleButton).toHaveText("+");
-
-  // Character cards (images) should not be visible
-  await expect(playerDiv.getByAltText("knight")).not.toBeVisible();
-  await expect(playerDiv.getByAltText("archer")).not.toBeVisible();
-  await expect(playerDiv.getByAltText("mage")).not.toBeVisible();
-
-  // Character names and levels should still be visible (in minimized format)
-  await expect(playerDiv.getByText(/אביר/)).toBeVisible(); // knight in Hebrew
-  await expect(playerDiv.getByText(/קשת/)).toBeVisible(); // archer in Hebrew
-  await expect(playerDiv.getByText(/קוסם/)).toBeVisible(); // mage in Hebrew
-  await expect(playerDiv.getByText(/דרגה 1/).first()).toBeVisible(); // level 1
-  await screenshot(page, "player-minimized");
-
-  // Click toggle button again to expand
-  await toggleButton.click();
-  await screenshot(page, "after-expand-click");
-
-  // Verify expanded state again
-  await expect(toggleButton).toHaveText("−");
-  await expect(playerDiv.getByAltText("knight")).toBeVisible();
-  await expect(playerDiv.getByAltText("archer")).toBeVisible();
-  await expect(playerDiv.getByAltText("mage")).toBeVisible();
-
-  // Add a second player to test multiple players
+  // Add a second player to test global toggle affects all players
   const page2 = await page.context().newPage();
   await setupHomePage(page2);
   await joinGame(page2, "player2", gameName);
@@ -70,18 +60,32 @@ test("players menu minified", async ({ page, gameName }) => {
   await screenshot(page, "player2-joined-page1");
   await screenshot(page2, "player2-joined-page2");
 
-  // Test minimizing/expanding player2's menu independently
+  // Verify both players are expanded (toggle still shows "−" since we expanded earlier)
   const player2Div = page.locator('[data-player="player2"]');
-  const toggleButton2 = player2Div.getByRole("button", { name: /minimize|expand/i });
+  await expect(player2Div.getByAltText("knight")).toBeVisible();
+  await expect(playerDiv.getByAltText("knight")).toBeVisible();
 
-  await expect(toggleButton2).toHaveText("−");
-  await toggleButton2.click();
-  await screenshot(page, "player2-minimized");
+  // Click toggle to minimize ALL players globally
+  await toggleButton.click();
+  await screenshot(page, "all-players-minimized");
 
-  // Verify player2 is minimized but player1 is still expanded
-  await expect(toggleButton2).toHaveText("+");
+  // Verify BOTH players are now minimized
+  await expect(toggleButton).toHaveText("+");
+  await expect(playerDiv.getByAltText("knight")).not.toBeVisible();
   await expect(player2Div.getByAltText("knight")).not.toBeVisible();
-  await expect(playerDiv.getByAltText("knight")).toBeVisible(); // player1 still expanded
+
+  // Character names should still be visible for both players
+  await expect(playerDiv.getByText(/אביר/)).toBeVisible();
+  await expect(player2Div.getByText(/אביר/)).toBeVisible();
+
+  // Click toggle again to expand ALL players
+  await toggleButton.click();
+  await screenshot(page, "all-players-expanded");
+
+  // Verify BOTH players are now expanded
+  await expect(toggleButton).toHaveText("−");
+  await expect(playerDiv.getByAltText("knight")).toBeVisible();
+  await expect(player2Div.getByAltText("knight")).toBeVisible();
 
   // Clean up
   await page2.close();
