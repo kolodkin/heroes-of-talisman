@@ -25,7 +25,7 @@ test("shared area dynamic alignment - character selection stage", async ({ page,
     const cardsContainer = cardsWrapper.querySelector('[class*="cardsContainer"]');
 
     return {
-      wrapperAlignSelf: window.getComputedStyle(cardsWrapper).alignSelf,
+      wrapperJustifyContent: window.getComputedStyle(cardsWrapper).justifyContent,
       canScroll: cardsContainer.scrollWidth > cardsContainer.clientWidth,
       scrollWidth: cardsContainer.scrollWidth,
       clientWidth: cardsContainer.clientWidth,
@@ -33,7 +33,7 @@ test("shared area dynamic alignment - character selection stage", async ({ page,
   });
 
   // Verify alignment to start and scroll enabled
-  expect(narrowViewportInfo.wrapperAlignSelf).toBe("flex-start");
+  expect(narrowViewportInfo.wrapperJustifyContent).toBe("flex-start");
   expect(narrowViewportInfo.canScroll).toBe(true);
   await screenshot(page, "narrow-aligned-start");
 
@@ -67,13 +67,13 @@ test("shared area dynamic alignment - character selection stage", async ({ page,
     const cardsContainer = cardsWrapper.querySelector('[class*="cardsContainer"]');
 
     return {
-      wrapperAlignSelf: window.getComputedStyle(cardsWrapper).alignSelf,
+      wrapperJustifyContent: window.getComputedStyle(cardsWrapper).justifyContent,
       canScroll: cardsContainer.scrollWidth > cardsContainer.clientWidth,
     };
   });
 
   // Verify centered and no scroll
-  expect(wideViewportInfo.wrapperAlignSelf).toBe("center");
+  expect(wideViewportInfo.wrapperJustifyContent).toBe("center");
   expect(wideViewportInfo.canScroll).toBe(false);
   await screenshot(page, "wide-centered");
 

@@ -117,65 +117,67 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
             </div>
           </div>
         )}
-        <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
-        {(() => {
-          const activePlayer = gamePlay.players[gamePlay.active?.player];
-          const isActivePlayer = gamePlay.active?.player === username;
+        <div className={styles["shared-area-content"]}>
+          <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
+          {(() => {
+            const activePlayer = gamePlay.players[gamePlay.active?.player];
+            const isActivePlayer = gamePlay.active?.player === username;
 
-          switch (gamePlay.stage) {
-            case CHARACTER_SELECT:
-              return (
-                <StageCharacterSelect
-                  characters={activePlayer?.characters || {}}
-                  sendAction={sendAction}
-                  active={isActivePlayer}
-                  selectedCharacter={gamePlay.stage_meta?.selected}
-                />
-              );
-            case ABILITY_SELECTION:
-              const selectedCharacter = activePlayer?.characters?.[gamePlay.active?.character];
-              return (
-                <StageAbilitySelection
-                  abilities={selectedCharacter?.abilities || []}
-                  sendAction={sendAction}
-                  active={isActivePlayer}
-                  selectedAbility={gamePlay.stage_meta?.selected}
-                />
-              );
-            case ABILITY_OPPONENT_SELECTION:
-              return (
-                <StageAbilityOpponentSelection
-                  players={gamePlay.players}
-                  activePlayer={gamePlay.active?.player}
-                  sendAction={sendAction}
-                  active={isActivePlayer}
-                  selectedOpponent={gamePlay.stage_meta}
-                />
-              );
-            case OPPONENT_SELECTION:
-              return (
-                <StageOpponentSelection
-                  players={gamePlay.players}
-                  activePlayer={gamePlay.active?.player}
-                  sendAction={sendAction}
-                  active={isActivePlayer}
-                  selectedOpponent={gamePlay.stage_meta}
-                />
-              );
-            case BATTLE_DICE_ROLL:
-            case BATTLE_END:
-              return (
-                <StageBattle
-                  gamePlay={gamePlay}
-                  sendAction={sendAction}
-                  active={isActivePlayer}
-                  currentUser={username}
-                />
-              );
-            default:
-              return <div>Stage: {gamePlay.stage}</div>;
-          }
-        })()}
+            switch (gamePlay.stage) {
+              case CHARACTER_SELECT:
+                return (
+                  <StageCharacterSelect
+                    characters={activePlayer?.characters || {}}
+                    sendAction={sendAction}
+                    active={isActivePlayer}
+                    selectedCharacter={gamePlay.stage_meta?.selected}
+                  />
+                );
+              case ABILITY_SELECTION:
+                const selectedCharacter = activePlayer?.characters?.[gamePlay.active?.character];
+                return (
+                  <StageAbilitySelection
+                    abilities={selectedCharacter?.abilities || []}
+                    sendAction={sendAction}
+                    active={isActivePlayer}
+                    selectedAbility={gamePlay.stage_meta?.selected}
+                  />
+                );
+              case ABILITY_OPPONENT_SELECTION:
+                return (
+                  <StageAbilityOpponentSelection
+                    players={gamePlay.players}
+                    activePlayer={gamePlay.active?.player}
+                    sendAction={sendAction}
+                    active={isActivePlayer}
+                    selectedOpponent={gamePlay.stage_meta}
+                  />
+                );
+              case OPPONENT_SELECTION:
+                return (
+                  <StageOpponentSelection
+                    players={gamePlay.players}
+                    activePlayer={gamePlay.active?.player}
+                    sendAction={sendAction}
+                    active={isActivePlayer}
+                    selectedOpponent={gamePlay.stage_meta}
+                  />
+                );
+              case BATTLE_DICE_ROLL:
+              case BATTLE_END:
+                return (
+                  <StageBattle
+                    gamePlay={gamePlay}
+                    sendAction={sendAction}
+                    active={isActivePlayer}
+                    currentUser={username}
+                  />
+                );
+              default:
+                return <div>Stage: {gamePlay.stage}</div>;
+            }
+          })()}
+        </div>
       </div>
     </div>
   );

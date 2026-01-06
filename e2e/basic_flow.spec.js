@@ -32,6 +32,14 @@ async function validatePlayerCharacters(page, playerName) {
   // Validate player div is visible
   await expect(playerDiv).toBeVisible();
 
+  // Expand player cards if minimized (click + button to show full cards with images)
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  if (await expandButton.isVisible()) {
+    await expandButton.click();
+    // Wait for cards to appear
+    await expect(playerDiv.getByAltText("knight")).toBeVisible({ timeout: TIMEOUT });
+  }
+
   // Validate character cards appear (all 3 characters)
   await expect(playerDiv.getByAltText("knight")).toBeVisible();
   await expect(playerDiv.getByAltText("archer")).toBeVisible();
@@ -62,8 +70,9 @@ async function testCharacterSelection(page, page2) {
   const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
   await expect(page2SharedArea).toBeVisible();
 
-  // Verify SharedArea has pointer-events: none
-  await expect(page2SharedArea).toHaveCSS("pointer-events", "none");
+  // Verify SharedArea children have pointer-events: none (container has auto for scrolling)
+  const page2SharedAreaButton = page2SharedArea.locator("[data-action-button]");
+  await expect(page2SharedAreaButton).toHaveCSS("pointer-events", "none");
 
   // Player1 selects knight character (the one near the בחר button)
   // Click the knight that's a sibling/near the select button (in shared area, not player area)
@@ -165,8 +174,9 @@ async function testOpponentSelection(page, page2) {
   const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
   await expect(page2SharedArea).toBeVisible();
 
-  // Verify SharedArea has pointer-events: none
-  await expect(page2SharedArea).toHaveCSS("pointer-events", "none");
+  // Verify SharedArea children have pointer-events: none (container has auto for scrolling)
+  const page2SharedAreaButton = page2SharedArea.locator("[data-action-button]");
+  await expect(page2SharedAreaButton).toHaveCSS("pointer-events", "none");
 
   // Click on opponent's knight character (minimized view) using data attribute
   await opponentDiv.locator('[data-character="knight"]').click();
