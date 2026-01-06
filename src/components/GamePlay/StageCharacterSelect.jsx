@@ -44,8 +44,8 @@ const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacte
   };
 
   return (
-    <div className="flex flex-col items-center space-y-3 self-stretch">
-      <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
+    <div className="flex flex-col items-center space-y-3 w-full">
+      <div className={className("flex w-full", hasScroll ? "justify-start" : "justify-center")}>
         <div ref={containerRef} className={className(commonStyles.cardsContainer, "mb-8")}>
           {Object.entries(characters).map(([name, character]) => (
             <CharacterCard
@@ -67,6 +67,7 @@ const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacte
           "text-2xl",
         )}
         onClick={handleSubmit}
+        data-action-button
       >
         <p>{t("character_select.submit")}</p>
       </button>

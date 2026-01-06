@@ -64,6 +64,7 @@ const StageAbilitySelection = ({ abilities, sendAction, active, selectedAbility 
           "text-2xl",
         )}
         onClick={handleSubmit}
+        data-action-button
       >
         <p>{t("ability_selection.submit")}</p>
       </button>

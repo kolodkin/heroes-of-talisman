@@ -72,6 +72,7 @@ const StageAbilityOpponentSelection = ({ players, activePlayer, sendAction, acti
           "text-2xl",
         )}
         onClick={handleSubmit}
+        data-action-button
       >
         <p>{t("ability_opponent_selection.submit")}</p>
       </button>

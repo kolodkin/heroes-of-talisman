@@ -194,7 +194,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
       />
       {canUseRerollEffect ? (
         <button
-          className={className(commonStyles.gamebtn, commonStyles.submitButton, styles.continueButton)}
+          className={commonStyles.actionButton}
           onClick={handleRerollEffect}
           disabled={!active}
           style={{ pointerEvents: active ? "auto" : "none" }}
@@ -206,7 +206,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         </button>
       ) : showWinner ? (
         <button
-          className={className(commonStyles.gamebtn, commonStyles.submitButton, styles.continueButton)}
+          className={commonStyles.actionButton}
           onClick={handleContinue}
           disabled={!active}
           style={{ pointerEvents: active ? "auto" : "none" }}
@@ -216,7 +216,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         </button>
       ) : isDraw ? (
         <button
-          className={className(commonStyles.gamebtn, commonStyles.submitButton, styles.continueButton)}
+          className={commonStyles.actionButton}
           onClick={handleReroll}
           disabled={!active}
           style={{ pointerEvents: active ? "auto" : "none" }}

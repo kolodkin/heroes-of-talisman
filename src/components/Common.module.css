@@ -72,3 +72,40 @@
   padding: 2rem;
   max-width: 80%;
 }
+
+/* Mobile-first action button for stage actions */
+.actionButton {
+  font-size: 1.3rem;
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  margin-block-start: 1rem;
+  align-self: center;
+  width: fit-content;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  border: 2px solid #333;
+  color: #fff;
+}
+
+.actionButton:hover {
+  background-color: #2a2a2a;
+  border-color: #63b3ed;
+  box-shadow: 0 0 10px rgba(99, 179, 237, 0.5);
+  transform: translateY(-2px);
+}
+
+.actionButton:active {
+  transform: translateY(0);
+  box-shadow: 0 0 5px rgba(99, 179, 237, 0.3);
+}
+
+/* Desktop/larger screen adjustments */
+@media (min-height: 501px), (orientation: portrait) {
+  .actionButton {
+    font-size: 24px;
+    padding: 1.25rem 3rem;
+    margin-block-start: 2rem;
+  }
+}

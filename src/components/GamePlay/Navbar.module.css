@@ -1,15 +1,16 @@
+/* Mobile landscape base styles */
 .navbar {
   position: fixed;
   top: 0;
   inset-inline: 0;
-  height: 60px;
+  height: 40px;
   background-color: #1a1a1a;
   border-bottom: 2px solid #333;
   z-index: 1000;
   display: flex;
   align-items: center;
   padding-block: 0;
-  padding-inline: 20px;
+  padding-inline: 10px;
 }
 
 .navbar.active {
@@ -27,21 +28,21 @@
 .startGroup {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
 }
 
 .endGroup {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 10px;
 }
 
 .homeButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   background-color: #2a2a2a;
   border: 2px solid #555;
@@ -56,68 +57,68 @@
 }
 
 .gameName {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   margin: 0;
 }
 
 .username {
-  font-size: 16px;
-  padding: 6px 16px;
+  font-size: 12px;
+  padding: 4px 10px;
   background-color: #2a2a2a;
   border-radius: 8px;
   border: 2px solid #555;
 }
 
 .stage {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
 }
 
 .playing {
-  font-size: 16px;
+  font-size: 12px;
 }
 
 .gameTitle {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
 }
 
-/* Mobile landscape adjustments */
-@media (max-height: 500px) and (orientation: landscape) {
+/* Desktop/larger screen adjustments */
+@media (min-height: 501px), (orientation: portrait) {
   .navbar {
-    height: 40px;
-    padding-inline: 10px;
+    height: 60px;
+    padding-inline: 20px;
   }
 
   .startGroup,
   .endGroup {
-    gap: 10px;
+    gap: 20px;
   }
 
   .homeButton {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
   }
 
   .gameName {
-    font-size: 16px;
+    font-size: 20px;
   }
 
   .username {
-    font-size: 12px;
-    padding: 4px 10px;
+    font-size: 16px;
+    padding: 6px 16px;
   }
 
   .stage {
-    font-size: 14px;
+    font-size: 18px;
   }
 
   .playing {
-    font-size: 12px;
+    font-size: 16px;
   }
 
   .gameTitle {
-    font-size: 14px;
+    font-size: 18px;
   }
 }

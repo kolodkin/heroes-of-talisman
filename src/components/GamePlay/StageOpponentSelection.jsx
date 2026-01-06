@@ -72,6 +72,7 @@ const StageOpponentSelection = ({ players, activePlayer, sendAction, active, sel
           "text-2xl",
         )}
         onClick={handleSubmit}
+        data-action-button
       >
         <p>{t("character_select.submit")}</p>
       </button>
