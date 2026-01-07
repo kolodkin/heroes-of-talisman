@@ -24,7 +24,6 @@ test("ability_selection stage - knight (BATTLE_HOWL) skips to opponent_selection
   const sharedArea = page.locator('[data-shared-area-active="true"]');
   const battleHowlAbility = sharedArea.locator('[data-ability="battle_howl"]');
   await expect(battleHowlAbility).toBeVisible();
-  await screenshot(page, "ability-selection-knight-start");
 
   // Select battle_howl ability
   await battleHowlAbility.click();
@@ -98,7 +97,6 @@ test("ability_selection stage - mage (FREEZE) goes to ability_opponent_selection
   const sharedArea = page.locator('[data-shared-area-active="true"]');
   const freezeAbility = sharedArea.locator('[data-ability="freeze"]');
   await expect(freezeAbility).toBeVisible();
-  await screenshot(page, "ability-selection-mage-start");
 
   // Select freeze ability
   await freezeAbility.click();

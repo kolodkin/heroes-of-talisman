@@ -91,11 +91,11 @@ test("shared area dynamic alignment - opponent selection stage", async ({ page, 
   // Navigate directly to the game
   await page.goto(`${FRONTEND_URL}/games/${gameName}/${playerName}`);
   await page.waitForSelector('h2:has-text("בחר את יריבך")', { timeout: 5000 });
-  await screenshot(page, "opponent-select-loaded");
 
   // Expand first opponent to see character cards (look in shared area)
   const firstOpponent = page.locator('[data-shared-area-active="true"] [data-player="player2"]').first();
   await firstOpponent.locator('button[aria-label="Expand player"]').click();
+  await page.waitForSelector("[data-opponent-cards-expanded]", { timeout: 1000 });
   await screenshot(page, "opponent-expanded");
 
   // Test 1: Narrow viewport - expanded character cards should have scroll
