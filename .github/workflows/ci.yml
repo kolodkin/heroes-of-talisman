@@ -44,14 +44,14 @@ jobs:
         run: ./scripts/setup --no-docker
 
       - name: Run backend tests
-        run: uv run pytest -v --junitxml=pytest-report.xml
+        run: uv run pytest -v --junitxml=tmp/pytest-report.xml
 
       - name: Publish test results
         uses: dorny/test-reporter@v1
         if: always()
         with:
           name: Pytest Results
-          path: pytest-report.xml
+          path: tmp/pytest-report.xml
           reporter: java-junit
 
   test-e2e:
