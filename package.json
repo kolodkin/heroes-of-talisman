@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "e2e": "playwright test",
+    "e2e:check-duplicates": "node scripts/check-duplicate-screenshots.js",
     "e2u": "playwright test --ui",
     "e2p": "playwright show-report"
   },
