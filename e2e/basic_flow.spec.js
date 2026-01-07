@@ -145,7 +145,6 @@ async function testAbilityOpponentSelection(page, page2) {
 
   // Wait for transition to opponent_selection stage
   await waitForStage(page, "opponent_selection");
-  await screenshot(page, "transitioned-to-opponent-selection");
 }
 
 async function testOpponentSelection(page, page2) {
