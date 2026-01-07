@@ -59,12 +59,11 @@ async function testCharacterSelection(page, page2) {
   // Validate card sizes: player section should have small cards
   const playerSectionCard = page.locator('[data-player="player"] [alt="knight"]').locator("..");
   await expect(playerSectionCard).toHaveClass(/card-small/);
-  await screenshot(page, "player-section-small-cards");
 
   // Validate card sizes: shared area should have normal cards
   const sharedAreaCard = page.locator('[alt="knight"]').nth(2).locator("..");
   await expect(sharedAreaCard).toHaveClass(/card-normal/);
-  await screenshot(page, "shared-area-normal-cards");
+  await screenshot(page, "card-sizes-verified");
 
   // Test that non-active player (player2) cannot interact with SharedArea
   const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
@@ -101,34 +100,30 @@ async function testCharacterSelection(page, page2) {
   // Validate submit button hover effects
   await selectButton.hover();
   await expect(selectButton).toHaveCSS("cursor", "pointer");
-  await screenshot(page, "character-select-button-hover");
 
   // Player1 confirms selection with בחר button
   await selectButton.click();
 
   // Wait for transition to ability selection stage
   await waitForStage(page, "ability_selection");
-  await screenshot(page, "transitioned-to-ability-selection");
 }
 
 async function testAbilitySelection(page, page2) {
   // Verify we're in ability selection stage
   const selectButton = page.getByRole("button", { name: "בחר" });
   await expect(selectButton).toBeVisible();
-  await screenshot(page, "ability-selection-start");
 
   // Select the freeze ability using data-ability attribute
   const sharedArea = page.locator('[data-shared-area-active="true"]');
   const freezeAbility = sharedArea.locator('[data-ability="freeze"]');
   await freezeAbility.click();
-  await screenshot(page, "ability-selected");
+  await screenshot(page, "freeze-ability-selected");
 
   // Confirm ability selection with בחר button
   await selectButton.click();
 
   // Wait for transition to ability_opponent_selection stage
   await waitForStage(page, "ability_opponent_selection");
-  await screenshot(page, "transitioned-to-ability-opponent-selection");
 }
 
 async function testAbilityOpponentSelection(page, page2) {
@@ -150,14 +145,12 @@ async function testAbilityOpponentSelection(page, page2) {
 
   // Wait for transition to opponent_selection stage
   await waitForStage(page, "opponent_selection");
-  await screenshot(page, "transitioned-to-opponent-selection");
 }
 
 async function testOpponentSelection(page, page2) {
   // Verify we're in opponent selection stage
   const selectButton = page.getByRole("button", { name: "בחר" });
   await expect(selectButton).toBeVisible();
-  await screenshot(page, "opponent-selection-stage");
 
   // Find opponent player div in shared area (should be visible as opponent card)
   // Look for player2's minimized view in the opponents container
@@ -168,7 +161,7 @@ async function testOpponentSelection(page, page2) {
   await expect(opponentDiv.locator('[data-character="knight"]')).toBeVisible();
   await expect(opponentDiv.locator('[data-character="archer"]')).toBeVisible();
   await expect(opponentDiv.locator('[data-character="mage"]')).toBeVisible();
-  await screenshot(page, "opponent-minimized");
+  await screenshot(page, "opponent-selection-stage");
 
   // Test that non-active player (player2) cannot interact with SharedArea
   const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
@@ -185,15 +178,12 @@ async function testOpponentSelection(page, page2) {
   // Validate submit button hover effects
   await selectButton.hover();
   await expect(selectButton).toHaveCSS("cursor", "pointer");
-  await screenshot(page, "opponent-select-button-hover");
 
   // Confirm opponent selection with בחר button
   await selectButton.click();
-  await screenshot(page, "after-opponent-select-click");
 
   // Wait for transition to battle_dice_roll stage
   await waitForStage(page, "battle_dice_roll");
-  await screenshot(page, "transitioned-to-battle-dice-roll");
 }
 
 async function testBattleStage(page, page2, gameName) {
