@@ -105,6 +105,10 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      - name: Check for duplicate screenshots
+        if: ${{ !cancelled() }}
+        run: npm run e2e:check-duplicates
+
       - name: Deploy Playwright report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         if: always()
