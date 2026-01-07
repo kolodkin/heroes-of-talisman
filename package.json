@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "e2e": "playwright test",
+    "e2e:check-dup": "node scripts/check-consecutive-duplicate-screenshots.js",
     "e2u": "playwright test --ui",
     "e2p": "playwright show-report"
   },
@@ -36,6 +37,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
     "pretty-quick": "^4.2.2",
+    "sharp": "^0.34.5",
     "simple-git-hooks": "^2.13.1",
     "tailwindcss": "^4.0.14",
     "vite": "^6.2.0"
