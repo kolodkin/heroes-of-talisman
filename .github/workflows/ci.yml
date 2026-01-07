@@ -33,7 +33,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -81,7 +81,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -105,9 +105,9 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      - name: Check for duplicate screenshots
+      - name: Check for consecutive duplicate screenshots
         if: ${{ !cancelled() }}
-        run: npm run e2e:check-duplicates
+        run: npm run e2e:check-dup
 
       - name: Deploy Playwright report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
