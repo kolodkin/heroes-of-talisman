@@ -231,7 +231,6 @@ test("battle stage - reroll effect after loss", async ({ page, gameName }) => {
 
   // Click reroll effect button
   await rerollEffectButton.click();
-  await screenshot(page, "after-reroll-effect-click");
 
   // Verify reroll effect is removed from data-effects attribute
   await expect(activeCharacterCard).not.toHaveAttribute("data-effects", /reroll_dice/);

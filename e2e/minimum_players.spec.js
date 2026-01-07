@@ -30,8 +30,6 @@ test("minimum player overlay appears with single player", async ({ page, gameNam
   // Verify stage title is visible behind the overlay
   const stageTitle = page.locator('h2:has-text("בחר דמות")');
   await expect(stageTitle).toBeVisible();
-
-  await screenshot(page, "single-player-overlay-final");
 });
 
 test("minimum player overlay not present with two players", async ({ page, gameName }) => {
@@ -56,6 +54,4 @@ test("minimum player overlay not present with two players", async ({ page, gameN
   // Verify character cards are visible and accessible
   const characterCard = page.locator('[data-character="knight"]').first();
   await expect(characterCard).toBeVisible();
-
-  await screenshot(page, "two-players-interactive");
 });

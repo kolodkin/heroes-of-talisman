@@ -12,7 +12,6 @@ test("players menu minified by default with global toggle", async ({ page, gameN
   await page.waitForSelector(`button:has-text("${gameName}")`, { timeout: TIMEOUT });
 
   await joinGame(page, "player", gameName);
-  await screenshot(page, "joined-game");
 
   // Wait for player div to be visible
   const playerDiv = page.locator('[data-player="player"]');
@@ -40,7 +39,6 @@ test("players menu minified by default with global toggle", async ({ page, gameN
 
   // Click toggle button to expand all players
   await toggleButton.click();
-  await screenshot(page, "after-expand-click");
 
   // Verify expanded state
   await expect(toggleButton).toHaveText("−");
