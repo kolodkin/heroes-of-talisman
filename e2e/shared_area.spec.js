@@ -115,7 +115,6 @@ test("shared area dynamic alignment - opponent selection stage", async ({ page, 
 
   // Verify scroll is enabled for character cards
   expect(narrowViewportInfo.canScroll).toBe(true);
-  await screenshot(page, "opponent-narrow-with-scroll");
 
   // Verify first character card (mage in RTL) is visible
   await expect(firstOpponent.locator('[data-character="mage"]').first()).toBeInViewport();

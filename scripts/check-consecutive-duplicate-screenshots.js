@@ -256,9 +256,17 @@ function formatDuplicateReport(duplicates, totalScreenshots, totalTests) {
   lines.push("💡 Recommended actions:");
   lines.push("   1. Review the test flow - is the second screenshot needed?");
   lines.push("   2. Ensure a visible UI change happens between screenshots");
-  lines.push("   3. Remove the redundant screenshot");
+  lines.push("   3. Remove the redundant screenshot (preferably the FIRST occurrence)");
   lines.push("");
   lines.push(`📊 Run 'npm run e2p' or visit http://localhost:${REPORT_PORT} to view the full report`);
+  lines.push("");
+  lines.push("═══════════════════════════════════════════════════════════════════════");
+  lines.push("");
+  lines.push("🗑️  SCREENSHOTS TO DELETE (first occurrences):");
+  lines.push("");
+  for (const dupe of duplicates) {
+    lines.push(`   • "${dupe.first}" in ${dupe.testFile} (test: "${dupe.testTitle}")`);
+  }
   lines.push("");
   lines.push("═══════════════════════════════════════════════════════════════════════");
 
