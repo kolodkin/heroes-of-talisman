@@ -41,7 +41,15 @@ jobs:
         run: ./scripts/setup --no-docker
 
       - name: Run backend tests
-        run: uv run pytest -v
+        run: uv run pytest -v --junitxml=pytest-report.xml
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Pytest Results
+          path: pytest-report.xml
+          reporter: java-junit
 
   test-e2e:
     # timeout-minutes: 60
@@ -91,3 +99,11 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+      - name: Deploy Playwright report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./playwright-report
+          destination_dir: playwright-report/${{ github.run_number }}
