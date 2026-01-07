@@ -18,6 +18,7 @@ import { readFileSync, readdirSync, existsSync, statSync } from "fs";
 import { join, basename, extname, relative } from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import sharp from "sharp";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -97,11 +98,52 @@ function findImageFiles(dir, images = []) {
 }
 
 /**
- * Compute SHA256 hash of a file
+ * Compute perceptual hash of an image using sharp.
+ * This creates a hash based on the visual structure of the image,
+ * tolerating minor pixel differences from anti-aliasing, subpixel
+ * rendering, and compression artifacts.
+ *
+ * Algorithm:
+ * 1. Resize to small size (16x16) to remove high-frequency details
+ * 2. Convert to grayscale
+ * 3. Get raw pixel values
+ * 4. Create hash based on relative brightness (above/below mean)
  */
-function computeFileHash(filePath) {
-  const content = readFileSync(filePath);
-  return createHash("sha256").update(content).digest("hex");
+async function computePerceptualHash(filePath) {
+  try {
+    // Resize to 16x16 grayscale for perceptual comparison
+    const { data } = await sharp(filePath)
+      .resize(16, 16, { fit: "fill" })
+      .grayscale()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    // Calculate mean brightness
+    let sum = 0;
+    for (let i = 0; i < data.length; i++) {
+      sum += data[i];
+    }
+    const mean = sum / data.length;
+
+    // Create binary hash: 1 if pixel > mean, 0 otherwise
+    let hash = "";
+    for (let i = 0; i < data.length; i++) {
+      hash += data[i] > mean ? "1" : "0";
+    }
+
+    // Convert binary string to hex for compact representation
+    let hexHash = "";
+    for (let i = 0; i < hash.length; i += 4) {
+      const nibble = hash.substring(i, i + 4);
+      hexHash += parseInt(nibble, 2).toString(16);
+    }
+
+    return hexHash;
+  } catch (err) {
+    // Fallback to file hash if sharp fails
+    const content = readFileSync(filePath);
+    return createHash("sha256").update(content).digest("hex");
+  }
 }
 
 /**
@@ -229,14 +271,18 @@ function extractAttachmentMetadata(data, metadata, context = {}) {
 }
 
 /**
- * Find duplicates by comparing hashes
+ * Find duplicates by comparing pixel data hashes
  */
-function findDuplicates(images) {
+async function findDuplicates(images) {
   const hashMap = new Map();
   const duplicates = [];
 
-  for (const image of images) {
-    const hash = computeFileHash(image.path);
+  // Compute all perceptual hashes in parallel for better performance
+  const hashes = await Promise.all(images.map((img) => computePerceptualHash(img.path)));
+
+  for (let i = 0; i < images.length; i++) {
+    const image = images[i];
+    const hash = hashes[i];
     image.hash = hash;
 
     if (hashMap.has(hash)) {
@@ -334,7 +380,7 @@ function formatDuplicateReport(duplicates, testMetadata) {
 /**
  * Main function
  */
-function main() {
+async function main() {
   console.log("🔍 Checking for duplicate screenshots in Playwright report...");
   console.log(`📁 Report directory: ${REPORT_DIR}`);
   console.log("");
@@ -359,8 +405,9 @@ function main() {
   const testMetadata = parseReportData();
   console.log(`📋 Extracted metadata for ${testMetadata.size} attachments`);
 
-  // Find duplicates
-  const duplicates = findDuplicates(images);
+  // Find duplicates using perceptual hashing
+  console.log("🔬 Computing perceptual hashes with sharp...");
+  const duplicates = await findDuplicates(images);
 
   if (duplicates.length === 0) {
     console.log("");
@@ -385,4 +432,7 @@ function main() {
 }
 
 // Run
-main();
+main().catch((err) => {
+  console.error("Error:", err);
+  process.exit(1);
+});
