@@ -32,6 +32,7 @@ const projectRoot = dirname(__dirname);
 
 // Configuration
 const REPORT_DIR = process.argv[2] || join(projectRoot, "playwright-report");
+const REPORT_PORT = process.env.PLAYWRIGHT_REPORT_PORT || "9323";
 
 /**
  * Compute perceptual hash of an image buffer using sharp.
@@ -114,6 +115,11 @@ function extractTestScreenshots(data, tests, context = {}) {
     };
   }
 
+  // Capture testId if present
+  if (data.testId) {
+    context = { ...context, testId: data.testId };
+  }
+
   // Handle suites
   if (data.suites && Array.isArray(data.suites)) {
     for (const suite of data.suites) {
@@ -157,6 +163,7 @@ function extractTestScreenshots(data, tests, context = {}) {
           tests.push({
             testTitle: context.testTitle,
             testFile: context.testFile,
+            testId: context.testId,
             screenshots,
           });
         }
@@ -174,7 +181,7 @@ async function findConsecutiveDuplicates(tests) {
   let totalScreenshots = 0;
 
   for (const test of tests) {
-    const { testTitle, testFile, screenshots } = test;
+    const { testTitle, testFile, testId, screenshots } = test;
     totalScreenshots += screenshots.length;
 
     if (screenshots.length < 2) continue;
@@ -188,6 +195,7 @@ async function findConsecutiveDuplicates(tests) {
         duplicates.push({
           testTitle,
           testFile,
+          testId,
           first: screenshots[i].name,
           second: screenshots[i + 1].name,
           hash: hashes[i],
@@ -198,6 +206,14 @@ async function findConsecutiveDuplicates(tests) {
   }
 
   return { duplicates, totalScreenshots, totalTests: tests.length };
+}
+
+/**
+ * Generate Playwright report URL for a test (search by title)
+ */
+function getReportUrl(testTitle) {
+  if (!testTitle) return null;
+  return `http://localhost:${REPORT_PORT}/#?q=${encodeURIComponent(testTitle)}`;
 }
 
 /**
@@ -214,6 +230,8 @@ function formatDuplicateReport(duplicates, totalScreenshots, totalTests) {
 
   for (let i = 0; i < duplicates.length; i++) {
     const dupe = duplicates[i];
+    const reportUrl = getReportUrl(dupe.testTitle);
+
     lines.push(`┌─────────────────────────────────────────────────────────────────────┐`);
     lines.push(`│ 🚨 ERROR ${i + 1} of ${duplicates.length}`);
     lines.push(`├─────────────────────────────────────────────────────────────────────┤`);
@@ -225,6 +243,10 @@ function formatDuplicateReport(duplicates, totalScreenshots, totalTests) {
     lines.push(`│`);
     lines.push(`│ These consecutive screenshots are identical.`);
     lines.push(`│ Remove one or add a UI change between them.`);
+    if (reportUrl) {
+      lines.push(`│`);
+      lines.push(`│ 🔗 ${reportUrl}`);
+    }
     lines.push(`└─────────────────────────────────────────────────────────────────────┘`);
     lines.push("");
   }
@@ -235,6 +257,8 @@ function formatDuplicateReport(duplicates, totalScreenshots, totalTests) {
   lines.push("   1. Review the test flow - is the second screenshot needed?");
   lines.push("   2. Ensure a visible UI change happens between screenshots");
   lines.push("   3. Remove the redundant screenshot");
+  lines.push("");
+  lines.push(`📊 Run 'npm run e2p' or visit http://localhost:${REPORT_PORT} to view the full report`);
   lines.push("");
   lines.push("═══════════════════════════════════════════════════════════════════════");
 
