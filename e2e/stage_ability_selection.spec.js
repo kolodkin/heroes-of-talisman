@@ -62,7 +62,6 @@ test("ability_selection stage - archer (BOUNCING_ARROW) skips to opponent_select
   const sharedArea = page.locator('[data-shared-area-active="true"]');
   const bouncingArrowAbility = sharedArea.locator('[data-ability="bouncing_arrow"]');
   await expect(bouncingArrowAbility).toBeVisible();
-  await screenshot(page, "ability-selection-archer-start");
 
   // Select bouncing_arrow ability
   await bouncingArrowAbility.click();

@@ -35,10 +35,10 @@ test("shared area dynamic alignment - character selection stage", async ({ page,
   // Verify alignment to start and scroll enabled
   expect(narrowViewportInfo.wrapperJustifyContent).toBe("flex-start");
   expect(narrowViewportInfo.canScroll).toBe(true);
-  await screenshot(page, "narrow-aligned-start");
 
   // Verify first card (mage in RTL) is visible
   await expect(page.locator('[data-character="mage"]').first()).toBeInViewport();
+  await screenshot(page, "narrow-viewport-scroll-enabled");
 
   // Scroll to the end (left in RTL) to show last card (knight)
   await page.evaluate(() => {
@@ -51,7 +51,6 @@ test("shared area dynamic alignment - character selection stage", async ({ page,
     cardsContainer.scrollLeft = -cardsContainer.scrollWidth;
   });
   await page.waitForTimeout(100); // Wait for scroll to complete
-  await screenshot(page, "narrow-scrolled-to-end");
 
   // Verify last card (knight in RTL) is visible after scrolling
   await expect(page.locator('[data-character="knight"]').first()).toBeInViewport();
