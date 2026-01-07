@@ -8,12 +8,13 @@
  * - First section: Active player (gamePlay.active.player) with their active character and dice/roll button
  * - Second section: Opponent player with their character and dice/roll button
  */
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import className from "classnames";
 import CharacterCard from "../CharacterCard";
 import Dice from "../Dice";
 import { RerollIcon } from "../Icons";
+import { SharedAreaContent } from "./SharedAreaContent";
 import commonStyles from "../Common.module.css";
 import styles from "./StageBattle.module.css";
 
@@ -164,7 +165,26 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const activeScore = showWinner ? (gamePlay.active?.result?.score ?? null) : null;
   const opponentScore = showWinner ? (opponent?.result?.score ?? null) : null;
 
-  return (
+  // Determine action button
+  let actionButtonContent = null;
+  let actionButtonOnClick = null;
+
+  if (canUseRerollEffect) {
+    actionButtonOnClick = handleRerollEffect;
+    actionButtonContent = (
+      <span style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
+        {t("battle.reroll")} <RerollIcon size={20} color="white" fill="purple" />
+      </span>
+    );
+  } else if (showWinner) {
+    actionButtonContent = t("battle.continue");
+    actionButtonOnClick = handleContinue;
+  } else if (isDraw) {
+    actionButtonContent = t("battle.reroll");
+    actionButtonOnClick = handleReroll;
+  }
+
+  const content = (
     <div className={styles.battleContainer}>
       <BattleParticipant
         playerName={activePlayerName}
@@ -192,40 +212,16 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         winner={showWinner && opponentIsWinner}
         showScore={showWinner}
       />
-      {canUseRerollEffect ? (
-        <button
-          className={commonStyles.actionButton}
-          onClick={handleRerollEffect}
-          disabled={!active}
-          style={{ pointerEvents: active ? "auto" : "none" }}
-          data-reroll-effect-button
-        >
-          <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {t("battle.reroll")} <RerollIcon size={20} color="white" fill="purple" />
-          </span>
-        </button>
-      ) : showWinner ? (
-        <button
-          className={commonStyles.actionButton}
-          onClick={handleContinue}
-          disabled={!active}
-          style={{ pointerEvents: active ? "auto" : "none" }}
-          data-continue-button
-        >
-          {t("battle.continue")}
-        </button>
-      ) : isDraw ? (
-        <button
-          className={commonStyles.actionButton}
-          onClick={handleReroll}
-          disabled={!active}
-          style={{ pointerEvents: active ? "auto" : "none" }}
-          data-reroll-button
-        >
-          {t("battle.reroll")}
-        </button>
-      ) : null}
     </div>
+  );
+
+  return (
+    <SharedAreaContent
+      content={content}
+      onActionClick={actionButtonOnClick}
+      actionButtonContent={actionButtonContent}
+      actionButtonDisabled={!active}
+    />
   );
 };
 
