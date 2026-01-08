@@ -169,6 +169,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   // Determine action button
   let actionButtonContent = null;
   let actionButtonOnClick = null;
+  let actionButtonDataAttrs = {};
 
   if (canUseRerollEffect) {
     actionButtonOnClick = handleRerollEffect;
@@ -177,12 +178,15 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         {t("battle.reroll")} <RerollIcon size={20} color="white" fill="purple" />
       </span>
     );
+    actionButtonDataAttrs = { "data-reroll-effect-button": "" };
   } else if (showWinner) {
     actionButtonContent = t("battle.continue");
     actionButtonOnClick = handleContinue;
+    actionButtonDataAttrs = { "data-continue-button": "" };
   } else if (isDraw) {
     actionButtonContent = t("battle.reroll");
     actionButtonOnClick = handleReroll;
+    actionButtonDataAttrs = { "data-reroll-button": "" };
   }
 
   const content = (
@@ -222,6 +226,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
       onActionClick={actionButtonOnClick}
       actionButtonContent={actionButtonContent}
       actionButtonDisabled={!active}
+      actionButtonDataAttrs={actionButtonDataAttrs}
     />
   );
 };
