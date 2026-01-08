@@ -130,7 +130,6 @@ async function testAbilityOpponentSelection(page, page2) {
   // Verify we're in ability opponent selection stage
   const selectButton = page.getByRole("button", { name: "בחר" });
   await expect(selectButton).toBeVisible();
-  await screenshot(page, "ability-opponent-selection-start");
 
   // Select opponent's knight character from the shared area
   // In this stage, opponents are shown in minimized format with data-character attribute
@@ -161,7 +160,6 @@ async function testOpponentSelection(page, page2) {
   await expect(opponentDiv.locator('[data-character="knight"]')).toBeVisible();
   await expect(opponentDiv.locator('[data-character="archer"]')).toBeVisible();
   await expect(opponentDiv.locator('[data-character="mage"]')).toBeVisible();
-  await screenshot(page, "opponent-selection-stage");
 
   // Test that non-active player (player2) cannot interact with SharedArea
   const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
