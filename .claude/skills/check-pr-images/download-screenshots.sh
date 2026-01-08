@@ -2,19 +2,38 @@
 set -e
 
 # Script to download and organize E2E test screenshots from GitHub Actions artifacts
-# Usage: ./download-screenshots.sh <run-id>
+# Usage: ./download-screenshots.sh [run-id]
+# If run-id is not provided, it will auto-detect the latest run from the current branch
 
+# Auto-detect run ID if not provided
 if [ -z "$1" ]; then
-    echo "Error: Run ID is required"
-    echo "Usage: $0 <run-id>"
-    echo ""
-    echo "To find run IDs, use: gh run list --limit 5"
-    exit 1
+    echo "🔍 Auto-detecting latest GitHub Actions run for current branch..."
+    CURRENT_BRANCH=$(git branch --show-current)
+
+    if [ -z "$CURRENT_BRANCH" ]; then
+        echo "❌ Error: Could not determine current branch"
+        exit 1
+    fi
+
+    echo "📝 Current branch: $CURRENT_BRANCH"
+
+    # Get the latest workflow run for this branch
+    RUN_ID=$(gh run list --branch "$CURRENT_BRANCH" --limit 1 --json databaseId --jq '.[0].databaseId' -R kolodkin/heroes-of-talisman)
+
+    if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+        echo "❌ Error: No workflow runs found for branch $CURRENT_BRANCH"
+        echo "💡 You can specify a run ID manually: $0 <run-id>"
+        exit 1
+    fi
+
+    echo "✅ Auto-detected run ID: $RUN_ID"
+else
+    RUN_ID="$1"
 fi
 
-RUN_ID="$1"
-TMP_DIR="/tmp/playwright-report"
-REPORT_DIR="/tmp/report"
+TMP_DIR="./tmp/playwright-report"
+REPORT_DIR="./tmp/report"
+ORIGINAL_DIR=$(pwd)
 
 echo "🔍 Downloading screenshots from GitHub Actions run: $RUN_ID"
 echo ""
@@ -26,10 +45,9 @@ rm -rf "$REPORT_DIR"
 mkdir -p "$TMP_DIR"
 mkdir -p "$REPORT_DIR"
 
-# Download the playwright-report artifact
+# Download the playwright-report artifact (from original directory to preserve git context)
 echo "📥 Downloading playwright-report artifact..."
-cd "$TMP_DIR"
-if ! gh run download "$RUN_ID" -n playwright-report; then
+if ! (cd "$TMP_DIR" && gh run download "$RUN_ID" -n playwright-report -R kolodkin/heroes-of-talisman); then
     echo "❌ Failed to download artifact. Check that the run ID is correct and the artifact exists."
     exit 1
 fi
@@ -48,59 +66,25 @@ else
 fi
 
 echo ""
-echo "🔄 Organizing screenshots by test name..."
+echo "🔄 Extracting screenshots..."
 
-# Function to sanitize test names for directory names
-sanitize_name() {
-    echo "$1" | sed 's/[^a-zA-Z0-9_-]/_/g' | sed 's/__*/_/g'
-}
+# The .dat files in the data/ directory are actually PNG files
+# Just copy them and rename them to .png
+SCREENSHOTS_DIR="$REPORT_DIR/screenshots"
+mkdir -p "$SCREENSHOTS_DIR"
 
-# If we have results.json, use it to organize screenshots
-if [ -n "$RESULTS_JSON" ]; then
-    # Extract test names and their screenshot paths using jq
-    # The structure is: suites[].specs[].tests[].results[].attachments[]
-
-    # Get all test titles and their screenshots
-    jq -r '.suites[].specs[] | .title as $spec_title | .tests[] | .results[] | .attachments[] | select(.name == "screenshot") | "\($spec_title)|\(.path)"' "$RESULTS_JSON" | while IFS='|' read -r test_name screenshot_path; do
-        if [ -n "$test_name" ] && [ -n "$screenshot_path" ]; then
-            # Sanitize test name for directory
-            safe_name=$(sanitize_name "$test_name")
-            test_dir="$REPORT_DIR/$safe_name"
-            mkdir -p "$test_dir"
-
-            # Get the full path to the screenshot
-            full_path="$(dirname "$RESULTS_JSON")/$screenshot_path"
-
-            if [ -f "$full_path" ]; then
-                # Extract the base name and convert .dat to .png
-                base_name=$(basename "$screenshot_path" .dat)
-
-                # Copy and rename to .png (these are actually PNG files)
-                cp "$full_path" "$test_dir/${base_name}.png"
-                echo "  ✓ $safe_name/${base_name}.png"
-            fi
+screenshot_count=0
+if [ -d "$TMP_DIR/data" ]; then
+    for dat_file in "$TMP_DIR/data"/*.dat; do
+        if [ -f "$dat_file" ]; then
+            filename=$(basename "$dat_file" .dat)
+            cp "$dat_file" "$SCREENSHOTS_DIR/${filename}.png"
+            screenshot_count=$((screenshot_count + 1))
         fi
     done
+    echo "  ✓ Extracted $screenshot_count screenshots"
 else
-    # Fallback: organize by directory structure
-    find "$TMP_DIR" -name "*.dat" -type f | while read -r screenshot; do
-        # Get the test name from the directory structure
-        rel_path=$(realpath --relative-to="$TMP_DIR" "$screenshot")
-        test_name=$(dirname "$rel_path" | sed 's/\//-/g')
-
-        if [ -z "$test_name" ] || [ "$test_name" = "." ]; then
-            test_name="uncategorized"
-        fi
-
-        safe_name=$(sanitize_name "$test_name")
-        test_dir="$REPORT_DIR/$safe_name"
-        mkdir -p "$test_dir"
-
-        # Get base name and convert to .png
-        base_name=$(basename "$screenshot" .dat)
-        cp "$screenshot" "$test_dir/${base_name}.png"
-        echo "  ✓ $safe_name/${base_name}.png"
-    done
+    echo "  ⚠️  Warning: No data directory found"
 fi
 
 echo ""
@@ -114,33 +98,31 @@ SUMMARY_FILE="$REPORT_DIR/summary.txt"
     echo "Run ID: $RUN_ID"
     echo "Downloaded: $(date)"
     echo ""
-    echo "Test Results:"
+    echo "Screenshots location: $SCREENSHOTS_DIR"
+    echo ""
+    echo "Available screenshots:"
     echo ""
 
-    for test_dir in "$REPORT_DIR"/*/; do
-        if [ -d "$test_dir" ]; then
-            test_name=$(basename "$test_dir")
-            screenshot_count=$(find "$test_dir" -name "*.png" -type f | wc -l)
+    if [ -d "$SCREENSHOTS_DIR" ]; then
+        find "$SCREENSHOTS_DIR" -name "*.png" -type f -exec basename {} \; | sort | sed 's/^/   - /'
+    fi
 
-            echo "📁 $test_name ($screenshot_count screenshots)"
-            find "$test_dir" -name "*.png" -type f -exec basename {} \; | sort | sed 's/^/   - /'
-            echo ""
-        fi
-    done
-
+    echo ""
     echo "============================"
-    total_screenshots=$(find "$REPORT_DIR" -name "*.png" -type f | wc -l)
-    total_tests=$(find "$REPORT_DIR" -mindepth 1 -maxdepth 1 -type d | wc -l)
-    echo "Total: $total_screenshots screenshots across $total_tests tests"
+    total_screenshots=$(find "$SCREENSHOTS_DIR" -name "*.png" -type f 2>/dev/null | wc -l)
+    echo "Total: $total_screenshots screenshots"
 } > "$SUMMARY_FILE"
 
 cat "$SUMMARY_FILE"
 
 echo ""
-echo "✅ Screenshots organized successfully!"
+echo "✅ Screenshots extracted successfully!"
 echo ""
-echo "📂 Location: $REPORT_DIR"
+echo "📂 Location: $SCREENSHOTS_DIR"
 echo "📄 Summary: $SUMMARY_FILE"
 echo ""
 echo "💡 To view screenshots, use the Read tool with paths like:"
-echo "   /tmp/report/<test-name>/<screenshot-name>.png"
+echo "   $SCREENSHOTS_DIR/<screenshot-name>.png"
+echo ""
+echo "💡 To run without arguments (auto-detect latest run):"
+echo "   $0"
