@@ -15,7 +15,6 @@ import { notify } from "../../utils/notify";
 import { useScrollAlignment } from "../../hooks/useScrollAlignment";
 import { SharedAreaContent } from "./SharedAreaContent";
 
-import styles from "./StageCharacterSelect.module.css";
 import commonStyles from "../Common.module.css";
 import CharacterCard from "../CharacterCard";
 

@@ -85,6 +85,11 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const { t } = useTranslation();
   const [diceStoppedCount, setDiceStoppedCount] = useState(0);
 
+  // React Hooks must be called before any early returns
+  const handleDiceStop = useCallback(() => {
+    setDiceStoppedCount((prev) => prev + 1);
+  }, []);
+
   // Active player data
   const activePlayerName = gamePlay.active?.player;
   const activePlayer = activePlayerName ? gamePlay.players[activePlayerName] : null;
@@ -121,10 +126,6 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const activeLost = diceStoppedCount >= totalExpectedDice && bothRolled && opponentIsWinner && !activeIsWinner;
   const hasRerollEffect = activeCharacter?.effect?.reroll_dice_available ?? false;
   const canUseRerollEffect = activeLost && hasRerollEffect;
-
-  const handleDiceStop = useCallback(() => {
-    setDiceStoppedCount((prev) => prev + 1);
-  }, []);
 
   const handleActivePlayerRoll = () => {
     if (active) {

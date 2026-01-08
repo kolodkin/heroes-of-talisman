@@ -18,7 +18,6 @@ import { useScrollAlignment } from "../../hooks/useScrollAlignment";
 import { SharedAreaContent } from "./SharedAreaContent";
 
 import styles from "./StageOpponentSelection.module.css";
-import commonStyles from "../Common.module.css";
 import Opponent from "./Opponent";
 
 const StageAbilityOpponentSelection = ({ players, activePlayer, sendAction, active, selectedOpponent = null }) => {
@@ -46,7 +45,7 @@ const StageAbilityOpponentSelection = ({ players, activePlayer, sendAction, acti
   };
 
   // Filter out active player (whose turn it is)
-  const opponents = Object.entries(players).filter(([name, _]) => name !== activePlayer);
+  const opponents = Object.entries(players).filter(([name]) => name !== activePlayer);
 
   const content = (
     <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
