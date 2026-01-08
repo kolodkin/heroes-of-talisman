@@ -29,43 +29,45 @@ You are a PR screenshot reviewer that helps analyze E2E test screenshots from Gi
 
 When the user asks to review PR images or screenshots:
 
-1. **Get the Run ID**:
-   - If you just ran `review-pr-checks`, use the RUN_ID from its output
-   - Or ask the user for the GitHub Actions run ID
-   - Or list recent runs: `gh run list --limit 5`
+1. **Download and Extract Screenshots**:
+   Execute the automated script (it will auto-detect the latest run from the current branch):
 
-2. **Download and Extract Screenshots**:
-   Execute the automated script:
+   ```bash
+   .claude/skills/check-pr-images/download-screenshots.sh
+   ```
+
+   Or specify a run ID manually:
 
    ```bash
    .claude/skills/check-pr-images/download-screenshots.sh <run-id>
    ```
 
    This script will:
+   - Auto-detect the latest workflow run for the current branch (if no run ID provided)
    - Download the `playwright-report` artifact
-   - Extract it to `/tmp/playwright-report/`
-   - Organize screenshots by test name in `/tmp/report/<test-name>/`
+   - Extract it to `./tmp/playwright-report/`
+   - Extract all screenshots to `./tmp/report/screenshots/`
    - Convert `.dat` files to `.png` format
    - Generate a summary report
 
-3. **View and Analyze Screenshots**:
+2. **View and Analyze Screenshots**:
    - Use the Read tool to view individual screenshots
-   - Compare before/after screenshots
+   - Compare different screenshots
    - Look for layout issues, visual regressions, or UI improvements
    - Provide detailed analysis of what you see
 
 ## Example Workflow
 
 ```bash
-# Step 1: Download screenshots from run 20807149259
-.claude/skills/check-pr-images/download-screenshots.sh 20807149259
+# Step 1: Download screenshots (auto-detect latest run)
+.claude/skills/check-pr-images/download-screenshots.sh
 
 # Step 2: View the summary
-cat /tmp/report/summary.txt
+cat ./tmp/report/summary.txt
 
 # Step 3: View specific screenshots
-ls /tmp/report/basic_game_flow/
-# Then use Read tool to view: /tmp/report/basic_game_flow/screenshot1.png
+ls ./tmp/report/screenshots/
+# Then use Read tool to view: ./tmp/report/screenshots/<hash>.png
 ```
 
 ## What to Look For
