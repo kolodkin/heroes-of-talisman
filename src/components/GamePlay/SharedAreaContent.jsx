@@ -10,6 +10,7 @@ import styles from "./SharedAreaContent.module.css";
  * @param {Function} props.onActionClick - Click handler for the action button
  * @param {string|React.ReactNode} props.actionButtonContent - Text or JSX to display on the action button
  * @param {boolean} props.actionButtonDisabled - Whether the action button is disabled
+ * @param {Object} props.actionButtonDataAttrs - Custom data attributes for the action button
  */
 export const SharedAreaContent = ({
   title,
@@ -17,13 +18,20 @@ export const SharedAreaContent = ({
   onActionClick,
   actionButtonContent,
   actionButtonDisabled = false,
+  actionButtonDataAttrs = {},
 }) => {
   return (
     <div className={styles.container}>
       {/* Left side: Fixed action button */}
       <div className={styles.actionButtonContainer}>
         {onActionClick && actionButtonContent && (
-          <button className={styles.actionButton} onClick={onActionClick} disabled={actionButtonDisabled}>
+          <button
+            className={styles.actionButton}
+            onClick={onActionClick}
+            disabled={actionButtonDisabled}
+            data-action-button
+            {...actionButtonDataAttrs}
+          >
             {actionButtonContent}
           </button>
         )}
@@ -35,7 +43,9 @@ export const SharedAreaContent = ({
         {title && <div className={styles.title}>{title}</div>}
 
         {/* Scrollable content section */}
-        <div className={styles.content}>{content}</div>
+        <div className={styles.content} data-shared-content>
+          {content}
+        </div>
       </div>
     </div>
   );
