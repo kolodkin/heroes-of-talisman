@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Heroes of Talisman</title>
+    <style>
+      :root {
+        --primary: #8b5cf6;
+        --primary-dark: #7c3aed;
+        --secondary: #f59e0b;
+        --bg-dark: #0f172a;
+        --bg-card: #1e293b;
+        --text-light: #f1f5f9;
+        --text-muted: #94a3b8;
+        --border: #334155;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        background: var(--bg-dark);
+        color: var(--text-light);
+        min-height: 100vh;
+        line-height: 1.6;
+      }
+
+      .hero {
+        background: linear-gradient(
+          135deg,
+          var(--bg-dark) 0%,
+          #1a1a2e 50%,
+          #16213e 100%
+        );
+        padding: 4rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:
+          radial-gradient(
+            circle at 20% 80%,
+            rgba(139, 92, 246, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(245, 158, 11, 0.1) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .logo {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+
+      h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        background: linear-gradient(
+          135deg,
+          var(--text-light) 0%,
+          var(--secondary) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .tagline {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.75rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        margin: 0.5rem;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: var(--text-light);
+        border: 2px solid var(--border);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--primary);
+        background: rgba(139, 92, 246, 0.1);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 4rem 2rem;
+      }
+
+      .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .features {
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          rgba(30, 41, 59, 0.5) 100%
+        );
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+      }
+
+      .feature {
+        text-align: center;
+        padding: 1.5rem;
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature h3 {
+        font-size: 1.125rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .feature p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      footer {
+        text-align: center;
+        padding: 2rem;
+        border-top: 1px solid var(--border);
+        color: var(--text-muted);
+      }
+
+      footer a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 640px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        .logo {
+          font-size: 3rem;
+        }
+
+        .tagline {
+          font-size: 1rem;
+        }
+
+        .container {
+          padding: 2rem 1rem;
+        }
+
+        .btn {
+          display: block;
+          width: 100%;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero-content">
+        <div class="logo">&#9876;&#65039;</div>
+        <h1>Heroes of Talisman</h1>
+        <p class="tagline">
+          A turn-based fantasy card game - a digital version of an amazing
+          made-up game
+        </p>
+        <div>
+          <a
+            href="https://github.com/kolodkin/heroes-of-talisman"
+            class="btn btn-primary"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+              />
+            </svg>
+            View on GitHub
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="container features">
+        <h2 class="section-title">Game Features</h2>
+        <div class="feature-grid">
+          <div class="feature">
+            <div class="feature-icon">&#129409;</div>
+            <h3>Fantasy Characters</h3>
+            <p>
+              Choose from unique heroes, each with special abilities and powers
+            </p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">&#127922;</div>
+            <h3>Dice-Based Combat</h3>
+            <p>Strategic battles with dice rolls and tactical decisions</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">&#9878;&#65039;</div>
+            <h3>Turn-Based Strategy</h3>
+            <p>Plan your moves carefully in exciting turn-based gameplay</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">&#128101;</div>
+            <h3>Multiplayer</h3>
+            <p>Challenge your friends in real-time multiplayer matches</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Made with &#10084;&#65039; |
+        <a href="https://github.com/kolodkin/heroes-of-talisman">GitHub</a>
+      </p>
+    </footer>
+  </body>
+</html>
