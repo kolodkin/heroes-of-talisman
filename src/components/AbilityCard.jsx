@@ -13,7 +13,7 @@ const AbilityCard = ({ ability, isSelected, onClick, size = "normal" }) => {
 
   return (
     <div
-      className={className({ [cardStyles.selected]: isSelected }, cardStyles.card, styles.card, cardClass, "text-2xl")}
+      className={className({ [cardStyles.selected]: isSelected }, cardStyles.card, styles.card, cardClass)}
       onClick={onClick}
       data-ability={ability.name}
     >

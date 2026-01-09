@@ -49,7 +49,6 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         cardStyles.card,
         styles.card,
         cardClass,
-        "text-2xl",
       )}
       onClick={handleClick}
       data-character={name}
