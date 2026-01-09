@@ -17,11 +17,10 @@ test("shared area dynamic alignment - character selection stage", async ({ page,
   await page.waitForTimeout(200); // Wait for hook to detect scroll
 
   const narrowViewportInfo = await page.evaluate(() => {
-    const heading = Array.from(document.querySelectorAll("h2")).find((h) => h.textContent.includes("בחר דמות"));
-    if (!heading) return { error: "heading not found" };
+    const contentArea = document.querySelector("[data-shared-content]");
+    if (!contentArea) return { error: "content area not found" };
 
-    const outerWrapper = heading.nextElementSibling;
-    const cardsWrapper = outerWrapper.firstElementChild;
+    const cardsWrapper = contentArea.firstElementChild;
     const cardsContainer = cardsWrapper.querySelector('[class*="cardsContainer"]');
 
     return {
@@ -42,9 +41,8 @@ test("shared area dynamic alignment - character selection stage", async ({ page,
 
   // Scroll to the end (left in RTL) to show last card (knight)
   await page.evaluate(() => {
-    const heading = Array.from(document.querySelectorAll("h2")).find((h) => h.textContent.includes("בחר דמות"));
-    const outerWrapper = heading.nextElementSibling;
-    const cardsWrapper = outerWrapper.firstElementChild;
+    const contentArea = document.querySelector("[data-shared-content]");
+    const cardsWrapper = contentArea.firstElementChild;
     const cardsContainer = cardsWrapper.querySelector('[class*="cardsContainer"]');
 
     // In RTL, scroll to the left (negative scrollLeft)
@@ -60,9 +58,8 @@ test("shared area dynamic alignment - character selection stage", async ({ page,
   await page.waitForTimeout(200); // Wait for hook to re-detect
 
   const wideViewportInfo = await page.evaluate(() => {
-    const heading = Array.from(document.querySelectorAll("h2")).find((h) => h.textContent.includes("בחר דמות"));
-    const outerWrapper = heading.nextElementSibling;
-    const cardsWrapper = outerWrapper.firstElementChild;
+    const contentArea = document.querySelector("[data-shared-content]");
+    const cardsWrapper = contentArea.firstElementChild;
     const cardsContainer = cardsWrapper.querySelector('[class*="cardsContainer"]');
 
     return {

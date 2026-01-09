@@ -130,7 +130,6 @@ async function testAbilityOpponentSelection(page, page2) {
   // Verify we're in ability opponent selection stage
   const selectButton = page.getByRole("button", { name: "בחר" });
   await expect(selectButton).toBeVisible();
-  await screenshot(page, "ability-opponent-selection-start");
 
   // Select opponent's knight character from the shared area
   // In this stage, opponents are shown in minimized format with data-character attribute

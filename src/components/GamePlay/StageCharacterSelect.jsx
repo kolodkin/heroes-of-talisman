@@ -13,9 +13,8 @@ import className from "classnames";
 import { useTranslation } from "react-i18next";
 import { notify } from "../../utils/notify";
 import { useScrollAlignment } from "../../hooks/useScrollAlignment";
+import { SharedAreaContent } from "./SharedAreaContent";
 
-import styles from "./StageCharacterSelect.module.css";
-import submitButtonStyles from "./StageSubmitButton.module.css";
 import commonStyles from "../Common.module.css";
 import CharacterCard from "../CharacterCard";
 
@@ -43,35 +42,30 @@ const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacte
     }
   };
 
-  return (
-    <div className="flex flex-col items-center space-y-3 w-full">
-      <div className={className("flex w-full", hasScroll ? "justify-start" : "justify-center")}>
-        <div ref={containerRef} className={className(commonStyles.cardsContainer, "mb-8")}>
-          {Object.entries(characters).map(([name, character]) => (
-            <CharacterCard
-              key={name}
-              name={name}
-              character={character}
-              isSelected={name === selectedCharacter}
-              onClick={() => handleCharacterClick(name)}
-              size="normal"
-            />
-          ))}
-        </div>
+  const content = (
+    <div className={className("flex w-full", hasScroll ? "justify-start" : "justify-center")}>
+      <div ref={containerRef} className={className(commonStyles.cardsContainer, "mb-8")}>
+        {Object.entries(characters).map(([name, character]) => (
+          <CharacterCard
+            key={name}
+            name={name}
+            character={character}
+            isSelected={name === selectedCharacter}
+            onClick={() => handleCharacterClick(name)}
+            size="normal"
+          />
+        ))}
       </div>
-      <button
-        className={className(
-          commonStyles.gamebtn,
-          commonStyles.submitButton,
-          submitButtonStyles["submit-button"],
-          "text-2xl",
-        )}
-        onClick={handleSubmit}
-        data-action-button
-      >
-        <p>{t("character_select.submit")}</p>
-      </button>
     </div>
+  );
+
+  return (
+    <SharedAreaContent
+      content={content}
+      onActionClick={handleSubmit}
+      actionButtonContent={t("character_select.submit")}
+      actionButtonDisabled={!active}
+    />
   );
 };
 
