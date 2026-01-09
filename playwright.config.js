@@ -76,6 +76,16 @@ export default defineConfig({
       },
     },
 
+    {
+      name: "mobile-landscape",
+      use: {
+        ...devices["Pixel 5 landscape"],
+        launchOptions: {
+          args: browserArgs,
+        },
+      },
+    },
+
     // {
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
