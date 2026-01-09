@@ -107,10 +107,6 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      - name: Check for consecutive duplicate screenshots
-        if: ${{ !cancelled() }}
-        run: npm run e2e:check-dup
-
       - name: Deploy Playwright report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         if: always()
@@ -118,14 +114,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./playwright-report
           destination_dir: playwright-report/${{ github.run_number }}
-
-      - name: Publish Playwright results
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: Playwright Results
-          path: playwright-report/results.xml
-          reporter: java-junit
 
       - name: Create Playwright Report check
         if: always()
@@ -137,3 +125,7 @@ jobs:
           details_url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/
           output: |
             {"title":"${{ steps.e2e.outcome == 'success' && 'Tests passed' || 'Tests failed' }}","summary":"📊 **[View Full Playwright Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/)**"}
+
+      - name: Check for consecutive duplicate screenshots
+        if: ${{ !cancelled() }}
+        run: npm run e2e:check-dup
