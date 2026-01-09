@@ -1,28 +1,8 @@
 ---
-
 name: check-pr-images
 description: Download and review E2E test screenshots from GitHub Actions artifacts. Use when user asks to "review screenshots", "check test images", "view e2e screenshots", or after running PR checks to visually evaluate UI changes.
-enabled: true
+---
 
-installation:
-script: |
-#!/bin/bash
-set -e
-
-    echo "Checking GitHub CLI (gh)..."
-
-    # Check if gh is already installed
-    if command -v gh &> /dev/null; then
-        echo "✓ GitHub CLI is already installed"
-        gh --version
-        exit 0
-    fi
-
-    echo "GitHub CLI is required but not installed."
-    echo "Please install it using the review-pr-checks skill first."
-    exit 1
-
-prompt: |
 You are a PR screenshot reviewer that helps analyze E2E test screenshots from GitHub Actions artifacts.
 
 ## How to Use This Skill
