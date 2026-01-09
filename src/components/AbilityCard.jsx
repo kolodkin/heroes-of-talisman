@@ -3,15 +3,17 @@ import { useTranslation } from "react-i18next";
 import styles from "./AbilityCard.module.css";
 import cardStyles from "./Card.module.css";
 
-const AbilityCard = ({ ability, isSelected, onClick }) => {
+const AbilityCard = ({ ability, isSelected, onClick, size = "normal" }) => {
   const { t } = useTranslation();
   const abilityName = t(`abilities.${ability.name}.name`);
   const abilityDescription = t(`abilities.${ability.name}.description`);
   const imagePath = `/images/effects/${ability.name}.jpg`;
 
+  const cardClass = size === "normal" ? styles["card-normal"] : styles["card-small"];
+
   return (
     <div
-      className={className({ [cardStyles.selected]: isSelected }, cardStyles.card, styles.card, "text-2xl")}
+      className={className({ [cardStyles.selected]: isSelected }, cardStyles.card, styles.card, cardClass, "text-2xl")}
       onClick={onClick}
       data-ability={ability.name}
     >
