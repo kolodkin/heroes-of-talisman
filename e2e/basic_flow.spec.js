@@ -161,7 +161,6 @@ async function testOpponentSelection(page, page2) {
   await expect(opponentDiv.locator('[data-character="knight"]')).toBeVisible();
   await expect(opponentDiv.locator('[data-character="archer"]')).toBeVisible();
   await expect(opponentDiv.locator('[data-character="mage"]')).toBeVisible();
-  await screenshot(page, "opponent-selection-stage");
 
   // Test that non-active player (player2) cannot interact with SharedArea
   const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
