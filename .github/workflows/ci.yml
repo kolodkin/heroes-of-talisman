@@ -134,11 +134,13 @@ jobs:
           script: |
             const reportUrl = `https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/`;
             const passed = '${{ steps.e2e.outcome }}' === 'success';
+            // Use PR head SHA for pull requests, otherwise use the regular SHA
+            const sha = '${{ github.event.pull_request.head.sha || github.sha }}';
             await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               name: 'Playwright Report',
-              head_sha: context.sha,
+              head_sha: sha,
               status: 'completed',
               conclusion: passed ? 'success' : 'failure',
               details_url: reportUrl,
