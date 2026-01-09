@@ -60,7 +60,6 @@ jobs:
     permissions:
       contents: write
       checks: write
-      pull-requests: write
     services:
       postgres:
         image: postgres:17.5
@@ -98,6 +97,7 @@ jobs:
         run: ./scripts/setup --no-docker
 
       - name: Run Playwright tests
+        id: e2e
         run: npm run e2e
 
       - uses: actions/upload-artifact@v4
@@ -127,41 +127,23 @@ jobs:
           path: playwright-report/results.xml
           reporter: java-junit
 
-      - name: Add Playwright report link to summary
+      - name: Create Playwright Report check
         if: always()
-        run: |
-          echo "## 🎭 Playwright Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📊 [View Playwright Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/)" >> $GITHUB_STEP_SUMMARY
-
-      - name: Comment Playwright report link on PR
-        if: always() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
             const reportUrl = `https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/`;
-            const marker = '<!-- playwright-report-comment -->';
-            const body = `${marker}\n## 🎭 Playwright Report\n\n📊 [View Full Report](${reportUrl})`;
-
-            const { data: comments } = await github.rest.issues.listComments({
+            const passed = '${{ steps.e2e.outcome }}' === 'success';
+            await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number
+              name: 'Playwright Report',
+              head_sha: context.sha,
+              status: 'completed',
+              conclusion: passed ? 'success' : 'failure',
+              details_url: reportUrl,
+              output: {
+                title: passed ? 'Tests passed' : 'Tests failed',
+                summary: `Click **Details** to view the full Playwright report.`
+              }
             });
-            const existing = comments.find(c => c.body.includes(marker));
-
-            if (existing) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body
-              });
-            }
