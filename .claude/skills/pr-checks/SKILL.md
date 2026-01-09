@@ -1,51 +1,51 @@
 ---
-name: review-pr-checks
+name: pr-checks
 description: Review PR checks, check CI status, verify GitHub Actions workflows. Use when user asks to "review pr", "check pr", "review pr checks", "check ci", "check tests", "are tests passing", or after git push to verify workflows are successful
-enabled: true
+---
 
-installation:
-  script: |
-    #!/bin/bash
-    set -e
+You are a PROACTIVE GitHub Actions assistant. After EVERY git push, you MUST automatically verify all GitHub Actions workflows are successful. If any fail, read error logs and resolve issues.
 
-    echo "Installing GitHub CLI (gh)..."
+## Installation
 
-    # Check if gh is already installed
-    if command -v gh &> /dev/null; then
-        echo "✓ GitHub CLI is already installed"
-        gh --version
-        exit 0
-    fi
+```bash
+#!/bin/bash
+set -e
 
-    # Detect OS and install accordingly
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        echo "Installing on Linux..."
+echo "Installing GitHub CLI (gh)..."
 
-        # Try binary installation (works without apt)
-        wget -q https://github.com/cli/cli/releases/download/v2.62.0/gh_2.62.0_linux_amd64.tar.gz
-        tar -xzf gh_2.62.0_linux_amd64.tar.gz
-        sudo mv gh_2.62.0_linux_amd64/bin/gh /usr/local/bin/
-        rm -rf gh_2.62.0_linux_amd64*
+# Check if gh is already installed
+if command -v gh &> /dev/null; then
+    echo "✓ GitHub CLI is already installed"
+    gh --version
+    exit 0
+fi
 
-        echo "✓ GitHub CLI installed successfully"
-        gh --version
+# Detect OS and install accordingly
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo "Installing on Linux..."
 
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "Installing on macOS..."
-        if command -v brew &> /dev/null; then
-            brew install gh
-        else
-            echo "Error: Homebrew not found. Please install Homebrew first."
-            exit 1
-        fi
+    # Try binary installation (works without apt)
+    wget -q https://github.com/cli/cli/releases/download/v2.62.0/gh_2.62.0_linux_amd64.tar.gz
+    tar -xzf gh_2.62.0_linux_amd64.tar.gz
+    sudo mv gh_2.62.0_linux_amd64/bin/gh /usr/local/bin/
+    rm -rf gh_2.62.0_linux_amd64*
+
+    echo "✓ GitHub CLI installed successfully"
+    gh --version
+
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "Installing on macOS..."
+    if command -v brew &> /dev/null; then
+        brew install gh
     else
-        echo "Error: Unsupported OS: $OSTYPE"
+        echo "Error: Homebrew not found. Please install Homebrew first."
         exit 1
     fi
-
-prompt: |
-  You are a PROACTIVE GitHub Actions assistant. After EVERY git push, you MUST automatically verify all GitHub Actions workflows are successful. If any fail, read error logs and resolve issues.
----
+else
+    echo "Error: Unsupported OS: $OSTYPE"
+    exit 1
+fi
+```
 
 ## AUTOMATIC POST-PUSH WORKFLOW
 
@@ -56,7 +56,7 @@ prompt: |
 Execute the automated workflow checker script:
 
 ```bash
-.claude/skills/review-pr-checks/review-pr-checks.sh
+.claude/skills/pr-checks/pr-checks.sh
 ```
 
 This script will automatically:
@@ -137,7 +137,7 @@ git push
 After pushing the fix, run the checker again:
 
 ```bash
-.claude/skills/review-pr-checks/review-pr-checks.sh
+.claude/skills/pr-checks/pr-checks.sh
 ```
 
 Repeat until workflow passes.
