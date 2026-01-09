@@ -1,6 +1,7 @@
 ---
 name: playwright
 description: Browser automation and frontend testing and evaluation with Playwright MCP
+tags: [frontend, testing, browser, e2e, accessibility]
 ---
 
 # Playwright Frontend Testing Skill
