@@ -22,7 +22,7 @@ export const SharedAreaContent = ({
 }) => {
   return (
     <div className={styles.container}>
-      {/* Left side: Fixed action button */}
+      {/* Action button (positioned at end: right in LTR, left in RTL) */}
       <div className={styles.actionButtonContainer}>
         {onActionClick && actionButtonContent && (
           <button
@@ -37,12 +37,9 @@ export const SharedAreaContent = ({
         )}
       </div>
 
-      {/* Right side: Title and scrollable content */}
+      {/* Content area: Title and scrollable content (positioned at start) */}
       <div className={styles.rightSide}>
-        {/* Title section */}
         {title && <div className={styles.title}>{title}</div>}
-
-        {/* Scrollable content section */}
         <div className={styles.content} data-shared-content>
           {content}
         </div>
