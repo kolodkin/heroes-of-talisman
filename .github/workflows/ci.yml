@@ -59,6 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      checks: write
     services:
       postgres:
         image: postgres:17.5
@@ -96,6 +97,7 @@ jobs:
         run: ./scripts/setup --no-docker
 
       - name: Run Playwright tests
+        id: e2e
         run: npm run e2e
 
       - uses: actions/upload-artifact@v4
@@ -105,10 +107,6 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      - name: Check for consecutive duplicate screenshots
-        if: ${{ !cancelled() }}
-        run: npm run e2e:check-dup
-
       - name: Deploy Playwright report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         if: always()
@@ -117,9 +115,17 @@ jobs:
           publish_dir: ./playwright-report
           destination_dir: playwright-report/${{ github.run_number }}
 
-      - name: Add Playwright report link to summary
+      - name: Create Playwright Report check
         if: always()
-        run: |
-          echo "## 🎭 Playwright Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📊 [View Playwright Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/)" >> $GITHUB_STEP_SUMMARY
+        uses: LouisBrunner/checks-action@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Playwright Report
+          conclusion: ${{ steps.e2e.outcome }}
+          details_url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/
+          output: |
+            {"title":"${{ steps.e2e.outcome == 'success' && 'Tests passed' || 'Tests failed' }}","summary":"📊 **[View Full Playwright Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/)**"}
+
+      - name: Check for consecutive duplicate screenshots
+        if: ${{ !cancelled() }}
+        run: npm run e2e:check-dup
