@@ -83,7 +83,6 @@ test("battle stage - player 1 wins", async ({ page, gameName }) => {
   const continueButton = page.locator("[data-continue-button]");
   await expect(continueButton).toBeVisible();
   await continueButton.click();
-  await screenshot(page, "after-continue-click");
 
   // Cleanup
   await page2.close();

@@ -15,10 +15,9 @@ import className from "classnames";
 import { useTranslation } from "react-i18next";
 import { notify } from "../../utils/notify";
 import { useScrollAlignment } from "../../hooks/useScrollAlignment";
+import { SharedAreaContent } from "./SharedAreaContent";
 
 import styles from "./StageOpponentSelection.module.css";
-import submitButtonStyles from "./StageSubmitButton.module.css";
-import commonStyles from "../Common.module.css";
 import Opponent from "./Opponent";
 
 const StageOpponentSelection = ({ players, activePlayer, sendAction, active, selectedOpponent = null }) => {
@@ -46,37 +45,31 @@ const StageOpponentSelection = ({ players, activePlayer, sendAction, active, sel
   };
 
   // Filter out active player (whose turn it is)
-  const opponents = Object.entries(players).filter(([name, _]) => name !== activePlayer);
+  const opponents = Object.entries(players).filter(([name]) => name !== activePlayer);
+
+  const content = (
+    <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
+      <div ref={containerRef} className={styles["opponents-container"]}>
+        {opponents.map(([playerName, player]) => (
+          <Opponent
+            key={playerName}
+            playerName={playerName}
+            player={player}
+            selectedOpponent={selectedOpponent}
+            onCharacterClick={handleCharacterClick}
+          />
+        ))}
+      </div>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col items-center space-y-3 self-stretch">
-      <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
-        <div ref={containerRef} className={styles["opponents-container"]}>
-          {opponents.map(([playerName, player]) => (
-            <Opponent
-              key={playerName}
-              playerName={playerName}
-              player={player}
-              selectedOpponent={selectedOpponent}
-              onCharacterClick={handleCharacterClick}
-            />
-          ))}
-        </div>
-      </div>
-
-      <button
-        className={className(
-          commonStyles.gamebtn,
-          commonStyles.submitButton,
-          submitButtonStyles["submit-button"],
-          "text-2xl",
-        )}
-        onClick={handleSubmit}
-        data-action-button
-      >
-        <p>{t("character_select.submit")}</p>
-      </button>
-    </div>
+    <SharedAreaContent
+      content={content}
+      onActionClick={handleSubmit}
+      actionButtonContent={t("character_select.submit")}
+      actionButtonDisabled={!active}
+    />
   );
 };
 

@@ -13,8 +13,8 @@ import className from "classnames";
 import { useTranslation } from "react-i18next";
 import { notify } from "../../utils/notify";
 import { useScrollAlignment } from "../../hooks/useScrollAlignment";
+import { SharedAreaContent } from "./SharedAreaContent";
 
-import submitButtonStyles from "./StageSubmitButton.module.css";
 import commonStyles from "../Common.module.css";
 import AbilityCard from "../AbilityCard";
 
@@ -42,33 +42,28 @@ const StageAbilitySelection = ({ abilities, sendAction, active, selectedAbility 
     }
   };
 
-  return (
-    <div className="flex flex-col items-center space-y-3 self-stretch">
-      <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
-        <div ref={containerRef} className={className(commonStyles.cardsContainer, "mb-8")}>
-          {abilities.map((ability) => (
-            <AbilityCard
-              key={ability.name}
-              ability={ability}
-              isSelected={ability.name === selectedAbility}
-              onClick={() => handleAbilityClick(ability.name)}
-            />
-          ))}
-        </div>
+  const content = (
+    <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
+      <div ref={containerRef} className={className(commonStyles.cardsContainer, "mb-8")}>
+        {abilities.map((ability) => (
+          <AbilityCard
+            key={ability.name}
+            ability={ability}
+            isSelected={ability.name === selectedAbility}
+            onClick={() => handleAbilityClick(ability.name)}
+          />
+        ))}
       </div>
-      <button
-        className={className(
-          commonStyles.gamebtn,
-          commonStyles.submitButton,
-          submitButtonStyles["submit-button"],
-          "text-2xl",
-        )}
-        onClick={handleSubmit}
-        data-action-button
-      >
-        <p>{t("ability_selection.submit")}</p>
-      </button>
     </div>
+  );
+
+  return (
+    <SharedAreaContent
+      content={content}
+      onActionClick={handleSubmit}
+      actionButtonContent={t("ability_selection.submit")}
+      actionButtonDisabled={!active}
+    />
   );
 };
 
