@@ -77,25 +77,47 @@ else
 fi
 
 echo ""
-echo "🔄 Extracting screenshots..."
+echo "🔄 Extracting and organizing screenshots..."
 
-# The .dat files in the data/ directory are actually PNG files
-# Just copy them and rename them to .png
 SCREENSHOTS_DIR="$REPORT_DIR/screenshots"
-mkdir -p "$SCREENSHOTS_DIR"
+ORGANIZE_SCRIPT="$ORIGINAL_DIR/.claude/skills/check-pr-images/organize-screenshots-direct.js"
 
-screenshot_count=0
-if [ -d "$TMP_DIR/data" ]; then
-    for dat_file in "$TMP_DIR/data"/*.dat; do
-        if [ -f "$dat_file" ]; then
-            filename=$(basename "$dat_file" .dat)
-            cp "$dat_file" "$SCREENSHOTS_DIR/${filename}.png"
-            screenshot_count=$((screenshot_count + 1))
-        fi
-    done
-    echo "  ✓ Extracted $screenshot_count screenshots"
+# Try to organize screenshots by test name using results.json
+if [ -n "$RESULTS_JSON" ] && [ -f "$ORGANIZE_SCRIPT" ] && [ -d "$TMP_DIR/data" ]; then
+    echo "📊 Organizing screenshots into test_filename/test_name/ directories..."
+    if node "$ORGANIZE_SCRIPT" "$RESULTS_JSON" "$TMP_DIR/data" "$SCREENSHOTS_DIR" 2>/dev/null; then
+        echo "✅ Screenshots organized by test name"
+    else
+        echo "⚠️  Organization failed, falling back to hash-based extraction"
+        # Fallback to simple extraction
+        mkdir -p "$SCREENSHOTS_DIR"
+        screenshot_count=0
+        for dat_file in "$TMP_DIR/data"/*.dat; do
+            if [ -f "$dat_file" ]; then
+                filename=$(basename "$dat_file" .dat)
+                cp "$dat_file" "$SCREENSHOTS_DIR/${filename}.png"
+                screenshot_count=$((screenshot_count + 1))
+            fi
+        done
+        echo "  ✓ Extracted $screenshot_count screenshots"
+    fi
 else
-    echo "  ⚠️  Warning: No data directory found"
+    # Fallback: simple extraction with hash names
+    echo "  Using hash-based extraction..."
+    mkdir -p "$SCREENSHOTS_DIR"
+    screenshot_count=0
+    if [ -d "$TMP_DIR/data" ]; then
+        for dat_file in "$TMP_DIR/data"/*.dat; do
+            if [ -f "$dat_file" ]; then
+                filename=$(basename "$dat_file" .dat)
+                cp "$dat_file" "$SCREENSHOTS_DIR/${filename}.png"
+                screenshot_count=$((screenshot_count + 1))
+            fi
+        done
+        echo "  ✓ Extracted $screenshot_count screenshots"
+    else
+        echo "  ⚠️  Warning: No data directory found"
+    fi
 fi
 
 echo ""
