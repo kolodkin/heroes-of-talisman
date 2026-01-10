@@ -16,6 +16,11 @@ const resources = {
       shared_area: {
         player_minimum: "צריך לפחות שני שחקנים במשחק כדי שניתן יהיה להתחיל את המשחק",
       },
+      status_indicator: {
+        your_turn: "תורך",
+        player_playing: "{{player}} משחק...",
+        roll_dice: "גלגל את הקובייה",
+      },
       players_menu: {
         title: "שחקנים",
       },

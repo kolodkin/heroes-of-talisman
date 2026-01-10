@@ -1,4 +1,5 @@
 .container {
+  position: relative; /* For absolute positioned status indicator */
   display: flex;
   flex-direction: row-reverse; /* Button at end: right in LTR, left in RTL */
   width: 100%;

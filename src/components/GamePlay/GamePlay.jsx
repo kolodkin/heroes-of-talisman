@@ -72,6 +72,26 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
     setIsPlayersMinimized((prev) => !prev);
   };
 
+  // Determine status indicator for SharedArea overlay
+  const getStatusIndicator = () => {
+    const isActivePlayer = gamePlay?.active?.player === username;
+    const isOpponentRoll =
+      gamePlay?.stage === BATTLE_DICE_ROLL && gamePlay?.opponent?.player === username && !gamePlay?.opponent?.dice_roll;
+
+    if (isActivePlayer) {
+      return { status: "your_turn", playerName: null };
+    } else if (isOpponentRoll) {
+      return { status: "roll_dice", playerName: null };
+    } else {
+      return {
+        status: "opponent_playing",
+        playerName: gamePlay?.active?.player,
+      };
+    }
+  };
+
+  const statusIndicator = getStatusIndicator();
+
   return (
     <div className={styles["game-play"]} data-game-stage={gamePlay.stage}>
       <div className={styles["portrait-overlay"]}>
@@ -131,6 +151,8 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     selectedCharacter={gamePlay.stage_meta?.selected}
+                    statusIndicator={statusIndicator.status}
+                    statusPlayerName={statusIndicator.playerName}
                   />
                 );
               case ABILITY_SELECTION:
@@ -141,6 +163,8 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     selectedAbility={gamePlay.stage_meta?.selected}
+                    statusIndicator={statusIndicator.status}
+                    statusPlayerName={statusIndicator.playerName}
                   />
                 );
               case ABILITY_OPPONENT_SELECTION:
@@ -151,6 +175,8 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     selectedOpponent={gamePlay.stage_meta}
+                    statusIndicator={statusIndicator.status}
+                    statusPlayerName={statusIndicator.playerName}
                   />
                 );
               case OPPONENT_SELECTION:
@@ -161,6 +187,8 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     selectedOpponent={gamePlay.stage_meta}
+                    statusIndicator={statusIndicator.status}
+                    statusPlayerName={statusIndicator.playerName}
                   />
                 );
               case BATTLE_DICE_ROLL:
@@ -171,6 +199,8 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     currentUser={username}
+                    statusIndicator={statusIndicator.status}
+                    statusPlayerName={statusIndicator.playerName}
                   />
                 );
               default:

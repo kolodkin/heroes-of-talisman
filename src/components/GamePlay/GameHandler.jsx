@@ -114,12 +114,6 @@ const GameHandler = () => {
     return <div>Loading...</div>;
   }
 
-  // Determine if current user should have highlighted navbar
-  const isActivePlayer = gamePlay?.active?.player === username;
-  const isOpponentRoll =
-    gamePlay?.stage === BATTLE_DICE_ROLL && gamePlay?.opponent?.player === username && !gamePlay?.opponent?.dice_roll; // Opponent hasn't rolled yet
-  const isPlaying = isActivePlayer || isOpponentRoll;
-
   const disconnectedOverlay = !connected ? (
     <div className={styles.disconnected}>
       <p>{t("disconnected")}</p>
@@ -128,7 +122,7 @@ const GameHandler = () => {
 
   return (
     <div className={styles["game-handler"]} style={{ direction: t("direction") }}>
-      <Navbar stage={gamePlay?.stage} playing={gamePlay?.active?.player} isPlaying={isPlaying} />
+      <Navbar stage={gamePlay?.stage} playing={gamePlay?.active?.player} />
       <GamePlay username={username} gamePlay={gamePlay} sendAction={sendAction} />
       {disconnectedOverlay}
     </div>

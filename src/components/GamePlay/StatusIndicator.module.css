@@ -1,0 +1,55 @@
+.statusIndicator {
+  position: absolute;
+  top: 1rem;
+  /* Position at start: left in LTR, right in RTL */
+  inset-inline-start: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Your turn - green/positive */
+.yourTurn {
+  background-color: #10b981;
+  color: #ffffff;
+  border: 2px solid #059669;
+}
+
+/* Opponent playing - blue/neutral */
+.opponentPlaying {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: 2px solid #2563eb;
+}
+
+/* Roll dice - amber/action required */
+.rollDice {
+  background-color: #f59e0b;
+  color: #ffffff;
+  border: 2px solid #d97706;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .statusIndicator {
+    top: 0.5rem;
+    inset-inline-start: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+  }
+}

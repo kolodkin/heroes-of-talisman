@@ -18,7 +18,14 @@ import { SharedAreaContent } from "./SharedAreaContent";
 import commonStyles from "../Common.module.css";
 import CharacterCard from "../CharacterCard";
 
-const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacter = null }) => {
+const StageCharacterSelect = ({
+  characters,
+  sendAction,
+  active,
+  selectedCharacter = null,
+  statusIndicator,
+  statusPlayerName,
+}) => {
   const { t } = useTranslation();
   const { containerRef, hasScroll } = useScrollAlignment();
 
@@ -65,6 +72,8 @@ const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacte
       onActionClick={handleSubmit}
       actionButtonContent={t("character_select.submit")}
       actionButtonDisabled={!active}
+      statusIndicator={statusIndicator}
+      statusPlayerName={statusPlayerName}
     />
   );
 };
