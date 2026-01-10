@@ -180,6 +180,8 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# Vite stuff
+.vite/
 
 # Logs
 logs
