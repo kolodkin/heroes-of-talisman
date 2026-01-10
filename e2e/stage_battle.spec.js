@@ -161,8 +161,6 @@ test("battle stage - draw with reroll", async ({ page, gameName }) => {
   const rerollButton = page.locator("[data-reroll-button]");
   await expect(rerollButton).toBeVisible();
 
-  await screenshot(page, "draw-before-reroll");
-
   // Verify continue button does NOT appear
   const continueButton = page.locator("[data-continue-button]");
   await expect(continueButton).not.toBeVisible();
