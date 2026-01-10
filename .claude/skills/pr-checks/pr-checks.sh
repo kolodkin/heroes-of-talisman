@@ -30,8 +30,20 @@ install_gh() {
         echo "Installing on Linux..."
         wget -q https://github.com/cli/cli/releases/download/v2.62.0/gh_2.62.0_linux_amd64.tar.gz
         tar -xzf gh_2.62.0_linux_amd64.tar.gz
-        sudo mv gh_2.62.0_linux_amd64/bin/gh /usr/local/bin/
-        rm -rf gh_2.62.0_linux_amd64*
+
+        # Try to install to /usr/local/bin with sudo, fallback to local install
+        if sudo -n true 2>/dev/null; then
+            sudo mv gh_2.62.0_linux_amd64/bin/gh /usr/local/bin/
+            rm -rf gh_2.62.0_linux_amd64*
+        else
+            # Install to user's local bin directory
+            mkdir -p ~/.local/bin
+            mv gh_2.62.0_linux_amd64/bin/gh ~/.local/bin/
+            rm -rf gh_2.62.0_linux_amd64*
+            export PATH="$HOME/.local/bin:$PATH"
+            echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.bashrc 2>/dev/null || true
+        fi
+
         echo -e "${GREEN}✓ GitHub CLI installed successfully${NC}"
         gh --version
 
