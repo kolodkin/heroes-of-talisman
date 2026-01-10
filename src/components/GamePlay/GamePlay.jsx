@@ -79,9 +79,9 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
       gamePlay?.stage === BATTLE_DICE_ROLL && gamePlay?.opponent?.player === username && !gamePlay?.opponent?.dice_roll;
 
     if (isActivePlayer) {
-      return { status: "your_turn", playerName: null };
+      return { status: "your_turn" };
     } else if (isOpponentRoll) {
-      return { status: "roll_dice", playerName: null };
+      return { status: "roll_dice" };
     } else {
       return {
         status: "opponent_playing",
