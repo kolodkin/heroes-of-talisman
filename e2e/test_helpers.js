@@ -56,6 +56,30 @@ export async function joinGame(page, playerName, gameName) {
   await expect(page).toHaveURL(new RegExp(`/games/${encodeURIComponent(gameName)}/`));
   const connectedText = await connectedLog.args()[2].jsonValue();
   await test.info().attach(`${playerName}-connection-message`, { body: connectedText, contentType: "text/plain" });
+
+  // Dismiss connection toast to keep screenshots clean
+  await dismissConnectionToast(page);
+}
+
+/**
+ * Dismiss the connection toast notification
+ * Waits for the toast to appear and clicks the close button
+ * @param {Page} page - Playwright page object
+ */
+export async function dismissConnectionToast(page) {
+  try {
+    // Wait for the toast to appear
+    const toast = await page.waitForSelector(".Toastify__toast", { timeout: 1000, state: "visible" });
+    // Click the close button (× button)
+    const closeButton = await toast.locator(".Toastify__close-button");
+    if (await closeButton.isVisible()) {
+      await closeButton.click();
+      // Wait for toast to disappear
+      await page.waitForSelector(".Toastify__toast", { state: "hidden", timeout: 1000 });
+    }
+  } catch (error) {
+    // Toast might auto-dismiss or not exist - that's fine
+  }
 }
 
 /**
@@ -66,6 +90,9 @@ export async function joinGame(page, playerName, gameName) {
 export async function joinGameViaUrl(page, playerName, gameName, waitForSelector = "[data-battle-participant]") {
   await page.goto(`/games/${encodeURIComponent(gameName)}/${encodeURIComponent(playerName)}`);
   await page.waitForSelector(waitForSelector, { timeout: 5000 });
+
+  // Dismiss connection toast to keep screenshots clean
+  await dismissConnectionToast(page);
 }
 
 /**
