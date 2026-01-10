@@ -107,24 +107,16 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      - name: Deploy Playwright report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        if: always()
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./playwright-report
-          destination_dir: playwright-report/${{ github.run_number }}
-
-      - name: Create Playwright Report check
-        if: always()
-        uses: LouisBrunner/checks-action@v2.0.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: Playwright Report
-          conclusion: ${{ steps.e2e.outcome }}
-          details_url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/
-          output: |
-            {"title":"${{ steps.e2e.outcome == 'success' && 'Tests passed' || 'Tests failed' }}","summary":"📊 **[View Full Playwright Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/)**"}
+      # - name: Create Playwright Report check
+      #   if: always()
+      #   uses: LouisBrunner/checks-action@v2.0.0
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     name: Playwright Report
+      #     conclusion: ${{ steps.e2e.outcome }}
+      #     details_url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/
+      #     output: |
+      #       {"title":"${{ steps.e2e.outcome == 'success' && 'Tests passed' || 'Tests failed' }}","summary":"📊 **[View Full Playwright Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/)**"}
 
       - name: Check for consecutive duplicate screenshots
         if: ${{ !cancelled() }}
