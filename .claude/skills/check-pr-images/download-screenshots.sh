@@ -6,7 +6,7 @@ set -e
 # If run-id is not provided, it will auto-detect the latest run from the current branch
 
 # Auto-detect repository from git remote
-REPO=$(git config --get remote.origin.url | sed -E 's|^(https://github.com/\|git@github.com:)||' | sed 's|\.git$||')
+REPO=$(git config --get remote.origin.url | sed -E 's|^.*github\.com[:/]||; s|^.*\.com/git/||; s|^.*/git/||; s|\.git$||')
 
 if [ -z "$REPO" ]; then
     echo "❌ Error: Could not determine repository from git remote"
