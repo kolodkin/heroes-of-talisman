@@ -107,16 +107,26 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      # - name: Create Playwright Report check
-      #   if: always()
-      #   uses: LouisBrunner/checks-action@v2.0.0
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     name: Playwright Report
-      #     conclusion: ${{ steps.e2e.outcome }}
-      #     details_url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/
-      #     output: |
-      #       {"title":"${{ steps.e2e.outcome == 'success' && 'Tests passed' || 'Tests failed' }}","summary":"📊 **[View Full Playwright Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/)**"}
+      - name: Deploy Playwright Report
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.DEPLOY_KEY }}
+          external_repository: kolodkin/artifact-view
+          publish_dir: ./playwright-report
+          destination_dir: heroes-of-talisman/playwright-report/${{ github.run_number }}
+          publish_branch: gh-pages
+          force_orphan: true
+
+      - name: Create Playwright Report check
+        if: always()
+        uses: LouisBrunner/checks-action@v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Playwright Report
+          conclusion: ${{ steps.e2e.outcome }}
+          details_url: https://${{ github.repository_owner }}.github.io/artifact-view/heroes-of-talisman/playwright-report/${{ github.run_number }}
+          output: |
+            {"title":"${{ steps.e2e.outcome == 'success' && 'Tests passed' || 'Tests failed' }}","summary":"📊 **[View Full Playwright Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/playwright-report/${{ github.run_number }}/)**"}
 
       - name: Check for consecutive duplicate screenshots
         if: ${{ !cancelled() }}
