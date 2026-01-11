@@ -57,6 +57,7 @@ jobs:
   test-e2e:
     # timeout-minutes: 60
     runs-on: ubuntu-latest
+    environment: CICD
     permissions:
       contents: write
       checks: write
