@@ -113,7 +113,6 @@ test("battle stage - player 2 wins", async ({ page, gameName }) => {
 
   // Verify winner badge is shown for player 2 (waits for animation to complete)
   await verifyWinner(page, "opponent");
-  await screenshot(page, "player2-wins");
 
   // Verify continue button appears and click it
   const continueButton = page.locator("[data-continue-button]");
@@ -161,8 +160,6 @@ test("battle stage - draw with reroll", async ({ page, gameName }) => {
   // Verify reroll button appears
   const rerollButton = page.locator("[data-reroll-button]");
   await expect(rerollButton).toBeVisible();
-
-  await screenshot(page, "draw-before-reroll");
 
   // Verify continue button does NOT appear
   const continueButton = page.locator("[data-continue-button]");
