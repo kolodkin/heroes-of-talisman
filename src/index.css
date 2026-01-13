@@ -1,55 +1,63 @@
 @import "tailwindcss";
 
 :root {
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
 
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
 
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Color variables */
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: rgba(255, 255, 255, 0.87);
+  --color-bg-primary: #1a1a1a;
+  --color-bg-secondary: #242424;
+  --color-bg-overlay: rgba(255, 255, 255, 0.1);
+  --color-border-primary: #333;
+  --color-border-secondary: #4a5568;
+  --color-border-light: rgba(255, 255, 255, 0.2);
 }
 
 #root {
-    margin: 0 auto;
-    padding: 0;
-    text-align: center;
+  margin: 0 auto;
+  padding: 0;
+  text-align: center;
 }
 
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
-
 a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
 }
 
 a:hover {
-    color: #535bf2;
+  color: #535bf2;
 }
 
-
 body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    place-items: center;
-    min-width: 320px;
-    min-height: 100vh;
-    background-color: #1f1d1d;
-    color: #ffffff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #1f1d1d;
+  color: #ffffff;
 }
 
 .no-cursor-blink {
-    user-select: none;
-    outline: none;
-    cursor: default;
+  user-select: none;
+  outline: none;
+  cursor: default;
 }
