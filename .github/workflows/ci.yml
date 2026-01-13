@@ -109,8 +109,20 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      - name: Check if Playwright report exists
+        id: check-report
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -d "playwright-report" ] && [ "$(ls -A playwright-report)" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Playwright report directory exists and is not empty"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️  Playwright report directory does not exist or is empty"
+          fi
+
       - name: Deploy Playwright Report
-        if: always()
+        if: steps.check-report.outputs.exists == 'true'
         uses: peaceiris/actions-gh-pages@v4
         with:
           deploy_key: ${{ secrets.DEPLOY_KEY }}
