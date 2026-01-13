@@ -110,7 +110,7 @@ jobs:
           retention-days: 30
 
       - name: Deploy Playwright Report
-        if: ${{ !cancelled() }}
+        if: always()
         uses: peaceiris/actions-gh-pages@v4
         with:
           deploy_key: ${{ secrets.DEPLOY_KEY }}
