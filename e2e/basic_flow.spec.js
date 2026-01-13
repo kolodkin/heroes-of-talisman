@@ -27,7 +27,7 @@ async function createTestGame(page, gameName) {
 }
 
 async function validateStatusIndicator(page, expectedStatus, expectedPlayerName = null) {
-  const statusIndicator = page.locator("[data-status]");
+  const statusIndicator = page.locator("[data-status][data-player-name]");
   await expect(statusIndicator).toBeVisible();
   await expect(statusIndicator).toHaveAttribute("data-status", expectedStatus);
 
