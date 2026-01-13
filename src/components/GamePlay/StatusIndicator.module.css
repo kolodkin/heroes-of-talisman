@@ -45,7 +45,7 @@
   .statusIndicator {
     top: 0.5rem;
     inset-inline-start: 0.5rem;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.625rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.5rem;
   }
 }
