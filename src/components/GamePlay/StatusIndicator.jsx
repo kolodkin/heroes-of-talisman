@@ -44,5 +44,13 @@ export const StatusIndicator = ({ status, playerName }) => {
     return null;
   }
 
-  return <div className={`${styles.statusIndicator} ${statusContent.className}`}>{statusContent.text}</div>;
+  return (
+    <div
+      className={`${styles.statusIndicator} ${statusContent.className}`}
+      data-status={status}
+      data-player-name={playerName || ""}
+    >
+      {statusContent.text}
+    </div>
+  );
 };

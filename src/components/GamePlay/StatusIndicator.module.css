@@ -1,8 +1,8 @@
 .statusIndicator {
   position: absolute;
-  top: 1rem;
+  top: 0.5rem;
   /* Position at start: left in LTR, right in RTL */
-  inset-inline-start: 1rem;
+  inset-inline-start: 0.5rem;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -33,18 +33,18 @@
   border: 1px solid var(--color-border-light);
 }
 
-/* Your turn - inverse/emphasized colors */
+/* Your turn - inverse/emphasized colors with transparency */
 .yourTurn {
-  background-color: var(--color-text-primary);
+  background-color: rgba(226, 232, 240, 0.8);
   color: var(--color-bg-primary);
-  border: 1px solid var(--color-text-primary);
+  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .statusIndicator {
-    top: 0.5rem;
-    inset-inline-start: 0.5rem;
+    top: 0.25rem;
+    inset-inline-start: 0.25rem;
     padding: 0.25rem 0.5rem;
     font-size: 0.5rem;
   }

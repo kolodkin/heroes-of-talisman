@@ -26,6 +26,16 @@ async function createTestGame(page, gameName) {
   return testGame;
 }
 
+async function validateStatusIndicator(page, expectedStatus, expectedPlayerName = null) {
+  const statusIndicator = page.locator("[data-status]");
+  await expect(statusIndicator).toBeVisible();
+  await expect(statusIndicator).toHaveAttribute("data-status", expectedStatus);
+
+  if (expectedPlayerName) {
+    await expect(statusIndicator).toHaveAttribute("data-player-name", expectedPlayerName);
+  }
+}
+
 async function validatePlayerCharacters(page, playerName) {
   const playerDiv = page.locator(`[data-player="${playerName}"]`);
 
@@ -52,6 +62,12 @@ async function validatePlayerCharacters(page, playerName) {
 }
 
 async function testCharacterSelection(page, page2) {
+  // Validate status indicator shows "your turn" for player1
+  await validateStatusIndicator(page, "your_turn");
+
+  // Validate status indicator shows "opponent playing" for player2
+  await validateStatusIndicator(page2, "opponent_playing", "player");
+
   // Get the select button to locate the character selection area
   const selectButton = page.getByRole("button", { name: "בחר" });
   await expect(selectButton).toBeVisible();
@@ -216,6 +232,9 @@ async function testBattleStage(page, page2, gameName) {
   await screenshot(page, "battle-player-rolled");
 
   // Opponent (player2) rolls dice from their own page
+  // Validate status indicator shows "roll dice" for player2
+  await validateStatusIndicator(page2, "roll_dice");
+
   const player2RollButton = page2.locator('[data-battle-role="opponent"] [data-roll-button]');
   await player2RollButton.click();
 
