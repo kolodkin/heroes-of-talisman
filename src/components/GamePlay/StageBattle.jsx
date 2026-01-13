@@ -81,7 +81,7 @@ const BattleParticipant = ({
   );
 };
 
-const StageBattle = ({ gamePlay, sendAction, active, currentUser, statusIndicator, statusPlayerName }) => {
+const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const { t } = useTranslation();
   const [diceStoppedCount, setDiceStoppedCount] = useState(0);
 
@@ -227,8 +227,6 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser, statusIndicato
       actionButtonContent={actionButtonContent}
       actionButtonDisabled={!active}
       actionButtonDataAttrs={actionButtonDataAttrs}
-      statusIndicator={statusIndicator}
-      statusPlayerName={statusPlayerName}
     />
   );
 };

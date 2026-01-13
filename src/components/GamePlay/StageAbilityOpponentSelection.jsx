@@ -20,15 +20,7 @@ import { SharedAreaContent } from "./SharedAreaContent";
 import styles from "./StageOpponentSelection.module.css";
 import Opponent from "./Opponent";
 
-const StageAbilityOpponentSelection = ({
-  players,
-  activePlayer,
-  sendAction,
-  active,
-  selectedOpponent = null,
-  statusIndicator,
-  statusPlayerName,
-}) => {
+const StageAbilityOpponentSelection = ({ players, activePlayer, sendAction, active, selectedOpponent = null }) => {
   const { t } = useTranslation();
   const { containerRef, hasScroll } = useScrollAlignment();
 
@@ -77,8 +69,6 @@ const StageAbilityOpponentSelection = ({
       onActionClick={handleSubmit}
       actionButtonContent={t("ability_opponent_selection.submit")}
       actionButtonDisabled={!active}
-      statusIndicator={statusIndicator}
-      statusPlayerName={statusPlayerName}
     />
   );
 };

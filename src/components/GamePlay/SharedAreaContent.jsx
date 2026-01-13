@@ -1,6 +1,5 @@
 import React from "react";
 import styles from "./SharedAreaContent.module.css";
-import { StatusIndicator } from "./StatusIndicator";
 
 /**
  * SharedAreaContent component for consolidating all game stage views
@@ -12,8 +11,6 @@ import { StatusIndicator } from "./StatusIndicator";
  * @param {string|React.ReactNode} props.actionButtonContent - Text or JSX to display on the action button
  * @param {boolean} props.actionButtonDisabled - Whether the action button is disabled
  * @param {Object} props.actionButtonDataAttrs - Custom data attributes for the action button
- * @param {"your_turn" | "opponent_playing" | "roll_dice"} props.statusIndicator - The current game status
- * @param {string} props.statusPlayerName - The name of the player who is playing (for opponent_playing status)
  */
 export const SharedAreaContent = ({
   title,
@@ -22,14 +19,9 @@ export const SharedAreaContent = ({
   actionButtonContent,
   actionButtonDisabled = false,
   actionButtonDataAttrs = {},
-  statusIndicator,
-  statusPlayerName,
 }) => {
   return (
     <div className={styles.container}>
-      {/* Status indicator overlay */}
-      <StatusIndicator status={statusIndicator} playerName={statusPlayerName} />
-
       {/* Action button (positioned at end: right in LTR, left in RTL) */}
       <div className={styles.actionButtonContainer}>
         {onActionClick && actionButtonContent && (

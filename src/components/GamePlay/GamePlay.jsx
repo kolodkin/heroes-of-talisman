@@ -11,6 +11,7 @@ import StageAbilityOpponentSelection from "./StageAbilityOpponentSelection";
 import StageOpponentSelection from "./StageOpponentSelection";
 import StageBattle from "./StageBattle";
 import Player from "../Player";
+import { StatusIndicator } from "./StatusIndicator";
 import {
   CHARACTER_SELECT,
   ABILITY_SELECTION,
@@ -137,6 +138,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
             </div>
           </div>
         )}
+        <StatusIndicator status={statusIndicator.status} playerName={statusIndicator.playerName} />
         <div className={styles["shared-area-content"]}>
           <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
           {(() => {
@@ -151,8 +153,6 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     selectedCharacter={gamePlay.stage_meta?.selected}
-                    statusIndicator={statusIndicator.status}
-                    statusPlayerName={statusIndicator.playerName}
                   />
                 );
               case ABILITY_SELECTION:
@@ -163,8 +163,6 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     selectedAbility={gamePlay.stage_meta?.selected}
-                    statusIndicator={statusIndicator.status}
-                    statusPlayerName={statusIndicator.playerName}
                   />
                 );
               case ABILITY_OPPONENT_SELECTION:
@@ -175,8 +173,6 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     selectedOpponent={gamePlay.stage_meta}
-                    statusIndicator={statusIndicator.status}
-                    statusPlayerName={statusIndicator.playerName}
                   />
                 );
               case OPPONENT_SELECTION:
@@ -187,8 +183,6 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     selectedOpponent={gamePlay.stage_meta}
-                    statusIndicator={statusIndicator.status}
-                    statusPlayerName={statusIndicator.playerName}
                   />
                 );
               case BATTLE_DICE_ROLL:
@@ -199,8 +193,6 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     currentUser={username}
-                    statusIndicator={statusIndicator.status}
-                    statusPlayerName={statusIndicator.playerName}
                   />
                 );
               default:

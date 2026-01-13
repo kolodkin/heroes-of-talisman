@@ -18,14 +18,7 @@ import { SharedAreaContent } from "./SharedAreaContent";
 import commonStyles from "../Common.module.css";
 import AbilityCard from "../AbilityCard";
 
-const StageAbilitySelection = ({
-  abilities,
-  sendAction,
-  active,
-  selectedAbility = null,
-  statusIndicator,
-  statusPlayerName,
-}) => {
+const StageAbilitySelection = ({ abilities, sendAction, active, selectedAbility = null }) => {
   const { t } = useTranslation();
   const { containerRef, hasScroll } = useScrollAlignment();
 
@@ -70,8 +63,6 @@ const StageAbilitySelection = ({
       onActionClick={handleSubmit}
       actionButtonContent={t("ability_selection.submit")}
       actionButtonDisabled={!active}
-      statusIndicator={statusIndicator}
-      statusPlayerName={statusPlayerName}
     />
   );
 };
