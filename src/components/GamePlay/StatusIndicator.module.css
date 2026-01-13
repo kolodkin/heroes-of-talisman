@@ -25,25 +25,13 @@
   }
 }
 
-/* Your turn - gentle green */
-.yourTurn {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #059669;
-  border: 1px solid rgba(5, 150, 105, 0.3);
-}
-
-/* Opponent playing - gentle blue */
-.opponentPlaying {
-  background-color: rgba(59, 130, 246, 0.15);
-  color: #2563eb;
-  border: 1px solid rgba(37, 99, 235, 0.3);
-}
-
-/* Roll dice - gentle amber */
+/* All states use consistent white/black color scheme */
+.yourTurn,
+.opponentPlaying,
 .rollDice {
-  background-color: rgba(245, 158, 11, 0.15);
-  color: #d97706;
-  border: 1px solid rgba(217, 119, 6, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Mobile responsiveness */
