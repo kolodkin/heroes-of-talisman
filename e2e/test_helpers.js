@@ -72,10 +72,10 @@ export async function dismissConnectionToast(page) {
   const isVisible = await toastLocator.isVisible().catch(() => false);
 
   if (isVisible) {
-    // Click the close button (× button)
+    // Click the close button (× button) with force to avoid actionability issues
     const closeButton = toastLocator.locator(".Toastify__close-button");
     if (await closeButton.isVisible()) {
-      await closeButton.click();
+      await closeButton.click({ force: true, timeout: 1000 }).catch(() => {});
     }
   }
 }
