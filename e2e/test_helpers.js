@@ -76,8 +76,6 @@ export async function dismissConnectionToast(page) {
     const closeButton = toastLocator.locator(".Toastify__close-button");
     if (await closeButton.isVisible()) {
       await closeButton.click();
-      // Wait for toast to disappear
-      await toastLocator.waitFor({ state: "hidden", timeout: 1000 }).catch(() => {});
     }
   }
 }
