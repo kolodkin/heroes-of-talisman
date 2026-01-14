@@ -37,7 +37,7 @@
 .yourTurn {
   background-color: rgba(226, 232, 240, 0.5);
   color: var(--color-text-primary);
-  border: 1px solid rgba(226, 232, 240, 0.5);
+  border: none;
 }
 
 /* Mobile responsiveness */
