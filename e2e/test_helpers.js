@@ -67,18 +67,18 @@ export async function joinGame(page, playerName, gameName) {
  * @param {Page} page - Playwright page object
  */
 export async function dismissConnectionToast(page) {
-  try {
-    // Wait for the toast to appear
-    const toast = await page.waitForSelector(".Toastify__toast", { timeout: 1000, state: "visible" });
+  // Check if toast exists without throwing on timeout
+  const toastLocator = page.locator(".Toastify__toast").first();
+  const isVisible = await toastLocator.isVisible().catch(() => false);
+
+  if (isVisible) {
     // Click the close button (× button)
-    const closeButton = await toast.locator(".Toastify__close-button");
+    const closeButton = toastLocator.locator(".Toastify__close-button");
     if (await closeButton.isVisible()) {
       await closeButton.click();
       // Wait for toast to disappear
-      await page.waitForSelector(".Toastify__toast", { state: "hidden", timeout: 1000 });
+      await toastLocator.waitFor({ state: "hidden", timeout: 1000 }).catch(() => {});
     }
-  } catch (error) {
-    // Toast might auto-dismiss or not exist - that's fine
   }
 }
 
