@@ -23,9 +23,6 @@
   --color-border-primary: #333;
   --color-border-secondary: #4a5568;
   --color-border-light: rgba(255, 255, 255, 0.2);
-
-  /* Breakpoints */
-  --breakpoint-md: 768px;
 }
 
 #root {
