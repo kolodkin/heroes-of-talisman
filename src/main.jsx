@@ -5,7 +5,7 @@ import "./index.css";
 import "./i18n";
 
 if (import.meta.env.VITE_E2E === "true") {
-  import("./e2e.css");
+  import("./e2e_patches.css");
 }
 import HomePage from "./components/HomePage.jsx";
 import GameHandler from "./components/GamePlay/GameHandler.jsx";
