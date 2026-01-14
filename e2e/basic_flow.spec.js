@@ -290,14 +290,18 @@ test("basic game flow", async ({ page, gameName }) => {
   await setupHomePage(page2);
   await joinGame(page2, "player2", gameName);
 
-  // Wait for player2's div to be visible before screenshot
+  // Wait for player2's div to be visible
   await page2.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
-  await screenshot(page, "player2-joined-game-page1");
-  await screenshot(page2, "player2-joined-game-page2");
 
-  // Dismiss any connection toasts to keep UI clean
+  // Wait a moment for page1 to receive player2 join notification
+  await page.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
+
+  // Dismiss any connection toasts before screenshots to keep UI clean
   await dismissConnectionToast(page);
   await dismissConnectionToast(page2);
+
+  await screenshot(page, "player2-joined-game-page1");
+  await screenshot(page2, "player2-joined-game-page2");
 
   // Validate all players see both players' characters (interactive)
   // Validate player2 sees both players' characters
