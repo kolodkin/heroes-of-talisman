@@ -99,6 +99,7 @@ jobs:
 
       - name: Run Playwright tests
         id: e2e
+        continue-on-error: true
         run: npm run e2e
 
       - uses: actions/upload-artifact@v4
@@ -108,7 +109,20 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
+      - name: Check if Playwright report exists
+        id: check-report
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -d "playwright-report" ] && [ "$(ls -A playwright-report)" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Playwright report directory exists and is not empty"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️  Playwright report directory does not exist or is empty"
+          fi
+
       - name: Deploy Playwright Report
+        if: steps.check-report.outputs.exists == 'true'
         uses: peaceiris/actions-gh-pages@v4
         with:
           deploy_key: ${{ secrets.DEPLOY_KEY }}
@@ -130,6 +144,15 @@ jobs:
           details_url: ${{ env.REPORT_URL }}
           output: |
             {"title":"${{ steps.e2e.outcome == 'success' && 'Tests passed' || 'Tests failed' }}","summary":"📊 **[View Full Playwright Report](${{ env.REPORT_URL }})**"}
+
+      - name: Validate no test errors
+        if: ${{ !cancelled() }}
+        run: |
+          if [ "${{ steps.e2e.outcome }}" != "success" ]; then
+            echo "❌ E2E tests failed - see Playwright Report for details"
+            exit 1
+          fi
+          echo "✅ All E2E tests passed"
 
       - name: Check for consecutive duplicate screenshots
         if: ${{ !cancelled() }}
