@@ -3,6 +3,10 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import "./i18n";
+
+if (import.meta.env.VITE_E2E === "true") {
+  import("./e2e.css");
+}
 import HomePage from "./components/HomePage.jsx";
 import GameHandler from "./components/GamePlay/GameHandler.jsx";
 import DiceView from "./components/DiceView.jsx";
