@@ -33,11 +33,11 @@
   border: 1px solid var(--color-border-light);
 }
 
-/* Your turn - inverse/emphasized colors with transparency */
+/* Your turn - inverse/emphasized colors with softer transparency */
 .yourTurn {
-  background-color: rgba(226, 232, 240, 0.8);
-  color: var(--color-bg-primary);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background-color: rgba(226, 232, 240, 0.5);
+  color: var(--color-text-primary);
+  border: 1px solid rgba(226, 232, 240, 0.5);
 }
 
 /* Mobile responsiveness */
