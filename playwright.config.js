@@ -121,7 +121,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: [
     {
-      command: "npm run dev",
+      command: "VITE_E2E=true npm run dev",
       url: `http://localhost:${process.env.WWW_PORT ?? "5173"}`,
       reuseExistingServer: !process.env.CI_MODE,
     },
