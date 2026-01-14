@@ -200,7 +200,6 @@ test("battle stage - reroll effect after loss", async ({ page, gameName }) => {
   // Verify reroll effect is present in character card data-effects attribute
   const activeCharacterCard = page.locator('[data-battle-role="active"] [data-character="archer"]');
   await expect(activeCharacterCard).toHaveAttribute("data-effects", /reroll_dice/);
-  await screenshot(page, "reroll-effect-before-loss");
 
   // Get scores - player1 (archer) should have lost (dice=[2] = 2 < mage dice=[5] = 5)
   const player1Score = await getScore(page, "active");

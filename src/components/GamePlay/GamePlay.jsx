@@ -11,6 +11,7 @@ import StageAbilityOpponentSelection from "./StageAbilityOpponentSelection";
 import StageOpponentSelection from "./StageOpponentSelection";
 import StageBattle from "./StageBattle";
 import Player from "../Player";
+import { StatusIndicator } from "./StatusIndicator";
 import {
   CHARACTER_SELECT,
   ABILITY_SELECTION,
@@ -72,6 +73,26 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
     setIsPlayersMinimized((prev) => !prev);
   };
 
+  // Determine status indicator for SharedArea overlay
+  const getStatusIndicator = () => {
+    const isActivePlayer = gamePlay?.active?.player === username;
+    const isOpponentRoll =
+      gamePlay?.stage === BATTLE_DICE_ROLL && gamePlay?.opponent?.player === username && !gamePlay?.opponent?.dice_roll;
+
+    if (isActivePlayer) {
+      return { status: "your_turn" };
+    } else if (isOpponentRoll) {
+      return { status: "roll_dice" };
+    } else {
+      return {
+        status: "opponent_playing",
+        playerName: gamePlay?.active?.player,
+      };
+    }
+  };
+
+  const statusIndicator = getStatusIndicator();
+
   return (
     <div className={styles["game-play"]} data-game-stage={gamePlay.stage}>
       <div className={styles["portrait-overlay"]}>
@@ -117,6 +138,7 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
             </div>
           </div>
         )}
+        <StatusIndicator status={statusIndicator.status} playerName={statusIndicator.playerName} />
         <div className={styles["shared-area-content"]}>
           <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
           {(() => {

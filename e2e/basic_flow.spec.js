@@ -8,6 +8,7 @@ import {
   joinGame,
   waitForStage,
   waitForGameUpdate,
+  dismissConnectionToast,
 } from "./test_helpers.js";
 
 async function cleanupTestGame(page, gameName) {
@@ -24,6 +25,16 @@ async function createTestGame(page, gameName) {
   const testGame = page.getByRole("button", { name: gameName, exact: true });
   await expect(testGame).toBeVisible();
   return testGame;
+}
+
+async function validateStatusIndicator(page, expectedStatus, expectedPlayerName = null) {
+  const statusIndicator = page.locator("[data-status][data-player-name]");
+  await expect(statusIndicator).toBeVisible();
+  await expect(statusIndicator).toHaveAttribute("data-status", expectedStatus);
+
+  if (expectedPlayerName) {
+    await expect(statusIndicator).toHaveAttribute("data-player-name", expectedPlayerName);
+  }
 }
 
 async function validatePlayerCharacters(page, playerName) {
@@ -52,6 +63,12 @@ async function validatePlayerCharacters(page, playerName) {
 }
 
 async function testCharacterSelection(page, page2) {
+  // Validate status indicator shows "your turn" for player1
+  await validateStatusIndicator(page, "your_turn");
+
+  // Validate status indicator shows "opponent playing" for player2
+  await validateStatusIndicator(page2, "opponent_playing", "player");
+
   // Get the select button to locate the character selection area
   const selectButton = page.getByRole("button", { name: "בחר" });
   await expect(selectButton).toBeVisible();
@@ -216,6 +233,9 @@ async function testBattleStage(page, page2, gameName) {
   await screenshot(page, "battle-player-rolled");
 
   // Opponent (player2) rolls dice from their own page
+  // Validate status indicator shows "roll dice" for player2
+  await validateStatusIndicator(page2, "roll_dice");
+
   const player2RollButton = page2.locator('[data-battle-role="opponent"] [data-roll-button]');
   await player2RollButton.click();
 
@@ -270,8 +290,16 @@ test("basic game flow", async ({ page, gameName }) => {
   await setupHomePage(page2);
   await joinGame(page2, "player2", gameName);
 
-  // Wait for player2's div to be visible before screenshot
+  // Wait for player2's div to be visible
   await page2.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
+
+  // Wait a moment for page1 to receive player2 join notification
+  await page.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
+
+  // Dismiss any remaining toasts before screenshots
+  await dismissConnectionToast(page);
+  await dismissConnectionToast(page2);
+
   await screenshot(page, "player2-joined-game-page1");
   await screenshot(page2, "player2-joined-game-page2");
 
