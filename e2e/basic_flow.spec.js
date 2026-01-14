@@ -296,6 +296,10 @@ test("basic game flow", async ({ page, gameName }) => {
   // Wait a moment for page1 to receive player2 join notification
   await page.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
 
+  // Give toasts time to appear before dismissing (toast animation delay)
+  await page.waitForTimeout(500);
+  await page2.waitForTimeout(500);
+
   // Dismiss any connection toasts before screenshots to keep UI clean
   await dismissConnectionToast(page);
   await dismissConnectionToast(page2);
