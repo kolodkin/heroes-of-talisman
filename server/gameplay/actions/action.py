@@ -14,6 +14,7 @@ from ..models import (
     Opponent2,
     Opponent3,
     Opponent4,
+    StageName,
 )
 
 
@@ -100,7 +101,7 @@ class Action(ABC):
 
     @property
     @abstractmethod
-    def action_stages(self) -> Optional[list[str]]:
+    def action_stages(self) -> Optional[list[StageName]]:
         """
         Return list of valid stages for this action, or None if action works in any stage.
 
