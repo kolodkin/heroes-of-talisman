@@ -65,7 +65,7 @@ def test_character_press_action_wrong_stage():
 
     action = CharacterPressAction("player1", game)
 
-    with pytest.raises(GameException, match="Cannot select character in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run(character=KNIGHT)
 
 
@@ -119,7 +119,7 @@ def test_character_select_action_wrong_stage():
 
     action = CharacterSelectAction("player1", game)
 
-    with pytest.raises(GameException, match="Cannot confirm selection in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run(character=KNIGHT)
 
 

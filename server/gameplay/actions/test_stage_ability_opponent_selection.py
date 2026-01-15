@@ -86,7 +86,7 @@ def test_ability_opponent_press_action_wrong_stage():
 
     action = AbilityOpponentPressAction("player1", game)
 
-    with pytest.raises(GameException, match="Cannot select ability opponent in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run(opponent="player2", character=KNIGHT)
 
 
@@ -215,7 +215,7 @@ def test_ability_opponent_select_action_wrong_stage():
 
     action = AbilityOpponentSelectAction("player1", game)
 
-    with pytest.raises(GameException, match="Cannot confirm ability opponent selection in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run()
 
 
