@@ -33,6 +33,7 @@ class CharacterPressAction(Action):
         return [CHARACTER_SELECT]
 
     def run(self, character: str) -> GamePlay:
+        self.assert_stage()
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
@@ -70,6 +71,7 @@ class CharacterSelectAction(Action):
         return [CHARACTER_SELECT]
 
     def run(self, character: str) -> GamePlay:
+        self.assert_stage()
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:

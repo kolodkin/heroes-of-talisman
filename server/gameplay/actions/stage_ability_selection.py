@@ -35,6 +35,7 @@ class AbilityPressAction(Action):
         return [ABILITY_SELECTION]
 
     def run(self, ability: AbilityName) -> GamePlay:
+        self.assert_stage()
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
@@ -76,6 +77,7 @@ class AbilitySelectAction(Action):
         return [ABILITY_SELECTION]
 
     def run(self, ability: AbilityName) -> GamePlay:
+        self.assert_stage()
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:

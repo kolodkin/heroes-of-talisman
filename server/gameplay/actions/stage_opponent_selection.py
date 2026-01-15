@@ -32,6 +32,7 @@ class OpponentPressAction(Action):
         return [OPPONENT_SELECTION]
 
     def run(self, opponent: str, character: str) -> GamePlay:
+        self.assert_stage()
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
@@ -79,6 +80,7 @@ class OpponentSelectAction(Action):
         return [OPPONENT_SELECTION]
 
     def run(self) -> GamePlay:
+        self.assert_stage()
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:

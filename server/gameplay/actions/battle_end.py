@@ -32,6 +32,7 @@ class BattleEndAction(Action):
         return [BATTLE_END]
 
     def run(self) -> GamePlay:
+        self.assert_stage()
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
