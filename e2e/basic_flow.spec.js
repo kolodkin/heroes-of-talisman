@@ -91,21 +91,17 @@ async function testCharacterSelection(page, page2) {
 
   // Player1 selects knight character (the one near the בחר button)
   // Click the knight that's a sibling/near the select button (in shared area, not player area)
+  const knightCard = page.locator('[alt="knight"]').nth(2).locator("..");
   await page.locator('[alt="knight"]').nth(2).click();
+  await expect(knightCard).toHaveClass(/selected/);
   await screenshot(page, "knight-selected");
 
-  // Verify knight is highlighted
-  const knightCard = page.locator('[alt="knight"]').nth(2).locator("..");
-  await expect(knightCard).toHaveClass(/selected/);
-
   // Player1 selects mage character
-  await page.locator('[alt="mage"]').nth(2).click();
-  await screenshot(page, "mage-selected");
-
-  // Verify mage is highlighted and knight is not
   const mageCard = page.locator('[alt="mage"]').nth(2).locator("..");
+  await page.locator('[alt="mage"]').nth(2).click();
   await expect(mageCard).toHaveClass(/selected/);
   await expect(knightCard).not.toHaveClass(/selected/);
+  await screenshot(page, "mage-selected");
 
   // Validate submit button hover effects
   await selectButton.hover();
