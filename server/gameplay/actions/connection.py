@@ -21,6 +21,10 @@ __MAX_PLAYERS__ = 4
 
 
 class ConnectAction(Action):
+    def assert_stage(self):
+        # No stage validation - can connect at any time
+        pass
+
     def run(self) -> GamePlay:
         if self.user not in self.players:
             if len(self.players) >= __MAX_PLAYERS__:
@@ -42,6 +46,10 @@ class ConnectAction(Action):
 
 
 class LeaveAction(Action):
+    def assert_stage(self):
+        # No stage validation - can leave at any time
+        pass
+
     def run(self) -> GamePlay:
         if self.user not in self.players:
             raise GameException("Player not in game")
@@ -51,6 +59,10 @@ class LeaveAction(Action):
 
 
 class DisconnectAction(Action):
+    def assert_stage(self):
+        # No stage validation - can disconnect at any time
+        pass
+
     def run(self) -> GamePlay:
         self.player.status = DISCONNECTED
         return self.game

@@ -44,6 +44,7 @@ class GameEngine:
             raise ReportedException("Invalid action", f"cannot find action '{action}'")
 
         action_obj = action_cls(self.username, self.game)
+        action_obj.assert_stage()
         return action_obj.run(*args, **kwargs)
 
     def action(self, action_meta: dict):

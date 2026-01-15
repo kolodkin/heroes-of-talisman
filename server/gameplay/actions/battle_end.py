@@ -27,10 +27,11 @@ class BattleEndAction(Action):
     clears battle state, and transitions to character_select stage.
     """
 
+    def assert_stage(self):
+        if self.stage != BATTLE_END:
+            raise GameException(f"Cannot end battle in stage: {self.stage}")
+
     def run(self) -> GamePlay:
-        # Validate stage
-        if self.game.stage != BATTLE_END:
-            raise GameException(f"Cannot end battle in stage: {self.game.stage}")
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:

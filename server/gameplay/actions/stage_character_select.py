@@ -28,10 +28,11 @@ class CharacterPressAction(Action):
     a game_update that highlights the selected character in the UI.
     """
 
+    def assert_stage(self):
+        if self.stage != CHARACTER_SELECT:
+            raise GameException(f"Cannot select character in stage: {self.stage}")
+
     def run(self, character: str) -> GamePlay:
-        # Validate stage
-        if self.game.stage != CHARACTER_SELECT:
-            raise GameException(f"Cannot select character in stage: {self.game.stage}")
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
@@ -64,10 +65,11 @@ class CharacterSelectAction(Action):
     'character_select' in dispose_actions, and transitions the game stage to 'ability_selection'.
     """
 
+    def assert_stage(self):
+        if self.stage != CHARACTER_SELECT:
+            raise GameException(f"Cannot confirm selection in stage: {self.stage}")
+
     def run(self, character: str) -> GamePlay:
-        # Validate stage
-        if self.game.stage != CHARACTER_SELECT:
-            raise GameException(f"Cannot confirm selection in stage: {self.game.stage}")
 
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:

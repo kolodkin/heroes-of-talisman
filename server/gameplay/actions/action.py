@@ -98,9 +98,9 @@ class Action(ABC):
             raise GameException("Opponent not set or has no character selected")
         return self.game.players[self.opponent.player].characters[self.opponent.character]
 
-    def assert_stage(self, req_stage: str):
-        if self.stage != req_stage:
-            raise ReportedException(f"Invalid action. (wrong stage '{self.stage}')")
+    @abstractmethod
+    def assert_stage(self):
+        """Validate that the game is in the correct stage for this action."""
 
     @abstractmethod
     def run(self, *args, **kwargs) -> GamePlay:
