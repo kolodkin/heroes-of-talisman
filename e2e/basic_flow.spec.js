@@ -7,7 +7,6 @@ import {
   setupHomePage,
   joinGame,
   waitForStage,
-  waitForGameUpdate,
   dismissConnectionToast,
 } from "./test_helpers.js";
 
@@ -93,9 +92,6 @@ async function testCharacterSelection(page, page2) {
   // Player1 selects knight character (the one near the בחר button)
   // Click the knight that's a sibling/near the select button (in shared area, not player area)
   await page.locator('[alt="knight"]').nth(2).click();
-
-  // Wait for game_update event
-  await waitForGameUpdate(page);
   await screenshot(page, "knight-selected");
 
   // Verify knight is highlighted
@@ -104,9 +100,6 @@ async function testCharacterSelection(page, page2) {
 
   // Player1 selects mage character
   await page.locator('[alt="mage"]').nth(2).click();
-
-  // Wait for game_update event
-  await waitForGameUpdate(page);
   await screenshot(page, "mage-selected");
 
   // Verify mage is highlighted and knight is not
