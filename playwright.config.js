@@ -124,6 +124,7 @@ export default defineConfig({
       command: "npm run dev",
       url: `http://localhost:${process.env.WWW_PORT ?? "5173"}`,
       reuseExistingServer: !process.env.CI_MODE,
+      env: { VITE_E2E: "true" },
     },
     {
       command: `uv run uvicorn server.main:app --port ${process.env.APP_PORT ?? "8000"}`,
