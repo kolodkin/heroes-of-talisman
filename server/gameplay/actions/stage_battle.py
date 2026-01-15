@@ -111,9 +111,9 @@ class ActivePlayerRollAction(Action):
     Rolls a dice (1-6) and sets active.dice to the rolled value.
     """
 
-    def assert_stage(self):
-        if self.stage != BATTLE_DICE_ROLL:
-            raise GameException(f"Cannot roll dice in stage: {self.stage}")
+    @property
+    def action_stages(self):
+        return [BATTLE_DICE_ROLL]
 
     def run(self) -> GamePlay:
 
@@ -159,9 +159,9 @@ class OpponentRollAction(Action):
     Note: Can be invoked by any player (not just active player).
     """
 
-    def assert_stage(self):
-        if self.stage != BATTLE_DICE_ROLL:
-            raise GameException(f"Cannot roll dice in stage: {self.stage}")
+    @property
+    def action_stages(self):
+        return [BATTLE_DICE_ROLL]
 
     def run(self) -> GamePlay:
 
@@ -247,9 +247,9 @@ class RerollAction(Action):
     ActivePlayer2 and Opponent2 (no dice_roll, no winner).
     """
 
-    def assert_stage(self):
-        if self.stage != BATTLE_DICE_ROLL:
-            raise GameException(f"Cannot reroll in stage: {self.stage}")
+    @property
+    def action_stages(self):
+        return [BATTLE_DICE_ROLL]
 
     def run(self) -> GamePlay:
 
@@ -276,9 +276,9 @@ class RerollEffectAction(Action):
     so this action only needs to validate BATTLE_DICE_ROLL stage.
     """
 
-    def assert_stage(self):
-        if self.stage != BATTLE_DICE_ROLL:
-            raise GameException(f"Cannot use reroll effect in stage: {self.stage}")
+    @property
+    def action_stages(self):
+        return [BATTLE_DICE_ROLL]
 
     def run(self) -> GamePlay:
 
@@ -324,10 +324,9 @@ class DebugSetBattleDiceRollsAction(Action):
         Example: active_dice_roll=[6], opponent_dice_roll=[1]
     """
 
-    def assert_stage(self):
-        # Validate stage - allow both BATTLE_DICE_ROLL and BATTLE_END
-        if self.stage not in [BATTLE_DICE_ROLL, BATTLE_END]:
-            raise GameException(f"Cannot set dice rolls in stage: {self.stage}")
+    @property
+    def action_stages(self):
+        return [BATTLE_DICE_ROLL, BATTLE_END]
 
     def run(self, active_dice_roll: list[int], opponent_dice_roll: list[int]) -> GamePlay:
 

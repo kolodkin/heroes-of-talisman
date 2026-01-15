@@ -27,11 +27,9 @@ class OpponentPressAction(Action):
     triggering a game_update that highlights the selected opponent in the UI.
     """
 
-    def assert_stage(self):
-        if self.stage != OPPONENT_SELECTION:
-            raise GameException(
-                f"Cannot select opponent in stage: {self.stage}"
-            )
+    @property
+    def action_stages(self):
+        return [OPPONENT_SELECTION]
 
     def run(self, opponent: str, character: str) -> GamePlay:
 
@@ -76,11 +74,9 @@ class OpponentSelectAction(Action):
     in game metadata, and transitions the game stage to 'battle'.
     """
 
-    def assert_stage(self):
-        if self.stage != OPPONENT_SELECTION:
-            raise GameException(
-                f"Cannot confirm selection in stage: {self.stage}"
-            )
+    @property
+    def action_stages(self):
+        return [OPPONENT_SELECTION]
 
     def run(self) -> GamePlay:
 

@@ -30,9 +30,9 @@ class AbilityPressAction(Action):
     a game_update that highlights the selected ability in the UI.
     """
 
-    def assert_stage(self):
-        if self.stage != ABILITY_SELECTION:
-            raise GameException(f"Cannot select ability in stage: {self.stage}")
+    @property
+    def action_stages(self):
+        return [ABILITY_SELECTION]
 
     def run(self, ability: AbilityName) -> GamePlay:
 
@@ -71,9 +71,9 @@ class AbilitySelectAction(Action):
     - 'opponent_selection' if the ability effects are applied to battle opponent automatically
     """
 
-    def assert_stage(self):
-        if self.stage != ABILITY_SELECTION:
-            raise GameException(f"Cannot confirm ability selection in stage: {self.stage}")
+    @property
+    def action_stages(self):
+        return [ABILITY_SELECTION]
 
     def run(self, ability: AbilityName) -> GamePlay:
 

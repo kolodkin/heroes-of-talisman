@@ -98,9 +98,27 @@ class Action(ABC):
             raise GameException("Opponent not set or has no character selected")
         return self.game.players[self.opponent.player].characters[self.opponent.character]
 
+    @property
     @abstractmethod
+    def action_stages(self) -> Optional[list[str]]:
+        """
+        Return list of valid stages for this action, or None if action works in any stage.
+
+        Examples:
+            return [CHARACTER_SELECT]  # Only works in character select stage
+            return [BATTLE_DICE_ROLL, BATTLE_END]  # Works in multiple stages
+            return None  # Works in any stage (e.g., connection actions)
+        """
+
     def assert_stage(self):
         """Validate that the game is in the correct stage for this action."""
+        if self.action_stages is None:
+            # Action works in any stage
+            return
+
+        if self.stage not in self.action_stages:
+            stages_str = ", ".join(self.action_stages)
+            raise GameException(f"Cannot perform action in stage '{self.stage}'. Valid stages: {stages_str}")
 
     @abstractmethod
     def run(self, *args, **kwargs) -> GamePlay:
