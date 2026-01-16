@@ -7,8 +7,7 @@ existing players, nonexistent players, and already disconnected players.
 
 import pytest
 
-from server.game_engine import GameEngine
-from ..models import CONNECT, LEAVE, DISCONNECT
+from .connection import DisconnectAction
 from ..models import (
     GamePlay,
     Player,
@@ -31,20 +30,20 @@ def test_disconnect_action_existing_player():
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", status=CONNECTED, characters=characters)
 
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(DISCONNECT)
+    action = DisconnectAction("player1", game)
+    updated_game = action.run()
 
-    assert game.players["player1"].status == DISCONNECTED
-    assert game.players["player1"].name == "player1"  # Other data preserved
+    assert updated_game.players["player1"].status == DISCONNECTED
+    assert updated_game.players["player1"].name == "player1"  # Other data preserved
 
 
 def test_disconnect_action_nonexistent_player():
     """Test disconnecting a player who is not in the game"""
     game = GamePlay()
-    engine = GameEngine("test_game", "nonexistent_player", game)
+    action = DisconnectAction("nonexistent_player", game)
 
     with pytest.raises(GameException, match="Player not in game"):
-        engine.run_action(DISCONNECT)
+        action.run()
 
 
 def test_disconnect_action_already_disconnected():
@@ -55,8 +54,8 @@ def test_disconnect_action_already_disconnected():
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", status=DISCONNECTED, characters=characters)
 
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(DISCONNECT)
+    action = DisconnectAction("player1", game)
+    updated_game = action.run()
 
     # Should still work and status remains disconnected
-    assert game.players["player1"].status == DISCONNECTED
+    assert updated_game.players["player1"].status == DISCONNECTED

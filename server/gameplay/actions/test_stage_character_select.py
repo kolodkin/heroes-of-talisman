@@ -7,7 +7,7 @@ selected characters and confirming selections to transition to battle.
 
 import pytest
 
-from server.game_engine import GameEngine
+from .stage_character_select import CharacterPressAction, CharacterSelectAction
 from ..models import (
     GamePlay,
     Player,
@@ -19,8 +19,6 @@ from ..models import (
     SkipTurnEffect,
     CHARACTER_DEFAULT_STATS,
     CHARACTER_SELECT,
-    CHARACTER_PRESS,
-    CHARACTER_SELECT_ACTION,
     ABILITY_SELECTION,
     BATTLE_DICE_ROLL,
     KNIGHT,
@@ -38,12 +36,12 @@ def test_character_press_action_valid():
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(CHARACTER_PRESS, character=KNIGHT)
+    action = CharacterPressAction("player1", game)
+    updated_game = action.run(character=KNIGHT)
 
-    assert game.stage_meta is not None
-    assert game.stage_meta.selected == KNIGHT
-    assert game.stage == CHARACTER_SELECT  # Still in character select
+    assert updated_game.stage_meta is not None
+    assert updated_game.stage_meta.selected == KNIGHT
+    assert updated_game.stage == CHARACTER_SELECT  # Still in character select
 
 
 def test_character_press_action_not_active_player():
@@ -53,10 +51,10 @@ def test_character_press_action_not_active_player():
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
-    engine = GameEngine("test_game", "player2", game)
+    action = CharacterPressAction("player2", game)
 
     with pytest.raises(ReportedException, match="It's not your turn"):
-        engine.run_action(CHARACTER_PRESS, character=KNIGHT)
+        action.run(character=KNIGHT)
 
 
 def test_character_press_action_wrong_stage():
@@ -65,10 +63,10 @@ def test_character_press_action_wrong_stage():
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    engine = GameEngine("test_game", "player1", game)
+    action = CharacterPressAction("player1", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        engine.run_action(CHARACTER_PRESS, character=KNIGHT)
+        action.run(character=KNIGHT)
 
 
 def test_character_press_action_invalid_character():
@@ -76,10 +74,10 @@ def test_character_press_action_invalid_character():
     game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     game.players["player1"] = Player(name="player1", characters={})
 
-    engine = GameEngine("test_game", "player1", game)
+    action = CharacterPressAction("player1", game)
 
     with pytest.raises(ReportedException, match="not available"):
-        engine.run_action(CHARACTER_PRESS, character=KNIGHT)
+        action.run(character=KNIGHT)
 
 
 def test_character_select_action_valid():
@@ -88,16 +86,16 @@ def test_character_select_action_valid():
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(CHARACTER_SELECT_ACTION, character=KNIGHT)
+    action = CharacterSelectAction("player1", game)
+    updated_game = action.run(character=KNIGHT)
 
-    assert game.active.player == "player1"
-    assert game.active.character == KNIGHT
-    assert isinstance(game.active, ActivePlayer2)
-    assert game.stage == ABILITY_SELECTION
+    assert updated_game.active.player == "player1"
+    assert updated_game.active.character == KNIGHT
+    assert isinstance(updated_game.active, ActivePlayer2)
+    assert updated_game.stage == ABILITY_SELECTION
     # Knight has only one ability, so it should be auto-selected
-    assert game.stage_meta is not None
-    assert game.stage_meta.selected == BATTLE_HOWL
+    assert updated_game.stage_meta is not None
+    assert updated_game.stage_meta.selected == BATTLE_HOWL
 
 
 def test_character_select_action_not_active_player():
@@ -107,10 +105,10 @@ def test_character_select_action_not_active_player():
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
-    engine = GameEngine("test_game", "player2", game)
+    action = CharacterSelectAction("player2", game)
 
     with pytest.raises(ReportedException, match="It's not your turn"):
-        engine.run_action(CHARACTER_SELECT_ACTION, character=KNIGHT)
+        action.run(character=KNIGHT)
 
 
 def test_character_select_action_wrong_stage():
@@ -119,10 +117,10 @@ def test_character_select_action_wrong_stage():
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    engine = GameEngine("test_game", "player1", game)
+    action = CharacterSelectAction("player1", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        engine.run_action(CHARACTER_SELECT_ACTION, character=KNIGHT)
+        action.run(character=KNIGHT)
 
 
 def test_character_select_action_invalid_character():
@@ -130,10 +128,10 @@ def test_character_select_action_invalid_character():
     game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     game.players["player1"] = Player(name="player1", characters={})
 
-    engine = GameEngine("test_game", "player1", game)
+    action = CharacterSelectAction("player1", game)
 
     with pytest.raises(ReportedException, match="not available"):
-        engine.run_action(CHARACTER_SELECT_ACTION, character=KNIGHT)
+        action.run(character=KNIGHT)
 
 
 def test_character_press_action_dead_character():
@@ -144,10 +142,10 @@ def test_character_press_action_dead_character():
     characters[KNIGHT].health = 0
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    engine = GameEngine("test_game", "player1", game)
+    action = CharacterPressAction("player1", game)
 
     with pytest.raises(ReportedException, match="is dead and can't be selected"):
-        engine.run_action(CHARACTER_PRESS, character=KNIGHT)
+        action.run(character=KNIGHT)
 
 
 def test_character_select_action_dead_character():
@@ -158,10 +156,10 @@ def test_character_select_action_dead_character():
     characters[KNIGHT].health = 0
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    engine = GameEngine("test_game", "player1", game)
+    action = CharacterSelectAction("player1", game)
 
     with pytest.raises(ReportedException, match="is dead and can't be selected"):
-        engine.run_action(CHARACTER_SELECT_ACTION, character=KNIGHT)
+        action.run(character=KNIGHT)
 
 
 def test_character_select_action_removes_skip_turn_effects():
@@ -177,14 +175,14 @@ def test_character_select_action_removes_skip_turn_effects():
     game.players["player1"] = Player(name="player1", characters=characters)
 
     # Player selects mage (the only character without skip_turn)
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(CHARACTER_SELECT_ACTION, character=MAGE)
+    action = CharacterSelectAction("player1", game)
+    updated_game = action.run(character=MAGE)
 
     # Verify skip turn effects were removed from both knight and archer
-    assert len(game.players["player1"].characters[KNIGHT].effects) == 0
-    assert len(game.players["player1"].characters[ARCHER].effects) == 0
+    assert len(updated_game.players["player1"].characters[KNIGHT].effects) == 0
+    assert len(updated_game.players["player1"].characters[ARCHER].effects) == 0
     # Mage should still have no effects
-    assert len(game.players["player1"].characters[MAGE].effects) == 0
+    assert len(updated_game.players["player1"].characters[MAGE].effects) == 0
 
 
 def test_character_select_action_removes_all_skip_turn_effects():
@@ -199,9 +197,9 @@ def test_character_select_action_removes_all_skip_turn_effects():
     game.players["player1"] = Player(name="player1", characters=characters)
 
     # Player selects mage
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(CHARACTER_SELECT_ACTION, character=MAGE)
+    action = CharacterSelectAction("player1", game)
+    updated_game = action.run(character=MAGE)
 
     # Verify all skip turn effects were removed
-    knight_effects = game.players["player1"].characters[KNIGHT].effects
+    knight_effects = updated_game.players["player1"].characters[KNIGHT].effects
     assert len(knight_effects) == 0
