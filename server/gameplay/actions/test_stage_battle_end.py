@@ -12,7 +12,7 @@ Effect disposal rules:
 
 import pytest
 
-from .battle_end import BattleEndAction
+from server.game_engine import GameEngine
 from ..models import (
     GamePlay,
     Player,
@@ -32,6 +32,7 @@ from ..models import (
     BATTLE_HOWL,
     FREEZE,
     BOUNCING_ARROW,
+    BATTLE_END_ACTION,
     init_characters,
 )
 
@@ -70,16 +71,16 @@ def test_battle_end_clears_battle_effects():
     assert len(game.players["player2"].characters[MAGE].effects) == 1
 
     # Execute battle end action
-    action = BattleEndAction("player1", game)
-    updated_game = action.run()
+    engine = GameEngine("test_game", "player1", game)
+    engine.run_action(BATTLE_END_ACTION)
 
     # Verify BattleEffects are cleared from both characters
-    assert len(updated_game.players["player1"].characters[KNIGHT].effects) == 0
-    assert len(updated_game.players["player2"].characters[MAGE].effects) == 0
+    assert len(game.players["player1"].characters[KNIGHT].effects) == 0
+    assert len(game.players["player2"].characters[MAGE].effects) == 0
 
     # Verify game transitioned to next turn
-    assert updated_game.stage == CHARACTER_SELECT
-    assert updated_game.active.player == "player2"  # Next player's turn
+    assert game.stage == CHARACTER_SELECT
+    assert game.active.player == "player2"  # Next player's turn
 
 
 def test_battle_end_disposes_reroll_effect():
@@ -118,14 +119,14 @@ def test_battle_end_disposes_reroll_effect():
     assert len(game.players["player2"].characters[KNIGHT].effects) == 1
 
     # Execute battle end action
-    action = BattleEndAction("player1", game)
-    updated_game = action.run()
+    engine = GameEngine("test_game", "player1", game)
+    engine.run_action(BATTLE_END_ACTION)
 
     # Verify RerollDiceEffect is disposed (has battle_end in dispose_actions)
-    assert len(updated_game.players["player1"].characters[ARCHER].effects) == 0
+    assert len(game.players["player1"].characters[ARCHER].effects) == 0
 
     # Verify BattleEffect is cleared from opponent
-    assert len(updated_game.players["player2"].characters[KNIGHT].effects) == 0
+    assert len(game.players["player2"].characters[KNIGHT].effects) == 0
 
 
 def test_battle_end_mixed_effects():
@@ -161,11 +162,11 @@ def test_battle_end_mixed_effects():
     assert len(game.players["player1"].characters[ARCHER].effects) == 3
 
     # Execute battle end action
-    action = BattleEndAction("player1", game)
-    updated_game = action.run()
+    engine = GameEngine("test_game", "player1", game)
+    engine.run_action(BATTLE_END_ACTION)
 
     # Verify all battle_end effects are disposed
-    assert len(updated_game.players["player1"].characters[ARCHER].effects) == 0
+    assert len(game.players["player1"].characters[ARCHER].effects) == 0
 
 
 def test_battle_end_keeps_skip_turn_effect():
@@ -203,12 +204,12 @@ def test_battle_end_keeps_skip_turn_effect():
     assert len(game.players["player2"].characters[MAGE].effects) == 1
 
     # Execute battle end action
-    action = BattleEndAction("player1", game)
-    updated_game = action.run()
+    engine = GameEngine("test_game", "player1", game)
+    engine.run_action(BATTLE_END_ACTION)
 
     # Verify BattleEffect is cleared from active character
-    assert len(updated_game.players["player1"].characters[KNIGHT].effects) == 0
+    assert len(game.players["player1"].characters[KNIGHT].effects) == 0
 
     # Verify SkipTurnEffect is kept on opponent's character
-    assert len(updated_game.players["player2"].characters[MAGE].effects) == 1
-    assert isinstance(updated_game.players["player2"].characters[MAGE].effects[0], SkipTurnEffect)
+    assert len(game.players["player2"].characters[MAGE].effects) == 1
+    assert isinstance(game.players["player2"].characters[MAGE].effects[0], SkipTurnEffect)
