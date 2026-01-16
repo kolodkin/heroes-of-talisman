@@ -44,7 +44,7 @@ class ConcreteAction(Action):
     def action_stages(self):
         return None  # No stage validation for testing
 
-    def run(self):
+    def _run(self):
         return self.game
 
 
