@@ -7,8 +7,12 @@ and winner determination.
 
 import pytest
 
-from server.game_engine import GameEngine
 from .stage_battle import (
+    ActivePlayerRollAction,
+    OpponentRollAction,
+    RerollAction,
+    RerollEffectAction,
+    DebugSetBattleDiceRollsAction,
     calculate_winner,
     set_winner_if_both_rolled,
 )
@@ -38,12 +42,6 @@ from ..models import (
     BATTLE_HOWL,
     BOUNCING_ARROW,
     FREEZE,
-    ACTIVE_PLAYER_ROLL,
-    OPPONENT_ROLL,
-    ACTION_REROLL,
-    ACTION_REROLL_EFFECT,
-    BATTLE_END_ACTION,
-    DEBUG_SET_BATTLE_DICE_ROLLS,
     init_characters,
 )
 from ..presets import get_debug_preset, EFFECT_REROLL
@@ -67,19 +65,19 @@ def test_active_player_roll_action_valid():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(ACTIVE_PLAYER_ROLL)
+    action = ActivePlayerRollAction("player1", game)
+    updated_game = action.run()
 
     # Verify active player upgraded to ActivePlayer3 with dice_roll
-    assert isinstance(game.active, ActivePlayer3)
-    assert game.active.player == "player1"
-    assert game.active.character == KNIGHT
-    assert game.active.dice_roll is not None
-    assert len(game.active.dice_roll) == characters[KNIGHT].dice
-    assert all(1 <= d <= 6 for d in game.active.dice_roll)
+    assert isinstance(updated_game.active, ActivePlayer3)
+    assert updated_game.active.player == "player1"
+    assert updated_game.active.character == KNIGHT
+    assert updated_game.active.dice_roll is not None
+    assert len(updated_game.active.dice_roll) == characters[KNIGHT].dice
+    assert all(1 <= d <= 6 for d in updated_game.active.dice_roll)
 
     # Opponent should still be Opponent2 (hasn't rolled yet)
-    assert isinstance(game.opponent, Opponent2)
+    assert isinstance(updated_game.opponent, Opponent2)
 
 
 def test_active_player_roll_triggers_winner_calculation():
@@ -95,12 +93,12 @@ def test_active_player_roll_triggers_winner_calculation():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(ACTIVE_PLAYER_ROLL)
+    action = ActivePlayerRollAction("player1", game)
+    updated_game = action.run()
 
     # Both should be upgraded to Player4/Opponent4 (which have winner fields)
-    assert isinstance(game.active, ActivePlayer4)
-    assert isinstance(game.opponent, Opponent4)
+    assert isinstance(updated_game.active, ActivePlayer4)
+    assert isinstance(updated_game.opponent, Opponent4)
 
 
 def test_active_player_roll_wrong_stage():
@@ -114,10 +112,10 @@ def test_active_player_roll_wrong_stage():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = ActivePlayerRollAction("player1", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        engine.run_action(ACTIVE_PLAYER_ROLL)
+        action.run()
 
 
 def test_active_player_roll_not_active_player():
@@ -133,10 +131,10 @@ def test_active_player_roll_not_active_player():
         },
     )
 
-    engine = GameEngine("test_game", "player2", game)
+    action = ActivePlayerRollAction("player2", game)
 
     with pytest.raises(ReportedException, match="It's not your turn"):
-        engine.run_action(ACTIVE_PLAYER_ROLL)
+        action.run()
 
 
 def test_active_player_roll_player_not_in_game():
@@ -151,10 +149,10 @@ def test_active_player_roll_player_not_in_game():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = ActivePlayerRollAction("player1", game)
 
     with pytest.raises(GameException, match="Player not in game"):
-        engine.run_action(ACTIVE_PLAYER_ROLL)
+        action.run()
 
 
 def test_active_player_roll_no_character():
@@ -168,10 +166,10 @@ def test_active_player_roll_no_character():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = ActivePlayerRollAction("player1", game)
 
     with pytest.raises(GameException, match="Active player has no character selected"):
-        engine.run_action(ACTIVE_PLAYER_ROLL)
+        action.run()
 
 
 # ============================================================================
@@ -192,19 +190,19 @@ def test_opponent_roll_action_valid():
         },
     )
 
-    engine = GameEngine("test_game", "player2", game)
-    engine.run_action(OPPONENT_ROLL)
+    action = OpponentRollAction("player2", game)
+    updated_game = action.run()
 
     # Verify opponent upgraded to Opponent3 with dice_roll
-    assert isinstance(game.opponent, Opponent3)
-    assert game.opponent.player == "player2"
-    assert game.opponent.character == MAGE
-    assert game.opponent.dice_roll is not None
-    assert len(game.opponent.dice_roll) == characters[MAGE].dice
-    assert all(1 <= d <= 6 for d in game.opponent.dice_roll)
+    assert isinstance(updated_game.opponent, Opponent3)
+    assert updated_game.opponent.player == "player2"
+    assert updated_game.opponent.character == MAGE
+    assert updated_game.opponent.dice_roll is not None
+    assert len(updated_game.opponent.dice_roll) == characters[MAGE].dice
+    assert all(1 <= d <= 6 for d in updated_game.opponent.dice_roll)
 
     # Active player should still be ActivePlayer2 (hasn't rolled yet)
-    assert isinstance(game.active, ActivePlayer2)
+    assert isinstance(updated_game.active, ActivePlayer2)
 
 
 def test_opponent_roll_triggers_winner_calculation():
@@ -220,12 +218,12 @@ def test_opponent_roll_triggers_winner_calculation():
         },
     )
 
-    engine = GameEngine("test_game", "player2", game)
-    engine.run_action(OPPONENT_ROLL)
+    action = OpponentRollAction("player2", game)
+    updated_game = action.run()
 
     # Both should be upgraded to Player4/Opponent4 (which have winner fields)
-    assert isinstance(game.active, ActivePlayer4)
-    assert isinstance(game.opponent, Opponent4)
+    assert isinstance(updated_game.active, ActivePlayer4)
+    assert isinstance(updated_game.opponent, Opponent4)
 
 
 def test_opponent_roll_wrong_stage():
@@ -240,10 +238,10 @@ def test_opponent_roll_wrong_stage():
         },
     )
 
-    engine = GameEngine("test_game", "player2", game)
+    action = OpponentRollAction("player2", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        engine.run_action(OPPONENT_ROLL)
+        action.run()
 
 
 def test_opponent_roll_not_opponent():
@@ -259,10 +257,10 @@ def test_opponent_roll_not_opponent():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = OpponentRollAction("player1", game)
 
     with pytest.raises(ReportedException, match="You are not the opponent"):
-        engine.run_action(OPPONENT_ROLL)
+        action.run()
 
 
 def test_opponent_roll_no_opponent():
@@ -278,10 +276,10 @@ def test_opponent_roll_no_opponent():
         },
     )
 
-    engine = GameEngine("test_game", "player2", game)
+    action = OpponentRollAction("player2", game)
 
     with pytest.raises(GameException, match="No opponent selected"):
-        engine.run_action(OPPONENT_ROLL)
+        action.run()
 
 
 
@@ -302,16 +300,16 @@ def test_reroll_action_valid_draw():
     assert game.active.result.winner is False
     assert game.opponent.result.winner is False
 
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(ACTION_REROLL)
+    action = RerollAction("player1", game)
+    updated_game = action.run()
 
     # Verify both players downgraded to Player2/Opponent2 (no dice_roll, no winner)
-    assert isinstance(game.active, ActivePlayer2)
-    assert isinstance(game.opponent, Opponent2)
-    assert game.active.player == "player1"
-    assert game.active.character == KNIGHT
-    assert game.opponent.player == "player2"
-    assert game.opponent.character == ARCHER
+    assert isinstance(updated_game.active, ActivePlayer2)
+    assert isinstance(updated_game.opponent, Opponent2)
+    assert updated_game.active.player == "player1"
+    assert updated_game.active.character == KNIGHT
+    assert updated_game.opponent.player == "player2"
+    assert updated_game.opponent.character == ARCHER
 
 
 def test_reroll_action_wrong_stage():
@@ -325,20 +323,20 @@ def test_reroll_action_wrong_stage():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = RerollAction("player1", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        engine.run_action(ACTION_REROLL)
+        action.run()
 
 
 def test_reroll_action_not_active_player():
     """Test reroll fails when user is not the active player"""
     game = get_debug_preset("battle_draw")
 
-    engine = GameEngine("test_game", "player2", game)
+    action = RerollAction("player2", game)
 
     with pytest.raises(ReportedException, match="It's not your turn"):
-        engine.run_action(ACTION_REROLL)
+        action.run()
 
 
 def test_reroll_action_active_not_rolled():
@@ -354,11 +352,11 @@ def test_reroll_action_active_not_rolled():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = RerollAction("player1", game)
 
     # RerollAction requires ActivePlayer4/Opponent4 with results, so this fails first
     with pytest.raises(GameException, match="Cannot reroll when winner not determined"):
-        engine.run_action(ACTION_REROLL)
+        action.run()
 
 
 def test_reroll_action_opponent_not_rolled():
@@ -374,11 +372,11 @@ def test_reroll_action_opponent_not_rolled():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = RerollAction("player1", game)
 
     # RerollAction requires ActivePlayer4/Opponent4 with results, so this fails first
     with pytest.raises(GameException, match="Cannot reroll when winner not determined"):
-        engine.run_action(ACTION_REROLL)
+        action.run()
 
 
 def test_reroll_action_winner_exists():
@@ -390,11 +388,11 @@ def test_reroll_action_winner_exists():
     assert game.opponent.result.winner is False
     assert game.stage == BATTLE_END
 
-    engine = GameEngine("test_game", "player1", game)
+    action = RerollAction("player1", game)
 
     # Should fail because stage is BATTLE_END, not BATTLE_DICE_ROLL
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        engine.run_action(ACTION_REROLL)
+        action.run()
 
 
 def test_reroll_action_winner_not_determined():
@@ -408,11 +406,11 @@ def test_reroll_action_winner_not_determined():
     assert game.active.result.winner is True
     assert game.opponent.result.winner is False
 
-    engine = GameEngine("test_game", "player1", game)
+    action = RerollAction("player1", game)
 
     # Should fail because there's a winner (not a draw)
     with pytest.raises(GameException, match="Cannot reroll when there is a winner"):
-        engine.run_action(ACTION_REROLL)
+        action.run()
 
 
 # ============================================================================
@@ -522,21 +520,21 @@ def test_debug_set_battle_dice_rolls_valid():
     # Initially knight with dice=[1], attack=1 = 2, mage with dice=[6], attack=0 = 6
     # Mage would win
 
-    engine = GameEngine("test_game", "player1", game)
+    action = DebugSetBattleDiceRollsAction("player1", game)
     # Knight has 1 dice, mage has 1 dice
     # Set knight dice to [6], mage dice to [1]
-    engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[6], opponent_dice_roll=[1])
+    updated_game = action.run(active_dice_roll=[6], opponent_dice_roll=[1])
 
     # After debug action: knight with dice=[6], attack=1 = 7, mage with dice=[1], attack=0 = 1
     # Knight should win
-    assert isinstance(game.active, ActivePlayer4)
-    assert isinstance(game.opponent, Opponent4)
-    assert game.active.dice_roll == [6]
-    assert game.opponent.dice_roll == [1]
-    assert game.active.result.winner is True
-    assert game.opponent.result.winner is False
-    assert game.active.result.score == 7
-    assert game.opponent.result.score == 1
+    assert isinstance(updated_game.active, ActivePlayer4)
+    assert isinstance(updated_game.opponent, Opponent4)
+    assert updated_game.active.dice_roll == [6]
+    assert updated_game.opponent.dice_roll == [1]
+    assert updated_game.active.result.winner is True
+    assert updated_game.opponent.result.winner is False
+    assert updated_game.active.result.score == 7
+    assert updated_game.opponent.result.score == 1
 
 
 def test_debug_set_battle_dice_rolls_creates_draw():
@@ -552,19 +550,19 @@ def test_debug_set_battle_dice_rolls_creates_draw():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = DebugSetBattleDiceRollsAction("player1", game)
     # Knight has 1 dice, archer has 1 dice
     # Knight with dice=[5], attack=1 = 6, archer with dice=[6], attack=0 = 6
-    engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[5], opponent_dice_roll=[6])
+    updated_game = action.run(active_dice_roll=[5], opponent_dice_roll=[6])
 
-    assert isinstance(game.active, ActivePlayer4)
-    assert isinstance(game.opponent, Opponent4)
-    assert game.active.dice_roll == [5]
-    assert game.opponent.dice_roll == [6]
-    assert game.active.result.winner is False
-    assert game.opponent.result.winner is False
-    assert game.active.result.score == 6
-    assert game.opponent.result.score == 6
+    assert isinstance(updated_game.active, ActivePlayer4)
+    assert isinstance(updated_game.opponent, Opponent4)
+    assert updated_game.active.dice_roll == [5]
+    assert updated_game.opponent.dice_roll == [6]
+    assert updated_game.active.result.winner is False
+    assert updated_game.opponent.result.winner is False
+    assert updated_game.active.result.score == 6
+    assert updated_game.opponent.result.score == 6
 
 
 def test_debug_set_battle_dice_rolls_wrong_stage():
@@ -578,9 +576,9 @@ def test_debug_set_battle_dice_rolls_wrong_stage():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = DebugSetBattleDiceRollsAction("player1", game)
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[6], opponent_dice_roll=[6])
+        action.run(active_dice_roll=[6], opponent_dice_roll=[6])
 
 
 def test_debug_set_battle_dice_rolls_active_not_rolled():
@@ -596,9 +594,9 @@ def test_debug_set_battle_dice_rolls_active_not_rolled():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = DebugSetBattleDiceRollsAction("player1", game)
     with pytest.raises(GameException, match="Active player has not rolled yet"):
-        engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[6], opponent_dice_roll=[6])
+        action.run(active_dice_roll=[6], opponent_dice_roll=[6])
 
 
 def test_debug_set_battle_dice_rolls_opponent_not_rolled():
@@ -614,9 +612,9 @@ def test_debug_set_battle_dice_rolls_opponent_not_rolled():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = DebugSetBattleDiceRollsAction("player1", game)
     with pytest.raises(GameException, match="Opponent has not rolled yet"):
-        engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[6], opponent_dice_roll=[6])
+        action.run(active_dice_roll=[6], opponent_dice_roll=[6])
 
 
 def test_debug_set_battle_dice_rolls_invalid_dice_count():
@@ -632,10 +630,10 @@ def test_debug_set_battle_dice_rolls_invalid_dice_count():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = DebugSetBattleDiceRollsAction("player1", game)
     # Knight has 1 dice but we're passing 2 dice
     with pytest.raises(GameException, match="Active dice roll count 2 does not match character dice 1"):
-        engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[6, 6], opponent_dice_roll=[1])
+        action.run(active_dice_roll=[6, 6], opponent_dice_roll=[1])
 
 
 # ============================================================================
@@ -677,11 +675,11 @@ def test_reroll_effect_action():
     assert game.stage == BATTLE_DICE_ROLL
 
     # Perform reroll using RerollEffectAction
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(ACTION_REROLL_EFFECT)
+    action = RerollEffectAction("player1", game)
+    updated_game = action.run()
 
     # Verify all RerollDiceEffects are removed, other effects preserved
-    active_character_after = game.players[game.active.player].characters[game.active.character]
+    active_character_after = updated_game.players[updated_game.active.player].characters[updated_game.active.character]
     assert len(active_character_after.effects) == 2  # Only AttackBonusEffect and SkipTurnEffect
 
     # Verify no RerollDiceEffects remain
@@ -696,7 +694,7 @@ def test_reroll_effect_action():
     assert any(isinstance(eff, SkipTurnEffect) for eff in active_character_after.effects)
 
     # Verify the game state was reset (reroll happened)
-    assert isinstance(game.active, ActivePlayer2)
-    assert isinstance(game.opponent, Opponent2)
-    assert not hasattr(game.active, "dice_roll")
-    assert not hasattr(game.opponent, "dice_roll")
+    assert isinstance(updated_game.active, ActivePlayer2)
+    assert isinstance(updated_game.opponent, Opponent2)
+    assert not hasattr(updated_game.active, "dice_roll")
+    assert not hasattr(updated_game.opponent, "dice_roll")

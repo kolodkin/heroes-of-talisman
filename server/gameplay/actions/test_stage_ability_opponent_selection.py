@@ -7,7 +7,7 @@ selected opponents for ability targeting and confirming selections to apply effe
 
 import pytest
 
-from server.game_engine import GameEngine
+from .stage_ability_opponent_selection import AbilityOpponentPressAction, AbilityOpponentSelectAction
 from ..models import (
     GamePlay,
     Player,
@@ -22,8 +22,6 @@ from ..models import (
     BATTLE_HOWL,
     FREEZE,
     ABILITIES_MAP,
-    ABILITY_OPPONENT_PRESS,
-    ABILITY_OPPONENT_SELECT,
     init_characters,
 )
 
@@ -41,14 +39,14 @@ def test_ability_opponent_press_action_valid():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(ABILITY_OPPONENT_PRESS, opponent="player2", character=KNIGHT)
+    action = AbilityOpponentPressAction("player1", game)
+    updated_game = action.run(opponent="player2", character=KNIGHT)
 
-    assert game.stage_meta is not None
-    assert isinstance(game.stage_meta, Opponent2)
-    assert game.stage_meta.player == "player2"
-    assert game.stage_meta.character == KNIGHT
-    assert game.stage == ABILITY_OPPONENT_SELECTION  # Still in ability opponent selection
+    assert updated_game.stage_meta is not None
+    assert isinstance(updated_game.stage_meta, Opponent2)
+    assert updated_game.stage_meta.player == "player2"
+    assert updated_game.stage_meta.character == KNIGHT
+    assert updated_game.stage == ABILITY_OPPONENT_SELECTION  # Still in ability opponent selection
 
 
 def test_ability_opponent_press_action_not_active_player():
@@ -64,10 +62,10 @@ def test_ability_opponent_press_action_not_active_player():
         },
     )
 
-    engine = GameEngine("test_game", "player2", game)
+    action = AbilityOpponentPressAction("player2", game)
 
     with pytest.raises(ReportedException, match="It's not your turn"):
-        engine.run_action(ABILITY_OPPONENT_PRESS, opponent="player1", character=KNIGHT)
+        action.run(opponent="player1", character=KNIGHT)
 
 
 def test_ability_opponent_press_action_wrong_stage():
@@ -83,10 +81,10 @@ def test_ability_opponent_press_action_wrong_stage():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = AbilityOpponentPressAction("player1", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        engine.run_action(ABILITY_OPPONENT_PRESS, opponent="player2", character=KNIGHT)
+        action.run(opponent="player2", character=KNIGHT)
 
 
 def test_ability_opponent_press_action_invalid_opponent():
@@ -99,10 +97,10 @@ def test_ability_opponent_press_action_invalid_opponent():
         players={"player1": Player(name="player1", characters=characters)},
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = AbilityOpponentPressAction("player1", game)
 
     with pytest.raises(ReportedException, match="not in game"):
-        engine.run_action(ABILITY_OPPONENT_PRESS, opponent="nonexistent", character=KNIGHT)
+        action.run(opponent="nonexistent", character=KNIGHT)
 
 
 def test_ability_opponent_press_action_self_as_opponent():
@@ -118,10 +116,10 @@ def test_ability_opponent_press_action_self_as_opponent():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = AbilityOpponentPressAction("player1", game)
 
     with pytest.raises(ReportedException, match="Cannot select yourself as opponent"):
-        engine.run_action(ABILITY_OPPONENT_PRESS, opponent="player1", character=KNIGHT)
+        action.run(opponent="player1", character=KNIGHT)
 
 
 def test_ability_opponent_press_action_dead_character():
@@ -139,10 +137,10 @@ def test_ability_opponent_press_action_dead_character():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = AbilityOpponentPressAction("player1", game)
 
     with pytest.raises(ReportedException, match="is dead and can't be targeted"):
-        engine.run_action(ABILITY_OPPONENT_PRESS, opponent="player2", character=KNIGHT)
+        action.run(opponent="player2", character=KNIGHT)
 
 
 def test_ability_opponent_select_action_valid():
@@ -160,20 +158,20 @@ def test_ability_opponent_select_action_valid():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
-    engine.run_action(ABILITY_OPPONENT_SELECT)
+    action = AbilityOpponentSelectAction("player1", game)
+    updated_game = action.run()
 
     # Check stage transition
-    assert game.stage == OPPONENT_SELECTION
-    assert game.stage_meta is None
+    assert updated_game.stage == OPPONENT_SELECTION
+    assert updated_game.stage_meta is None
 
     # Check ability_opponent is set
-    assert game.ability_opponent is not None
-    assert game.ability_opponent.player == "player2"
-    assert game.ability_opponent.character == KNIGHT
+    assert updated_game.ability_opponent is not None
+    assert updated_game.ability_opponent.player == "player2"
+    assert updated_game.ability_opponent.character == KNIGHT
 
     # Check effects were applied to target character
-    target_character = game.players["player2"].characters[KNIGHT]
+    target_character = updated_game.players["player2"].characters[KNIGHT]
     assert len(target_character.effects) > 0
     assert target_character.effects[0].source == BATTLE_HOWL
 
@@ -192,10 +190,10 @@ def test_ability_opponent_select_action_not_active_player():
         },
     )
 
-    engine = GameEngine("test_game", "player2", game)
+    action = AbilityOpponentSelectAction("player2", game)
 
     with pytest.raises(ReportedException, match="It's not your turn"):
-        engine.run_action(ABILITY_OPPONENT_SELECT)
+        action.run()
 
 
 def test_ability_opponent_select_action_wrong_stage():
@@ -212,10 +210,10 @@ def test_ability_opponent_select_action_wrong_stage():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = AbilityOpponentSelectAction("player1", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        engine.run_action(ABILITY_OPPONENT_SELECT)
+        action.run()
 
 
 def test_ability_opponent_select_action_no_target_selected():
@@ -231,10 +229,10 @@ def test_ability_opponent_select_action_no_target_selected():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = AbilityOpponentSelectAction("player1", game)
 
     with pytest.raises(ReportedException, match="No ability target selected"):
-        engine.run_action(ABILITY_OPPONENT_SELECT)
+        action.run()
 
 
 def test_ability_opponent_select_action_dead_character():
@@ -255,7 +253,7 @@ def test_ability_opponent_select_action_dead_character():
         },
     )
 
-    engine = GameEngine("test_game", "player1", game)
+    action = AbilityOpponentSelectAction("player1", game)
 
     with pytest.raises(ReportedException, match="is dead and can't be targeted"):
-        engine.run_action(ABILITY_OPPONENT_SELECT)
+        action.run()
