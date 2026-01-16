@@ -27,13 +27,11 @@ class OpponentPressAction(Action):
     triggering a game_update that highlights the selected opponent in the UI.
     """
 
-    def run(self, opponent: str, character: str) -> GamePlay:
-        # Validate stage
-        if self.game.stage != OPPONENT_SELECTION:
-            raise GameException(
-                f"Cannot select opponent in stage: {self.game.stage}"
-            )
+    @property
+    def action_stages(self):
+        return [OPPONENT_SELECTION]
 
+    def _run(self, opponent: str, character: str) -> GamePlay:
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
@@ -75,13 +73,11 @@ class OpponentSelectAction(Action):
     in game metadata, and transitions the game stage to 'battle'.
     """
 
-    def run(self) -> GamePlay:
-        # Validate stage
-        if self.game.stage != OPPONENT_SELECTION:
-            raise GameException(
-                f"Cannot confirm selection in stage: {self.game.stage}"
-            )
+    @property
+    def action_stages(self):
+        return [OPPONENT_SELECTION]
 
+    def _run(self) -> GamePlay:
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")

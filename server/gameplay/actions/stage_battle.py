@@ -111,11 +111,11 @@ class ActivePlayerRollAction(Action):
     Rolls a dice (1-6) and sets active.dice to the rolled value.
     """
 
-    def run(self) -> GamePlay:
-        # Validate stage
-        if self.game.stage != BATTLE_DICE_ROLL:
-            raise GameException(f"Cannot roll dice in stage: {self.game.stage}")
+    @property
+    def action_stages(self):
+        return [BATTLE_DICE_ROLL]
 
+    def _run(self) -> GamePlay:
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
@@ -158,11 +158,11 @@ class OpponentRollAction(Action):
     Note: Can be invoked by any player (not just active player).
     """
 
-    def run(self) -> GamePlay:
-        # Validate stage
-        if self.game.stage != BATTLE_DICE_ROLL:
-            raise GameException(f"Cannot roll dice in stage: {self.game.stage}")
+    @property
+    def action_stages(self):
+        return [BATTLE_DICE_ROLL]
 
+    def _run(self) -> GamePlay:
         # Validate opponent exists
         if not self.game.opponent:
             raise GameException("No opponent selected")
@@ -202,7 +202,6 @@ def validate_and_reset_reroll(game: GamePlay, user: str) -> GamePlay:
     Common validation and reset logic for reroll actions.
 
     Validates:
-    - Stage is BATTLE_DICE_ROLL
     - User is the active player
     - Both players have rolled (ActivePlayer3/4 and Opponent3/4)
 
@@ -215,10 +214,6 @@ def validate_and_reset_reroll(game: GamePlay, user: str) -> GamePlay:
     Returns:
         Updated game state with reset dice rolls
     """
-    # Validate stage
-    if game.stage != BATTLE_DICE_ROLL:
-        raise GameException(f"Cannot reroll in stage: {game.stage}")
-
     # Validate user is the active player
     if not game.active or game.active.player != user:
         raise ReportedException("It's not your turn")
@@ -250,11 +245,11 @@ class RerollAction(Action):
     ActivePlayer2 and Opponent2 (no dice_roll, no winner).
     """
 
-    def run(self) -> GamePlay:
-        # First validate stage (for proper error message ordering in tests)
-        if self.game.stage != BATTLE_DICE_ROLL:
-            raise GameException(f"Cannot reroll in stage: {self.game.stage}")
+    @property
+    def action_stages(self):
+        return [BATTLE_DICE_ROLL]
 
+    def _run(self) -> GamePlay:
         # Validate it's a draw (no winner) - must be ActivePlayer4/Opponent4 with results
         if isinstance(self.game.active, ActivePlayer4) and isinstance(self.game.opponent, Opponent4):
             if self.game.active.result.winner or self.game.opponent.result.winner:
@@ -278,11 +273,11 @@ class RerollEffectAction(Action):
     so this action only needs to validate BATTLE_DICE_ROLL stage.
     """
 
-    def run(self) -> GamePlay:
-        # Validate stage
-        if self.game.stage != BATTLE_DICE_ROLL:
-            raise GameException(f"Cannot use reroll effect in stage: {self.game.stage}")
+    @property
+    def action_stages(self):
+        return [BATTLE_DICE_ROLL]
 
+    def _run(self) -> GamePlay:
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
@@ -325,11 +320,11 @@ class DebugSetBattleDiceRollsAction(Action):
         Example: active_dice_roll=[6], opponent_dice_roll=[1]
     """
 
-    def run(self, active_dice_roll: list[int], opponent_dice_roll: list[int]) -> GamePlay:
-        # Validate stage - allow both BATTLE_DICE_ROLL and BATTLE_END
-        if self.game.stage not in [BATTLE_DICE_ROLL, BATTLE_END]:
-            raise GameException(f"Cannot set dice rolls in stage: {self.game.stage}")
+    @property
+    def action_stages(self):
+        return [BATTLE_DICE_ROLL, BATTLE_END]
 
+    def _run(self, active_dice_roll: list[int], opponent_dice_roll: list[int]) -> GamePlay:
         # Validate both players have rolled (must be ActivePlayer3/4 and Opponent3/4)
         if not isinstance(self.game.active, (ActivePlayer3, ActivePlayer4)) or not self.game.active.dice_roll:
             raise GameException("Active player has not rolled yet")

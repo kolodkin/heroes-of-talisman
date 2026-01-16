@@ -11,11 +11,11 @@ from .stage_battle import (
     ActivePlayerRollAction,
     OpponentRollAction,
     RerollAction,
+    RerollEffectAction,
     DebugSetBattleDiceRollsAction,
     calculate_winner,
     set_winner_if_both_rolled,
 )
-from .battle_end import BattleEndAction
 from ..models import (
     GamePlay,
     Player,
@@ -114,7 +114,7 @@ def test_active_player_roll_wrong_stage():
 
     action = ActivePlayerRollAction("player1", game)
 
-    with pytest.raises(GameException, match="Cannot roll dice in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run()
 
 
@@ -240,7 +240,7 @@ def test_opponent_roll_wrong_stage():
 
     action = OpponentRollAction("player2", game)
 
-    with pytest.raises(GameException, match="Cannot roll dice in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run()
 
 
@@ -325,7 +325,7 @@ def test_reroll_action_wrong_stage():
 
     action = RerollAction("player1", game)
 
-    with pytest.raises(GameException, match="Cannot reroll in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run()
 
 
@@ -391,7 +391,7 @@ def test_reroll_action_winner_exists():
     action = RerollAction("player1", game)
 
     # Should fail because stage is BATTLE_END, not BATTLE_DICE_ROLL
-    with pytest.raises(GameException, match="Cannot reroll in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run()
 
 
@@ -577,7 +577,7 @@ def test_debug_set_battle_dice_rolls_wrong_stage():
     )
 
     action = DebugSetBattleDiceRollsAction("player1", game)
-    with pytest.raises(GameException, match="Cannot set dice rolls in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run(active_dice_roll=[6], opponent_dice_roll=[6])
 
 
@@ -675,8 +675,6 @@ def test_reroll_effect_action():
     assert game.stage == BATTLE_DICE_ROLL
 
     # Perform reroll using RerollEffectAction
-    from ..actions import RerollEffectAction
-
     action = RerollEffectAction("player1", game)
     updated_game = action.run()
 
