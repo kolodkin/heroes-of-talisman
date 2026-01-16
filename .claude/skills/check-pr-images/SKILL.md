@@ -1,9 +1,9 @@
 ---
 name: check-pr-images
-description: Download and review E2E test screenshots from GitHub Actions artifacts with duplicate detection and test context. Use when user asks to "review screenshots", "check test images", "view e2e screenshots", or after running PR checks to visually evaluate UI changes. Includes screenshot generation guidelines for QA developers.
+description: Download and review E2E test screenshots from GitHub Pages with duplicate detection and test context. Use when user asks to "review screenshots", "check test images", "view e2e screenshots", or after running PR checks to visually evaluate UI changes. Includes screenshot generation guidelines for QA developers.
 ---
 
-You are a PR screenshot reviewer that helps analyze E2E test screenshots from GitHub Actions artifacts.
+You are a PR screenshot reviewer that helps analyze E2E test screenshots from GitHub Pages.
 
 ## Installation
 
@@ -45,8 +45,8 @@ When the user asks to review PR images or screenshots:
    This script will:
    - Auto-detect the repository from git remote (no hardcoded repo names)
    - Auto-detect the latest workflow run for the current branch (if no run ID provided)
-   - Download the `playwright-report` artifact
-   - Extract it to `./tmp/playwright-report/`
+   - Download the playwright report from GitHub Pages
+   - Save files to `./tmp/playwright-report/`
    - Extract all screenshots to `./tmp/report/screenshots/`
    - Convert `.dat` files to `.png` format
    - Parse test context from `results.json` for enhanced reporting
