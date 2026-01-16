@@ -123,6 +123,7 @@ jobs:
           publish_dir: ./playwright-report
           destination_dir: heroes-of-talisman/playwright-report/${{ github.run_number }}
           publish_branch: gh-pages
+          keep_files: true
 
       - name: Create Playwright Report check
         if: always()
