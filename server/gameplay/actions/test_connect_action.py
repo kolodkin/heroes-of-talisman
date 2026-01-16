@@ -7,7 +7,8 @@ reconnections, game capacity limits, and character initialization.
 
 import pytest
 
-from .connection import ConnectAction, __MAX_PLAYERS__
+from server.game_engine import GameEngine
+from ..models import CONNECT, LEAVE, DISCONNECT
 from ..models import (
     GamePlay,
     Player,
@@ -29,20 +30,20 @@ from ..models import (
 def test_connect_action_new_player():
     """Test connecting a new player to an empty game"""
     game = GamePlay()
-    action = ConnectAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
-    updated_game = action.run()
+    engine.run_action(CONNECT)
 
-    assert "player1" in updated_game.players
-    assert updated_game.players["player1"].name == "player1"
-    assert updated_game.players["player1"].status == CONNECTED
-    assert updated_game.players["player1"].cards == []
-    assert len(updated_game.players["player1"].characters) == 3
-    assert KNIGHT in updated_game.players["player1"].characters
-    assert ARCHER in updated_game.players["player1"].characters
-    assert MAGE in updated_game.players["player1"].characters
-    assert updated_game.stage == CHARACTER_SELECT
-    assert updated_game.active.player == "player1"
+    assert "player1" in game.players
+    assert game.players["player1"].name == "player1"
+    assert game.players["player1"].status == CONNECTED
+    assert game.players["player1"].cards == []
+    assert len(game.players["player1"].characters) == 3
+    assert KNIGHT in game.players["player1"].characters
+    assert ARCHER in game.players["player1"].characters
+    assert MAGE in game.players["player1"].characters
+    assert game.stage == CHARACTER_SELECT
+    assert game.active.player == "player1"
 
 
 def test_connect_action_existing_player_reconnect():
@@ -59,13 +60,13 @@ def test_connect_action_existing_player_reconnect():
         },
     )
 
-    action = ConnectAction("player1", game)
-    updated_game = action.run()
+    engine = GameEngine("test_game", "player1", game)
+    engine.run_action(CONNECT)
 
     # Player should be reconnected with their existing data
-    assert updated_game.players["player1"].status == CONNECTED
-    assert updated_game.players["player1"].cards == ["talisman"]
-    assert updated_game.players["player1"].characters[KNIGHT].level == 2
+    assert game.players["player1"].status == CONNECTED
+    assert game.players["player1"].cards == ["talisman"]
+    assert game.players["player1"].characters[KNIGHT].level == 2
 
 
 def test_connect_action_game_full():
@@ -80,10 +81,10 @@ def test_connect_action_game_full():
             characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
         game.players[player_name] = Player(name=player_name, characters=characters)
 
-    action = ConnectAction("player_overflow", game)
+    engine = GameEngine("test_game", "player_overflow", game)
 
     with pytest.raises(ReportedException, match="Game is full"):
-        action.run()
+        engine.run_action(CONNECT)
 
 
 def test_connect_action_second_player():
@@ -96,35 +97,35 @@ def test_connect_action_second_player():
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    action = ConnectAction("player2", game)
-    updated_game = action.run()
+    engine = GameEngine("test_game", "player2", game)
+    engine.run_action(CONNECT)
 
-    assert "player2" in updated_game.players
-    assert updated_game.players["player2"].status == CONNECTED
-    assert updated_game.stage == CHARACTER_SELECT
-    assert updated_game.active.player == "player1"  # Active player should not change
+    assert "player2" in game.players
+    assert game.players["player2"].status == CONNECTED
+    assert game.stage == CHARACTER_SELECT
+    assert game.active.player == "player1"  # Active player should not change
 
 
 def test_connect_action_stage_none():
     """Test connecting a player when game stage is None"""
     game = GamePlay()
     game.stage = None  # Explicitly set to None
-    action = ConnectAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
-    updated_game = action.run()
+    engine.run_action(CONNECT)
 
-    assert updated_game.stage == CHARACTER_SELECT
-    assert updated_game.active.player == "player1"
+    assert game.stage == CHARACTER_SELECT
+    assert game.active.player == "player1"
 
 
 def test_connect_action_character_stats():
     """Test that connected player gets correct default character stats"""
     game = GamePlay()
-    action = ConnectAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
-    updated_game = action.run()
+    engine.run_action(CONNECT)
 
-    player = updated_game.players["player1"]
+    player = game.players["player1"]
 
     # Check knight stats
     knight = player.characters[KNIGHT]

@@ -8,7 +8,8 @@ the only player leaving.
 
 import pytest
 
-from .connection import LeaveAction
+from server.game_engine import GameEngine
+from ..models import CONNECT, LEAVE, DISCONNECT
 from ..models import (
     GamePlay,
     Player,
@@ -30,20 +31,20 @@ def test_leave_action_existing_player():
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
-    action = LeaveAction("player1", game)
-    updated_game = action.run()
+    engine = GameEngine("test_game", "player1", game)
+    engine.run_action(LEAVE)
 
-    assert "player1" not in updated_game.players
-    assert "player2" in updated_game.players  # Other players remain
+    assert "player1" not in game.players
+    assert "player2" in game.players  # Other players remain
 
 
 def test_leave_action_nonexistent_player():
     """Test a player who is not in the game trying to leave"""
     game = GamePlay()
-    action = LeaveAction("nonexistent_player", game)
+    engine = GameEngine("test_game", "nonexistent_player", game)
 
     with pytest.raises(GameException, match="Player not in game"):
-        action.run()
+        engine.run_action(LEAVE)
 
 
 def test_leave_action_only_player():
@@ -54,7 +55,7 @@ def test_leave_action_only_player():
         characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    action = LeaveAction("player1", game)
-    updated_game = action.run()
+    engine = GameEngine("test_game", "player1", game)
+    engine.run_action(LEAVE)
 
-    assert len(updated_game.players) == 0
+    assert len(game.players) == 0
