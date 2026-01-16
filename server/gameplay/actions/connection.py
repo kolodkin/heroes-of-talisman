@@ -25,7 +25,7 @@ class ConnectAction(Action):
     def action_stages(self):
         return None  # Can connect at any time
 
-    def run(self) -> GamePlay:
+    def _run(self) -> GamePlay:
         if self.user not in self.players:
             if len(self.players) >= MAX_PLAYERS:
                 raise ReportedException("Game is full")
@@ -50,7 +50,7 @@ class LeaveAction(Action):
     def action_stages(self):
         return None  # Can leave at any time
 
-    def run(self) -> GamePlay:
+    def _run(self) -> GamePlay:
         if self.user not in self.players:
             raise GameException("Player not in game")
 
@@ -63,6 +63,6 @@ class DisconnectAction(Action):
     def action_stages(self):
         return None  # Can disconnect at any time
 
-    def run(self) -> GamePlay:
+    def _run(self) -> GamePlay:
         self.player.status = DISCONNECTED
         return self.game

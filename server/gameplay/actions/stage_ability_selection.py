@@ -34,9 +34,7 @@ class AbilityPressAction(Action):
     def action_stages(self):
         return [ABILITY_SELECTION]
 
-    def run(self, ability: AbilityName) -> GamePlay:
-        self.assert_stage()
-
+    def _run(self, ability: AbilityName) -> GamePlay:
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
@@ -76,9 +74,7 @@ class AbilitySelectAction(Action):
     def action_stages(self):
         return [ABILITY_SELECTION]
 
-    def run(self, ability: AbilityName) -> GamePlay:
-        self.assert_stage()
-
+    def _run(self, ability: AbilityName) -> GamePlay:
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")

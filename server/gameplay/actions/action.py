@@ -121,6 +121,11 @@ class Action(ABC):
             stages_str = ", ".join(self.action_stages)
             raise GameException(f"Cannot perform action in stage '{self.stage}'. Valid stages: {stages_str}")
 
-    @abstractmethod
     def run(self, *args, **kwargs) -> GamePlay:
-        """Execute the action and return the updated game."""
+        """Execute the action with automatic stage validation."""
+        self.assert_stage()
+        return self._run(*args, **kwargs)
+
+    @abstractmethod
+    def _run(self, *args, **kwargs) -> GamePlay:
+        """Execute the action logic. Implemented by subclasses."""

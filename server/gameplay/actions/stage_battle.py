@@ -115,9 +115,7 @@ class ActivePlayerRollAction(Action):
     def action_stages(self):
         return [BATTLE_DICE_ROLL]
 
-    def run(self) -> GamePlay:
-        self.assert_stage()
-
+    def _run(self) -> GamePlay:
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
@@ -164,9 +162,7 @@ class OpponentRollAction(Action):
     def action_stages(self):
         return [BATTLE_DICE_ROLL]
 
-    def run(self) -> GamePlay:
-        self.assert_stage()
-
+    def _run(self) -> GamePlay:
         # Validate opponent exists
         if not self.game.opponent:
             raise GameException("No opponent selected")
@@ -253,9 +249,7 @@ class RerollAction(Action):
     def action_stages(self):
         return [BATTLE_DICE_ROLL]
 
-    def run(self) -> GamePlay:
-        self.assert_stage()
-
+    def _run(self) -> GamePlay:
         # Validate it's a draw (no winner) - must be ActivePlayer4/Opponent4 with results
         if isinstance(self.game.active, ActivePlayer4) and isinstance(self.game.opponent, Opponent4):
             if self.game.active.result.winner or self.game.opponent.result.winner:
@@ -283,9 +277,7 @@ class RerollEffectAction(Action):
     def action_stages(self):
         return [BATTLE_DICE_ROLL]
 
-    def run(self) -> GamePlay:
-        self.assert_stage()
-
+    def _run(self) -> GamePlay:
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
@@ -332,9 +324,7 @@ class DebugSetBattleDiceRollsAction(Action):
     def action_stages(self):
         return [BATTLE_DICE_ROLL, BATTLE_END]
 
-    def run(self, active_dice_roll: list[int], opponent_dice_roll: list[int]) -> GamePlay:
-        self.assert_stage()
-
+    def _run(self, active_dice_roll: list[int], opponent_dice_roll: list[int]) -> GamePlay:
         # Validate both players have rolled (must be ActivePlayer3/4 and Opponent3/4)
         if not isinstance(self.game.active, (ActivePlayer3, ActivePlayer4)) or not self.game.active.dice_roll:
             raise GameException("Active player has not rolled yet")
