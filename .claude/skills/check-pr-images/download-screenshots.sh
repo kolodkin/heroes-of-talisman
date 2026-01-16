@@ -56,75 +56,71 @@ rm -rf "$REPORT_DIR"
 mkdir -p "$TMP_DIR"
 mkdir -p "$REPORT_DIR"
 
-# Download the playwright-report artifact (from original directory to preserve git context)
-echo "📥 Downloading playwright-report artifact..."
-ARTIFACT_DOWNLOADED=false
+# Get the run number (different from run ID) for gh-pages URL
+RUN_NUMBER=$(gh run view "$RUN_ID" -R "$REPO" --json number --jq '.number' 2>/dev/null)
 
-if (cd "$TMP_DIR" && gh run download "$RUN_ID" -n playwright-report -R "$REPO" 2>/dev/null); then
-    echo "✅ Artifact downloaded successfully"
-    ARTIFACT_DOWNLOADED=true
-else
-    echo "⚠️  Artifact download failed, trying gh-pages fallback..."
-
-    # Get the run number (different from run ID) for gh-pages URL
-    RUN_NUMBER=$(gh run view "$RUN_ID" -R "$REPO" --json number --jq '.number' 2>/dev/null)
-
-    if [ -n "$RUN_NUMBER" ] && [ "$RUN_NUMBER" != "null" ]; then
-        # Extract owner from REPO (format: owner/repo)
-        REPO_OWNER=$(echo "$REPO" | cut -d'/' -f1)
-        REPO_NAME=$(echo "$REPO" | cut -d'/' -f2)
-        GH_PAGES_URL="https://${REPO_OWNER}.github.io/artifact-view/${REPO_NAME}/playwright-report/${RUN_NUMBER}"
-
-        echo "📥 Fetching from gh-pages: $GH_PAGES_URL"
-
-        # Download index.html and data files from gh-pages
-        if wget -q --spider "$GH_PAGES_URL/index.html" 2>/dev/null; then
-            echo "  Downloading report files..."
-            # Download main files
-            wget -q -P "$TMP_DIR" "$GH_PAGES_URL/index.html" 2>/dev/null || true
-            wget -q -P "$TMP_DIR" "$GH_PAGES_URL/results.json" 2>/dev/null || true
-
-            # Download data directory (screenshots)
-            mkdir -p "$TMP_DIR/data"
-
-            # Parse results.json to get list of data files (screenshots)
-            if [ -f "$TMP_DIR/results.json" ]; then
-                echo "  Parsing results.json for screenshot references..."
-                # Extract all data/*.dat paths from results.json
-                DATA_FILES=$(grep -oE '"path"[[:space:]]*:[[:space:]]*"data/[^"]+\.dat"' "$TMP_DIR/results.json" 2>/dev/null | \
-                    sed 's/"path"[[:space:]]*:[[:space:]]*"data\///;s/\.dat"$//' | sort -u || true)
-
-                if [ -n "$DATA_FILES" ]; then
-                    file_count=$(echo "$DATA_FILES" | wc -l)
-                    echo "  Found $file_count screenshot files, downloading..."
-                    downloaded=0
-                    for file in $DATA_FILES; do
-                        if wget -q -P "$TMP_DIR/data" "$GH_PAGES_URL/data/${file}.dat" 2>/dev/null; then
-                            downloaded=$((downloaded + 1))
-                        fi
-                    done
-                    echo "  Downloaded $downloaded/$file_count files"
-                    if [ "$downloaded" -gt 0 ]; then
-                        ARTIFACT_DOWNLOADED=true
-                        echo "✅ Downloaded from gh-pages successfully"
-                    fi
-                else
-                    echo "⚠️  No screenshot references found in results.json"
-                fi
-            else
-                echo "⚠️  results.json not downloaded"
-            fi
-        else
-            echo "⚠️  gh-pages report not accessible at: $GH_PAGES_URL"
-        fi
-    else
-        echo "⚠️  Could not get run number for gh-pages URL"
-    fi
+if [ -z "$RUN_NUMBER" ] || [ "$RUN_NUMBER" = "null" ]; then
+    echo "❌ Error: Could not get run number for workflow run $RUN_ID"
+    exit 1
 fi
 
-if [ "$ARTIFACT_DOWNLOADED" = false ]; then
-    echo "❌ Failed to download report from artifact or gh-pages."
-    echo "💡 The artifact may not exist or gh-pages deployment may have failed."
+# Extract owner from REPO (format: owner/repo)
+REPO_OWNER=$(echo "$REPO" | cut -d'/' -f1)
+REPO_NAME=$(echo "$REPO" | cut -d'/' -f2)
+GH_PAGES_URL="https://${REPO_OWNER}.github.io/artifact-view/${REPO_NAME}/playwright-report/${RUN_NUMBER}"
+
+echo "📥 Downloading playwright report from GitHub Pages..."
+echo "   URL: $GH_PAGES_URL"
+
+# Check if the report is accessible
+if ! wget -q --spider "$GH_PAGES_URL/index.html" 2>/dev/null; then
+    echo "❌ Error: Report not accessible at: $GH_PAGES_URL"
+    echo "💡 The GitHub Pages deployment may still be in progress or may have failed."
+    echo "💡 Wait a moment and try again, or check the workflow run status."
+    exit 1
+fi
+
+echo "  Downloading report files..."
+# Download main files
+wget -q -P "$TMP_DIR" "$GH_PAGES_URL/index.html" 2>/dev/null || true
+wget -q -P "$TMP_DIR" "$GH_PAGES_URL/results.json" 2>/dev/null || true
+
+# Download data directory (screenshots)
+mkdir -p "$TMP_DIR/data"
+
+DOWNLOAD_SUCCESS=false
+
+# Parse results.json to get list of data files (screenshots)
+if [ -f "$TMP_DIR/results.json" ]; then
+    echo "  Parsing results.json for screenshot references..."
+    # Extract all data/*.dat paths from results.json
+    DATA_FILES=$(grep -oE '"path"[[:space:]]*:[[:space:]]*"data/[^"]+\.dat"' "$TMP_DIR/results.json" 2>/dev/null | \
+        sed 's/"path"[[:space:]]*:[[:space:]]*"data\///;s/\.dat"$//' | sort -u || true)
+
+    if [ -n "$DATA_FILES" ]; then
+        file_count=$(echo "$DATA_FILES" | wc -l)
+        echo "  Found $file_count screenshot files, downloading..."
+        downloaded=0
+        for file in $DATA_FILES; do
+            if wget -q -P "$TMP_DIR/data" "$GH_PAGES_URL/data/${file}.dat" 2>/dev/null; then
+                downloaded=$((downloaded + 1))
+            fi
+        done
+        echo "  Downloaded $downloaded/$file_count files"
+        if [ "$downloaded" -gt 0 ]; then
+            DOWNLOAD_SUCCESS=true
+            echo "✅ Downloaded from GitHub Pages successfully"
+        fi
+    else
+        echo "⚠️  No screenshot references found in results.json"
+    fi
+else
+    echo "⚠️  results.json not downloaded"
+fi
+
+if [ "$DOWNLOAD_SUCCESS" = false ]; then
+    echo "❌ Failed to download screenshots from GitHub Pages."
+    echo "💡 The report may not contain any screenshots."
     exit 1
 fi
 echo ""
