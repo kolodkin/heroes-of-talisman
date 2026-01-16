@@ -7,10 +7,7 @@ selected opponents and confirming selections to transition to battle.
 
 import pytest
 
-from .stage_opponent_selection import (
-    OpponentPressAction,
-    OpponentSelectAction,
-)
+from server.game_engine import GameEngine
 from ..models import (
     GamePlay,
     Player,
@@ -30,6 +27,8 @@ from ..models import (
     BATTLE_HOWL,
     ATTACK_NEG_BONUS,
     ABILITIES_MAP,
+    OPPONENT_PRESS,
+    OPPONENT_SELECT,
     init_characters,
 )
 
@@ -41,15 +40,15 @@ def test_opponent_press_action_valid():
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
-    action = OpponentPressAction("player1", game)
-    updated_game = action.run(opponent="player2", character=KNIGHT)
+    engine = GameEngine("test_game", "player1", game)
+    engine.run_action(OPPONENT_PRESS, opponent="player2", character=KNIGHT)
 
-    assert updated_game.stage_meta is not None
-    assert isinstance(updated_game.stage_meta, Opponent2)
-    assert updated_game.stage_meta.player == "player2"
-    assert updated_game.stage_meta.character == KNIGHT
+    assert game.stage_meta is not None
+    assert isinstance(game.stage_meta, Opponent2)
+    assert game.stage_meta.player == "player2"
+    assert game.stage_meta.character == KNIGHT
     assert (
-        updated_game.stage == OPPONENT_SELECTION
+        game.stage == OPPONENT_SELECTION
     )  # Still in opponent selection
 
 
@@ -60,10 +59,10 @@ def test_opponent_press_action_not_active_player():
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
-    action = OpponentPressAction("player2", game)
+    engine = GameEngine("test_game", "player2", game)
 
     with pytest.raises(ReportedException, match="It's not your turn"):
-        action.run(opponent="player1", character=KNIGHT)
+        engine.run_action(OPPONENT_PRESS, opponent="player1", character=KNIGHT)
 
 
 def test_opponent_press_action_wrong_stage():
@@ -73,10 +72,10 @@ def test_opponent_press_action_wrong_stage():
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
-    action = OpponentPressAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        action.run(opponent="player2", character=KNIGHT)
+        engine.run_action(OPPONENT_PRESS, opponent="player2", character=KNIGHT)
 
 
 def test_opponent_press_action_invalid_opponent():
@@ -85,10 +84,10 @@ def test_opponent_press_action_invalid_opponent():
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    action = OpponentPressAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
     with pytest.raises(ReportedException, match="not in game"):
-        action.run(opponent="player2", character=KNIGHT)
+        engine.run_action(OPPONENT_PRESS, opponent="player2", character=KNIGHT)
 
 
 def test_opponent_press_action_self_as_opponent():
@@ -97,12 +96,12 @@ def test_opponent_press_action_self_as_opponent():
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    action = OpponentPressAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
     with pytest.raises(
         ReportedException, match="Cannot select yourself as opponent"
     ):
-        action.run(opponent="player1", character=KNIGHT)
+        engine.run_action(OPPONENT_PRESS, opponent="player1", character=KNIGHT)
 
 
 def test_opponent_press_action_invalid_character():
@@ -119,10 +118,10 @@ def test_opponent_press_action_invalid_character():
         name="player2", characters=player2_characters
     )
 
-    action = OpponentPressAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
     with pytest.raises(ReportedException, match="not available for opponent"):
-        action.run(opponent="player2", character=KNIGHT)
+        engine.run_action(OPPONENT_PRESS, opponent="player2", character=KNIGHT)
 
 
 def test_opponent_select_action_valid():
@@ -135,14 +134,14 @@ def test_opponent_select_action_valid():
     # Set stage_meta with selected opponent
     game.stage_meta = Opponent2(player="player2", character=KNIGHT)
 
-    action = OpponentSelectAction("player1", game)
-    updated_game = action.run()
+    engine = GameEngine("test_game", "player1", game)
+    engine.run_action(OPPONENT_SELECT)
 
-    assert updated_game.opponent is not None
-    assert updated_game.opponent.player == "player2"
-    assert updated_game.opponent.character == KNIGHT
-    assert updated_game.stage == BATTLE_DICE_ROLL
-    assert updated_game.stage_meta is None  # Cleared after transition
+    assert game.opponent is not None
+    assert game.opponent.player == "player2"
+    assert game.opponent.character == KNIGHT
+    assert game.stage == BATTLE_DICE_ROLL
+    assert game.stage_meta is None  # Cleared after transition
 
 
 def test_opponent_select_action_not_active_player():
@@ -155,10 +154,10 @@ def test_opponent_select_action_not_active_player():
     # Set stage_meta with selected opponent
     game.stage_meta = Opponent2(player="player2", character=KNIGHT)
 
-    action = OpponentSelectAction("player2", game)
+    engine = GameEngine("test_game", "player2", game)
 
     with pytest.raises(ReportedException, match="It's not your turn"):
-        action.run()
+        engine.run_action(OPPONENT_SELECT)
 
 
 def test_opponent_select_action_wrong_stage():
@@ -168,10 +167,10 @@ def test_opponent_select_action_wrong_stage():
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
-    action = OpponentSelectAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        action.run()
+        engine.run_action(OPPONENT_SELECT)
 
 
 def test_opponent_select_action_no_opponent_selected():
@@ -180,10 +179,10 @@ def test_opponent_select_action_no_opponent_selected():
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
-    action = OpponentSelectAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
     with pytest.raises(ReportedException, match="No opponent selected"):
-        action.run()
+        engine.run_action(OPPONENT_SELECT)
 
 
 def test_opponent_press_action_dead_character():
@@ -196,10 +195,10 @@ def test_opponent_press_action_dead_character():
     game.players["player1"] = Player(name="player1", characters=characters_p1)
     game.players["player2"] = Player(name="player2", characters=characters_p2)
 
-    action = OpponentPressAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
     with pytest.raises(ReportedException, match="is dead and can't be selected"):
-        action.run(opponent="player2", character=KNIGHT)
+        engine.run_action(OPPONENT_PRESS, opponent="player2", character=KNIGHT)
 
 
 def test_opponent_select_action_dead_character():
@@ -215,10 +214,10 @@ def test_opponent_select_action_dead_character():
     # Set stage_meta with dead character
     game.stage_meta = Opponent2(player="player2", character=KNIGHT)
 
-    action = OpponentSelectAction("player1", game)
+    engine = GameEngine("test_game", "player1", game)
 
     with pytest.raises(ReportedException, match="is dead and can't be selected"):
-        action.run()
+        engine.run_action(OPPONENT_SELECT)
 
 
 def test_opponent_select_action_with_self_effect_ability():
@@ -236,12 +235,12 @@ def test_opponent_select_action_with_self_effect_ability():
     # Set stage_meta with selected opponent
     game.stage_meta = Opponent2(player="player2", character=MAGE)
 
-    action = OpponentSelectAction("player1", game)
-    updated_game = action.run()
+    engine = GameEngine("test_game", "player1", game)
+    engine.run_action(OPPONENT_SELECT)
 
     # Verify opponent's mage has no effects (self effects don't apply to opponent)
-    opponent_mage = updated_game.players["player2"].characters[MAGE]
+    opponent_mage = game.players["player2"].characters[MAGE]
     assert len(opponent_mage.effects) == 0
 
     # Verify game transitioned to battle stage
-    assert updated_game.stage == BATTLE_DICE_ROLL
+    assert game.stage == BATTLE_DICE_ROLL
