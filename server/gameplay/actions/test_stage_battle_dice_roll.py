@@ -525,7 +525,7 @@ def test_debug_set_battle_dice_rolls_valid():
     engine = GameEngine("test_game", "player1", game)
     # Knight has 1 dice, mage has 1 dice
     # Set knight dice to [6], mage dice to [1]
-    engine.run_action(active_dice_roll=[6], opponent_dice_roll=[1])
+    engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[6], opponent_dice_roll=[1])
 
     # After debug action: knight with dice=[6], attack=1 = 7, mage with dice=[1], attack=0 = 1
     # Knight should win
@@ -555,7 +555,7 @@ def test_debug_set_battle_dice_rolls_creates_draw():
     engine = GameEngine("test_game", "player1", game)
     # Knight has 1 dice, archer has 1 dice
     # Knight with dice=[5], attack=1 = 6, archer with dice=[6], attack=0 = 6
-    engine.run_action(active_dice_roll=[5], opponent_dice_roll=[6])
+    engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[5], opponent_dice_roll=[6])
 
     assert isinstance(game.active, ActivePlayer4)
     assert isinstance(game.opponent, Opponent4)
@@ -580,7 +580,7 @@ def test_debug_set_battle_dice_rolls_wrong_stage():
 
     engine = GameEngine("test_game", "player1", game)
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        engine.run_action(active_dice_roll=[6], opponent_dice_roll=[6])
+        engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[6], opponent_dice_roll=[6])
 
 
 def test_debug_set_battle_dice_rolls_active_not_rolled():
@@ -598,7 +598,7 @@ def test_debug_set_battle_dice_rolls_active_not_rolled():
 
     engine = GameEngine("test_game", "player1", game)
     with pytest.raises(GameException, match="Active player has not rolled yet"):
-        engine.run_action(active_dice_roll=[6], opponent_dice_roll=[6])
+        engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[6], opponent_dice_roll=[6])
 
 
 def test_debug_set_battle_dice_rolls_opponent_not_rolled():
@@ -616,7 +616,7 @@ def test_debug_set_battle_dice_rolls_opponent_not_rolled():
 
     engine = GameEngine("test_game", "player1", game)
     with pytest.raises(GameException, match="Opponent has not rolled yet"):
-        engine.run_action(active_dice_roll=[6], opponent_dice_roll=[6])
+        engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[6], opponent_dice_roll=[6])
 
 
 def test_debug_set_battle_dice_rolls_invalid_dice_count():
@@ -635,7 +635,7 @@ def test_debug_set_battle_dice_rolls_invalid_dice_count():
     engine = GameEngine("test_game", "player1", game)
     # Knight has 1 dice but we're passing 2 dice
     with pytest.raises(GameException, match="Active dice roll count 2 does not match character dice 1"):
-        engine.run_action(active_dice_roll=[6, 6], opponent_dice_roll=[1])
+        engine.run_action(DEBUG_SET_BATTLE_DICE_ROLLS, active_dice_roll=[6, 6], opponent_dice_roll=[1])
 
 
 # ============================================================================
