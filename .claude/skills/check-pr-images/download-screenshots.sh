@@ -85,37 +85,57 @@ echo "  Downloading report files..."
 wget -q -P "$TMP_DIR" "$GH_PAGES_URL/index.html" 2>/dev/null || true
 wget -q -P "$TMP_DIR" "$GH_PAGES_URL/results.json" 2>/dev/null || true
 
+DOWNLOAD_SUCCESS=false
+
 # Download data directory (screenshots)
 mkdir -p "$TMP_DIR/data"
 
-DOWNLOAD_SUCCESS=false
+# Method 1: Try to list data files from GitHub API (works for gh-pages)
+echo "  Fetching list of screenshot files from data directory..."
+DATA_FILES=$(gh api "repos/${REPO_OWNER}/artifact-view/contents/heroes-of-talisman/playwright-report/${RUN_NUMBER}/data?ref=gh-pages" 2>/dev/null | \
+    grep -oE '"name":"[^"]+\.dat"' | sed 's/"name":"//;s/\.dat"//' || true)
 
-# Parse results.json to get list of data files (screenshots)
-if [ -f "$TMP_DIR/results.json" ]; then
-    echo "  Parsing results.json for screenshot references..."
-    # Extract all data/*.dat paths from results.json
-    DATA_FILES=$(grep -oE '"path"[[:space:]]*:[[:space:]]*"data/[^"]+\.dat"' "$TMP_DIR/results.json" 2>/dev/null | \
-        sed 's/"path"[[:space:]]*:[[:space:]]*"data\///;s/\.dat"$//' | sort -u || true)
-
-    if [ -n "$DATA_FILES" ]; then
-        file_count=$(echo "$DATA_FILES" | wc -l)
-        echo "  Found $file_count screenshot files, downloading..."
-        downloaded=0
-        for file in $DATA_FILES; do
-            if wget -q -P "$TMP_DIR/data" "$GH_PAGES_URL/data/${file}.dat" 2>/dev/null; then
-                downloaded=$((downloaded + 1))
-            fi
-        done
-        echo "  Downloaded $downloaded/$file_count files"
-        if [ "$downloaded" -gt 0 ]; then
-            DOWNLOAD_SUCCESS=true
-            echo "✅ Downloaded from GitHub Pages successfully"
+if [ -n "$DATA_FILES" ]; then
+    file_count=$(echo "$DATA_FILES" | wc -l)
+    echo "  Found $file_count screenshot files, downloading..."
+    downloaded=0
+    for file in $DATA_FILES; do
+        if wget -q -P "$TMP_DIR/data" "$GH_PAGES_URL/data/${file}.dat" 2>/dev/null; then
+            downloaded=$((downloaded + 1))
         fi
-    else
-        echo "⚠️  No screenshot references found in results.json"
+    done
+    echo "  Downloaded $downloaded/$file_count files"
+    if [ "$downloaded" -gt 0 ]; then
+        DOWNLOAD_SUCCESS=true
+        echo "✅ Downloaded from GitHub Pages successfully"
     fi
 else
-    echo "⚠️  results.json not downloaded"
+    # Method 2: Fallback - try to parse path references from results.json
+    if [ -f "$TMP_DIR/results.json" ]; then
+        echo "  Parsing results.json for screenshot references..."
+        DATA_FILES=$(grep -oE '"path"[[:space:]]*:[[:space:]]*"data/[^"]+\.dat"' "$TMP_DIR/results.json" 2>/dev/null | \
+            sed 's/"path"[[:space:]]*:[[:space:]]*"data\///;s/\.dat"$//' | sort -u || true)
+
+        if [ -n "$DATA_FILES" ]; then
+            file_count=$(echo "$DATA_FILES" | wc -l)
+            echo "  Found $file_count screenshot files, downloading..."
+            downloaded=0
+            for file in $DATA_FILES; do
+                if wget -q -P "$TMP_DIR/data" "$GH_PAGES_URL/data/${file}.dat" 2>/dev/null; then
+                    downloaded=$((downloaded + 1))
+                fi
+            done
+            echo "  Downloaded $downloaded/$file_count files"
+            if [ "$downloaded" -gt 0 ]; then
+                DOWNLOAD_SUCCESS=true
+                echo "✅ Downloaded from GitHub Pages successfully"
+            fi
+        else
+            echo "⚠️  No screenshot references found in results.json"
+        fi
+    else
+        echo "⚠️  Could not list data directory and results.json not available"
+    fi
 fi
 
 if [ "$DOWNLOAD_SUCCESS" = false ]; then
