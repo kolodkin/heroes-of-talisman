@@ -17,7 +17,7 @@ from ..models import (
     CHARACTER_SELECT,
 )
 
-__MAX_PLAYERS__ = 4
+MAX_PLAYERS = 4
 
 
 class ConnectAction(Action):
@@ -27,7 +27,7 @@ class ConnectAction(Action):
 
     def run(self) -> GamePlay:
         if self.user not in self.players:
-            if len(self.players) >= __MAX_PLAYERS__:
+            if len(self.players) >= MAX_PLAYERS:
                 raise ReportedException("Game is full")
 
             characters: Dict[str, CharacterCard] = {}

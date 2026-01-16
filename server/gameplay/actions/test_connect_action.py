@@ -8,7 +8,7 @@ reconnections, game capacity limits, and character initialization.
 import pytest
 
 from server.game_engine import GameEngine
-from .connection import __MAX_PLAYERS__
+from .connection import MAX_PLAYERS
 from ..models import CONNECT, LEAVE, DISCONNECT
 from ..models import (
     GamePlay,
@@ -75,7 +75,7 @@ def test_connect_action_game_full():
     game = GamePlay()
 
     # Fill game to max capacity
-    for i in range(__MAX_PLAYERS__):
+    for i in range(MAX_PLAYERS):
         player_name = f"player{i+1}"
         characters = {}
         for char_type in [KNIGHT, ARCHER, MAGE]:
