@@ -40,7 +40,11 @@ from ..models import (
 class ConcreteAction(Action):
     """Concrete implementation of Action for testing"""
 
-    def run(self):
+    @property
+    def action_stages(self):
+        return None  # No stage validation for testing
+
+    def _run(self):
         return self.game
 
 

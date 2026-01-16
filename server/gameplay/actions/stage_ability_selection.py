@@ -30,11 +30,11 @@ class AbilityPressAction(Action):
     a game_update that highlights the selected ability in the UI.
     """
 
-    def run(self, ability: AbilityName) -> GamePlay:
-        # Validate stage
-        if self.game.stage != ABILITY_SELECTION:
-            raise GameException(f"Cannot select ability in stage: {self.game.stage}")
+    @property
+    def action_stages(self):
+        return [ABILITY_SELECTION]
 
+    def _run(self, ability: AbilityName) -> GamePlay:
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")
@@ -70,11 +70,11 @@ class AbilitySelectAction(Action):
     - 'opponent_selection' if the ability effects are applied to battle opponent automatically
     """
 
-    def run(self, ability: AbilityName) -> GamePlay:
-        # Validate stage
-        if self.game.stage != ABILITY_SELECTION:
-            raise GameException(f"Cannot confirm ability selection in stage: {self.game.stage}")
+    @property
+    def action_stages(self):
+        return [ABILITY_SELECTION]
 
+    def _run(self, ability: AbilityName) -> GamePlay:
         # Validate user is the active player
         if not self.game.active or self.game.active.player != self.user:
             raise ReportedException("It's not your turn")

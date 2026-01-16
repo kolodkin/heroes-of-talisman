@@ -14,6 +14,7 @@ from ..models import (
     Opponent2,
     Opponent3,
     Opponent4,
+    StageName,
 )
 
 
@@ -98,10 +99,33 @@ class Action(ABC):
             raise GameException("Opponent not set or has no character selected")
         return self.game.players[self.opponent.player].characters[self.opponent.character]
 
-    def assert_stage(self, req_stage: str):
-        if self.stage != req_stage:
-            raise ReportedException(f"Invalid action. (wrong stage '{self.stage}')")
+    @property
+    @abstractmethod
+    def action_stages(self) -> Optional[list[StageName]]:
+        """
+        Return list of valid stages for this action, or None if action works in any stage.
+
+        Examples:
+            return [CHARACTER_SELECT]  # Only works in character select stage
+            return [BATTLE_DICE_ROLL, BATTLE_END]  # Works in multiple stages
+            return None  # Works in any stage (e.g., connection actions)
+        """
+
+    def assert_stage(self):
+        """Validate that the game is in the correct stage for this action."""
+        if self.action_stages is None:
+            # Action works in any stage
+            return
+
+        if self.stage not in self.action_stages:
+            stages_str = ", ".join(self.action_stages)
+            raise GameException(f"Cannot perform action in stage '{self.stage}'. Valid stages: {stages_str}")
+
+    def run(self, *args, **kwargs) -> GamePlay:
+        """Execute the action with automatic stage validation."""
+        self.assert_stage()
+        return self._run(*args, **kwargs)
 
     @abstractmethod
-    def run(self, *args, **kwargs) -> GamePlay:
-        """Execute the action and return the updated game."""
+    def _run(self, *args, **kwargs) -> GamePlay:
+        """Execute the action logic. Implemented by subclasses."""

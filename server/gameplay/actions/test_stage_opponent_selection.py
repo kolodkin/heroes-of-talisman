@@ -7,10 +7,7 @@ selected opponents and confirming selections to transition to battle.
 
 import pytest
 
-from .stage_opponent_selection import (
-    OpponentPressAction,
-    OpponentSelectAction,
-)
+from .stage_opponent_selection import OpponentPressAction, OpponentSelectAction
 from ..models import (
     GamePlay,
     Player,
@@ -75,7 +72,7 @@ def test_opponent_press_action_wrong_stage():
 
     action = OpponentPressAction("player1", game)
 
-    with pytest.raises(GameException, match="Cannot select opponent in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run(opponent="player2", character=KNIGHT)
 
 
@@ -170,7 +167,7 @@ def test_opponent_select_action_wrong_stage():
 
     action = OpponentSelectAction("player1", game)
 
-    with pytest.raises(GameException, match="Cannot confirm selection in stage"):
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run()
 
 

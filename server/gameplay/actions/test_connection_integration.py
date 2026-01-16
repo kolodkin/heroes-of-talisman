@@ -23,23 +23,23 @@ def test_connect_then_disconnect_then_reconnect():
 
     # Initial connection
     connect_action = ConnectAction("player1", game)
-    game = connect_action.run()
+    updated_game = connect_action.run()
 
-    assert game.players["player1"].status == CONNECTED
-    assert game.stage == CHARACTER_SELECT
-    assert game.active.player == "player1"
+    assert updated_game.players["player1"].status == CONNECTED
+    assert updated_game.stage == CHARACTER_SELECT
+    assert updated_game.active.player == "player1"
 
     # Disconnect
-    disconnect_action = DisconnectAction("player1", game)
-    game = disconnect_action.run()
+    disconnect_action = DisconnectAction("player1", updated_game)
+    updated_game = disconnect_action.run()
 
-    assert game.players["player1"].status == DISCONNECTED
+    assert updated_game.players["player1"].status == DISCONNECTED
 
     # Reconnect
-    reconnect_action = ConnectAction("player1", game)
-    game = reconnect_action.run()
+    reconnect_action = ConnectAction("player1", updated_game)
+    updated_game = reconnect_action.run()
 
-    assert game.players["player1"].status == CONNECTED
+    assert updated_game.players["player1"].status == CONNECTED
 
 
 def test_multiple_players_connect_disconnect_leave():
