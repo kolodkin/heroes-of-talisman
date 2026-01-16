@@ -8,6 +8,7 @@ reconnections, game capacity limits, and character initialization.
 import pytest
 
 from server.game_engine import GameEngine
+from .connection import __MAX_PLAYERS__
 from ..models import CONNECT, LEAVE, DISCONNECT
 from ..models import (
     GamePlay,
