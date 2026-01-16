@@ -274,10 +274,8 @@ DUPLICATE_CHECK_SCRIPT="$ORIGINAL_DIR/scripts/check-consecutive-duplicate-screen
 
 if [ -f "$DUPLICATE_CHECK_SCRIPT" ]; then
     # Ensure dependencies are installed (sharp is required)
-    if [ ! -d "$ORIGINAL_DIR/node_modules/sharp" ]; then
-        echo "  Installing dependencies..."
-        (cd "$ORIGINAL_DIR" && npm install --silent)
-    fi
+    echo "  Installing dependencies..."
+    (cd "$ORIGINAL_DIR" && npm install --silent)
     # Run duplicate detection on the downloaded report
     if node "$DUPLICATE_CHECK_SCRIPT" "$TMP_DIR"; then
         echo "✅ No consecutive duplicate screenshots found"
