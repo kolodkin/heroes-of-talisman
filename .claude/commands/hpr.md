@@ -66,21 +66,24 @@ You are helping the user create a pull request using the Heroes PR flow, which g
    - The generated PR description
    - Ask for approval before proceeding
 
-6. **Create the PR**: Once approved, call the create_pr.py script:
+6. **Create the PR**: Once approved, push the branch and create the PR using gh CLI:
 
    ```bash
-   python management/devenv-setup-scripts/create_pr.py \
-     --pr_title "$(git branch --show-current)" \
-     --pr_body "$(cat <<'EOF'
-     <generated PR description>
-     EOF
-     )"
+   # Push branch to remote if needed
+   git push -u origin $(git branch --show-current)
+
+   # Create the PR
+   gh pr create --title "<branch name>" --body "$(cat <<'EOF'
+   <generated PR description>
+
+   🤖 Generated with [Claude Code](https://claude.com/claude-code)
+   EOF
+   )"
    ```
 
-7. **Show result**: Display the PR URL from the script output
+7. **Show result**: Display the PR URL from the gh output
 
 ## Important Notes
 
-- The script will push the current branch to remote if not already pushed
 - Make sure all commits are created before running this command
 - The PR description should be informative enough for reviewers to understand the changes
