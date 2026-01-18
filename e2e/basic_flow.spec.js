@@ -224,6 +224,7 @@ async function testBattleStage(page, page2, gameName) {
   // Opponent (player2) rolls dice from their own page
   // Validate status indicator shows "roll dice" for player2
   await validateStatusIndicator(page2, "roll_dice");
+  await screenshot(page2, "player2-roll-dice-status");
 
   const player2RollButton = page2.locator('[data-battle-role="opponent"] [data-roll-button]');
   await player2RollButton.click();
