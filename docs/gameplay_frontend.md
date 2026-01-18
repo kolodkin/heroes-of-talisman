@@ -1,6 +1,6 @@
 # FrontEnd - GamePlay
 
-A React-based UI engine for visualizing and interacting with card game states represented as JSON data structures.
+A React-based UI engine for visualizing and interacting with game states represented as JSON data structures.
 
 related specs:
 
@@ -18,7 +18,7 @@ This frontend engine provides a complete visualization system for the game, feat
 - **Multi-Player Support**: 2-8 players with configurable layouts
 - **Minimum Players**: At least 2 players required for the game to start
 - **Turn Indicators**: Visual cues for active player
-- **Player Statistics**: Score, remaining cards, status
+- **Player Statistics**: Characters, status
 
 ### Multiplayer Layout
 
@@ -143,11 +143,10 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 ## Player
 
-- The status and cards for a single player
-- Shows player's hand, stats, and any status effects
+- The status and characters for a single player
+- Shows player's characters with stats and any status effects
 - Highlights if it's the player's turn or if the player is disconnected
-- Supports interaction with cards in hand (e.g., selection, play)
-- **Minimizable**: Each player card can be collapsed using +/- toggle button
+- **Minimizable**: Each player section can be collapsed using +/- toggle button
   - When expanded: Shows full character cards with all details
   - When minimized: Shows only character names and levels in a compact list
 
@@ -217,6 +216,48 @@ Active effects applied to characters should be displayed visually on character c
 - **Minimum Player Requirement**:
   - When there are less than 2 players in the game (regardless of connection status), SharedArea displays a grayed overlay
   - Overlay prevents any interaction until the minimum player count is reached
+
+# Common Components
+
+Reusable UI components shared across different parts of the game.
+
+## Card
+
+A generic card wrapper component (`src/components/GamePlay/Card.jsx`) providing consistent card styling and behavior.
+
+**Props:**
+
+- `faceUp` (boolean, default: `true`): Whether to show card content or card back
+- `selected` (boolean, default: `false`): Whether the card is in selected state
+- `onClick` (function): Click handler
+- `children`: Card content to render when face up
+
+**Styling:**
+
+- Base styles in `Card.module.css`
+- Selected state adds visual highlight
+- Face-down state shows card back design
+
+## AbilityCard
+
+Displays a character ability with image, name, and description (`src/components/AbilityCard.jsx`).
+
+**Props:**
+
+- `ability` (object): Ability data with `name` property
+- `isSelected` (boolean): Whether the ability is currently selected
+- `onClick` (function): Click handler for selection
+- `size` (string, default: `"normal"`): Card size - `"normal"` or `"small"`
+
+**Data Attributes:**
+
+- `data-ability`: Ability name (used for testing)
+
+**Features:**
+
+- Uses common card styles from `Card.module.css`
+- Displays ability image from `/images/effects/{ability.name}.jpg`
+- Shows translated ability name and description via i18next
 
 # Mobile Layout Considerations
 
