@@ -1,4 +1,5 @@
-# FrontEnd - GamePlay
+FrontEnd - GamePlay
+-------------------
 
 A React-based UI engine for visualizing and interacting with game states represented as JSON data structures.
 
@@ -7,33 +8,33 @@ related specs:
 - [gameplay spec](/docs/gameplay_spec.md)
 - [gameplay backend spec](/docs/gameplay_backend.md)
 
-## Overview
+# Overview
 
 This frontend engine provides a complete visualization system for the game, featuring multiple players with their characters, plus a shared area. The system renders game state from JSON data and provides interactive components for gameplay.
 
-## Key Features
+# Key Features
 
-### Player Management
+## Player Management
 
 - **Multi-Player Support**: 2-8 players with configurable layouts
 - **Minimum Players**: At least 2 players required for the game to start
 - **Turn Indicators**: Visual cues for active player
 - **Player Statistics**: Characters, status
 
-### Multiplayer Layout
+## Multiplayer Layout
 
 - **GamePlay Arrangement**: Players are arranged before shared area (left for ltr, right for rtl)
 - **Spatial Awareness**: Layout provides clear visual hierarchy of game elements
 - **Consistent Orientation**: Maintains the same arrangement regardless of game state
 
-### Responsive Design
+## Responsive Design
 
 - **Adaptive Layouts**: Adjusts to different screen sizes
 - **Scalable Components**: Components resize appropriately
 - **Mobile Support**: Touch-friendly interactions
 - **Accessibility**: Screen reader support and keyboard navigation
 
-### Multi-Language Support
+## Multi-Language Support
 
 - **i18next Integration**: All UI text is managed via `react-i18next`
 - **Current Languages**: Hebrew only (for development simplicity)
@@ -44,7 +45,7 @@ This frontend engine provides a complete visualization system for the game, feat
   - Interpolation supported for dynamic values (e.g., `t('errors.game_not_found', { gamename })`)
 - **Direction Support**: RTL handled via `t('direction')`
 
-### RTL/LTR Layout
+## RTL/LTR Layout
 
 The application supports both RTL (Hebrew) and LTR layouts using CSS logical properties:
 
@@ -58,11 +59,11 @@ The application supports both RTL (Hebrew) and LTR layouts using CSS logical pro
 - **Flexbox**: Automatically handles direction - items flow according to text direction
 - **Why**: Logical properties automatically adapt to text direction, making the code direction-agnostic
 
-## State and API Integration
+# State and API Integration
 
 Game State and API interactions are handled within the [GameHandler](./GameHandler.jsx) component wrapping [GamePlay](./GamePlay.jsx) Component.
 
-## Interactive
+# Interactive
 
 Any player action that updates the gameplay state triggers a re-render for all connected players, ensuring synchronized game state across all clients.
 
@@ -73,7 +74,7 @@ Any player action that updates the gameplay state triggers a re-render for all c
 3. React automatically re-renders all components that depend on `gamePlay` state
 4. All connected players see the updated game state simultaneously
 
-## Stage Components
+# Stage Components
 
 Each game stage has its own dedicated component that renders the appropriate UI for that stage. The SharedArea uses a switch/case statement to render the relevant stage component based on the current game stage.
 
