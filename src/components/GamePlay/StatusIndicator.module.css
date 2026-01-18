@@ -40,8 +40,8 @@
   border: none;
 }
 
-/* Desktop - scale up from mobile base (Tailwind md breakpoint) */
-@media (min-width: 768px) {
+/* Desktop - scale up from mobile base (above mobile landscape) */
+@media (min-width: 1024px) {
   .statusIndicator {
     top: 0.5rem;
     inset-inline-start: 0.5rem;
