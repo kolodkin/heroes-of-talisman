@@ -12,7 +12,7 @@ from .connection import LeaveAction
 from ..models import (
     GamePlay,
     Player,
-    CharacterCard,
+    Character,
     GameException,
     CHARACTER_DEFAULT_STATS,
     KNIGHT,
@@ -26,7 +26,7 @@ def test_leave_action_existing_player():
     game = GamePlay()
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+        characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
 
@@ -51,7 +51,7 @@ def test_leave_action_only_player():
     game = GamePlay()
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+        characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = LeaveAction("player1", game)

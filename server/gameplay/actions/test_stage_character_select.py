@@ -11,7 +11,7 @@ from .stage_character_select import CharacterPressAction, CharacterSelectAction
 from ..models import (
     GamePlay,
     Player,
-    CharacterCard,
+    Character,
     ActivePlayer1,
     ActivePlayer2,
     GameException,

@@ -313,17 +313,7 @@ ABILITIES_MAP: dict[AbilityName, Ability] = {
 }
 
 
-class Card(StrictModel):
-    face_up: bool = True
-    selected: bool = False
-
-
-class Deck(StrictModel):
-    cards: list[Card] = Field(default_factory=list)
-    visible: bool = True
-
-
-class CharacterCard(StrictModel):
+class Character(StrictModel):
 
     level: int
     health: int
@@ -432,7 +422,7 @@ class Player(StrictModel):
     name: str
     status: ConnectionStatus = CONNECTED
     cards: list[str] = Field(default_factory=list)
-    characters: Dict[ChatacterType, CharacterCard] = Field(default_factory=dict)
+    characters: Dict[ChatacterType, Character] = Field(default_factory=dict)
 
 
 ########################################################
@@ -514,9 +504,9 @@ CHARACTER_DEFAULT_STATS = {
 }
 
 
-def init_characters(level: int = 1) -> Dict[ChatacterType, CharacterCard]:
+def init_characters(level: int = 1) -> Dict[ChatacterType, Character]:
     """Initialize all character types with default stats"""
     return {
-        char_type: CharacterCard(level=level, **CHARACTER_DEFAULT_STATS[char_type])
+        char_type: Character(level=level, **CHARACTER_DEFAULT_STATS[char_type])
         for char_type in [KNIGHT, ARCHER, MAGE]
     }

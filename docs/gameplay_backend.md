@@ -53,7 +53,7 @@ The backend action layer organizes game mutations into small, focused classes. E
 
 - **`Action` base class** (`server/gameplay/action.py`): provides convenience accessors for game properties (players, stage, deck) and the `assert_stage` helper to validate that an action is executed in the correct phase.
 - **Connection actions** (`ConnectAction`, `LeaveAction`, `DisconnectAction`): manage player lifecycle by connecting players, removing them from the game, or marking them as disconnected.
-- **Models**: Pydantic models (`GamePlay`, `Player`, `CharacterCard`) describe the game state and enforce structure and types.
+- **Models**: Pydantic models (`GamePlay`, `Player`, `Character`) describe the game state and enforce structure and types.
 
 ### Action Workflow
 
