@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-from ..models import (
+from ..models import GameException, ReportedException, StageName
+from ..gameplay import (
     GamePlay,
     Player,
     Character,
-    GameException,
-    ReportedException,
     ActivePlayer1,
     ActivePlayer2,
     ActivePlayer3,
@@ -14,7 +13,6 @@ from ..models import (
     Opponent2,
     Opponent3,
     Opponent4,
-    StageName,
 )
 
 

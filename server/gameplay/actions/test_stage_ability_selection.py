@@ -11,12 +11,8 @@ import pytest
 
 from .stage_ability_selection import AbilityPressAction, AbilitySelectAction
 from ..models import (
-    GamePlay,
-    Player,
-    ActivePlayer2,
     GameException,
     ReportedException,
-    RerollDiceEffect,
     ABILITY_SELECTION,
     ABILITY_OPPONENT_SELECTION,
     OPPONENT_SELECTION,
@@ -24,10 +20,14 @@ from ..models import (
     KNIGHT,
     ARCHER,
     MAGE,
-    BATTLE_HOWL,
-    BOUNCING_ARROW,
-    FREEZE,
     REROLL_DICE,
+)
+from ..abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
+from ..effects import RerollDiceEffect
+from ..gameplay import (
+    GamePlay,
+    Player,
+    ActivePlayer2,
     init_characters,
 )
 

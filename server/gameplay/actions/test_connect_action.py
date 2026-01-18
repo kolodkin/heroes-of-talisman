@@ -9,18 +9,20 @@ import pytest
 
 from .connection import ConnectAction, MAX_PLAYERS
 from ..models import (
-    GamePlay,
-    Player,
-    Character,
-    ActivePlayer1,
     ReportedException,
-    CHARACTER_DEFAULT_STATS,
     CHARACTER_SELECT,
     KNIGHT,
     ARCHER,
     MAGE,
     CONNECTED,
     DISCONNECTED,
+)
+from ..gameplay import (
+    GamePlay,
+    Player,
+    Character,
+    ActivePlayer1,
+    CHARACTER_DEFAULT_STATS,
     ARCHER_L1_ATTACK,
     MAGE_L1_ATTACK,
 )

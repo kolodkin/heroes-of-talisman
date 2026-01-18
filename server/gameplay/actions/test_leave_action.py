@@ -9,15 +9,12 @@ the only player leaving.
 import pytest
 
 from .connection import LeaveAction
-from ..models import (
+from ..models import GameException, KNIGHT, ARCHER, MAGE
+from ..gameplay import (
     GamePlay,
     Player,
     Character,
-    GameException,
     CHARACTER_DEFAULT_STATS,
-    KNIGHT,
-    ARCHER,
-    MAGE,
 )
 
 

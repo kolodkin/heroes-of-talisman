@@ -10,16 +10,15 @@ This module implements actions for the ability selection stage:
 import copy
 from .action import Action
 from ..models import (
-    GamePlay,
     GameException,
     ReportedException,
-    AbilitySelectMeta,
     ABILITY_SELECTION,
     ABILITY_OPPONENT_SELECTION,
     OPPONENT_SELECTION,
     APPLY_TO_SELF,
-    AbilityName,
 )
+from ..abilities import AbilityName
+from ..gameplay import GamePlay, AbilitySelectMeta
 
 
 class AbilityPressAction(Action):

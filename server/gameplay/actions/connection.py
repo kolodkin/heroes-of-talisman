@@ -2,19 +2,21 @@ from typing import Dict
 
 from .action import Action
 from ..models import (
-    GamePlay,
     GameException,
     ReportedException,
-    Player,
-    Character,
-    ActivePlayer1,
-    CHARACTER_DEFAULT_STATS,
     KNIGHT,
     ARCHER,
     MAGE,
     CONNECTED,
     DISCONNECTED,
     CHARACTER_SELECT,
+)
+from ..gameplay import (
+    GamePlay,
+    Player,
+    Character,
+    ActivePlayer1,
+    CHARACTER_DEFAULT_STATS,
 )
 
 MAX_PLAYERS = 4

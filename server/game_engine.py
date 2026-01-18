@@ -1,8 +1,5 @@
-from .gameplay.models import (
-    GamePlay,
-    GameException,
-    ReportedException,
-)
+from .gameplay.models import GameException, ReportedException
+from .gameplay.gameplay import GamePlay
 from .gameplay.actions import (
     ACTION_MAP,
 )

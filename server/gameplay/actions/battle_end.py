@@ -6,16 +6,18 @@ Ends the battle, calculates winner, and reduces loser's health by 1.
 
 from .action import Action
 from ..models import (
-    GamePlay,
     GameException,
     ReportedException,
+    BATTLE_END,
+    CHARACTER_SELECT,
+)
+from ..gameplay import (
+    GamePlay,
     ActivePlayer1,
     ActivePlayer3,
     ActivePlayer4,
     Opponent3,
     Opponent4,
-    BATTLE_END,
-    CHARACTER_SELECT,
 )
 
 

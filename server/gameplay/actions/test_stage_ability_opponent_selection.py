@@ -9,19 +9,19 @@ import pytest
 
 from .stage_ability_opponent_selection import AbilityOpponentPressAction, AbilityOpponentSelectAction
 from ..models import (
-    GamePlay,
-    Player,
-    ActivePlayer2,
     GameException,
     ReportedException,
-    Opponent2,
     ABILITY_OPPONENT_SELECTION,
     OPPONENT_SELECTION,
     KNIGHT,
     MAGE,
-    BATTLE_HOWL,
-    FREEZE,
-    ABILITIES_MAP,
+)
+from ..abilities import BATTLE_HOWL, FREEZE, ABILITIES_MAP
+from ..gameplay import (
+    GamePlay,
+    Player,
+    ActivePlayer2,
+    Opponent2,
     init_characters,
 )
 

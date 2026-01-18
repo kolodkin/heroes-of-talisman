@@ -8,6 +8,14 @@ import pytest
 
 from .action import Action
 from ..models import (
+    GameException,
+    BATTLE_DICE_ROLL,
+    CHARACTER_SELECT,
+    KNIGHT,
+    MAGE,
+    ARCHER,
+)
+from ..gameplay import (
     GamePlay,
     Player,
     ActivePlayer1,
@@ -18,12 +26,6 @@ from ..models import (
     Opponent3,
     Opponent4,
     BattleResult,
-    GameException,
-    BATTLE_DICE_ROLL,
-    CHARACTER_SELECT,
-    KNIGHT,
-    MAGE,
-    ARCHER,
     init_characters,
     KNIGHT_L1_DEFAULT_HEALTH,
     KNIGHT_L1_DICE,
