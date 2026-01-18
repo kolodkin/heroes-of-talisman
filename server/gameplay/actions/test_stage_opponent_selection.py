@@ -12,7 +12,7 @@ from ..models import (
     GamePlay,
     Player,
     Ability,
-    CharacterCard,
+    Character,
     ActivePlayer2,
     GameException,
     ReportedException,
@@ -106,7 +106,7 @@ def test_opponent_press_action_invalid_character():
     """Test pressing non-existent character for opponent raises error"""
     game = GamePlay(stage=OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=KNIGHT))
     player1_characters = {
-        KNIGHT: CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[KNIGHT])
+        KNIGHT: Character(level=1, **CHARACTER_DEFAULT_STATS[KNIGHT])
     }
     player2_characters = {}  # No characters
     game.players["player1"] = Player(

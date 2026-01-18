@@ -1,4 +1,5 @@
-# Backend - GamePlay
+Backend - GamePlay
+------------------
 
 A Pydantic-based engine for updating game state through [actions](#actions).
 
@@ -7,11 +8,11 @@ related specs:
 - [gameplay spec](/docs/gameplay_spec.md)
 - [gameplay frontend spec](/docs/gameplay_frontend.md)
 
-## Overview
+# Overview
 
 The backend manages game state using Pydantic models and processes player actions to update the game board. Game progression is controlled through stages, with actions potentially advancing or modifying the current stage.
 
-## Interactive
+# Interactive
 
 Any player action that updates the gameplay state will trigger a WebSocket broadcast to all players in the game, ensuring synchronized game state across all clients.
 
@@ -23,7 +24,7 @@ Any player action that updates the gameplay state will trigger a WebSocket broad
 4. Redis pub/sub broadcasts `game_update` event to all connected clients
 5. All clients receive the update via `game_update_loop()`
 
-## Game Stages and Actions
+# Game Stages and Actions
 
 Actions may change the game stage, but not necessarily. Some actions update game state relevant to the current stage without advancing to the next stage.
 
@@ -45,42 +46,42 @@ Actions may change the game stage, but not necessarily. Some actions update game
 5. Action: `opponent_press` → Updates selected opponent and character in stage_meta (as `Opponent2`), stays in same stage
 6. Action: `opponent_select` → Confirms opponent selection, sets `opponent` field with `Opponent2`, advances to `battle` stage
 
-## Actions
+# Actions
 
 The backend action layer organizes game mutations into small, focused classes. Each action is invoked with the current user and `GamePlay` state and returns the updated game after running.
 
-### Core Components
+## Core Components
 
 - **`Action` base class** (`server/gameplay/action.py`): provides convenience accessors for game properties (players, stage, deck) and the `assert_stage` helper to validate that an action is executed in the correct phase.
 - **Connection actions** (`ConnectAction`, `LeaveAction`, `DisconnectAction`): manage player lifecycle by connecting players, removing them from the game, or marking them as disconnected.
-- **Models**: Pydantic models (`GamePlay`, `Player`, `CharacterCard`) describe the game state and enforce structure and types.
+- **Models**: Pydantic models (`GamePlay`, `Player`, `Character`) describe the game state and enforce structure and types.
 
-### Action Workflow
+## Action Workflow
 
 1. An action instance is created with a user identifier and the current `GamePlay`.
 2. The client-provided parameters are passed to the action's `run` method.
 3. The action updates the `GamePlay` and returns it for broadcasting to other players.
 
-### Error Handling
+## Error Handling
 
 - `GameException` represents general server-side errors.
 - `ReportedException` indicates errors that should be surfaced to the client, such as invalid stages or missing resources.
 
-### Extending Actions
+## Extending Actions
 
 To implement a new action, subclass `Action` and implement the `run` method. Use `assert_stage` to ensure the action only executes during the appropriate game phase and update the `GamePlay` as needed.
 
-### General Actions
+## General Actions
 
 - [x] `connect` – add a player to the game (`ConnectAction`)
 - [x] `leave` – remove a player from the game (`LeaveAction`)
 - [x] `disconnect` – mark a player as disconnected (`DisconnectAction`)
 
-## Abilities & Effects
+# Abilities & Effects
 
 Each character has one or more abilities that can be used during their turn. When an ability is selected, it triggers one or more effects.
 
-### Effect Base Class
+## Effect Base Class
 
 All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
 
@@ -89,13 +90,13 @@ All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
 - `dispose_actions`: List of action names when this effect should be disposed
 - `apply_to`: Target type (`'self'`, `'battle_opponent'`, or `'selected_opponent'`)
 
-### Effect Application Types
+## Effect Application Types
 
 - **Self** (`apply_to='self'`): Applied to active player's character in `AbilitySelectAction`
 - **Battle Opponent** (`apply_to='battle_opponent'`): Applied to battle opponent in `OpponentSelectAction`
 - **Selected Opponent** (`apply_to='selected_opponent'`): Requires `ability_opponent_selection` stage, applied in `AbilityOpponentSelectAction`
 
-### Effect Types
+## Effect Types
 
 | Effect                 | Description                | `dispose_actions`                        | `apply_to`          |
 | ---------------------- | -------------------------- | ---------------------------------------- | ------------------- |
@@ -105,7 +106,7 @@ All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
 | `RerollDiceEffect`     | Allows dice reroll on loss | `['battle_end', 'action_reroll_effect']` | `self`              |
 | `DrawCardEffect`       | Draws cards                | `['battle_end']`                         | `self`              |
 
-### Available Abilities
+## Available Abilities
 
 | Character | Ability          | Effect                                       |
 | --------- | ---------------- | -------------------------------------------- |
@@ -113,9 +114,9 @@ All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
 | Archer L1 | `BOUNCING_ARROW` | `RerollDiceEffect`                           |
 | Mage L1   | `FREEZE`         | `SkipTurnEffect` (requires target selection) |
 
-## Stages
+# Stages
 
-### Stage: Character Select
+## Stage: Character Select
 
 The character selection stage allows players to choose which character will act during their turn. Dead characters (`is_alive=False`) and characters with `SkipTurnEffect` cannot be selected.
 
@@ -127,7 +128,7 @@ The character selection stage allows players to choose which character will act 
 - [x] `character_press` – highlight selected character (`CharacterPressAction`)
 - [x] `character_select` – confirm character selection, dispose character_select effects, and transition to ability_selection (`CharacterSelectAction`)
 
-### Stage: Ability Selection
+## Stage: Ability Selection
 
 The ability selection stage allows players to choose which ability to use from their selected character's available abilities.
 
@@ -139,7 +140,7 @@ The ability selection stage allows players to choose which ability to use from t
 - [x] `ability_press` – highlight selected ability in stage_meta (`AbilityPressAction`)
 - [x] `ability_select` – confirm ability selection, store in GamePlay.ability, transition to ability_opponent_selection or opponent_selection based on ability effects (`AbilitySelectAction`)
 
-### Stage: Ability Opponent Selection
+## Stage: Ability Opponent Selection
 
 The ability opponent selection stage allows players to choose which opponent character to apply the selected ability's effects to. **This stage is only used for abilities with effects that require target selection (e.g., `SkipTurnEffect`).** Other abilities skip this stage entirely.
 
@@ -151,7 +152,7 @@ The ability opponent selection stage allows players to choose which opponent cha
 - [x] `ability_opponent_press` – highlight selected opponent and character in stage_meta (`AbilityOpponentPressAction`)
 - [x] `ability_opponent_select` – confirm ability target, apply effects to target character, store in GamePlay.ability_opponent, and transition to opponent_selection (`AbilityOpponentSelectAction`)
 
-### Stage: Opponent Selection
+## Stage: Opponent Selection
 
 The opponent selection stage allows players to choose an opponent and one of their characters for battle.
 
@@ -163,7 +164,7 @@ The opponent selection stage allows players to choose an opponent and one of the
 - [x] `opponent_press` – highlight selected opponent and character (`OpponentPressAction`)
 - [x] `opponent_select` – confirm opponent selection and transition to battle (`OpponentSelectAction`)
 
-### Stage: Battle
+## Stage: Battle
 
 The battle stage handles dice rolling for both the active player and opponent, followed by resolving the battle outcome.
 

@@ -11,7 +11,7 @@ from .connection import ConnectAction, MAX_PLAYERS
 from ..models import (
     GamePlay,
     Player,
-    CharacterCard,
+    Character,
     ActivePlayer1,
     ReportedException,
     CHARACTER_DEFAULT_STATS,
@@ -53,9 +53,9 @@ def test_connect_action_existing_player_reconnect():
         status=DISCONNECTED,
         cards=["talisman"],
         characters={
-            KNIGHT: CharacterCard(level=2, **CHARACTER_DEFAULT_STATS[KNIGHT]),
-            ARCHER: CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[ARCHER]),
-            MAGE: CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[MAGE]),
+            KNIGHT: Character(level=2, **CHARACTER_DEFAULT_STATS[KNIGHT]),
+            ARCHER: Character(level=1, **CHARACTER_DEFAULT_STATS[ARCHER]),
+            MAGE: Character(level=1, **CHARACTER_DEFAULT_STATS[MAGE]),
         },
     )
 
@@ -77,7 +77,7 @@ def test_connect_action_game_full():
         player_name = f"player{i+1}"
         characters = {}
         for char_type in [KNIGHT, ARCHER, MAGE]:
-            characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+            characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
         game.players[player_name] = Player(name=player_name, characters=characters)
 
     action = ConnectAction("player_overflow", game)
@@ -93,7 +93,7 @@ def test_connect_action_second_player():
     game.active = ActivePlayer1(player="player1")
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+        characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = ConnectAction("player2", game)

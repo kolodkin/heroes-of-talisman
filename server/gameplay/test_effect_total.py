@@ -1,11 +1,11 @@
 """
-Tests for EffectTotal aggregation in CharacterCard
+Tests for EffectTotal aggregation in Character
 """
 
 from server.gameplay.models import (
     AttackBonusEffect,
     AttackNegBonusEffect,
-    CharacterCard,
+    Character,
     RerollDiceEffect,
     SkipTurnEffect,
     BATTLE_HOWL,
@@ -16,7 +16,7 @@ from server.gameplay.models import (
 
 def test_effect_total_empty():
     """Test that effect property returns empty EffectTotal when no effects"""
-    character = CharacterCard(
+    character = Character(
         level=1, health=10, max_health=10, dice=1, attack=2, abilities=[], effects=[]
     )
 
@@ -30,7 +30,7 @@ def test_effect_total_empty():
 
 def test_effect_total_attack_bonus():
     """Test that effect property sums attack bonuses"""
-    character = CharacterCard(
+    character = Character(
         level=1,
         health=10,
         max_health=10,
@@ -51,7 +51,7 @@ def test_effect_total_attack_bonus():
 
 def test_effect_total_attack_neg_bonus():
     """Test that effect property sums attack negative bonuses"""
-    character = CharacterCard(
+    character = Character(
         level=1,
         health=10,
         max_health=10,
@@ -72,7 +72,7 @@ def test_effect_total_attack_neg_bonus():
 
 def test_effect_total_skip_turn():
     """Test that effect property sets skip_next_turn flag"""
-    character = CharacterCard(
+    character = Character(
         level=1,
         health=10,
         max_health=10,
@@ -89,7 +89,7 @@ def test_effect_total_skip_turn():
 
 def test_effect_total_reroll_dice_available():
     """Test that effect property sets reroll_dice_available when RerollDiceEffect exists"""
-    character = CharacterCard(
+    character = Character(
         level=1,
         health=10,
         max_health=10,
@@ -106,7 +106,7 @@ def test_effect_total_reroll_dice_available():
 
 def test_effect_total_mixed_effects():
     """Test that effect property correctly aggregates multiple different effects"""
-    character = CharacterCard(
+    character = Character(
         level=1,
         health=10,
         max_health=10,
@@ -132,7 +132,7 @@ def test_effect_total_mixed_effects():
 
 def test_effect_total_is_computed_field():
     """Test that effect property is included in model_dump but excluded from db_model_dump"""
-    character = CharacterCard(
+    character = Character(
         level=1,
         health=10,
         max_health=10,

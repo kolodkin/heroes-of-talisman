@@ -7,7 +7,7 @@ These tests verify model behavior including computed properties.
 import pytest
 
 from .models import (
-    CharacterCard,
+    Character,
     CHARACTER_DEFAULT_STATS,
     KNIGHT,
     init_characters,

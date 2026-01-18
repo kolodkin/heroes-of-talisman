@@ -6,7 +6,7 @@ from ..models import (
     GameException,
     ReportedException,
     Player,
-    CharacterCard,
+    Character,
     ActivePlayer1,
     CHARACTER_DEFAULT_STATS,
     KNIGHT,
@@ -30,9 +30,9 @@ class ConnectAction(Action):
             if len(self.players) >= MAX_PLAYERS:
                 raise ReportedException("Game is full")
 
-            characters: Dict[str, CharacterCard] = {}
+            characters: Dict[str, Character] = {}
             for char_type in [KNIGHT, ARCHER, MAGE]:
-                characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+                characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
 
             self.players[self.user] = Player(name=self.user, status=CONNECTED, cards=[], characters=characters)
 

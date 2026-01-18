@@ -1,50 +1,40 @@
-# FrontEnd - GamePlay
+FrontEnd - GamePlay
+-------------------
 
-A React-based UI engine for visualizing and interacting with card game states represented as JSON data structures.
+A React-based UI engine for visualizing and interacting with game states represented as JSON data structures.
 
 related specs:
 
 - [gameplay spec](/docs/gameplay_spec.md)
 - [gameplay backend spec](/docs/gameplay_backend.md)
 
-## Overview
+# Overview
 
-This frontend engine provides a complete visualization system for card games featuring multiple players, each with their own card decks, plus a shared area. The system renders game state from JSON data and provides interactive components for gameplay.
+This frontend engine provides a complete visualization system for the game, featuring multiple players with their characters, plus a shared area. The system renders game state from JSON data and provides interactive components for gameplay.
 
-## Key Features
+# Key Features
 
-### Deck Management
-
-- **Flexible Layouts**: Stack, grid arrangement
-- **Visibility Controls**: Face-up/face-down rendering
-
-### Card Interactions
-
-- **Selection System**: Single and multi-card selection
-- **Hover Effects**: Visual feedback for interactive elements
-- **Animation Support**: Smooth transitions for card movements
-
-### Player Management
+## Player Management
 
 - **Multi-Player Support**: 2-8 players with configurable layouts
 - **Minimum Players**: At least 2 players required for the game to start
 - **Turn Indicators**: Visual cues for active player
-- **Player Statistics**: Score, remaining cards, status
+- **Player Statistics**: Characters, status
 
-### Multiplayer Layout
+## Multiplayer Layout
 
 - **GamePlay Arrangement**: Players are arranged before shared area (left for ltr, right for rtl)
 - **Spatial Awareness**: Layout provides clear visual hierarchy of game elements
 - **Consistent Orientation**: Maintains the same arrangement regardless of game state
 
-### Responsive Design
+## Responsive Design
 
 - **Adaptive Layouts**: Adjusts to different screen sizes
-- **Scalable Components**: Cards and decks resize appropriately
+- **Scalable Components**: Components resize appropriately
 - **Mobile Support**: Touch-friendly interactions
 - **Accessibility**: Screen reader support and keyboard navigation
 
-### Multi-Language Support
+## Multi-Language Support
 
 - **i18next Integration**: All UI text is managed via `react-i18next`
 - **Current Languages**: Hebrew only (for development simplicity)
@@ -55,7 +45,7 @@ This frontend engine provides a complete visualization system for card games fea
   - Interpolation supported for dynamic values (e.g., `t('errors.game_not_found', { gamename })`)
 - **Direction Support**: RTL handled via `t('direction')`
 
-### RTL/LTR Layout
+## RTL/LTR Layout
 
 The application supports both RTL (Hebrew) and LTR layouts using CSS logical properties:
 
@@ -69,18 +59,11 @@ The application supports both RTL (Hebrew) and LTR layouts using CSS logical pro
 - **Flexbox**: Automatically handles direction - items flow according to text direction
 - **Why**: Logical properties automatically adapt to text direction, making the code direction-agnostic
 
-## Implementation Details
-
-### Deck Layout Algorithms
-
-- **Stack Layout**: Cards positioned with slight offsets
-- **Grid Layout**: Cards in rows/columns with consistent spacing
-
-## State and API Integration
+# State and API Integration
 
 Game State and API interactions are handled within the [GameHandler](./GameHandler.jsx) component wrapping [GamePlay](./GamePlay.jsx) Component.
 
-## Interactive
+# Interactive
 
 Any player action that updates the gameplay state triggers a re-render for all connected players, ensuring synchronized game state across all clients.
 
@@ -91,7 +74,7 @@ Any player action that updates the gameplay state triggers a re-render for all c
 3. React automatically re-renders all components that depend on `gamePlay` state
 4. All connected players see the updated game state simultaneously
 
-## Stage Components
+# Stage Components
 
 Each game stage has its own dedicated component that renders the appropriate UI for that stage. The SharedArea uses a switch/case statement to render the relevant stage component based on the current game stage.
 
@@ -161,11 +144,10 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 ## Player
 
-- The status and cards for a single player
-- Shows player's hand, stats, and any status effects
+- The status and characters for a single player
+- Shows player's characters with stats and any status effects
 - Highlights if it's the player's turn or if the player is disconnected
-- Supports interaction with cards in hand (e.g., selection, play)
-- **Minimizable**: Each player card can be collapsed using +/- toggle button
+- **Minimizable**: Each player section can be collapsed using +/- toggle button
   - When expanded: Shows full character cards with all details
   - When minimized: Shows only character names and levels in a compact list
 
@@ -220,6 +202,27 @@ Active effects applied to characters should be displayed visually on character c
 - **AttackNegBonusEffect**: Value subtracted from attack stat, make attack text color red
 - **RerollDiceEffect**: Display reroll icon
 
+## AbilityCard
+
+Displays a character ability with image, name, and description (`src/components/AbilityCard.jsx`).
+
+**Props:**
+
+- `ability` (object): Ability data with `name` property
+- `isSelected` (boolean): Whether the ability is currently selected
+- `onClick` (function): Click handler for selection
+- `size` (string, default: `"normal"`): Card size - `"normal"` or `"small"`
+
+**Data Attributes:**
+
+- `data-ability`: Ability name (used for testing)
+
+**Features:**
+
+- Uses common card styles from `Card.module.css`
+- Displays ability image from `/images/effects/{ability.name}.jpg`
+- Shows translated ability name and description via i18next
+
 ## SharedArea
 
 - Dynamically renders stage-specific components based on `gamePlay.stage`
@@ -235,6 +238,14 @@ Active effects applied to characters should be displayed visually on character c
 - **Minimum Player Requirement**:
   - When there are less than 2 players in the game (regardless of connection status), SharedArea displays a grayed overlay
   - Overlay prevents any interaction until the minimum player count is reached
+
+# Common Components
+
+Reusable UI components shared across different parts of the game.
+
+## Card
+
+Common card styling (`Card.module.css`) used by `CharacterCard` and `AbilityCard` components for consistent visual appearance and selection states.
 
 # Mobile Layout Considerations
 

@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 from ..models import (
     GamePlay,
     Player,
-    CharacterCard,
+    Character,
     GameException,
     ReportedException,
     ActivePlayer1,
@@ -42,7 +42,7 @@ class Action(ABC):
         self.game.active = value
 
     @property
-    def active_character(self) -> CharacterCard:
+    def active_character(self) -> Character:
         """
         Get the active player's character card.
 
@@ -86,7 +86,7 @@ class Action(ABC):
         self.game.opponent = value
 
     @property
-    def opponent_character(self) -> CharacterCard:
+    def opponent_character(self) -> Character:
         """
         Get the opponent's character card.
 

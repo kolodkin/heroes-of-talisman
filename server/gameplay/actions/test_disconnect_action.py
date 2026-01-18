@@ -11,7 +11,7 @@ from .connection import DisconnectAction
 from ..models import (
     GamePlay,
     Player,
-    CharacterCard,
+    Character,
     GameException,
     CHARACTER_DEFAULT_STATS,
     KNIGHT,
@@ -27,7 +27,7 @@ def test_disconnect_action_existing_player():
     game = GamePlay()
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+        characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", status=CONNECTED, characters=characters)
 
     action = DisconnectAction("player1", game)
@@ -51,7 +51,7 @@ def test_disconnect_action_already_disconnected():
     game = GamePlay()
     characters = {}
     for char_type in [KNIGHT, ARCHER, MAGE]:
-        characters[char_type] = CharacterCard(level=1, **CHARACTER_DEFAULT_STATS[char_type])
+        characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", status=DISCONNECTED, characters=characters)
 
     action = DisconnectAction("player1", game)
