@@ -4,8 +4,8 @@ from typing import Literal, Annotated, Union, Self
 
 from pydantic import Field, model_validator
 
-from .common import (
-    StrictModel,
+from .common import StrictModel
+from .actions_names import (
     ActionName,
     # Action name constants for dispose_actions
     CHARACTER_SELECT_ACTION,

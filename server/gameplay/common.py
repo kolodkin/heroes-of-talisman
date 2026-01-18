@@ -7,46 +7,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-
-########################################################
-# Connection statuses
-########################################################
-CONNECTED = "connected"
-DISCONNECTED = "disconnected"
-CONNECTION_STATUSES = [CONNECTED, DISCONNECTED]
-ConnectionStatus = Literal[*CONNECTION_STATUSES]
-
-########################################################
-# Character types
-########################################################
-KNIGHT = "knight"
-ARCHER = "archer"
-MAGE = "mage"
-CHARACTER_TYPES = [KNIGHT, ARCHER, MAGE]
-ChatacterType = Literal[*CHARACTER_TYPES]
-
-########################################################
-# Actions
-########################################################
-CONNECT = "connect"
-LEAVE = "leave"
-DISCONNECT = "disconnect"
-CHARACTER_PRESS = "character_press"
-CHARACTER_SELECT_ACTION = "character_select"
-ABILITY_PRESS = "ability_press"
-ABILITY_SELECT = "ability_select"
-ABILITY_OPPONENT_PRESS = "ability_opponent_press"
-ABILITY_OPPONENT_SELECT = "ability_opponent_select"
-OPPONENT_PRESS = "opponent_press"
-OPPONENT_SELECT = "opponent_select"
-ACTIVE_PLAYER_ROLL = "active_player_roll"
-OPPONENT_ROLL = "opponent_roll"
-ACTION_REROLL = "action_reroll"
-ACTION_REROLL_EFFECT = "action_reroll_effect"
-BATTLE_END_ACTION = "battle_end"
-DEBUG_SET_BATTLE_DICE_ROLLS = "debug_set_battle_dice_rolls"
-
-ACTION_NAMES = [
+# Re-export action names for backwards compatibility
+from .actions_names import (
     CONNECT,
     LEAVE,
     DISCONNECT,
@@ -64,9 +26,27 @@ ACTION_NAMES = [
     ACTION_REROLL_EFFECT,
     BATTLE_END_ACTION,
     DEBUG_SET_BATTLE_DICE_ROLLS,
-]
-ActionName = Literal[*ACTION_NAMES]
+    ACTION_NAMES,
+    ActionName,
+)
 
+
+########################################################
+# Connection statuses
+########################################################
+CONNECTED = "connected"
+DISCONNECTED = "disconnected"
+CONNECTION_STATUSES = [CONNECTED, DISCONNECTED]
+ConnectionStatus = Literal[*CONNECTION_STATUSES]
+
+########################################################
+# Character types
+########################################################
+KNIGHT = "knight"
+ARCHER = "archer"
+MAGE = "mage"
+CHARACTER_TYPES = [KNIGHT, ARCHER, MAGE]
+ChatacterType = Literal[*CHARACTER_TYPES]
 
 ########################################################
 # Exceptions
