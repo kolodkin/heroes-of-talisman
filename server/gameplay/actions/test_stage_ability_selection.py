@@ -16,8 +16,8 @@ from ..models import (
     KNIGHT,
     ARCHER,
     MAGE,
-    REROLL_DICE,
 )
+from ..effects import REROLL_DICE
 from ..abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
 from ..gameplay import (
     ABILITY_SELECTION,

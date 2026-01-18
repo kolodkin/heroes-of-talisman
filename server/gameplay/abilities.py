@@ -4,15 +4,16 @@ from typing import Literal
 
 from pydantic import Field
 
-from .models import (
-    StrictModel,
-    APPLY_TO_SELECTED_OPPONENT,
+from .models import StrictModel
+from .effects import (
     # Effect name constants for EFFECTS_SOURCE_ABILITY_MAP
     ATTACK_BONUS,
     ATTACK_NEG_BONUS,
     REROLL_DICE,
     SKIP_TURN,
     DRAW_CARD,
+    # Apply to constants
+    APPLY_TO_SELECTED_OPPONENT,
 )
 
 ########################################################

@@ -9,7 +9,8 @@ This module implements actions for the ability selection stage:
 
 import copy
 from .action import Action
-from ..models import GameException, ReportedException, APPLY_TO_SELF
+from ..models import GameException, ReportedException
+from ..effects import APPLY_TO_SELF
 from ..abilities import AbilityName
 from ..gameplay import ABILITY_SELECTION, ABILITY_OPPONENT_SELECTION, OPPONENT_SELECTION
 from ..gameplay import GamePlay, AbilitySelectMeta

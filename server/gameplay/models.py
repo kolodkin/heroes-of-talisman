@@ -26,25 +26,6 @@ CHARACTER_TYPES = [KNIGHT, ARCHER, MAGE]
 ChatacterType = Literal[*CHARACTER_TYPES]
 
 ########################################################
-# Effect names
-########################################################
-ATTACK_BONUS = "attack_bonus"
-ATTACK_NEG_BONUS = "attack_neg_bonus"
-REROLL_DICE = "reroll_dice"
-SKIP_TURN = "skip_turn"
-DRAW_CARD = "draw_card"
-
-########################################################
-# Effect apply_to targets
-########################################################
-APPLY_TO_SELF = "self"  # Applied to active player's character when ability is selected
-APPLY_TO_BATTLE_OPPONENT = "battle_opponent"  # Applied to opponent when battle starts
-APPLY_TO_SELECTED_OPPONENT = "selected_opponent"  # Requires ability_opponent_selection stage
-
-APPLY_TO_TARGETS = [APPLY_TO_SELF, APPLY_TO_BATTLE_OPPONENT, APPLY_TO_SELECTED_OPPONENT]
-ApplyToTarget = Literal[*APPLY_TO_TARGETS]
-
-########################################################
 # Actions
 ########################################################
 CONNECT = "connect"
