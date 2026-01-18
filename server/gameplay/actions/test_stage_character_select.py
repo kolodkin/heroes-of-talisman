@@ -8,7 +8,7 @@ selected characters and confirming selections to transition to battle.
 import pytest
 
 from .stage_character_select import CharacterPressAction, CharacterSelectAction
-from ..models import (
+from ..common import (
     GameException,
     ReportedException,
     KNIGHT,

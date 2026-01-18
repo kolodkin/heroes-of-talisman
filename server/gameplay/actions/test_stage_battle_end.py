@@ -13,7 +13,7 @@ Effect disposal rules:
 import pytest
 
 from .battle_end import BattleEndAction
-from ..models import (
+from ..common import (
     GameException,
     ReportedException,
     KNIGHT,

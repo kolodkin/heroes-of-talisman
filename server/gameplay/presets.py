@@ -1,6 +1,6 @@
 from typing import Literal, Optional
 
-from .models import KNIGHT, MAGE, ARCHER
+from .common import KNIGHT, MAGE, ARCHER
 from .abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
 from .effects import (
     AttackBonusEffect,

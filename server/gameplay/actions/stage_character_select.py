@@ -7,7 +7,7 @@ This module implements actions for the character selection stage:
 """
 
 from .action import Action
-from ..models import (
+from ..common import (
     GameException,
     ReportedException,
     CHARACTER_SELECT_ACTION,

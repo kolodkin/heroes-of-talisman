@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-from ..models import GameException, ReportedException
+from ..common import GameException, ReportedException
 from ..gameplay import (
     StageName,
     GamePlay,

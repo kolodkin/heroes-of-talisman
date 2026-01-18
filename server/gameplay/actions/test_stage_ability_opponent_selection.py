@@ -8,7 +8,7 @@ selected opponents for ability targeting and confirming selections to apply effe
 import pytest
 
 from .stage_ability_opponent_selection import AbilityOpponentPressAction, AbilityOpponentSelectAction
-from ..models import GameException, ReportedException, KNIGHT, MAGE
+from ..common import GameException, ReportedException, KNIGHT, MAGE
 from ..abilities import BATTLE_HOWL, FREEZE, ABILITIES_MAP
 from ..gameplay import (
     ABILITY_OPPONENT_SELECTION,

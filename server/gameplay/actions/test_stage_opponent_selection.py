@@ -8,7 +8,7 @@ selected opponents and confirming selections to transition to battle.
 import pytest
 
 from .stage_opponent_selection import OpponentPressAction, OpponentSelectAction
-from ..models import (
+from ..common import (
     GameException,
     ReportedException,
     KNIGHT,

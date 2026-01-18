@@ -1,6 +1,6 @@
 from typing import Dict
 
-from ..models import (
+from ..common import (
     CONNECT,
     LEAVE,
     DISCONNECT,

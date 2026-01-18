@@ -8,7 +8,7 @@ reconnections, game capacity limits, and character initialization.
 import pytest
 
 from .connection import ConnectAction, MAX_PLAYERS
-from ..models import (
+from ..common import (
     ReportedException,
     KNIGHT,
     ARCHER,

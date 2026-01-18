@@ -10,7 +10,7 @@ This module implements actions for the battle stage:
 
 import random
 from .action import Action
-from ..models import GameException, ReportedException
+from ..common import GameException, ReportedException
 from ..effects import RerollDiceEffect
 from ..gameplay import (
     BATTLE_DICE_ROLL,

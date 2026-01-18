@@ -4,7 +4,7 @@ from typing import Dict, Literal, Optional
 
 from pydantic import Field, computed_field
 
-from .models import (
+from .common import (
     StrictModel,
     ConnectionStatus,
     ChatacterType,

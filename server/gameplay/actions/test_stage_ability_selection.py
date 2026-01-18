@@ -10,7 +10,7 @@ selected abilities and confirming selections to transition to:
 import pytest
 
 from .stage_ability_selection import AbilityPressAction, AbilitySelectAction
-from ..models import (
+from ..common import (
     GameException,
     ReportedException,
     KNIGHT,

@@ -6,7 +6,7 @@ These tests verify model behavior including computed properties.
 
 import pytest
 
-from .models import KNIGHT
+from .common import KNIGHT
 from .abilities import ABILITIES_MAP, BATTLE_HOWL, BOUNCING_ARROW, FREEZE
 from .gameplay import (
     Character,

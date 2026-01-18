@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from .models import StrictModel
+from .common import StrictModel
 from .effects import (
     # Effect name constants for EFFECTS_SOURCE_ABILITY_MAP
     ATTACK_BONUS,

@@ -8,7 +8,7 @@ existing players, nonexistent players, and already disconnected players.
 import pytest
 
 from .connection import DisconnectAction
-from ..models import (
+from ..common import (
     GameException,
     KNIGHT,
     ARCHER,

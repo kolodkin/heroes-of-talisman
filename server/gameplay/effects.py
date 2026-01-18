@@ -4,7 +4,7 @@ from typing import Literal, Annotated, Union, Self
 
 from pydantic import Field, model_validator
 
-from .models import (
+from .common import (
     StrictModel,
     ActionName,
     # Action name constants for dispose_actions

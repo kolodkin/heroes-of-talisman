@@ -16,7 +16,7 @@ from .stage_battle import (
     calculate_winner,
     set_winner_if_both_rolled,
 )
-from ..models import (
+from ..common import (
     GameException,
     ReportedException,
     KNIGHT,
