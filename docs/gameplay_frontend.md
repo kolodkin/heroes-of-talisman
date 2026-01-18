@@ -201,6 +201,27 @@ Active effects applied to characters should be displayed visually on character c
 - **AttackNegBonusEffect**: Value subtracted from attack stat, make attack text color red
 - **RerollDiceEffect**: Display reroll icon
 
+## AbilityCard
+
+Displays a character ability with image, name, and description (`src/components/AbilityCard.jsx`).
+
+**Props:**
+
+- `ability` (object): Ability data with `name` property
+- `isSelected` (boolean): Whether the ability is currently selected
+- `onClick` (function): Click handler for selection
+- `size` (string, default: `"normal"`): Card size - `"normal"` or `"small"`
+
+**Data Attributes:**
+
+- `data-ability`: Ability name (used for testing)
+
+**Features:**
+
+- Uses common card styles from `Card.module.css`
+- Displays ability image from `/images/effects/{ability.name}.jpg`
+- Shows translated ability name and description via i18next
+
 ## SharedArea
 
 - Dynamically renders stage-specific components based on `gamePlay.stage`
@@ -224,27 +245,6 @@ Reusable UI components shared across different parts of the game.
 ## Card
 
 Common card styling (`Card.module.css`) used by `CharacterCard` and `AbilityCard` components for consistent visual appearance and selection states.
-
-## AbilityCard
-
-Displays a character ability with image, name, and description (`src/components/AbilityCard.jsx`).
-
-**Props:**
-
-- `ability` (object): Ability data with `name` property
-- `isSelected` (boolean): Whether the ability is currently selected
-- `onClick` (function): Click handler for selection
-- `size` (string, default: `"normal"`): Card size - `"normal"` or `"small"`
-
-**Data Attributes:**
-
-- `data-ability`: Ability name (used for testing)
-
-**Features:**
-
-- Uses common card styles from `Card.module.css`
-- Displays ability image from `/images/effects/{ability.name}.jpg`
-- Shows translated ability name and description via i18next
 
 # Mobile Layout Considerations
 
