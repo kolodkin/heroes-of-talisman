@@ -14,10 +14,9 @@ from ..common import (
     KNIGHT,
     ARCHER,
     MAGE,
-    ATTACK_NEG_BONUS,
 )
 from ..abilities import Ability, BATTLE_HOWL, ABILITIES_MAP
-from ..effects import AttackNegBonusEffect
+from ..effects import AttackNegBonusEffect, ATTACK_NEG_BONUS
 from ..gameplay import (
     OPPONENT_SELECTION,
     BATTLE_DICE_ROLL,
