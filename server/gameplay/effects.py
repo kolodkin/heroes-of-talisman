@@ -4,9 +4,8 @@ from typing import Literal, Annotated, Union, Self
 
 from pydantic import Field, model_validator
 
-from .gameplay import (
+from .models import (
     StrictModel,
-    AbilityName,
     ActionName,
     ApplyToTarget,
     # Effect name constants
@@ -23,11 +22,12 @@ from .gameplay import (
     APPLY_TO_SELF,
     APPLY_TO_BATTLE_OPPONENT,
     APPLY_TO_SELECTED_OPPONENT,
-    # Ability name constants for source validation
+)
+from .abilities import (
+    AbilityName,
     BATTLE_HOWL,
     BOUNCING_ARROW,
     FREEZE,
-    # Source map
     EFFECTS_SOURCE_ABILITY_MAP,
 )
 
