@@ -10,7 +10,6 @@ import pytest
 from .connection import ConnectAction, MAX_PLAYERS
 from ..models import (
     ReportedException,
-    CHARACTER_SELECT,
     KNIGHT,
     ARCHER,
     MAGE,
@@ -18,6 +17,7 @@ from ..models import (
     DISCONNECTED,
 )
 from ..gameplay import (
+    CHARACTER_SELECT,
     GamePlay,
     Player,
     Character,

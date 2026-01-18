@@ -9,9 +9,9 @@ from ..models import (
     MAGE,
     CONNECTED,
     DISCONNECTED,
-    CHARACTER_SELECT,
 )
 from ..gameplay import (
+    CHARACTER_SELECT,
     GamePlay,
     Player,
     Character,

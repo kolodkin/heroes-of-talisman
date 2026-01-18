@@ -7,15 +7,10 @@ These tests verify that action properties work correctly across different game s
 import pytest
 
 from .action import Action
-from ..models import (
-    GameException,
+from ..models import GameException, KNIGHT, MAGE, ARCHER
+from ..gameplay import (
     BATTLE_DICE_ROLL,
     CHARACTER_SELECT,
-    KNIGHT,
-    MAGE,
-    ARCHER,
-)
-from ..gameplay import (
     GamePlay,
     Player,
     ActivePlayer1,

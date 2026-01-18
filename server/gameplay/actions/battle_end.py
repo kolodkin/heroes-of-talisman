@@ -5,13 +5,10 @@ Ends the battle, calculates winner, and reduces loser's health by 1.
 """
 
 from .action import Action
-from ..models import (
-    GameException,
-    ReportedException,
+from ..models import GameException, ReportedException
+from ..gameplay import (
     BATTLE_END,
     CHARACTER_SELECT,
-)
-from ..gameplay import (
     GamePlay,
     ActivePlayer1,
     ActivePlayer3,

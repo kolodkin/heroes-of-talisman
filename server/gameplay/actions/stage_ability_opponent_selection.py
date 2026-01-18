@@ -7,13 +7,8 @@ This module implements actions for the ability opponent selection stage:
 """
 
 from .action import Action
-from ..models import (
-    GameException,
-    ReportedException,
-    ABILITY_OPPONENT_SELECTION,
-    OPPONENT_SELECTION,
-)
-from ..gameplay import GamePlay, Opponent2
+from ..models import GameException, ReportedException
+from ..gameplay import ABILITY_OPPONENT_SELECTION, OPPONENT_SELECTION, GamePlay, Opponent2
 
 
 class AbilityOpponentPressAction(Action):

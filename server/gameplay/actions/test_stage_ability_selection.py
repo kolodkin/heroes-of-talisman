@@ -13,16 +13,18 @@ from .stage_ability_selection import AbilityPressAction, AbilitySelectAction
 from ..models import (
     GameException,
     ReportedException,
-    ABILITY_SELECTION,
-    ABILITY_OPPONENT_SELECTION,
-    OPPONENT_SELECTION,
-    CHARACTER_SELECT,
     KNIGHT,
     ARCHER,
     MAGE,
     REROLL_DICE,
 )
 from ..abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
+from ..gameplay import (
+    ABILITY_SELECTION,
+    ABILITY_OPPONENT_SELECTION,
+    OPPONENT_SELECTION,
+    CHARACTER_SELECT,
+)
 from ..effects import RerollDiceEffect
 from ..gameplay import (
     GamePlay,

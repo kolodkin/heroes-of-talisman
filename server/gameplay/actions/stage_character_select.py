@@ -10,11 +10,11 @@ from .action import Action
 from ..models import (
     GameException,
     ReportedException,
-    ABILITY_SELECTION,
-    CHARACTER_SELECT,
     CHARACTER_SELECT_ACTION,
 )
 from ..gameplay import (
+    ABILITY_SELECTION,
+    CHARACTER_SELECT,
     GamePlay,
     CharacterSelectMeta,
     AbilitySelectMeta,

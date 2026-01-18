@@ -1,16 +1,6 @@
 from typing import Literal, Optional
 
-from .models import (
-    StageName,
-    ABILITY_SELECTION,
-    BATTLE_DICE_ROLL,
-    BATTLE_END,
-    CHARACTER_SELECT,
-    OPPONENT_SELECTION,
-    KNIGHT,
-    MAGE,
-    ARCHER,
-)
+from .models import KNIGHT, MAGE, ARCHER
 from .abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
 from .effects import (
     AttackBonusEffect,
@@ -20,6 +10,12 @@ from .effects import (
     DrawCardEffect,
 )
 from .gameplay import (
+    StageName,
+    ABILITY_SELECTION,
+    BATTLE_DICE_ROLL,
+    BATTLE_END,
+    CHARACTER_SELECT,
+    OPPONENT_SELECTION,
     GamePlay,
     DEFAULT_GAME,
     Player,

@@ -16,13 +16,12 @@ from .battle_end import BattleEndAction
 from ..models import (
     GameException,
     ReportedException,
-    BATTLE_END,
-    CHARACTER_SELECT,
     KNIGHT,
     MAGE,
     ARCHER,
 )
 from ..abilities import BATTLE_HOWL, FREEZE, BOUNCING_ARROW
+from ..gameplay import BATTLE_END, CHARACTER_SELECT
 from ..effects import AttackNegBonusEffect, SkipTurnEffect, RerollDiceEffect
 from ..gameplay import (
     GamePlay,

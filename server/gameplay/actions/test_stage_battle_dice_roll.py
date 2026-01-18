@@ -19,10 +19,6 @@ from .stage_battle import (
 from ..models import (
     GameException,
     ReportedException,
-    BATTLE_DICE_ROLL,
-    BATTLE_END,
-    CHARACTER_SELECT,
-    OPPONENT_SELECTION,
     KNIGHT,
     ARCHER,
     MAGE,
@@ -33,6 +29,12 @@ from ..effects import (
     AttackNegBonusEffect,
     SkipTurnEffect,
     RerollDiceEffect,
+)
+from ..gameplay import (
+    BATTLE_DICE_ROLL,
+    BATTLE_END,
+    CHARACTER_SELECT,
+    OPPONENT_SELECTION,
 )
 from ..gameplay import (
     GamePlay,

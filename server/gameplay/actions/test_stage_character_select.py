@@ -11,9 +11,6 @@ from .stage_character_select import CharacterPressAction, CharacterSelectAction
 from ..models import (
     GameException,
     ReportedException,
-    CHARACTER_SELECT,
-    ABILITY_SELECTION,
-    BATTLE_DICE_ROLL,
     KNIGHT,
     ARCHER,
     MAGE,
@@ -21,6 +18,9 @@ from ..models import (
 from ..abilities import FREEZE, BATTLE_HOWL
 from ..effects import SkipTurnEffect
 from ..gameplay import (
+    CHARACTER_SELECT,
+    ABILITY_SELECTION,
+    BATTLE_DICE_ROLL,
     GamePlay,
     Player,
     Character,

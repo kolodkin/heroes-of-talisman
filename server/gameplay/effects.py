@@ -23,13 +23,6 @@ from .models import (
     APPLY_TO_BATTLE_OPPONENT,
     APPLY_TO_SELECTED_OPPONENT,
 )
-from .abilities import (
-    AbilityName,
-    BATTLE_HOWL,
-    BOUNCING_ARROW,
-    FREEZE,
-    EFFECTS_SOURCE_ABILITY_MAP,
-)
 
 
 class Effect(StrictModel):
@@ -40,13 +33,16 @@ class Effect(StrictModel):
     """
 
     name: Literal["effect"] = "effect"  # Discriminator field for polymorphic serialization
-    source: AbilityName
+    source: str  # AbilityName - using str to avoid circular import
     dispose_actions: list[ActionName]  # Action names when this effect should be disposed
     apply_to: ApplyToTarget  # Who receives this effect
 
     @model_validator(mode="after")
     def validate_source(self) -> Self:
         """Validate that source is valid for this effect type"""
+        # Lazy import to avoid circular dependency
+        from .abilities import EFFECTS_SOURCE_ABILITY_MAP
+
         valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
         if self.source not in valid_sources and len(valid_sources) > 0:
             raise ValueError(

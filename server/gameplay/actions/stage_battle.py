@@ -10,15 +10,12 @@ This module implements actions for the battle stage:
 
 import random
 from .action import Action
-from ..models import (
-    GameException,
-    ReportedException,
+from ..models import GameException, ReportedException
+from ..effects import RerollDiceEffect
+from ..gameplay import (
     BATTLE_DICE_ROLL,
     BATTLE_END,
     CHARACTER_SELECT,
-)
-from ..effects import RerollDiceEffect
-from ..gameplay import (
     GamePlay,
     ActivePlayer2,
     ActivePlayer3,

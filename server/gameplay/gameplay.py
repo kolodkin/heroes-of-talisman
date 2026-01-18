@@ -1,20 +1,38 @@
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, Literal, Optional
 
 from pydantic import Field, computed_field
 
 from .models import (
     StrictModel,
     ConnectionStatus,
-    StageName,
     ChatacterType,
     CONNECTED,
-    CHARACTER_SELECT,
     KNIGHT,
     ARCHER,
     MAGE,
 )
+
+########################################################
+# Stages
+########################################################
+CHARACTER_SELECT = "character_select"
+ABILITY_SELECTION = "ability_selection"
+ABILITY_OPPONENT_SELECTION = "ability_opponent_selection"
+OPPONENT_SELECTION = "opponent_selection"
+BATTLE_DICE_ROLL = "battle_dice_roll"
+BATTLE_END = "battle_end"
+STAGES_NAMES = [
+    CHARACTER_SELECT,
+    ABILITY_SELECTION,
+    ABILITY_OPPONENT_SELECTION,
+    OPPONENT_SELECTION,
+    BATTLE_DICE_ROLL,
+    BATTLE_END,
+]
+StageName = Literal[*STAGES_NAMES]
+
 from .abilities import (
     Ability,
     ABILITIES_MAP,

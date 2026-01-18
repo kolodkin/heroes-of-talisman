@@ -11,8 +11,6 @@ from .stage_opponent_selection import OpponentPressAction, OpponentSelectAction
 from ..models import (
     GameException,
     ReportedException,
-    OPPONENT_SELECTION,
-    BATTLE_DICE_ROLL,
     KNIGHT,
     ARCHER,
     MAGE,
@@ -21,6 +19,8 @@ from ..models import (
 from ..abilities import Ability, BATTLE_HOWL, ABILITIES_MAP
 from ..effects import AttackNegBonusEffect
 from ..gameplay import (
+    OPPONENT_SELECTION,
+    BATTLE_DICE_ROLL,
     GamePlay,
     Player,
     Character,

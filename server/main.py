@@ -16,8 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .env import REDIS_HOST, REDIS_PORT
 from .game_engine import GameEngine
-from .gameplay.models import StageName
-from .gameplay.gameplay import DEFAULT_GAME, GamePlay
+from .gameplay.gameplay import StageName, DEFAULT_GAME, GamePlay
 from .gameplay.presets import get_debug_preset, DEBUG_PRESETS
 from .db_models import Game as GameTable
 from .database import get_db, AsyncSessionLocal
