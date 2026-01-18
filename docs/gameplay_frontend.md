@@ -9,20 +9,9 @@ related specs:
 
 ## Overview
 
-This frontend engine provides a complete visualization system for card games featuring multiple players, each with their own card decks, plus a shared area. The system renders game state from JSON data and provides interactive components for gameplay.
+This frontend engine provides a complete visualization system for the game, featuring multiple players with their characters, plus a shared area. The system renders game state from JSON data and provides interactive components for gameplay.
 
 ## Key Features
-
-### Deck Management
-
-- **Flexible Layouts**: Stack, grid arrangement
-- **Visibility Controls**: Face-up/face-down rendering
-
-### Card Interactions
-
-- **Selection System**: Single and multi-card selection
-- **Hover Effects**: Visual feedback for interactive elements
-- **Animation Support**: Smooth transitions for card movements
 
 ### Player Management
 
@@ -40,7 +29,7 @@ This frontend engine provides a complete visualization system for card games fea
 ### Responsive Design
 
 - **Adaptive Layouts**: Adjusts to different screen sizes
-- **Scalable Components**: Cards and decks resize appropriately
+- **Scalable Components**: Components resize appropriately
 - **Mobile Support**: Touch-friendly interactions
 - **Accessibility**: Screen reader support and keyboard navigation
 
@@ -68,13 +57,6 @@ The application supports both RTL (Hebrew) and LTR layouts using CSS logical pro
 - **Naming Convention**: Use `start` and `end` in class/variable names (e.g., `startGroup`, `endGroup`) instead of `left` and `right`
 - **Flexbox**: Automatically handles direction - items flow according to text direction
 - **Why**: Logical properties automatically adapt to text direction, making the code direction-agnostic
-
-## Implementation Details
-
-### Deck Layout Algorithms
-
-- **Stack Layout**: Cards positioned with slight offsets
-- **Grid Layout**: Cards in rows/columns with consistent spacing
 
 ## State and API Integration
 
