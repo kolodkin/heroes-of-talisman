@@ -223,20 +223,7 @@ Reusable UI components shared across different parts of the game.
 
 ## Card
 
-A generic card wrapper component (`src/components/GamePlay/Card.jsx`) providing consistent card styling and behavior.
-
-**Props:**
-
-- `faceUp` (boolean, default: `true`): Whether to show card content or card back
-- `selected` (boolean, default: `false`): Whether the card is in selected state
-- `onClick` (function): Click handler
-- `children`: Card content to render when face up
-
-**Styling:**
-
-- Base styles in `Card.module.css`
-- Selected state adds visual highlight
-- Face-down state shows card back design
+Common card styling (`Card.module.css`) used by `CharacterCard` and `AbilityCard` components for consistent visual appearance and selection states.
 
 ## AbilityCard
 
