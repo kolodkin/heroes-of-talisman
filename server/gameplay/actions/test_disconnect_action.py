@@ -8,17 +8,19 @@ existing players, nonexistent players, and already disconnected players.
 import pytest
 
 from .connection import DisconnectAction
-from ..models import (
-    GamePlay,
-    Player,
-    Character,
+from ..common import (
     GameException,
-    CHARACTER_DEFAULT_STATS,
     KNIGHT,
     ARCHER,
     MAGE,
     CONNECTED,
     DISCONNECTED,
+)
+from ..gameplay import (
+    GamePlay,
+    Player,
+    Character,
+    CHARACTER_DEFAULT_STATS,
 )
 
 

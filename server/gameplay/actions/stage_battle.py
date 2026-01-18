@@ -10,20 +10,19 @@ This module implements actions for the battle stage:
 
 import random
 from .action import Action
-from ..models import (
+from ..common import GameException, ReportedException
+from ..effects import RerollDiceEffect
+from ..gameplay import (
+    BATTLE_DICE_ROLL,
+    BATTLE_END,
+    CHARACTER_SELECT,
     GamePlay,
-    GameException,
-    ReportedException,
     ActivePlayer2,
     ActivePlayer3,
     ActivePlayer4,
     Opponent2,
     Opponent3,
     Opponent4,
-    RerollDiceEffect,
-    BATTLE_DICE_ROLL,
-    BATTLE_END,
-    CHARACTER_SELECT,
 )
 
 
@@ -73,7 +72,7 @@ def set_winner_if_both_rolled(game: GamePlay) -> None:
     opponent_is_winner = opponent_score > active_score
 
     # Import BattleResult at top of function to avoid circular imports
-    from ..models import BattleResult
+    from ..gameplay import BattleResult
 
     # Upgrade to ActivePlayer4 and Opponent4 with result fields
     game.active = ActivePlayer4(

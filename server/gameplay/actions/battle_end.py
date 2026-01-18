@@ -5,17 +5,16 @@ Ends the battle, calculates winner, and reduces loser's health by 1.
 """
 
 from .action import Action
-from ..models import (
+from ..common import GameException, ReportedException
+from ..gameplay import (
+    BATTLE_END,
+    CHARACTER_SELECT,
     GamePlay,
-    GameException,
-    ReportedException,
     ActivePlayer1,
     ActivePlayer3,
     ActivePlayer4,
     Opponent3,
     Opponent4,
-    BATTLE_END,
-    CHARACTER_SELECT,
 )
 
 
@@ -61,7 +60,7 @@ class BattleEndAction(Action):
         # If tied, no one loses health
 
         # Dispose effects with 'battle_end' in their dispose_actions list
-        from ..models import BATTLE_END_ACTION
+        from ..common import BATTLE_END_ACTION
 
         def should_keep_effect(effect):
             """Returns True if effect should be kept after battle"""

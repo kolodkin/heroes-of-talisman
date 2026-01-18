@@ -9,12 +9,8 @@ and leaving actions.
 import pytest
 
 from .connection import ConnectAction, DisconnectAction, LeaveAction
-from ..models import (
-    GamePlay,
-    CHARACTER_SELECT,
-    CONNECTED,
-    DISCONNECTED,
-)
+from ..common import CONNECTED, DISCONNECTED
+from ..gameplay import CHARACTER_SELECT, GamePlay
 
 
 def test_connect_then_disconnect_then_reconnect():

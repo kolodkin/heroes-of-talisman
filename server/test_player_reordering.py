@@ -1,6 +1,6 @@
 """Test player reordering in GamePlay"""
 
-from server.gameplay.models import GamePlay, Player
+from server.gameplay.gameplay import GamePlay, Player
 
 
 def test_reorder_players_single_player():

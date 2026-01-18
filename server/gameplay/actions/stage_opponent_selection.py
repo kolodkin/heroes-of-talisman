@@ -8,15 +8,9 @@ This module implements actions for the opponent selection stage:
 
 import copy
 from .action import Action
-from ..models import (
-    GamePlay,
-    GameException,
-    ReportedException,
-    Opponent2,
-    BATTLE_DICE_ROLL,
-    OPPONENT_SELECTION,
-    APPLY_TO_BATTLE_OPPONENT,
-)
+from ..common import GameException, ReportedException
+from ..effects import APPLY_TO_BATTLE_OPPONENT
+from ..gameplay import BATTLE_DICE_ROLL, OPPONENT_SELECTION, GamePlay, Opponent2
 
 
 class OpponentPressAction(Action):

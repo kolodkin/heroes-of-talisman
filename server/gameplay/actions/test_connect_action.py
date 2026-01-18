@@ -8,19 +8,21 @@ reconnections, game capacity limits, and character initialization.
 import pytest
 
 from .connection import ConnectAction, MAX_PLAYERS
-from ..models import (
-    GamePlay,
-    Player,
-    Character,
-    ActivePlayer1,
+from ..common import (
     ReportedException,
-    CHARACTER_DEFAULT_STATS,
-    CHARACTER_SELECT,
     KNIGHT,
     ARCHER,
     MAGE,
     CONNECTED,
     DISCONNECTED,
+)
+from ..gameplay import (
+    CHARACTER_SELECT,
+    GamePlay,
+    Player,
+    Character,
+    ActivePlayer1,
+    CHARACTER_DEFAULT_STATS,
     ARCHER_L1_ATTACK,
     MAGE_L1_ATTACK,
 )

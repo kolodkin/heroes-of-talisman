@@ -2,16 +2,14 @@
 Tests for EffectTotal aggregation in Character
 """
 
-from server.gameplay.models import (
+from .abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
+from .effects import (
     AttackBonusEffect,
     AttackNegBonusEffect,
-    Character,
     RerollDiceEffect,
     SkipTurnEffect,
-    BATTLE_HOWL,
-    BOUNCING_ARROW,
-    FREEZE,
 )
+from .gameplay import Character
 
 
 def test_effect_total_empty():

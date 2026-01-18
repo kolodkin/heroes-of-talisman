@@ -7,16 +7,18 @@ This module implements actions for the character selection stage:
 """
 
 from .action import Action
-from ..models import (
-    GamePlay,
+from ..common import (
     GameException,
     ReportedException,
+    CHARACTER_SELECT_ACTION,
+)
+from ..gameplay import (
+    ABILITY_SELECTION,
+    CHARACTER_SELECT,
+    GamePlay,
     CharacterSelectMeta,
     AbilitySelectMeta,
     ActivePlayer2,
-    ABILITY_SELECTION,
-    CHARACTER_SELECT,
-    CHARACTER_SELECT_ACTION,
 )
 
 

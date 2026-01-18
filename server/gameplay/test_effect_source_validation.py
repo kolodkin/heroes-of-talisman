@@ -5,14 +5,12 @@ Tests for effect source validation
 import pytest
 from pydantic import ValidationError
 
-from server.gameplay.models import (
+from .abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
+from .effects import (
     AttackBonusEffect,
     AttackNegBonusEffect,
     RerollDiceEffect,
     SkipTurnEffect,
-    BATTLE_HOWL,
-    BOUNCING_ARROW,
-    FREEZE,
 )
 
 

@@ -1,6 +1,6 @@
 from typing import Dict
 
-from ..models import (
+from ..common import (
     CONNECT,
     LEAVE,
     DISCONNECT,
@@ -18,7 +18,7 @@ from ..models import (
     ACTION_REROLL_EFFECT,
     BATTLE_END_ACTION,
     DEBUG_SET_BATTLE_DICE_ROLLS,
-)
+)  # Action constants stay in models.py
 from .action import Action
 from .connection import ConnectAction, LeaveAction, DisconnectAction
 from .stage_character_select import CharacterPressAction, CharacterSelectAction

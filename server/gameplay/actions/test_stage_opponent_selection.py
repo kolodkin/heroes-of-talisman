@@ -8,25 +8,24 @@ selected opponents and confirming selections to transition to battle.
 import pytest
 
 from .stage_opponent_selection import OpponentPressAction, OpponentSelectAction
-from ..models import (
-    GamePlay,
-    Player,
-    Ability,
-    Character,
-    ActivePlayer2,
+from ..common import (
     GameException,
     ReportedException,
-    Opponent2,
-    AttackNegBonusEffect,
-    CHARACTER_DEFAULT_STATS,
-    OPPONENT_SELECTION,
-    BATTLE_DICE_ROLL,
     KNIGHT,
     ARCHER,
     MAGE,
-    BATTLE_HOWL,
-    ATTACK_NEG_BONUS,
-    ABILITIES_MAP,
+)
+from ..abilities import Ability, BATTLE_HOWL, ABILITIES_MAP
+from ..effects import AttackNegBonusEffect, ATTACK_NEG_BONUS
+from ..gameplay import (
+    OPPONENT_SELECTION,
+    BATTLE_DICE_ROLL,
+    GamePlay,
+    Player,
+    Character,
+    ActivePlayer2,
+    Opponent2,
+    CHARACTER_DEFAULT_STATS,
     init_characters,
 )
 
