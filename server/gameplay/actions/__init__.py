@@ -6,6 +6,8 @@ from ..common import (
     DISCONNECT,
     CHARACTER_PRESS,
     CHARACTER_SELECT_ACTION,
+    CARD_DRAW_ACTION,
+    CARD_SELECT_ACTION,
     ABILITY_PRESS,
     ABILITY_SELECT,
     ABILITY_OPPONENT_PRESS,
@@ -22,6 +24,7 @@ from ..common import (
 from .action import Action
 from .connection import ConnectAction, LeaveAction, DisconnectAction
 from .stage_character_select import CharacterPressAction, CharacterSelectAction
+from .stage_card_draw import CardDrawAction, CardSelectAction
 from .stage_ability_selection import AbilityPressAction, AbilitySelectAction
 from .stage_ability_opponent_selection import AbilityOpponentPressAction, AbilityOpponentSelectAction
 from .stage_opponent_selection import OpponentPressAction, OpponentSelectAction
@@ -35,6 +38,8 @@ ACTION_MAP: Dict[str, type[Action]] = {
     DISCONNECT: DisconnectAction,
     CHARACTER_PRESS: CharacterPressAction,
     CHARACTER_SELECT_ACTION: CharacterSelectAction,
+    CARD_DRAW_ACTION: CardDrawAction,
+    CARD_SELECT_ACTION: CardSelectAction,
     ABILITY_PRESS: AbilityPressAction,
     ABILITY_SELECT: AbilitySelectAction,
     ABILITY_OPPONENT_PRESS: AbilityOpponentPressAction,

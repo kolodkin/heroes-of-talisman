@@ -18,6 +18,7 @@ from .common import (
 # Stages
 ########################################################
 CHARACTER_SELECT = "character_select"
+CARD_DRAW = "card_draw"
 ABILITY_SELECTION = "ability_selection"
 ABILITY_OPPONENT_SELECTION = "ability_opponent_selection"
 OPPONENT_SELECTION = "opponent_selection"
@@ -25,6 +26,7 @@ BATTLE_DICE_ROLL = "battle_dice_roll"
 BATTLE_END = "battle_end"
 STAGES_NAMES = [
     CHARACTER_SELECT,
+    CARD_DRAW,
     ABILITY_SELECTION,
     ABILITY_OPPONENT_SELECTION,
     OPPONENT_SELECTION,
@@ -96,6 +98,12 @@ class CharacterSelectMeta(StrictModel):
     """Stage metadata for character selection stage"""
 
     selected: str  # Currently highlighted character
+
+
+class CardDrawMeta(StrictModel):
+    """Stage metadata for card draw stage"""
+
+    drawn_card: str  # The card that was randomly drawn
 
 
 class AbilitySelectMeta(StrictModel):
@@ -171,10 +179,11 @@ class GamePlay(StrictModel):
     stage: StageName = CHARACTER_SELECT
     players: dict[str, Player] = Field(default_factory=dict)
     active: Optional[ActivePlayer] = None  # The active player and its selections
+    card: Optional[str] = None  # Selected card from card_draw stage
     ability: Optional[Ability] = None  # Selected ability
     ability_opponent: Optional[Opponent2] = None  # Selected ability opponent
     opponent: Optional[Opponent] = None  # Selected opponent for battle
-    stage_meta: Optional[Ability | CharacterSelectMeta | AbilitySelectMeta | Opponent2] = None  # Temporary stage-specific metadata
+    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | Opponent2] = None  # Temporary stage-specific metadata
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""

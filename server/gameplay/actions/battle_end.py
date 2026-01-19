@@ -84,6 +84,8 @@ class BattleEndAction(Action):
         # Clear battle state and transition to next turn
         self.game.active = ActivePlayer1(player=next_player_name)
         self.game.opponent = None
+        self.game.card = None
+        self.game.ability = None
         self.game.stage = CHARACTER_SELECT
         self.game.stage_meta = None
 

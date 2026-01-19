@@ -1,5 +1,6 @@
 // Stage constants - must match backend stage names in server/gameplay/models.py
 export const CHARACTER_SELECT = "character_select";
+export const CARD_DRAW = "card_draw";
 export const ABILITY_SELECTION = "ability_selection";
 export const ABILITY_OPPONENT_SELECTION = "ability_opponent_selection";
 export const OPPONENT_SELECTION = "opponent_selection";

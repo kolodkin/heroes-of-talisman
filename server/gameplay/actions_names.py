@@ -11,6 +11,8 @@ LEAVE = "leave"
 DISCONNECT = "disconnect"
 CHARACTER_PRESS = "character_press"
 CHARACTER_SELECT_ACTION = "character_select"
+CARD_DRAW_ACTION = "card_draw"
+CARD_SELECT_ACTION = "card_select"
 ABILITY_PRESS = "ability_press"
 ABILITY_SELECT = "ability_select"
 ABILITY_OPPONENT_PRESS = "ability_opponent_press"
@@ -30,6 +32,8 @@ ACTION_NAMES = [
     DISCONNECT,
     CHARACTER_PRESS,
     CHARACTER_SELECT_ACTION,
+    CARD_DRAW_ACTION,
+    CARD_SELECT_ACTION,
     ABILITY_PRESS,
     ABILITY_SELECT,
     ABILITY_OPPONENT_PRESS,

@@ -51,7 +51,16 @@ class Effect(StrictModel):
         # Lazy import to avoid circular dependency
         from .abilities import EFFECTS_SOURCE_ABILITY_MAP
 
-        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
+        try:
+            from .cards import EFFECTS_SOURCE_CARD_MAP
+        except ImportError:
+            EFFECTS_SOURCE_CARD_MAP = {}
+
+        # Combine ability and card sources
+        ability_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
+        card_sources = EFFECTS_SOURCE_CARD_MAP.get(self.name, set())
+        valid_sources = ability_sources | card_sources
+
         if self.source not in valid_sources and len(valid_sources) > 0:
             raise ValueError(
                 f"Invalid source '{self.source}' for {self.__class__.__name__}. "

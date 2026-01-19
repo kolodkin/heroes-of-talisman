@@ -3,7 +3,7 @@ Character Select Stage Actions
 
 This module implements actions for the character selection stage:
 - CharacterPressAction: Highlights selected character by setting stage_meta
-- CharacterSelectAction: Confirms selection, disposes effects, and transitions to ability_selection
+- CharacterSelectAction: Confirms selection, disposes effects, and transitions to card_draw
 """
 
 from .action import Action
@@ -13,10 +13,12 @@ from ..common import (
     CHARACTER_SELECT_ACTION,
 )
 from ..gameplay import (
+    CARD_DRAW,
     ABILITY_SELECTION,
     CHARACTER_SELECT,
     GamePlay,
     CharacterSelectMeta,
+    CardDrawMeta,
     AbilitySelectMeta,
     ActivePlayer2,
 )
@@ -63,7 +65,7 @@ class CharacterSelectAction(Action):
     Action invoked when the Select button is pressed to confirm character choice.
 
     Populates selected_character in game metadata, disposes effects with
-    'character_select' in dispose_actions, and transitions the game stage to 'ability_selection'.
+    'character_select' in dispose_actions, and transitions the game stage to 'card_draw'.
     """
 
     @property
@@ -98,16 +100,10 @@ class CharacterSelectAction(Action):
         # Update active player with selected character
         self.game.active = ActivePlayer2(player=self.user, character=character)
 
-        # Transition to ability_selection stage
-        self.game.stage = ABILITY_SELECTION
+        # Transition to card_draw stage
+        self.game.stage = CARD_DRAW
 
-        # Auto-select if character has only one ability
-        selected_character = player.characters[character]
-        if len(selected_character.abilities) == 1:
-            self.game.stage_meta = AbilitySelectMeta(
-                selected=selected_character.abilities[0].name
-            )
-        else:
-            self.game.stage_meta = None
+        # Clear stage_meta - will be populated by CardDrawAction
+        self.game.stage_meta = None
 
         return self.game
