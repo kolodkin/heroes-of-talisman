@@ -38,11 +38,14 @@ def test_connect_action_new_player():
     assert "player1" in updated_game.players
     assert updated_game.players["player1"].name == "player1"
     assert updated_game.players["player1"].status == CONNECTED
-    assert updated_game.players["player1"].cards == []
     assert len(updated_game.players["player1"].characters) == 3
     assert KNIGHT in updated_game.players["player1"].characters
     assert ARCHER in updated_game.players["player1"].characters
     assert MAGE in updated_game.players["player1"].characters
+    # Verify each character has empty cards list
+    assert updated_game.players["player1"].characters[KNIGHT].cards == []
+    assert updated_game.players["player1"].characters[ARCHER].cards == []
+    assert updated_game.players["player1"].characters[MAGE].cards == []
     assert updated_game.stage == CHARACTER_SELECT
     assert updated_game.active.player == "player1"
 
@@ -50,12 +53,13 @@ def test_connect_action_new_player():
 def test_connect_action_existing_player_reconnect():
     """Test reconnecting an existing player who was disconnected"""
     game = GamePlay()
+    knight_char = Character(level=2, **CHARACTER_DEFAULT_STATS[KNIGHT])
+    knight_char.cards = ["talisman"]  # Knight has a card
     game.players["player1"] = Player(
         name="player1",
         status=DISCONNECTED,
-        cards=["talisman"],
         characters={
-            KNIGHT: Character(level=2, **CHARACTER_DEFAULT_STATS[KNIGHT]),
+            KNIGHT: knight_char,
             ARCHER: Character(level=1, **CHARACTER_DEFAULT_STATS[ARCHER]),
             MAGE: Character(level=1, **CHARACTER_DEFAULT_STATS[MAGE]),
         },
@@ -66,7 +70,7 @@ def test_connect_action_existing_player_reconnect():
 
     # Player should be reconnected with their existing data
     assert updated_game.players["player1"].status == CONNECTED
-    assert updated_game.players["player1"].cards == ["talisman"]
+    assert updated_game.players["player1"].characters[KNIGHT].cards == ["talisman"]
     assert updated_game.players["player1"].characters[KNIGHT].level == 2
 
 
