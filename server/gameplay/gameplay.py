@@ -72,12 +72,7 @@ class Deck(StrictModel, Generic[T]):
         if len(self.cards) == 0:
             self.reset()
 
-        card = self.cards.pop(0)
-
-        if len(self.cards) == 0:
-            self.reset()
-
-        return card
+        return self.cards.pop(0)
 
     def reset(self) -> None:
         """Reset deck with shuffled cards (with replacement)"""
