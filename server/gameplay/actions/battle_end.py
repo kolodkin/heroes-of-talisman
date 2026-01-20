@@ -46,17 +46,22 @@ class BattleEndAction(Action):
         active_character = self.active_character
         opponent_character = self.opponent_character
 
-        # Calculate scores
-        active_score = sum(self.game.active.dice_roll) + active_character.attack
-        opponent_score = sum(self.game.opponent.dice_roll) + opponent_character.attack
+        # Calculate scores (including effects)
+        active_total_attack = active_character.attack + active_character.effect.attack_bonus + active_character.effect.attack_neg_bonus
+        opponent_total_attack = opponent_character.attack + opponent_character.effect.attack_bonus + opponent_character.effect.attack_neg_bonus
 
-        # Determine loser and reduce health
+        active_score = sum(self.game.active.dice_roll) + active_total_attack
+        opponent_score = sum(self.game.opponent.dice_roll) + opponent_total_attack
+
+        # Determine loser and reduce health (defense reduces incoming damage)
         if active_score > opponent_score:
             # Active player wins, opponent loses health
-            opponent_character.health = max(0, opponent_character.health - 1)
+            damage = max(0, 1 - opponent_character.effect.defense_bonus)
+            opponent_character.health = max(0, opponent_character.health - damage)
         elif opponent_score > active_score:
             # Opponent wins, active player loses health
-            active_character.health = max(0, active_character.health - 1)
+            damage = max(0, 1 - active_character.effect.defense_bonus)
+            active_character.health = max(0, active_character.health - damage)
         # If tied, no one loses health
 
         # Dispose effects with 'battle_end' in their dispose_actions list

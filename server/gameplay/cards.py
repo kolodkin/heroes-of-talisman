@@ -7,9 +7,9 @@ from pydantic import Field
 from .common import StrictModel
 from .effects import (
     # Effect name constants for EFFECTS_SOURCE_CARD_MAP
-    ATTACK_NEG_BONUS,
+    DEFENSE_BONUS,
     # Apply to constants
-    APPLY_TO_BATTLE_OPPONENT,
+    APPLY_TO_SELF,
 )
 
 ########################################################
@@ -25,13 +25,13 @@ CardName = Literal[*CARDS_NAMES]
 # Defines which cards can create which effects
 # This is used for validation to ensure effects have valid source cards
 EFFECTS_SOURCE_CARD_MAP: dict[str, set[str]] = {
-    ATTACK_NEG_BONUS: {METAL_ARMOR},  # AttackNegBonusEffect can come from METAL_ARMOR
+    DEFENSE_BONUS: {METAL_ARMOR},  # DefenseBonusEffect can come from METAL_ARMOR
 }
 
 # Import Effect classes after defining constants to avoid circular import
 from .effects import (
     EffectUnion,
-    AttackNegBonusEffect,
+    DefenseBonusEffect,
 )
 
 
@@ -44,7 +44,7 @@ CARDS_MAP: dict[CardName, Card] = {
     METAL_ARMOR: Card(
         name=METAL_ARMOR,
         effects=[
-            AttackNegBonusEffect(source=METAL_ARMOR, attack_neg_bonus=2),
+            DefenseBonusEffect(source=METAL_ARMOR, defense_bonus=2),
         ],
     ),
 }

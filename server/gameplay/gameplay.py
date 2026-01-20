@@ -48,6 +48,7 @@ from .effects import (
     EffectTotal,
     AttackBonusEffect,
     AttackNegBonusEffect,
+    DefenseBonusEffect,
     SkipTurnEffect,
     RerollDiceEffect,
     DrawCardEffect,
@@ -81,6 +82,8 @@ class Character(StrictModel):
                 total.attack_bonus += eff.attack_bonus
             elif isinstance(eff, AttackNegBonusEffect):
                 total.attack_neg_bonus += eff.attack_neg_bonus
+            elif isinstance(eff, DefenseBonusEffect):
+                total.defense_bonus += eff.defense_bonus
             elif isinstance(eff, SkipTurnEffect):
                 total.skip_next_turn = total.skip_next_turn or eff.skip_next_turn
             elif isinstance(eff, RerollDiceEffect):

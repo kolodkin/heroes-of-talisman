@@ -18,6 +18,7 @@ from .actions_names import (
 ########################################################
 ATTACK_BONUS = "attack_bonus"
 ATTACK_NEG_BONUS = "attack_neg_bonus"
+DEFENSE_BONUS = "defense_bonus"
 REROLL_DICE = "reroll_dice"
 SKIP_TURN = "skip_turn"
 DRAW_CARD = "draw_card"
@@ -95,6 +96,19 @@ class AttackBonusEffect(Effect):
     attack_bonus: int
 
 
+class DefenseBonusEffect(Effect):
+    """
+    Character's defense is increased, reducing incoming attack damage.
+    Disposed at battle end.
+    Applied to self (active player's character).
+    """
+
+    name: Literal[DEFENSE_BONUS] = DEFENSE_BONUS
+    dispose_actions: list[ActionName] = [BATTLE_END_ACTION]
+    apply_to: ApplyToTarget = APPLY_TO_SELF
+    defense_bonus: int
+
+
 class RerollDiceEffect(Effect):
     """
     Character's dice are rerolled if lost the battle.
@@ -136,7 +150,7 @@ class DrawCardEffect(Effect):
 
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect],
     Field(discriminator="name"),
 ]
 
@@ -149,6 +163,7 @@ class EffectTotal(StrictModel):
 
     attack_bonus: int = 0
     attack_neg_bonus: int = 0
+    defense_bonus: int = 0
     skip_next_turn: bool = False
     reroll_dice_available: bool = False
     draw_card_count: int = 0
