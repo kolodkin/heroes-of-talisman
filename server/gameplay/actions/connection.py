@@ -36,7 +36,7 @@ class ConnectAction(Action):
             for char_type in [KNIGHT, ARCHER, MAGE]:
                 characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
 
-            self.players[self.user] = Player(name=self.user, status=CONNECTED, cards=[], characters=characters)
+            self.players[self.user] = Player(name=self.user, status=CONNECTED, characters=characters)
 
         if self.game.active is None:
             if self.game.stage is None:
