@@ -266,3 +266,30 @@ def test_sacred_sword_works_for_mage():
     assert len(mage.effects) == 1
     assert isinstance(mage.effects[0], AttackBonusEffect)
     assert mage.effects[0].attack_bonus == 3
+
+
+def test_sacred_sword_archer_restriction_from_preset():
+    """Test archer sacred_sword restriction using the preset"""
+    from ..presets import get_debug_preset, CARD_DRAW_ARCHER_SACRED_SWORD
+
+    game = get_debug_preset(CARD_DRAW_ARCHER_SACRED_SWORD)
+
+    # Verify preset is set up correctly
+    assert game.stage == CARD_DRAW
+    assert game.active.character == ARCHER
+    assert game.stage_meta.drawn_card == SACRED_SWORD
+
+    # Execute card selection
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Verify restriction behavior
+    assert updated_game.stage == ABILITY_SELECTION
+    player = updated_game.players["player1"]
+    archer = player.characters[ARCHER]
+
+    # Archer should not have the effect
+    assert len(archer.effects) == 0
+
+    # Card should not be added to archer's card list
+    assert SACRED_SWORD not in archer.cards
