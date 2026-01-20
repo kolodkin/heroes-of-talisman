@@ -69,6 +69,7 @@ class Deck(StrictModel, Generic[T]):
 
     def draw(self) -> T:
         """Draw top card from deck, auto-reset when empty"""
+        # Reset on first draw or when deck reaches 0
         if len(self.cards) == 0:
             self.reset()
 
