@@ -2,16 +2,15 @@
 Card Draw Stage Actions
 
 This module implements actions for the card draw stage:
-- CardDrawAction: Automatically draws a random card and stores it in stage_meta
+- CardDrawAction: Automatically draws a card from the deck and stores it in stage_meta
 - CardSelectAction: Applies the drawn card's effects and transitions to ability_selection
 """
 
-import random
 import copy
 from .action import Action
 from ..common import GameException, ReportedException
 from ..effects import APPLY_TO_SELF, APPLY_TO_BATTLE_OPPONENT
-from ..cards import CardName, CARDS_MAP, CARDS_NAMES
+from ..cards import CardName, CARDS_MAP
 from ..gameplay import CARD_DRAW, ABILITY_SELECTION
 from ..gameplay import GamePlay, CardDrawMeta, AbilitySelectMeta
 
@@ -37,8 +36,8 @@ class CardDrawAction(Action):
         if self.user not in self.game.players:
             raise GameException("Player not in game")
 
-        # Draw a random card
-        drawn_card = random.choice(CARDS_NAMES)
+        # Draw a card from the deck (auto-resets when empty)
+        drawn_card = self.game.deck.draw()
 
         # Store the drawn card in stage metadata
         self.game.stage_meta = CardDrawMeta(drawn_card=drawn_card)

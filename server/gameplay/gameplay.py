@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Dict, Literal, Optional
+import random
+from typing import Dict, Literal, Optional, TypeVar, Generic
 
 from pydantic import Field, computed_field
 
@@ -53,6 +54,37 @@ from .effects import (
     RerollDiceEffect,
     DrawCardEffect,
 )
+
+########################################################
+# Deck
+########################################################
+T = TypeVar("T")
+
+
+class Deck(StrictModel, Generic[T]):
+    """Generic deck for drawing cards with auto-reset when empty"""
+
+    cards: list[T] = Field(default_factory=list)
+    size: int
+
+    def draw(self) -> T:
+        """Draw top card from deck, auto-reset when empty"""
+        if len(self.cards) == 0:
+            self.reset()
+
+        card = self.cards.pop(0)
+
+        if len(self.cards) == 0:
+            self.reset()
+
+        return card
+
+    def reset(self) -> None:
+        """Reset deck with shuffled cards (with replacement)"""
+        from .cards import CARDS_NAMES
+
+        self.cards = random.choices(CARDS_NAMES, k=self.size)
+        random.shuffle(self.cards)
 
 
 class Character(StrictModel):
@@ -180,6 +212,7 @@ class Player(StrictModel):
 ########################################################
 class GamePlay(StrictModel):
     stage: StageName = CHARACTER_SELECT
+    deck: Deck[str] = Field(default_factory=lambda: Deck(size=10, cards=[]))
     players: dict[str, Player] = Field(default_factory=dict)
     active: Optional[ActivePlayer] = None  # The active player and its selections
     card: Optional[str] = None  # Selected card from card_draw stage
