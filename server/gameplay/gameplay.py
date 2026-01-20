@@ -64,6 +64,7 @@ class Character(StrictModel):
     attack: int
     abilities: list[Ability] = Field(default_factory=list)
     effects: list[EffectUnion] = Field(default_factory=list)
+    cards: list[str] = Field(default_factory=list)
 
     @computed_field
     @property
@@ -171,7 +172,6 @@ Opponent = Opponent2 | Opponent3 | Opponent4
 class Player(StrictModel):
     name: str
     status: ConnectionStatus = CONNECTED
-    cards: list[str] = Field(default_factory=list)
     characters: Dict[ChatacterType, Character] = Field(default_factory=dict)
 
 

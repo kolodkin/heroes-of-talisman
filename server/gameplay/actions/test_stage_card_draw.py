@@ -101,8 +101,8 @@ def test_card_select_action_applies_effects():
     assert knight.effects[0].source == METAL_ARMOR
     assert knight.effects[0].dispose_actions == []  # Persistent effect
 
-    # Check card added to player's card list
-    assert METAL_ARMOR in player.cards
+    # Check card added to character's card list
+    assert METAL_ARMOR in knight.cards
 
 
 def test_card_select_action_not_active_player():
@@ -213,8 +213,8 @@ def test_sacred_sword_applies_attack_bonus():
     assert knight.effects[0].source == SACRED_SWORD
     assert knight.effects[0].dispose_actions == []
 
-    # Check card added to player's card list
-    assert SACRED_SWORD in player.cards
+    # Check card added to character's card list
+    assert SACRED_SWORD in knight.cards
 
 
 def test_sacred_sword_rejected_by_archer():
@@ -239,8 +239,8 @@ def test_sacred_sword_rejected_by_archer():
     archer = player.characters[ARCHER]
     assert len(archer.effects) == 0
 
-    # Card should NOT be added to player's card list (restricted character)
-    assert SACRED_SWORD not in player.cards
+    # Card should NOT be added to character's card list (restricted character)
+    assert SACRED_SWORD not in archer.cards
 
 
 def test_sacred_sword_works_for_mage():

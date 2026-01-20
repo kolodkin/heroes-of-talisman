@@ -100,8 +100,8 @@ class CardSelectAction(Action):
                     effect_copy = copy.deepcopy(effect)
                     character.effects.append(effect_copy)
 
-            # Add the card to the player's card list
-            player.cards.append(drawn_card_name)
+            # Add the card to the character's card list
+            character.cards.append(drawn_card_name)
 
         # Clear stage_meta after selection
         self.game.stage_meta = None
