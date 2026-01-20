@@ -4,9 +4,6 @@ Card Draw Stage Actions
 This module implements actions for the card draw stage:
 - CardDrawAction: Automatically draws a random card and stores it in stage_meta
 - CardSelectAction: Applies the drawn card's effects and transitions to ability_selection
-
-Important: Card effects are PERSISTENT (not disposed after battle) unlike ability effects.
-Card effects remain on the character for the entire game unless explicitly removed.
 """
 
 import random
@@ -92,8 +89,6 @@ class CardSelectAction(Action):
         self.game.card = drawn_card_name
 
         # Apply "self" effects to the active player's character
-        # Note: APPLY_TO_BATTLE_OPPONENT effects will be applied when opponent is selected (in OpponentSelectAction)
-        # Card effects are PERSISTENT (dispose_actions=[]) and remain for the entire game
         for effect in card_obj.effects:
             if effect.apply_to == APPLY_TO_SELF:
                 # Deep copy the effect to avoid modifying the original card definition

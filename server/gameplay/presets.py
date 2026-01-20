@@ -5,6 +5,7 @@ from .abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
 from .effects import (
     AttackBonusEffect,
     AttackNegBonusEffect,
+    DefenseBonusEffect,
     SkipTurnEffect,
     RerollDiceEffect,
     DrawCardEffect,
@@ -38,6 +39,7 @@ BATTLE_DRAW = "battle_draw"
 BATTLE_PLAYER_1_WIN = "battle_player_1_win"
 BATTLE_PLAYER_2_WIN = "battle_player_2_win"
 BATTLE_WITH_EFFECTS = "battle_with_effects"
+BATTLE_METAL_ARMOR = "battle_metal_armor"
 HEALTH_1 = "health_1"
 KNIGHT_NOT_ALIVE = "knight_not_alive"
 EFFECT_ATTACK_BONUS = "effect_attack_bonus"
@@ -55,6 +57,7 @@ DEBUG_PRESETS = Literal[
     "battle_player_1_win",
     "battle_player_2_win",
     "battle_with_effects",
+    "battle_metal_armor",
     "effect_attack_bonus",
     "effect_reroll",
     "effect_skip_turn",
@@ -311,6 +314,33 @@ def get_debug_preset(
 
         ret = GamePlay(
             stage=CHARACTER_SELECT,
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "battle_metal_armor":
+        # Knight with metal_armor loses to mage but takes 0 damage due to +2 defense
+        # Player 1: knight (dice=[3], attack=1) with metal_armor (+2 defense) = 4
+        # Player 2: mage (dice=[5], attack=0) = 5
+        # Result: knight loses (4 < 5) but takes 0 damage (1 - 2 defense = 0)
+        from .cards import METAL_ARMOR
+
+        characters_p1 = init_characters()
+        characters_p1[KNIGHT].effects = [
+            DefenseBonusEffect(source=METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
+        ]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=BATTLE_END,
+            active=ActivePlayer4(
+                player=p1_name, character=KNIGHT, dice_roll=[3], result=BattleResult(winner=False, score=4)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=MAGE, dice_roll=[5], result=BattleResult(winner=True, score=5)
+            ),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
