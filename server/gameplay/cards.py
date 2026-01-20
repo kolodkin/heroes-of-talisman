@@ -42,6 +42,7 @@ from .effects import (
 class Card(StrictModel):
     name: str
     effects: list[EffectUnion] = Field(default_factory=list)
+    restricted_characters: list[str] = Field(default_factory=list)
 
 
 CARDS_MAP: dict[CardName, Card] = {
@@ -56,5 +57,6 @@ CARDS_MAP: dict[CardName, Card] = {
         effects=[
             AttackBonusEffect(source=SACRED_SWORD, attack_bonus=3, dispose_actions=[]),
         ],
+        restricted_characters=["archer"],
     ),
 }

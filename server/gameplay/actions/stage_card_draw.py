@@ -85,23 +85,23 @@ class CardSelectAction(Action):
         if not card_obj:
             raise GameException(f"Card {drawn_card_name} not found")
 
-        # Check card restrictions
-        from ..cards import SACRED_SWORD
-        from ..common import ARCHER
-        if drawn_card_name == SACRED_SWORD and self.game.active.character == ARCHER:
-            raise ReportedException("Sacred sword can't be used by archers")
-
         # Store the selected card in GamePlay.card
         self.game.card = drawn_card_name
 
-        # Apply "self" effects to the active player's character
-        for effect in card_obj.effects:
-            if effect.apply_to == APPLY_TO_SELF:
-                # Deep copy the effect to avoid modifying the original card definition
-                effect_copy = copy.deepcopy(effect)
-                character.effects.append(effect_copy)
+        # Check if character is restricted from using this card
+        character_type = self.game.active.character
+        is_restricted = character_type in card_obj.restricted_characters
+
+        # Apply "self" effects to the active player's character (unless restricted)
+        if not is_restricted:
+            for effect in card_obj.effects:
+                if effect.apply_to == APPLY_TO_SELF:
+                    # Deep copy the effect to avoid modifying the original card definition
+                    effect_copy = copy.deepcopy(effect)
+                    character.effects.append(effect_copy)
 
         # Add the card to the player's card list (for display purposes)
+        # Card is added even if restricted (valid gameplay scenario where card doesn't apply)
         player.cards.append(drawn_card_name)
 
         # Clear stage_meta after selection
