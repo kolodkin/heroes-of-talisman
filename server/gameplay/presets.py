@@ -43,6 +43,7 @@ BATTLE_PLAYER_2_WIN = "battle_player_2_win"
 BATTLE_WITH_EFFECTS = "battle_with_effects"
 BATTLE_METAL_ARMOR = "battle_metal_armor"
 BATTLE_SACRED_SWORD = "battle_sacred_sword"
+CARD_DRAW_KNIGHT_METAL_ARMOR = "card_draw_knight_metal_armor"
 CARD_DRAW_ARCHER_SACRED_SWORD = "card_draw_archer_sacred_sword"
 HEALTH_1 = "health_1"
 KNIGHT_NOT_ALIVE = "knight_not_alive"
@@ -63,6 +64,7 @@ DEBUG_PRESETS = Literal[
     "battle_with_effects",
     "battle_metal_armor",
     "battle_sacred_sword",
+    "card_draw_knight_metal_armor",
     "card_draw_archer_sacred_sword",
     "effect_attack_bonus",
     "effect_reroll",
@@ -377,6 +379,20 @@ def get_debug_preset(
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "card_draw_knight_metal_armor":
+        # Knight draws metal_armor (successful card draw)
+        # Card will be applied and added to knight's card list
+        from .cards import METAL_ARMOR
+
+        ret = GamePlay(
+            stage=CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=METAL_ARMOR),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
     elif preset == "card_draw_archer_sacred_sword":

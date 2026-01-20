@@ -36,6 +36,11 @@ STAGES_NAMES = [
 ]
 StageName = Literal[*STAGES_NAMES]
 
+########################################################
+# Deck configuration
+########################################################
+DECK_SIZE = 10
+
 from .abilities import (
     Ability,
     ABILITIES_MAP,
@@ -208,7 +213,7 @@ class Player(StrictModel):
 ########################################################
 class GamePlay(StrictModel):
     stage: StageName = CHARACTER_SELECT
-    deck: Deck[str] = Field(default_factory=lambda: Deck(size=10, cards=[]))
+    deck: Deck[str] = Field(default_factory=lambda: Deck(size=DECK_SIZE, cards=[]))
     players: dict[str, Player] = Field(default_factory=dict)
     active: Optional[ActivePlayer] = None  # The active player and its selections
     card: Optional[str] = None  # Selected card from card_draw stage
