@@ -85,6 +85,12 @@ class CardSelectAction(Action):
         if not card_obj:
             raise GameException(f"Card {drawn_card_name} not found")
 
+        # Check card restrictions
+        from ..cards import SACRED_SWORD
+        from ..common import ARCHER
+        if drawn_card_name == SACRED_SWORD and self.game.active.character == ARCHER:
+            raise ReportedException("Sacred sword can't be used by archers")
+
         # Store the selected card in GamePlay.card
         self.game.card = drawn_card_name
 

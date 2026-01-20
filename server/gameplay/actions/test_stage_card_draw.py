@@ -8,9 +8,9 @@ and applying card effects to the character.
 import pytest
 
 from .stage_card_draw import CardDrawAction, CardSelectAction
-from ..common import GameException, ReportedException, KNIGHT, MAGE
-from ..cards import METAL_ARMOR, CARDS_MAP
-from ..effects import DefenseBonusEffect
+from ..common import GameException, ReportedException, KNIGHT, MAGE, ARCHER
+from ..cards import METAL_ARMOR, SACRED_SWORD, CARDS_MAP
+from ..effects import DefenseBonusEffect, AttackBonusEffect
 from ..gameplay import (
     CARD_DRAW,
     ABILITY_SELECTION,
@@ -185,3 +185,82 @@ def test_metal_armor_defense_persists():
     assert len(knight_after.effects) == 1
     assert isinstance(knight_after.effects[0], DefenseBonusEffect)
     assert knight_after.effects[0].defense_bonus == 2
+
+
+def test_sacred_sword_applies_attack_bonus():
+    """Test sacred_sword applies +3 attack bonus to knight"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=CARD_DRAW,
+        active=ActivePlayer2(player="player1", character=KNIGHT),
+        stage_meta=CardDrawMeta(drawn_card=SACRED_SWORD),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Check game state
+    assert updated_game.stage == ABILITY_SELECTION
+    assert updated_game.card == SACRED_SWORD
+
+    # Check character has attack bonus effect
+    player = updated_game.players["player1"]
+    knight = player.characters[KNIGHT]
+    assert len(knight.effects) == 1
+    assert isinstance(knight.effects[0], AttackBonusEffect)
+    assert knight.effects[0].attack_bonus == 3
+    assert knight.effects[0].source == SACRED_SWORD
+    assert knight.effects[0].dispose_actions == []
+
+    # Check card added to player's card list
+    assert SACRED_SWORD in player.cards
+
+
+def test_sacred_sword_rejected_by_archer():
+    """Test sacred_sword is rejected when archer tries to use it"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=CARD_DRAW,
+        active=ActivePlayer2(player="player1", character=ARCHER),
+        stage_meta=CardDrawMeta(drawn_card=SACRED_SWORD),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = CardSelectAction("player1", game)
+
+    with pytest.raises(ReportedException, match="Sacred sword can't be used by archers"):
+        action.run()
+
+    # Verify archer doesn't have the effect
+    player = game.players["player1"]
+    archer = player.characters[ARCHER]
+    assert len(archer.effects) == 0
+
+    # Card should not be added to player's card list
+    assert SACRED_SWORD not in player.cards
+
+
+def test_sacred_sword_works_for_mage():
+    """Test sacred_sword works fine for mage"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=CARD_DRAW,
+        active=ActivePlayer2(player="player1", character=MAGE),
+        stage_meta=CardDrawMeta(drawn_card=SACRED_SWORD),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Check game state
+    assert updated_game.stage == ABILITY_SELECTION
+    assert updated_game.card == SACRED_SWORD
+
+    # Check mage has attack bonus effect
+    player = updated_game.players["player1"]
+    mage = player.characters[MAGE]
+    assert len(mage.effects) == 1
+    assert isinstance(mage.effects[0], AttackBonusEffect)
+    assert mage.effects[0].attack_bonus == 3
