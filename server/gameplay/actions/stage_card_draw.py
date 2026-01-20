@@ -92,7 +92,7 @@ class CardSelectAction(Action):
         character_type = self.game.active.character
         is_restricted = character_type in card_obj.restricted_characters
 
-        # Apply "self" effects to the active player's character (unless restricted)
+        # Apply effects and add card only if not restricted
         if not is_restricted:
             for effect in card_obj.effects:
                 if effect.apply_to == APPLY_TO_SELF:
@@ -100,9 +100,8 @@ class CardSelectAction(Action):
                     effect_copy = copy.deepcopy(effect)
                     character.effects.append(effect_copy)
 
-        # Add the card to the player's card list (for display purposes)
-        # Card is added even if restricted (valid gameplay scenario where card doesn't apply)
-        player.cards.append(drawn_card_name)
+            # Add the card to the player's card list
+            player.cards.append(drawn_card_name)
 
         # Clear stage_meta after selection
         self.game.stage_meta = None

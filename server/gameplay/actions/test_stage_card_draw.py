@@ -218,7 +218,7 @@ def test_sacred_sword_applies_attack_bonus():
 
 
 def test_sacred_sword_rejected_by_archer():
-    """Test sacred_sword is added but effects not applied when archer tries to use it"""
+    """Test sacred_sword is not added when archer tries to use it"""
     characters = init_characters()
     game = GamePlay(
         stage=CARD_DRAW,
@@ -239,8 +239,8 @@ def test_sacred_sword_rejected_by_archer():
     archer = player.characters[ARCHER]
     assert len(archer.effects) == 0
 
-    # Card should still be added to player's card list (valid gameplay scenario)
-    assert SACRED_SWORD in player.cards
+    # Card should NOT be added to player's card list (restricted character)
+    assert SACRED_SWORD not in player.cards
 
 
 def test_sacred_sword_works_for_mage():
