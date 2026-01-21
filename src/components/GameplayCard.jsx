@@ -3,11 +3,11 @@ import { useTranslation } from "react-i18next";
 import styles from "./GamePlayCard.module.css";
 import cardStyles from "./Card.module.css";
 
-const AbilityCard = ({ ability, isSelected, onClick, size = "normal" }) => {
+const GameplayCard = ({ cardName, isSelected, onClick, size = "normal" }) => {
   const { t } = useTranslation();
-  const abilityName = t(`abilities.${ability.name}.name`);
-  const abilityDescription = t(`abilities.${ability.name}.description`);
-  const imagePath = `/images/effects/${ability.name}.jpg`;
+  const cardDisplayName = t(`cards.${cardName}.name`);
+  const cardDescription = t(`cards.${cardName}.description`);
+  const imagePath = `/images/cards/${cardName}.png`;
 
   const cardClass = size === "normal" ? styles["card-normal"] : styles["card-small"];
 
@@ -15,15 +15,15 @@ const AbilityCard = ({ ability, isSelected, onClick, size = "normal" }) => {
     <div
       className={className({ [cardStyles.selected]: isSelected }, cardStyles.card, styles.card, cardClass)}
       onClick={onClick}
-      data-ability={ability.name}
+      data-card={cardName}
     >
-      <img src={imagePath} alt={abilityName} className={styles.image} />
+      <img src={imagePath} alt={cardDisplayName} className={styles.image} />
       <div className={styles.content}>
-        <p className={styles.name}>{abilityName}</p>
-        <p className={styles.description}>{abilityDescription}</p>
+        <p className={styles.name}>{cardDisplayName}</p>
+        <p className={styles.description}>{cardDescription}</p>
       </div>
     </div>
   );
 };
 
-export default AbilityCard;
+export default GameplayCard;
