@@ -25,6 +25,7 @@ ACTION_REROLL = "action_reroll"
 ACTION_REROLL_EFFECT = "action_reroll_effect"
 BATTLE_END_ACTION = "battle_end"
 DEBUG_SET_BATTLE_DICE_ROLLS = "debug_set_battle_dice_rolls"
+DEBUG_SET_DRAWN_CARD = "debug_set_drawn_card"
 
 ACTION_NAMES = [
     CONNECT,
@@ -46,5 +47,6 @@ ACTION_NAMES = [
     ACTION_REROLL_EFFECT,
     BATTLE_END_ACTION,
     DEBUG_SET_BATTLE_DICE_ROLLS,
+    DEBUG_SET_DRAWN_CARD,
 ]
 ActionName = Literal[*ACTION_NAMES]

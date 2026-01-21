@@ -28,6 +28,7 @@ from .actions_names import (
     ACTION_REROLL_EFFECT,
     BATTLE_END_ACTION,
     DEBUG_SET_BATTLE_DICE_ROLLS,
+    DEBUG_SET_DRAWN_CARD,
     ACTION_NAMES,
     ActionName,
 )

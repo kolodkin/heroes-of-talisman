@@ -110,6 +110,33 @@ async function testCharacterSelection(page, page2) {
   // Player1 confirms selection with בחר button
   await selectButton.click();
 
+  // Wait for transition to card_draw stage
+  await waitForStage(page, "card_draw");
+}
+
+async function testCardDraw(page, page2, gameName) {
+  // Verify we're in card draw stage
+  await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
+  await screenshot(page, "card-draw-stage");
+
+  // DEBUG: Set specific card for deterministic test
+  await sendDebugActionViaWS(gameName, "player", "debug_set_drawn_card", {
+    card_name: "metal_armor",
+  });
+
+  // Wait for card to be visible
+  const drawnCard = page.locator('[data-card="metal_armor"]');
+  await expect(drawnCard).toBeVisible();
+  await screenshot(page, "card-drawn-metal-armor");
+
+  // Verify select button is enabled after card is drawn
+  const selectButton = page.getByRole("button", { name: "בחר" });
+  await expect(selectButton).toBeVisible();
+  await expect(selectButton).toBeEnabled();
+
+  // Confirm card selection
+  await selectButton.click();
+
   // Wait for transition to ability selection stage
   await waitForStage(page, "ability_selection");
 }
@@ -307,6 +334,9 @@ test("basic game flow", async ({ page, gameName }) => {
 
   // Test character selection flow
   await testCharacterSelection(page, page2);
+
+  // Test card draw flow
+  await testCardDraw(page, page2, gameName);
 
   // Test ability selection flow
   await testAbilitySelection(page, page2);

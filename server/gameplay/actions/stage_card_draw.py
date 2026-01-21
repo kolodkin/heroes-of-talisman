@@ -115,3 +115,32 @@ class CardSelectAction(Action):
             )
 
         return self.game
+
+
+class DebugSetDrawnCardAction(Action):
+    """
+    DEBUG ONLY: Set the drawn card to a specific card for testing.
+
+    This action is only used for debugging and testing purposes. It is NOT part
+    of the formal game flow and should never be used in production gameplay.
+
+    Allows setting a specific card in stage_meta to create deterministic test
+    scenarios (e.g., ensuring a specific card is always drawn).
+
+    Args:
+        card_name: The card name to set (e.g., "metal_armor", "sacred_sord")
+    """
+
+    @property
+    def action_stages(self):
+        return [CARD_DRAW]
+
+    def _run(self, card_name: str) -> GamePlay:
+        # Validate card exists
+        if card_name not in CARDS_MAP:
+            raise GameException(f"Invalid card name: {card_name}")
+
+        # Set the drawn card in stage_meta
+        self.game.stage_meta = CardDrawMeta(drawn_card=card_name)
+
+        return self.game
