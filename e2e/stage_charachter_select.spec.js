@@ -1,5 +1,5 @@
-import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, joinGameViaUrl } from "./test_helpers.js";
+import { createPresetGameViaAPI, sendDebugActionViaWS } from "./api_helpers.js";
+import { test, expect, screenshot, joinGameViaUrl, waitForStage } from "./test_helpers.js";
 
 /**
  * Helper to verify character is not clickable (not alive)
@@ -144,7 +144,24 @@ test("character_select stage - skip_turn effect removed after character selectio
   const selectButton = page.getByRole("button", { name: "בחר" });
   await selectButton.click();
 
+  // Wait for transition to card_draw stage
+  await waitForStage(page, "card_draw");
+  await screenshot(page, "card-draw-stage");
+
+  // Draw a card
+  await sendDebugActionViaWS(gameName, "player1", "debug_set_drawn_card", {
+    card_name: "metal_armor",
+  });
+
+  // Wait for card to be visible and select it
+  const drawnCard = page.locator('[data-card="metal_armor"]');
+  await expect(drawnCard).toBeVisible();
+
+  const cardSelectButton = page.getByRole("button", { name: "בחר" });
+  await cardSelectButton.click();
+
   // Wait for transition to ability_selection stage
+  await waitForStage(page, "ability_selection");
   const sharedArea = page.locator('[data-shared-area-active="true"]');
   const freezeAbility = sharedArea.locator('[data-ability="freeze"]');
   await expect(freezeAbility).toBeVisible();
