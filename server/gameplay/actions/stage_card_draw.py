@@ -11,7 +11,7 @@ from .action import Action
 from ..common import GameException, ReportedException
 from ..effects import APPLY_TO_SELF, APPLY_TO_BATTLE_OPPONENT
 from ..cards import CardName, CARDS_MAP
-from ..gameplay import CARD_DRAW, ABILITY_SELECTION
+from ..gameplay import STAGE_CARD_DRAW, STAGE_ABILITY_SELECTION
 from ..gameplay import GamePlay, CardDrawMeta, AbilitySelectMeta
 
 
@@ -25,7 +25,7 @@ class CardDrawAction(Action):
 
     @property
     def action_stages(self):
-        return [CARD_DRAW]
+        return [STAGE_CARD_DRAW]
 
     def _run(self) -> GamePlay:
         # Validate user is the active player
@@ -55,7 +55,7 @@ class CardSelectAction(Action):
 
     @property
     def action_stages(self):
-        return [CARD_DRAW]
+        return [STAGE_CARD_DRAW]
 
     def _run(self) -> GamePlay:
         # Validate user is the active player
@@ -106,7 +106,7 @@ class CardSelectAction(Action):
         self.game.stage_meta = None
 
         # Transition to ability_selection stage
-        self.game.stage = ABILITY_SELECTION
+        self.game.stage = STAGE_ABILITY_SELECTION
 
         # Auto-select if character has only one ability
         if len(character.abilities) == 1:
@@ -133,7 +133,7 @@ class DebugSetDrawnCardAction(Action):
 
     @property
     def action_stages(self):
-        return [CARD_DRAW]
+        return [STAGE_CARD_DRAW]
 
     def _run(self, card_name: str) -> GamePlay:
         # Validate card exists

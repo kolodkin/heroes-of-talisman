@@ -10,12 +10,12 @@ from .action import Action
 from ..common import (
     GameException,
     ReportedException,
-    CHARACTER_SELECT_ACTION,
+    ACTION_CHARACTER_SELECT,
 )
 from ..gameplay import (
-    CARD_DRAW,
-    ABILITY_SELECTION,
-    CHARACTER_SELECT,
+    STAGE_CARD_DRAW,
+    STAGE_ABILITY_SELECTION,
+    STAGE_CHARACTER_SELECT,
     GamePlay,
     CharacterSelectMeta,
     CardDrawMeta,
@@ -34,7 +34,7 @@ class CharacterPressAction(Action):
 
     @property
     def action_stages(self):
-        return [CHARACTER_SELECT]
+        return [STAGE_CHARACTER_SELECT]
 
     def _run(self, character: str) -> GamePlay:
         # Validate user is the active player
@@ -70,7 +70,7 @@ class CharacterSelectAction(Action):
 
     @property
     def action_stages(self):
-        return [CHARACTER_SELECT]
+        return [STAGE_CHARACTER_SELECT]
 
     def _run(self, character: str) -> GamePlay:
         # Validate user is the active player
@@ -94,14 +94,14 @@ class CharacterSelectAction(Action):
         for char in player.characters.values():
             char.effects = [
                 effect for effect in char.effects
-                if CHARACTER_SELECT_ACTION not in effect.dispose_actions
+                if ACTION_CHARACTER_SELECT not in effect.dispose_actions
             ]
 
         # Update active player with selected character
         self.game.active = ActivePlayer2(player=self.user, character=character)
 
         # Transition to card_draw stage
-        self.game.stage = CARD_DRAW
+        self.game.stage = STAGE_CARD_DRAW
 
         # Clear stage_meta - will be populated by CardDrawAction
         self.game.stage_meta = None

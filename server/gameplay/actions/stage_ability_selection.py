@@ -12,7 +12,7 @@ from .action import Action
 from ..common import GameException, ReportedException
 from ..effects import APPLY_TO_SELF
 from ..abilities import AbilityName
-from ..gameplay import ABILITY_SELECTION, ABILITY_OPPONENT_SELECTION, OPPONENT_SELECTION
+from ..gameplay import STAGE_ABILITY_SELECTION, STAGE_ABILITY_OPPONENT_SELECTION, STAGE_OPPONENT_SELECTION
 from ..gameplay import GamePlay, AbilitySelectMeta
 
 
@@ -26,7 +26,7 @@ class AbilityPressAction(Action):
 
     @property
     def action_stages(self):
-        return [ABILITY_SELECTION]
+        return [STAGE_ABILITY_SELECTION]
 
     def _run(self, ability: AbilityName) -> GamePlay:
         # Validate user is the active player
@@ -66,7 +66,7 @@ class AbilitySelectAction(Action):
 
     @property
     def action_stages(self):
-        return [ABILITY_SELECTION]
+        return [STAGE_ABILITY_SELECTION]
 
     def _run(self, ability: AbilityName) -> GamePlay:
         # Validate user is the active player
@@ -108,8 +108,8 @@ class AbilitySelectAction(Action):
 
         # Transition to ability_opponent_selection if ability requires it, otherwise skip to opponent_selection
         if ability_obj.requires_opponent_selection:
-            self.game.stage = ABILITY_OPPONENT_SELECTION
+            self.game.stage = STAGE_ABILITY_OPPONENT_SELECTION
         else:
-            self.game.stage = OPPONENT_SELECTION
+            self.game.stage = STAGE_OPPONENT_SELECTION
 
         return self.game

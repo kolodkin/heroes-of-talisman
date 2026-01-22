@@ -7,11 +7,11 @@ from pydantic import Field
 from .common import StrictModel
 from .effects import (
     # Effect name constants for EFFECTS_SOURCE_ABILITY_MAP
-    ATTACK_BONUS,
-    ATTACK_NEG_BONUS,
-    REROLL_DICE,
-    SKIP_TURN,
-    DRAW_CARD,
+    EFFECT_ATTACK_BONUS,
+    EFFECT_ATTACK_NEG_BONUS,
+    EFFECT_REROLL_DICE,
+    EFFECT_SKIP_TURN,
+    EFFECT_DRAW_CARD,
     # Apply to constants
     APPLY_TO_SELECTED_OPPONENT,
 )
@@ -19,10 +19,10 @@ from .effects import (
 ########################################################
 # Ability names - defined before imports from effects to avoid circular dependency
 ########################################################
-BATTLE_HOWL = "battle_howl"
-BOUNCING_ARROW = "bouncing_arrow"
-FREEZE = "freeze"
-ABILITIES_NAMES: list[str] = [BATTLE_HOWL, BOUNCING_ARROW, FREEZE]
+ABILITY_BATTLE_HOWL = "battle_howl"
+ABILITY_BOUNCING_ARROW = "bouncing_arrow"
+ABILITY_FREEZE = "freeze"
+ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE]
 AbilityName = Literal[*ABILITIES_NAMES]
 
 ########################################################
@@ -31,11 +31,11 @@ AbilityName = Literal[*ABILITIES_NAMES]
 # Defines which abilities can create which effects
 # This is used for validation to ensure effects have valid source abilities
 EFFECTS_SOURCE_ABILITY_MAP: dict[str, set[str]] = {
-    ATTACK_BONUS: {BATTLE_HOWL},  # AttackBonusEffect can come from BATTLE_HOWL
-    ATTACK_NEG_BONUS: set(),  # AttackNegBonusEffect - TBD: add abilities that grant attack penalty
-    REROLL_DICE: {BOUNCING_ARROW},  # RerollDiceEffect can come from BOUNCING_ARROW
-    SKIP_TURN: {FREEZE},  # SkipTurnEffect can come from FREEZE
-    DRAW_CARD: set(),  # DrawCardEffect - TBD: add abilities that grant card draw
+    EFFECT_ATTACK_BONUS: {ABILITY_BATTLE_HOWL},  # AttackBonusEffect can come from ABILITY_BATTLE_HOWL
+    EFFECT_ATTACK_NEG_BONUS: set(),  # AttackNegBonusEffect - TBD: add abilities that grant attack penalty
+    EFFECT_REROLL_DICE: {ABILITY_BOUNCING_ARROW},  # RerollDiceEffect can come from ABILITY_BOUNCING_ARROW
+    EFFECT_SKIP_TURN: {ABILITY_FREEZE},  # SkipTurnEffect can come from ABILITY_FREEZE
+    EFFECT_DRAW_CARD: set(),  # DrawCardEffect - TBD: add abilities that grant card draw
 }
 
 # Import Effect classes after defining constants to avoid circular import
@@ -58,22 +58,22 @@ class Ability(StrictModel):
 
 
 ABILITIES_MAP: dict[AbilityName, Ability] = {
-    BATTLE_HOWL: Ability(
-        name=BATTLE_HOWL,
+    ABILITY_BATTLE_HOWL: Ability(
+        name=ABILITY_BATTLE_HOWL,
         effects=[
-            AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2),
+            AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2),
         ],
     ),
-    BOUNCING_ARROW: Ability(
-        name=BOUNCING_ARROW,
+    ABILITY_BOUNCING_ARROW: Ability(
+        name=ABILITY_BOUNCING_ARROW,
         effects=[
-            RerollDiceEffect(source=BOUNCING_ARROW),
+            RerollDiceEffect(source=ABILITY_BOUNCING_ARROW),
         ],
     ),
-    FREEZE: Ability(
-        name=FREEZE,
+    ABILITY_FREEZE: Ability(
+        name=ABILITY_FREEZE,
         effects=[
-            SkipTurnEffect(source=FREEZE),
+            SkipTurnEffect(source=ABILITY_FREEZE),
         ],
     ),
 }

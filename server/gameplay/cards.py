@@ -7,8 +7,8 @@ from pydantic import Field
 from .common import StrictModel
 from .effects import (
     # Effect name constants for EFFECTS_SOURCE_CARD_MAP
-    DEFENSE_BONUS,
-    ATTACK_BONUS,
+    EFFECT_DEFENSE_BONUS,
+    EFFECT_ATTACK_BONUS,
     # Apply to constants
     APPLY_TO_SELF,
 )
@@ -16,9 +16,9 @@ from .effects import (
 ########################################################
 # Card names - defined before imports from effects to avoid circular dependency
 ########################################################
-METAL_ARMOR = "metal_armor"
-SACRED_SWORD = "sacred_sord"
-CARDS_NAMES: list[str] = [METAL_ARMOR, SACRED_SWORD]
+CARD_METAL_ARMOR = "metal_armor"
+CARD_SACRED_SWORD = "sacred_sord"
+CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD]
 CardName = Literal[*CARDS_NAMES]
 
 ########################################################
@@ -27,8 +27,8 @@ CardName = Literal[*CARDS_NAMES]
 # Defines which cards can create which effects
 # This is used for validation to ensure effects have valid source cards
 EFFECTS_SOURCE_CARD_MAP: dict[str, set[str]] = {
-    DEFENSE_BONUS: {METAL_ARMOR},
-    ATTACK_BONUS: {SACRED_SWORD},
+    EFFECT_DEFENSE_BONUS: {CARD_METAL_ARMOR},
+    EFFECT_ATTACK_BONUS: {CARD_SACRED_SWORD},
 }
 
 # Import Effect classes after defining constants to avoid circular import
@@ -46,16 +46,16 @@ class Card(StrictModel):
 
 
 CARDS_MAP: dict[CardName, Card] = {
-    METAL_ARMOR: Card(
-        name=METAL_ARMOR,
+    CARD_METAL_ARMOR: Card(
+        name=CARD_METAL_ARMOR,
         effects=[
-            DefenseBonusEffect(source=METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
+            DefenseBonusEffect(source=CARD_METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
         ],
     ),
-    SACRED_SWORD: Card(
-        name=SACRED_SWORD,
+    CARD_SACRED_SWORD: Card(
+        name=CARD_SACRED_SWORD,
         effects=[
-            AttackBonusEffect(source=SACRED_SWORD, attack_bonus=3, dispose_actions=[]),
+            AttackBonusEffect(source=CARD_SACRED_SWORD, attack_bonus=3, dispose_actions=[]),
         ],
         restricted_characters=["archer"],
     ),

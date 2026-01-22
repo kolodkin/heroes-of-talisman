@@ -19,11 +19,11 @@ from .stage_battle import (
 from ..common import (
     GameException,
     ReportedException,
-    KNIGHT,
-    ARCHER,
-    MAGE,
+    CHARACTER_KNIGHT,
+    CHARACTER_ARCHER,
+    CHARACTER_MAGE,
 )
-from ..abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
+from ..abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
 from ..effects import (
     AttackBonusEffect,
     AttackNegBonusEffect,
@@ -31,10 +31,10 @@ from ..effects import (
     RerollDiceEffect,
 )
 from ..gameplay import (
-    BATTLE_DICE_ROLL,
-    BATTLE_END,
-    CHARACTER_SELECT,
-    OPPONENT_SELECTION,
+    STAGE_BATTLE_DICE_ROLL,
+    STAGE_BATTLE_END,
+    STAGE_CHARACTER_SELECT,
+    STAGE_OPPONENT_SELECTION,
 )
 from ..gameplay import (
     GamePlay,
@@ -60,9 +60,9 @@ def test_active_player_roll_action_valid():
     """Test active player successfully rolls dice"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer2(player="player1", character=KNIGHT),
-        opponent=Opponent2(player="player2", character=MAGE),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        opponent=Opponent2(player="player2", character=CHARACTER_MAGE),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -75,9 +75,9 @@ def test_active_player_roll_action_valid():
     # Verify active player upgraded to ActivePlayer3 with dice_roll
     assert isinstance(updated_game.active, ActivePlayer3)
     assert updated_game.active.player == "player1"
-    assert updated_game.active.character == KNIGHT
+    assert updated_game.active.character == CHARACTER_KNIGHT
     assert updated_game.active.dice_roll is not None
-    assert len(updated_game.active.dice_roll) == characters[KNIGHT].dice
+    assert len(updated_game.active.dice_roll) == characters[CHARACTER_KNIGHT].dice
     assert all(1 <= d <= 6 for d in updated_game.active.dice_roll)
 
     # Opponent should still be Opponent2 (hasn't rolled yet)
@@ -88,9 +88,9 @@ def test_active_player_roll_triggers_winner_calculation():
     """Test that when active player rolls and opponent already rolled, winner is calculated"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer2(player="player1", character=KNIGHT),
-        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[3]),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        opponent=Opponent3(player="player2", character=CHARACTER_MAGE, dice_roll=[3]),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -109,7 +109,7 @@ def test_active_player_roll_wrong_stage():
     """Test active player roll fails in wrong stage"""
     characters = init_characters()
     game = GamePlay(
-        stage=CHARACTER_SELECT,
+        stage=STAGE_CHARACTER_SELECT,
         active=ActivePlayer1(player="player1"),
         players={
             "player1": Player(name="player1", characters=characters),
@@ -126,9 +126,9 @@ def test_active_player_roll_not_active_player():
     """Test active player roll fails when user is not the active player"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer2(player="player1", character=KNIGHT),
-        opponent=Opponent2(player="player2", character=MAGE),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        opponent=Opponent2(player="player2", character=CHARACTER_MAGE),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -145,9 +145,9 @@ def test_active_player_roll_player_not_in_game():
     """Test active player roll fails when player doesn't exist in game"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer2(player="player1", character=KNIGHT),
-        opponent=Opponent2(player="player2", character=MAGE),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        opponent=Opponent2(player="player2", character=CHARACTER_MAGE),
         players={
             "player2": Player(name="player2", characters=characters),
         },
@@ -163,7 +163,7 @@ def test_active_player_roll_no_character():
     """Test active player roll fails when no character selected"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
+        stage=STAGE_BATTLE_DICE_ROLL,
         active=ActivePlayer1(player="player1"),
         players={
             "player1": Player(name="player1", characters=characters),
@@ -185,9 +185,9 @@ def test_opponent_roll_action_valid():
     """Test opponent successfully rolls dice"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer2(player="player1", character=KNIGHT),
-        opponent=Opponent2(player="player2", character=MAGE),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        opponent=Opponent2(player="player2", character=CHARACTER_MAGE),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -200,9 +200,9 @@ def test_opponent_roll_action_valid():
     # Verify opponent upgraded to Opponent3 with dice_roll
     assert isinstance(updated_game.opponent, Opponent3)
     assert updated_game.opponent.player == "player2"
-    assert updated_game.opponent.character == MAGE
+    assert updated_game.opponent.character == CHARACTER_MAGE
     assert updated_game.opponent.dice_roll is not None
-    assert len(updated_game.opponent.dice_roll) == characters[MAGE].dice
+    assert len(updated_game.opponent.dice_roll) == characters[CHARACTER_MAGE].dice
     assert all(1 <= d <= 6 for d in updated_game.opponent.dice_roll)
 
     # Active player should still be ActivePlayer2 (hasn't rolled yet)
@@ -213,9 +213,9 @@ def test_opponent_roll_triggers_winner_calculation():
     """Test that when opponent rolls and active already rolled, winner is calculated"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[6]),
-        opponent=Opponent2(player="player2", character=MAGE),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=CHARACTER_KNIGHT, dice_roll=[6]),
+        opponent=Opponent2(player="player2", character=CHARACTER_MAGE),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -234,7 +234,7 @@ def test_opponent_roll_wrong_stage():
     """Test opponent roll fails in wrong stage"""
     characters = init_characters()
     game = GamePlay(
-        stage=CHARACTER_SELECT,
+        stage=STAGE_CHARACTER_SELECT,
         active=ActivePlayer1(player="player1"),
         players={
             "player1": Player(name="player1", characters=characters),
@@ -252,9 +252,9 @@ def test_opponent_roll_not_opponent():
     """Test opponent roll fails when user is not the opponent"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer2(player="player1", character=KNIGHT),
-        opponent=Opponent2(player="player2", character=MAGE),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        opponent=Opponent2(player="player2", character=CHARACTER_MAGE),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -271,8 +271,8 @@ def test_opponent_roll_no_opponent():
     """Test opponent roll fails when no opponent exists"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer2(player="player1", character=KNIGHT),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
         opponent=None,
         players={
             "player1": Player(name="player1", characters=characters),
@@ -298,7 +298,7 @@ def test_reroll_action_valid_draw():
     game = get_debug_preset("battle_draw")
 
     # Verify initial state is a draw
-    assert game.stage == BATTLE_DICE_ROLL
+    assert game.stage == STAGE_BATTLE_DICE_ROLL
     assert isinstance(game.active, ActivePlayer4)
     assert isinstance(game.opponent, Opponent4)
     assert game.active.result.winner is False
@@ -311,16 +311,16 @@ def test_reroll_action_valid_draw():
     assert isinstance(updated_game.active, ActivePlayer2)
     assert isinstance(updated_game.opponent, Opponent2)
     assert updated_game.active.player == "player1"
-    assert updated_game.active.character == KNIGHT
+    assert updated_game.active.character == CHARACTER_KNIGHT
     assert updated_game.opponent.player == "player2"
-    assert updated_game.opponent.character == ARCHER
+    assert updated_game.opponent.character == CHARACTER_ARCHER
 
 
 def test_reroll_action_wrong_stage():
     """Test reroll fails in wrong stage"""
     characters = init_characters()
     game = GamePlay(
-        stage=CHARACTER_SELECT,
+        stage=STAGE_CHARACTER_SELECT,
         active=ActivePlayer1(player="player1"),
         players={
             "player1": Player(name="player1", characters=characters),
@@ -347,9 +347,9 @@ def test_reroll_action_active_not_rolled():
     """Test reroll fails when active player hasn't rolled yet (not ActivePlayer4)"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer2(player="player1", character=KNIGHT),
-        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[3]),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        opponent=Opponent3(player="player2", character=CHARACTER_MAGE, dice_roll=[3]),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -367,9 +367,9 @@ def test_reroll_action_opponent_not_rolled():
     """Test reroll fails when opponent hasn't rolled yet (not Opponent4)"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[6]),
-        opponent=Opponent2(player="player2", character=MAGE),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=CHARACTER_KNIGHT, dice_roll=[6]),
+        opponent=Opponent2(player="player2", character=CHARACTER_MAGE),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -384,25 +384,25 @@ def test_reroll_action_opponent_not_rolled():
 
 
 def test_reroll_action_winner_exists():
-    """Test reroll fails when there's already a winner (stage is BATTLE_END)"""
+    """Test reroll fails when there's already a winner (stage is STAGE_BATTLE_END)"""
     game = get_debug_preset("battle_player_1_win")
 
-    # Verify initial state has a winner and is in BATTLE_END stage
+    # Verify initial state has a winner and is in STAGE_BATTLE_END stage
     assert game.active.result.winner is True
     assert game.opponent.result.winner is False
-    assert game.stage == BATTLE_END
+    assert game.stage == STAGE_BATTLE_END
 
     action = RerollAction("player1", game)
 
-    # Should fail because stage is BATTLE_END, not BATTLE_DICE_ROLL
+    # Should fail because stage is STAGE_BATTLE_END, not STAGE_BATTLE_DICE_ROLL
     with pytest.raises(GameException, match="Cannot perform action in stage"):
         action.run()
 
 
 def test_reroll_action_winner_not_determined():
     """Test reroll fails when there's a winner (ActivePlayer4/Opponent4 with winner=True)"""
-    # Use battle_player_1_win preset but keep stage as BATTLE_DICE_ROLL
-    game = get_debug_preset("battle_player_1_win", stage=BATTLE_DICE_ROLL)
+    # Use battle_player_1_win preset but keep stage as STAGE_BATTLE_DICE_ROLL
+    game = get_debug_preset("battle_player_1_win", stage=STAGE_BATTLE_DICE_ROLL)
 
     # Verify state: player1 won (knight dice=[6] + attack=1 = 7 > mage dice=[3] = 3)
     assert isinstance(game.active, ActivePlayer4)
@@ -458,12 +458,12 @@ def test_calculate_winner_draw():
 
 
 def test_set_winner_if_both_rolled_upgrades_to_player4():
-    """Test set_winner_if_both_rolled upgrades both players to Player4/Opponent4 and transitions to BATTLE_END"""
+    """Test set_winner_if_both_rolled upgrades both players to Player4/Opponent4 and transitions to STAGE_BATTLE_END"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[6]),
-        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[3]),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=CHARACTER_KNIGHT, dice_roll=[6]),
+        opponent=Opponent3(player="player2", character=CHARACTER_MAGE, dice_roll=[3]),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -479,17 +479,17 @@ def test_set_winner_if_both_rolled_upgrades_to_player4():
     assert game.opponent.result.winner is False
     assert game.active.result.score == 7
     assert game.opponent.result.score == 3
-    # Verify stage transitioned to BATTLE_END
-    assert game.stage == BATTLE_END
+    # Verify stage transitioned to STAGE_BATTLE_END
+    assert game.stage == STAGE_BATTLE_END
 
 
 def test_set_winner_if_both_rolled_does_nothing_when_not_both_rolled():
     """Test set_winner_if_both_rolled does nothing when only one player rolled"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[6]),
-        opponent=Opponent2(player="player2", character=MAGE),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=CHARACTER_KNIGHT, dice_roll=[6]),
+        opponent=Opponent2(player="player2", character=CHARACTER_MAGE),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -512,9 +512,9 @@ def test_debug_set_battle_dice_rolls_valid():
     """Test debug action successfully sets dice rolls and recalculates winner"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[1]),
-        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[6]),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=CHARACTER_KNIGHT, dice_roll=[1]),
+        opponent=Opponent3(player="player2", character=CHARACTER_MAGE, dice_roll=[6]),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -545,9 +545,9 @@ def test_debug_set_battle_dice_rolls_creates_draw():
     """Test debug action can create a draw scenario"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[1]),
-        opponent=Opponent3(player="player2", character=ARCHER, dice_roll=[1]),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=CHARACTER_KNIGHT, dice_roll=[1]),
+        opponent=Opponent3(player="player2", character=CHARACTER_ARCHER, dice_roll=[1]),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -573,7 +573,7 @@ def test_debug_set_battle_dice_rolls_wrong_stage():
     """Test debug action fails in wrong stage"""
     characters = init_characters()
     game = GamePlay(
-        stage=CHARACTER_SELECT,
+        stage=STAGE_CHARACTER_SELECT,
         active=ActivePlayer1(player="player1"),
         players={
             "player1": Player(name="player1", characters=characters),
@@ -589,9 +589,9 @@ def test_debug_set_battle_dice_rolls_active_not_rolled():
     """Test debug action fails when active player hasn't rolled yet"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer2(player="player1", character=KNIGHT),
-        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[3]),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        opponent=Opponent3(player="player2", character=CHARACTER_MAGE, dice_roll=[3]),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -607,9 +607,9 @@ def test_debug_set_battle_dice_rolls_opponent_not_rolled():
     """Test debug action fails when opponent hasn't rolled yet"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[6]),
-        opponent=Opponent2(player="player2", character=MAGE),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=CHARACTER_KNIGHT, dice_roll=[6]),
+        opponent=Opponent2(player="player2", character=CHARACTER_MAGE),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -625,9 +625,9 @@ def test_debug_set_battle_dice_rolls_invalid_dice_count():
     """Test debug action fails when dice count doesn't match character dice"""
     characters = init_characters()
     game = GamePlay(
-        stage=BATTLE_DICE_ROLL,
-        active=ActivePlayer3(player="player1", character=KNIGHT, dice_roll=[1]),
-        opponent=Opponent3(player="player2", character=MAGE, dice_roll=[6]),
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=CHARACTER_KNIGHT, dice_roll=[1]),
+        opponent=Opponent3(player="player2", character=CHARACTER_MAGE, dice_roll=[6]),
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -659,9 +659,9 @@ def test_reroll_effect_action():
     # - Second RerollDiceEffect (to test all are removed)
     # - AttackBonusEffect and SkipTurnEffect (to test other effects are preserved)
     active_character = game.players[game.active.player].characters[game.active.character]
-    active_character.effects.append(RerollDiceEffect(source=BOUNCING_ARROW))
-    active_character.effects.append(AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2))
-    active_character.effects.append(SkipTurnEffect(source=FREEZE))
+    active_character.effects.append(RerollDiceEffect(source=ABILITY_BOUNCING_ARROW))
+    active_character.effects.append(AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2))
+    active_character.effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
 
     # Verify initial state: 4 effects total (1 original + 3 added)
     assert len(active_character.effects) == 4
@@ -671,12 +671,12 @@ def test_reroll_effect_action():
 
     # Verify preset created game state as ActivePlayer4/Opponent4 (both rolled, winner calculated)
     # Archer lost: dice=[2] = 2 < mage dice=[5] = 5
-    # Stage stays BATTLE_DICE_ROLL because loser has reroll effect available
+    # Stage stays STAGE_BATTLE_DICE_ROLL because loser has reroll effect available
     assert isinstance(game.active, ActivePlayer4)
     assert isinstance(game.opponent, Opponent4)
     assert game.active.result.winner is False
     assert game.opponent.result.winner is True
-    assert game.stage == BATTLE_DICE_ROLL
+    assert game.stage == STAGE_BATTLE_DICE_ROLL
 
     # Perform reroll using RerollEffectAction
     action = RerollEffectAction("player1", game)

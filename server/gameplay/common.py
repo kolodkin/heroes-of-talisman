@@ -9,26 +9,26 @@ from pydantic import BaseModel, ConfigDict
 
 # Re-export action names for backwards compatibility
 from .actions_names import (
-    CONNECT,
-    LEAVE,
-    DISCONNECT,
-    CHARACTER_PRESS,
-    CHARACTER_SELECT_ACTION,
-    CARD_DRAW_ACTION,
-    CARD_SELECT_ACTION,
-    ABILITY_PRESS,
-    ABILITY_SELECT,
-    ABILITY_OPPONENT_PRESS,
-    ABILITY_OPPONENT_SELECT,
-    OPPONENT_PRESS,
-    OPPONENT_SELECT,
-    ACTIVE_PLAYER_ROLL,
-    OPPONENT_ROLL,
+    ACTION_CONNECT,
+    ACTION_LEAVE,
+    ACTION_DISCONNECT,
+    ACTION_CHARACTER_PRESS,
+    ACTION_CHARACTER_SELECT,
+    ACTION_CARD_DRAW,
+    ACTION_CARD_SELECT,
+    ACTION_ABILITY_PRESS,
+    ACTION_ABILITY_SELECT,
+    ACTION_ABILITY_OPPONENT_PRESS,
+    ACTION_ABILITY_OPPONENT_SELECT,
+    ACTION_OPPONENT_PRESS,
+    ACTION_OPPONENT_SELECT,
+    ACTION_ACTIVE_PLAYER_ROLL,
+    ACTION_OPPONENT_ROLL,
     ACTION_REROLL,
     ACTION_REROLL_EFFECT,
-    BATTLE_END_ACTION,
-    DEBUG_SET_BATTLE_DICE_ROLLS,
-    DEBUG_SET_DRAWN_CARD,
+    ACTION_BATTLE_END,
+    ACTION_DEBUG_SET_BATTLE_DICE_ROLLS,
+    ACTION_DEBUG_SET_DRAWN_CARD,
     ACTION_NAMES,
     ActionName,
 )
@@ -37,18 +37,18 @@ from .actions_names import (
 ########################################################
 # Connection statuses
 ########################################################
-CONNECTED = "connected"
-DISCONNECTED = "disconnected"
-CONNECTION_STATUSES = [CONNECTED, DISCONNECTED]
+STATUS_CONNECTED = "connected"
+STATUS_DISCONNECTED = "disconnected"
+CONNECTION_STATUSES = [STATUS_CONNECTED, STATUS_DISCONNECTED]
 ConnectionStatus = Literal[*CONNECTION_STATUSES]
 
 ########################################################
 # Character types
 ########################################################
-KNIGHT = "knight"
-ARCHER = "archer"
-MAGE = "mage"
-CHARACTER_TYPES = [KNIGHT, ARCHER, MAGE]
+CHARACTER_KNIGHT = "knight"
+CHARACTER_ARCHER = "archer"
+CHARACTER_MAGE = "mage"
+CHARACTER_TYPES = [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]
 ChatacterType = Literal[*CHARACTER_TYPES]
 
 ########################################################
