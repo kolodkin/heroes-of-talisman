@@ -11,6 +11,8 @@ LEAVE = "leave"
 DISCONNECT = "disconnect"
 CHARACTER_PRESS = "character_press"
 CHARACTER_SELECT_ACTION = "character_select"
+CARD_DRAW_ACTION = "card_draw"
+CARD_SELECT_ACTION = "card_select"
 ABILITY_PRESS = "ability_press"
 ABILITY_SELECT = "ability_select"
 ABILITY_OPPONENT_PRESS = "ability_opponent_press"
@@ -23,6 +25,7 @@ ACTION_REROLL = "action_reroll"
 ACTION_REROLL_EFFECT = "action_reroll_effect"
 BATTLE_END_ACTION = "battle_end"
 DEBUG_SET_BATTLE_DICE_ROLLS = "debug_set_battle_dice_rolls"
+DEBUG_SET_DRAWN_CARD = "debug_set_drawn_card"
 
 ACTION_NAMES = [
     CONNECT,
@@ -30,6 +33,8 @@ ACTION_NAMES = [
     DISCONNECT,
     CHARACTER_PRESS,
     CHARACTER_SELECT_ACTION,
+    CARD_DRAW_ACTION,
+    CARD_SELECT_ACTION,
     ABILITY_PRESS,
     ABILITY_SELECT,
     ABILITY_OPPONENT_PRESS,
@@ -42,5 +47,6 @@ ACTION_NAMES = [
     ACTION_REROLL_EFFECT,
     BATTLE_END_ACTION,
     DEBUG_SET_BATTLE_DICE_ROLLS,
+    DEBUG_SET_DRAWN_CARD,
 ]
 ActionName = Literal[*ACTION_NAMES]

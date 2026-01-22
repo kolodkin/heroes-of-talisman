@@ -5,6 +5,7 @@ from .abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
 from .effects import (
     AttackBonusEffect,
     AttackNegBonusEffect,
+    DefenseBonusEffect,
     SkipTurnEffect,
     RerollDiceEffect,
     DrawCardEffect,
@@ -14,6 +15,7 @@ from .gameplay import (
     ABILITY_SELECTION,
     BATTLE_DICE_ROLL,
     BATTLE_END,
+    CARD_DRAW,
     CHARACTER_SELECT,
     OPPONENT_SELECTION,
     GamePlay,
@@ -26,6 +28,7 @@ from .gameplay import (
     Opponent4,
     BattleResult,
     AbilitySelectMeta,
+    CardDrawMeta,
     init_characters,
 )
 
@@ -38,6 +41,10 @@ BATTLE_DRAW = "battle_draw"
 BATTLE_PLAYER_1_WIN = "battle_player_1_win"
 BATTLE_PLAYER_2_WIN = "battle_player_2_win"
 BATTLE_WITH_EFFECTS = "battle_with_effects"
+BATTLE_METAL_ARMOR = "battle_metal_armor"
+BATTLE_SACRED_SWORD = "battle_sacred_sword"
+CARD_DRAW_KNIGHT_METAL_ARMOR = "card_draw_knight_metal_armor"
+CARD_DRAW_ARCHER_SACRED_SWORD = "card_draw_archer_sacred_sword"
 HEALTH_1 = "health_1"
 KNIGHT_NOT_ALIVE = "knight_not_alive"
 EFFECT_ATTACK_BONUS = "effect_attack_bonus"
@@ -55,6 +62,10 @@ DEBUG_PRESETS = Literal[
     "battle_player_1_win",
     "battle_player_2_win",
     "battle_with_effects",
+    "battle_metal_armor",
+    "battle_sacred_sword",
+    "card_draw_knight_metal_armor",
+    "card_draw_archer_sacred_sword",
     "effect_attack_bonus",
     "effect_reroll",
     "effect_skip_turn",
@@ -314,6 +325,88 @@ def get_debug_preset(
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "battle_metal_armor":
+        # Knight with metal_armor loses to mage but takes 0 damage due to +2 defense
+        # Player 1: knight (dice=[3], attack=1) with metal_armor (+2 defense) = 4
+        # Player 2: mage (dice=[5], attack=0) = 5
+        # Result: knight loses (4 < 5) but takes 0 damage (1 - 2 defense = 0)
+        from .cards import METAL_ARMOR
+
+        characters_p1 = init_characters()
+        characters_p1[KNIGHT].effects = [
+            DefenseBonusEffect(source=METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
+        ]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=BATTLE_END,
+            active=ActivePlayer4(
+                player=p1_name, character=KNIGHT, dice_roll=[3], result=BattleResult(winner=False, score=4)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=MAGE, dice_roll=[5], result=BattleResult(winner=True, score=5)
+            ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "battle_sacred_sword":
+        # Knight with sacred_sword wins against mage
+        # Player 1: knight (dice=[2], attack=1, +3 from sacred_sword) = 6
+        # Player 2: mage (dice=[5], attack=0) = 5
+        # Result: knight wins (6 > 5)
+        from .cards import SACRED_SWORD
+
+        characters_p1 = init_characters()
+        characters_p1[KNIGHT].effects = [
+            AttackBonusEffect(source=SACRED_SWORD, attack_bonus=3, dispose_actions=[]),
+        ]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=BATTLE_END,
+            active=ActivePlayer4(
+                player=p1_name, character=KNIGHT, dice_roll=[2], result=BattleResult(winner=True, score=6)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=MAGE, dice_roll=[5], result=BattleResult(winner=False, score=5)
+            ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "card_draw_knight_metal_armor":
+        # Knight draws metal_armor (successful card draw)
+        # Card will be applied and added to knight's card list
+        from .cards import METAL_ARMOR
+
+        ret = GamePlay(
+            stage=CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=METAL_ARMOR),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "card_draw_archer_sacred_sword":
+        # Archer draws sacred_sword (restricted card)
+        # Card will not be applied or added to archer's card list
+        from .cards import SACRED_SWORD
+
+        ret = GamePlay(
+            stage=CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=ARCHER),
+            stage_meta=CardDrawMeta(drawn_card=SACRED_SWORD),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
     else:

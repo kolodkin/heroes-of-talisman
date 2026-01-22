@@ -6,6 +6,7 @@ import commonStyles from "../Common.module.css";
 import Card from "./Card";
 import CharacterCard from "../CharacterCard";
 import StageCharacterSelect from "./StageCharacterSelect";
+import StageCardDraw from "./StageCardDraw";
 import StageAbilitySelection from "./StageAbilitySelection";
 import StageAbilityOpponentSelection from "./StageAbilityOpponentSelection";
 import StageOpponentSelection from "./StageOpponentSelection";
@@ -14,6 +15,7 @@ import Player from "../Player";
 import { StatusIndicator } from "./StatusIndicator";
 import {
   CHARACTER_SELECT,
+  CARD_DRAW,
   ABILITY_SELECTION,
   ABILITY_OPPONENT_SELECTION,
   OPPONENT_SELECTION,
@@ -153,6 +155,14 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                     sendAction={sendAction}
                     active={isActivePlayer}
                     selectedCharacter={gamePlay.stage_meta?.selected}
+                  />
+                );
+              case CARD_DRAW:
+                return (
+                  <StageCardDraw
+                    drawnCard={gamePlay.stage_meta?.drawn_card}
+                    sendAction={sendAction}
+                    active={isActivePlayer}
                   />
                 );
               case ABILITY_SELECTION:

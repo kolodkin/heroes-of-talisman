@@ -29,6 +29,7 @@ const resources = {
       },
       stageNames: {
         character_select: "בחירת דמות",
+        card_draw: "משיכת קלף",
         ability_selection: "בחירת יכולת",
         ability_opponent_selection: "בחירת יעד ליכולת",
         opponent_selection: "בחירת יריב",
@@ -37,10 +38,11 @@ const resources = {
       },
       stageInstructions: {
         character_select: "בחר דמות",
+        card_draw: "משוך קלף מהחפיסה",
         ability_selection: "בחר יכולת",
         ability_opponent_selection: "בחר יריב ודמות להחלת היכולת",
         opponent_selection: "בחר את יריבך",
-        battle_dice_roll: "בחר דמות יריב לתקוף",
+        battle_dice_roll: "גלגל את הקוביות",
         battle_end: "תוצאות הקרב",
       },
       characterNames: {
@@ -61,6 +63,21 @@ const resources = {
           name: "הקפאה",
           description: "מונע מדמות לבחירתך להשתתף בסיבוב הבא",
         },
+      },
+      cards: {
+        metal_armor: {
+          name: "שריון מתכת",
+          description: "+2 להגנה - מפחית נזק נכנס",
+        },
+        sacred_sord: {
+          name: "חרב קדושה",
+          description: '+3 להתקפה - לא ניתן לשימוש ע"י קשת',
+        },
+      },
+      card_draw: {
+        deck: "חפיסה",
+        select: "בחר",
+        drawing: "מושך קלף...",
       },
       character_card: {
         level: "דרגה",

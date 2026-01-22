@@ -3,7 +3,7 @@ Opponent Selection Stage Actions
 
 This module implements actions for the opponent selection stage:
 - OpponentPressAction: Highlights selected opponent by setting stage_meta
-- OpponentSelectAction: Confirms opponent selection and transitions to battle stage
+- OpponentSelectAction: Confirms opponent selection, applies card and ability effects to opponent, and transitions to battle stage
 """
 
 import copy
@@ -100,7 +100,18 @@ class OpponentSelectAction(Action):
         # Set opponent in game metadata
         self.game.opponent = selected_opponent
 
-        # Apply "battle_opponent" effects to the opponent's character
+        # Apply "battle_opponent" effects from card to the opponent's character
+        if self.game.card:
+            from ..cards import CARDS_MAP
+            card_obj = CARDS_MAP.get(self.game.card)
+            if card_obj:
+                for effect in card_obj.effects:
+                    if effect.apply_to == APPLY_TO_BATTLE_OPPONENT:
+                        # Deep copy the effect to avoid modifying the original card definition
+                        effect_copy = copy.deepcopy(effect)
+                        opponent_character.effects.append(effect_copy)
+
+        # Apply "battle_opponent" effects from ability to the opponent's character
         if self.game.ability:
             for effect in self.game.ability.effects:
                 if effect.apply_to == APPLY_TO_BATTLE_OPPONENT:

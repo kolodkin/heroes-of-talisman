@@ -19,6 +19,7 @@ from ..abilities import FREEZE, BATTLE_HOWL
 from ..effects import SkipTurnEffect
 from ..gameplay import (
     CHARACTER_SELECT,
+    CARD_DRAW,
     ABILITY_SELECTION,
     BATTLE_DICE_ROLL,
     GamePlay,
@@ -82,7 +83,7 @@ def test_character_press_action_invalid_character():
 
 
 def test_character_select_action_valid():
-    """Test confirming character selection transitions to ability_selection"""
+    """Test confirming character selection transitions to card_draw"""
     game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
@@ -93,10 +94,9 @@ def test_character_select_action_valid():
     assert updated_game.active.player == "player1"
     assert updated_game.active.character == KNIGHT
     assert isinstance(updated_game.active, ActivePlayer2)
-    assert updated_game.stage == ABILITY_SELECTION
-    # Knight has only one ability, so it should be auto-selected
-    assert updated_game.stage_meta is not None
-    assert updated_game.stage_meta.selected == BATTLE_HOWL
+    assert updated_game.stage == CARD_DRAW
+    # Stage meta should be cleared (card will be drawn in next stage)
+    assert updated_game.stage_meta is None
 
 
 def test_character_select_action_not_active_player():

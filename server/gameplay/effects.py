@@ -18,6 +18,7 @@ from .actions_names import (
 ########################################################
 ATTACK_BONUS = "attack_bonus"
 ATTACK_NEG_BONUS = "attack_neg_bonus"
+DEFENSE_BONUS = "defense_bonus"
 REROLL_DICE = "reroll_dice"
 SKIP_TURN = "skip_turn"
 DRAW_CARD = "draw_card"
@@ -48,10 +49,13 @@ class Effect(StrictModel):
     @model_validator(mode="after")
     def validate_source(self) -> Self:
         """Validate that source is valid for this effect type"""
-        # Lazy import to avoid circular dependency
         from .abilities import EFFECTS_SOURCE_ABILITY_MAP
+        from .cards import EFFECTS_SOURCE_CARD_MAP
 
-        valid_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
+        ability_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
+        card_sources = EFFECTS_SOURCE_CARD_MAP.get(self.name, set())
+        valid_sources = ability_sources | card_sources
+
         if self.source not in valid_sources and len(valid_sources) > 0:
             raise ValueError(
                 f"Invalid source '{self.source}' for {self.__class__.__name__}. "
@@ -84,6 +88,19 @@ class AttackBonusEffect(Effect):
     dispose_actions: list[ActionName] = [BATTLE_END_ACTION]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     attack_bonus: int
+
+
+class DefenseBonusEffect(Effect):
+    """
+    Character's defense is increased, reducing incoming attack damage.
+    Disposed at battle end.
+    Applied to self (active player's character).
+    """
+
+    name: Literal[DEFENSE_BONUS] = DEFENSE_BONUS
+    dispose_actions: list[ActionName] = [BATTLE_END_ACTION]
+    apply_to: ApplyToTarget = APPLY_TO_SELF
+    defense_bonus: int
 
 
 class RerollDiceEffect(Effect):
@@ -127,7 +144,7 @@ class DrawCardEffect(Effect):
 
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect],
     Field(discriminator="name"),
 ]
 
@@ -140,6 +157,7 @@ class EffectTotal(StrictModel):
 
     attack_bonus: int = 0
     attack_neg_bonus: int = 0
+    defense_bonus: int = 0
     skip_next_turn: bool = False
     reroll_dice_available: bool = False
     draw_card_count: int = 0

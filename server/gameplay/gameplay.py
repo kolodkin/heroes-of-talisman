@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Dict, Literal, Optional
+import random
+from typing import Dict, Literal, Optional, TypeVar, Generic
 
 from pydantic import Field, computed_field
 
@@ -18,6 +19,7 @@ from .common import (
 # Stages
 ########################################################
 CHARACTER_SELECT = "character_select"
+CARD_DRAW = "card_draw"
 ABILITY_SELECTION = "ability_selection"
 ABILITY_OPPONENT_SELECTION = "ability_opponent_selection"
 OPPONENT_SELECTION = "opponent_selection"
@@ -25,6 +27,7 @@ BATTLE_DICE_ROLL = "battle_dice_roll"
 BATTLE_END = "battle_end"
 STAGES_NAMES = [
     CHARACTER_SELECT,
+    CARD_DRAW,
     ABILITY_SELECTION,
     ABILITY_OPPONENT_SELECTION,
     OPPONENT_SELECTION,
@@ -32,6 +35,11 @@ STAGES_NAMES = [
     BATTLE_END,
 ]
 StageName = Literal[*STAGES_NAMES]
+
+########################################################
+# Deck configuration
+########################################################
+DECK_SIZE = 10
 
 from .abilities import (
     Ability,
@@ -46,10 +54,38 @@ from .effects import (
     EffectTotal,
     AttackBonusEffect,
     AttackNegBonusEffect,
+    DefenseBonusEffect,
     SkipTurnEffect,
     RerollDiceEffect,
     DrawCardEffect,
 )
+
+########################################################
+# Deck
+########################################################
+T = TypeVar("T")
+
+
+class Deck(StrictModel, Generic[T]):
+    """Generic deck for drawing cards with auto-reset when empty"""
+
+    cards: list[T] = Field(default_factory=list)
+    size: int
+
+    def draw(self) -> T:
+        """Draw top card from deck, auto-reset when empty"""
+        # Reset on first draw or when deck reaches 0
+        if len(self.cards) == 0:
+            self.reset()
+
+        return self.cards.pop(0)
+
+    def reset(self) -> None:
+        """Reset deck with shuffled cards (with replacement)"""
+        from .cards import CARDS_NAMES
+
+        self.cards = random.choices(CARDS_NAMES, k=self.size)
+        random.shuffle(self.cards)
 
 
 class Character(StrictModel):
@@ -61,6 +97,7 @@ class Character(StrictModel):
     attack: int
     abilities: list[Ability] = Field(default_factory=list)
     effects: list[EffectUnion] = Field(default_factory=list)
+    cards: list[str] = Field(default_factory=list)
 
     @computed_field
     @property
@@ -79,6 +116,8 @@ class Character(StrictModel):
                 total.attack_bonus += eff.attack_bonus
             elif isinstance(eff, AttackNegBonusEffect):
                 total.attack_neg_bonus += eff.attack_neg_bonus
+            elif isinstance(eff, DefenseBonusEffect):
+                total.defense_bonus += eff.defense_bonus
             elif isinstance(eff, SkipTurnEffect):
                 total.skip_next_turn = total.skip_next_turn or eff.skip_next_turn
             elif isinstance(eff, RerollDiceEffect):
@@ -96,6 +135,12 @@ class CharacterSelectMeta(StrictModel):
     """Stage metadata for character selection stage"""
 
     selected: str  # Currently highlighted character
+
+
+class CardDrawMeta(StrictModel):
+    """Stage metadata for card draw stage"""
+
+    drawn_card: str  # The card that was randomly drawn
 
 
 class AbilitySelectMeta(StrictModel):
@@ -160,7 +205,6 @@ Opponent = Opponent2 | Opponent3 | Opponent4
 class Player(StrictModel):
     name: str
     status: ConnectionStatus = CONNECTED
-    cards: list[str] = Field(default_factory=list)
     characters: Dict[ChatacterType, Character] = Field(default_factory=dict)
 
 
@@ -169,12 +213,14 @@ class Player(StrictModel):
 ########################################################
 class GamePlay(StrictModel):
     stage: StageName = CHARACTER_SELECT
+    deck: Deck[str] = Field(default_factory=lambda: Deck(size=DECK_SIZE, cards=[]))
     players: dict[str, Player] = Field(default_factory=dict)
     active: Optional[ActivePlayer] = None  # The active player and its selections
+    card: Optional[str] = None  # Selected card from card_draw stage
     ability: Optional[Ability] = None  # Selected ability
     ability_opponent: Optional[Opponent2] = None  # Selected ability opponent
     opponent: Optional[Opponent] = None  # Selected opponent for battle
-    stage_meta: Optional[Ability | CharacterSelectMeta | AbilitySelectMeta | Opponent2] = None  # Temporary stage-specific metadata
+    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | Opponent2] = None  # Temporary stage-specific metadata
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""

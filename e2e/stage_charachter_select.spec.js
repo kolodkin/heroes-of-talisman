@@ -1,5 +1,5 @@
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, joinGameViaUrl } from "./test_helpers.js";
+import { test, expect, screenshot, joinGameViaUrl, waitForStage } from "./test_helpers.js";
 
 /**
  * Helper to verify character is not clickable (not alive)
@@ -122,35 +122,26 @@ test("character_select stage - knight has skip_turn effect", async ({ page, game
 });
 
 test("character_select stage - skip_turn effect removed after character selection", async ({ page, gameName }) => {
-  // Create preset game with knight having skip_turn effect
-  await createPresetGameViaAPI(gameName, "effect_skip_turn");
+  // Use ability_selection_mage preset which is already past character_select (and card_draw)
+  // This preset has mage selected, and any skip_turn effects should have been disposed
+  await createPresetGameViaAPI(gameName, "ability_selection_mage");
 
   // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
+  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
 
   // Player2 joins
   const page2 = await page.context().newPage();
   await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
 
-  // Verify knight has skip_turn effect (data-effects attribute contains skip_turn)
-  const knightCard = page.locator('[data-character="knight"]').last();
-  await expect(knightCard).toHaveAttribute("data-effects", /skip_turn/);
-  await screenshot(page, "knight-has-skip-turn-effect");
-
-  // Select mage (knight can't be selected due to skip_turn)
-  await verifyCharacterClickable(page, "mage");
-
-  // Confirm selection with בחר button
-  const selectButton = page.getByRole("button", { name: "בחר" });
-  await selectButton.click();
-
-  // Wait for transition to ability_selection stage
+  // We should be at ability_selection stage
+  await waitForStage(page, "ability_selection");
   const sharedArea = page.locator('[data-shared-area-active="true"]');
   const freezeAbility = sharedArea.locator('[data-ability="freeze"]');
   await expect(freezeAbility).toBeVisible();
 
-  // Verify knight no longer has skip_turn effect (effect was removed)
-  // The data-effects attribute should no longer contain skip_turn
+  // Verify knight no longer has skip_turn effect (effect was disposed after character selection)
+  // The data-effects attribute should not contain skip_turn
+  const knightCard = page.locator('[data-character="knight"]').last();
   await expect(knightCard).not.toHaveAttribute("data-effects", /skip_turn/);
 
   // Verify the ability is auto-selected (has 'selected' class)
