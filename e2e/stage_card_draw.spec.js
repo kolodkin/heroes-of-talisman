@@ -43,8 +43,13 @@ test("card_draw stage - knight draws metal_armor successfully", async ({ page, g
   await waitForStage(page, "ability_selection");
   await screenshot(page, "card-selected-transition-to-ability");
 
+  // Expand players to see character cards with effects
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  await expandButton.click();
+
   // Verify knight has the defense effect applied
-  const knightCard = page.locator('[data-character="knight"]').first();
+  const player1Div = page.locator('[data-player="player1"]');
+  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
   await expect(knightCard).toHaveAttribute("data-effects", /defense_bonus/);
 
   // Cleanup
@@ -85,8 +90,13 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
   await waitForStage(page, "ability_selection");
   await screenshot(page, "restricted-card-transition-to-ability");
 
+  // Expand players to see character cards with effects
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  await expandButton.click();
+
   // Verify archer does NOT have attack bonus effect (card was restricted)
-  const archerCard = page.locator('[data-character="archer"]').first();
+  const player1Div = page.locator('[data-player="player1"]');
+  const archerCard = player1Div.locator('[data-player-cards] [data-character="archer"]');
   // Archer should not have attack_bonus effect from sacred_sword
   const effectsAttr = await archerCard.getAttribute("data-effects");
   if (effectsAttr) {
