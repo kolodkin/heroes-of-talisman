@@ -12,7 +12,7 @@ from .effects import (
 )
 from .gameplay import (
     StageName,
-    STAGE_STAGE_ABILITY_SELECTION,
+    STAGE_ABILITY_SELECTION,
     STAGE_BATTLE_DICE_ROLL,
     STAGE_BATTLE_END,
     STAGE_CARD_DRAW,
@@ -32,9 +32,9 @@ from .gameplay import (
     init_characters,
 )
 
-PRESET_STAGE_ABILITY_SELECTION_KNIGHT = "ability_selection_knight"
-PRESET_STAGE_ABILITY_SELECTION_ARCHER = "ability_selection_archer"
-PRESET_STAGE_ABILITY_SELECTION_MAGE = "ability_selection_mage"
+PRESET_ABILITY_SELECTION_KNIGHT = "ability_selection_knight"
+PRESET_ABILITY_SELECTION_ARCHER = "ability_selection_archer"
+PRESET_ABILITY_SELECTION_MAGE = "ability_selection_mage"
 PRESET_EFFECT_REROLL = "effect_reroll"
 PRESET_ARCHER_NOT_ALIVE = "archer_not_alive"
 PRESET_BATTLE_DRAW = "battle_draw"
