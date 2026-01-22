@@ -7,11 +7,11 @@
 import React, { useState } from "react";
 import className from "classnames";
 import { useTranslation } from "react-i18next";
-import { useScrollAlignment } from "../../hooks/useScrollAlignment";
-import CharacterCard from "../CharacterCard";
+import { useScrollAlignment } from "../hooks/useScrollAlignment";
+import CharacterCard from "./CharacterCard";
 import styles from "./Opponent.module.css";
-import commonStyles from "../Common.module.css";
-import Player from "../Player";
+import commonStyles from "./Common.module.css";
+import Player from "./Player";
 
 const OpponentMinified = ({ player, selectedOpponent, onCharacterClick }) => {
   const { t } = useTranslation();

@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import className from "classnames";
 import styles from "./GamePlay.module.css";
-import commonStyles from "../Common.module.css";
-import Card from "./Card";
-import CharacterCard from "../CharacterCard";
+import commonStyles from "./Common.module.css";
+import FaceCard from "./FaceCard";
+import CharacterCard from "./CharacterCard";
 import StageCharacterSelect from "./StageCharacterSelect";
 import StageCardDraw from "./StageCardDraw";
 import StageAbilitySelection from "./StageAbilitySelection";
 import StageAbilityOpponentSelection from "./StageAbilityOpponentSelection";
 import StageOpponentSelection from "./StageOpponentSelection";
 import StageBattle from "./StageBattle";
-import Player from "../Player";
+import Player from "./Player";
 import { StatusIndicator } from "./StatusIndicator";
 import {
   CHARACTER_SELECT,
@@ -21,16 +21,16 @@ import {
   OPPONENT_SELECTION,
   BATTLE_DICE_ROLL,
   BATTLE_END,
-} from "../../constants/stages";
+} from "../constants/stages";
 
 const PlayersCards = ({ player }) => {
   return (
     <div className={commonStyles.cardsContainer} data-player-cards>
       {player.characters &&
         Object.entries(player.characters).map(([charName, character]) => (
-          <Card key={charName} faceUp={true}>
+          <FaceCard key={charName} faceUp={true}>
             <CharacterCard name={charName} character={character} />
-          </Card>
+          </FaceCard>
         ))}
     </div>
   );

@@ -1,7 +1,7 @@
 import React from "react";
-import styles from "./Card.module.css";
+import styles from "./FaceCard.module.css";
 
-const Card = ({ faceUp = true, selected = false, onClick, children }) => {
+const FaceCard = ({ faceUp = true, selected = false, onClick, children }) => {
   return (
     <div
       className={`${styles.card} ${!faceUp ? styles["card--face-down"] : ""} ${
@@ -14,4 +14,4 @@ const Card = ({ faceUp = true, selected = false, onClick, children }) => {
   );
 };
 
-export default Card;
+export default FaceCard;

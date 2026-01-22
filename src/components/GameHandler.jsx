@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { notify, enotify } from "../../utils/notify";
-import AppWebSocket from "../../utils/ws";
+import { notify, enotify } from "../utils/notify";
+import AppWebSocket from "../utils/ws";
 import styles from "./GameHandler.module.css";
 
 import { toast } from "react-toastify";
 
 import GamePlay from "./GamePlay";
 import Navbar from "./Navbar";
-import { BATTLE_DICE_ROLL } from "../../constants/stages";
+import { BATTLE_DICE_ROLL } from "../constants/stages";
 
 const MAX_RECONNECT_RETRIES = 20;
 const RECONNECT_TIMEOUT_MS = 500;

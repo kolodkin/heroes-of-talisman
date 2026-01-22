@@ -13,8 +13,8 @@
 import React from "react";
 import className from "classnames";
 import { useTranslation } from "react-i18next";
-import { notify } from "../../utils/notify";
-import { useScrollAlignment } from "../../hooks/useScrollAlignment";
+import { notify } from "../utils/notify";
+import { useScrollAlignment } from "../hooks/useScrollAlignment";
 import { SharedAreaContent } from "./SharedAreaContent";
 
 import styles from "./StageOpponentSelection.module.css";
