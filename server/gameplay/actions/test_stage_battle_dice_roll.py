@@ -48,7 +48,7 @@ from ..gameplay import (
     Opponent4,
     init_characters,
 )
-from ..presets import get_debug_preset, EFFECT_REROLL
+from ..presets import get_debug_preset, PRESET_EFFECT_REROLL
 
 
 # ============================================================================
@@ -653,7 +653,7 @@ def test_reroll_effect_action():
     - Resets game state for reroll
     """
     # Use the effect_reroll preset which has archer with RerollDiceEffect
-    game = get_debug_preset(EFFECT_REROLL)
+    game = get_debug_preset(PRESET_EFFECT_REROLL)
 
     # Add additional effects to test comprehensive behavior:
     # - Second RerollDiceEffect (to test all are removed)

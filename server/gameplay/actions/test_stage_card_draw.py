@@ -157,11 +157,11 @@ def test_card_select_action_wrong_stage():
 
 def test_metal_armor_defense_persists():
     """Test metal_armor defense effect persists across battles using preset"""
-    from ..presets import get_debug_preset, BATTLE_CARD_METAL_ARMOR
+    from ..presets import get_debug_preset, PRESET_BATTLE_METAL_ARMOR
     from .battle_end import BattleEndAction
 
     # Get preset with knight having metal_armor and losing battle
-    game = get_debug_preset(BATTLE_CARD_METAL_ARMOR, player1_name="player1", player2_name="player2")
+    game = get_debug_preset(PRESET_BATTLE_METAL_ARMOR, player1_name="player1", player2_name="player2")
 
     # Knight should have defense effect before battle ends
     player1 = game.players["player1"]
@@ -270,9 +270,9 @@ def test_sacred_sword_works_for_mage():
 
 def test_sacred_sword_archer_restriction_from_preset():
     """Test archer sacred_sword restriction using the preset"""
-    from ..presets import get_debug_preset, STAGE_CARD_DRAW_CHARACTER_ARCHER_CARD_SACRED_SWORD
+    from ..presets import get_debug_preset, PRESET_CARD_DRAW_ARCHER_SACRED_SWORD
 
-    game = get_debug_preset(STAGE_CARD_DRAW_CHARACTER_ARCHER_CARD_SACRED_SWORD)
+    game = get_debug_preset(PRESET_CARD_DRAW_ARCHER_SACRED_SWORD)
 
     # Verify preset is set up correctly
     assert game.stage == STAGE_CARD_DRAW
