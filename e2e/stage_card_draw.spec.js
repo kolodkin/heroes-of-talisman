@@ -44,7 +44,7 @@ test("card_draw stage - knight draws metal_armor successfully", async ({ page, g
   await screenshot(page, "card-selected-transition-to-ability");
 
   // Verify knight has the defense effect applied
-  const knightCard = page.locator('[data-character="knight"]').last();
+  const knightCard = page.locator('[data-character="knight"]').first();
   await expect(knightCard).toHaveAttribute("data-effects", /defense_bonus/);
 
   // Cleanup
@@ -86,7 +86,7 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
   await screenshot(page, "restricted-card-transition-to-ability");
 
   // Verify archer does NOT have attack bonus effect (card was restricted)
-  const archerCard = page.locator('[data-character="archer"]').last();
+  const archerCard = page.locator('[data-character="archer"]').first();
   // Archer should not have attack_bonus effect from sacred_sword
   const effectsAttr = await archerCard.getAttribute("data-effects");
   if (effectsAttr) {
