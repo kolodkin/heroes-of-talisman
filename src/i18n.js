@@ -42,7 +42,7 @@ const resources = {
         ability_selection: "בחר יכולת",
         ability_opponent_selection: "בחר יריב ודמות להחלת היכולת",
         opponent_selection: "בחר את יריבך",
-        battle_dice_roll: "בחר דמות יריב לתקוף",
+        battle_dice_roll: "גלגל את הקוביות",
         battle_end: "תוצאות הקרב",
       },
       characterNames: {
@@ -71,7 +71,7 @@ const resources = {
         },
         sacred_sord: {
           name: "חרב קדושה",
-          description: "+3 להתקפה - לא ניתן לשימוש ע\"י קשת",
+          description: '+3 להתקפה - לא ניתן לשימוש ע"י קשת',
         },
       },
       card_draw: {
