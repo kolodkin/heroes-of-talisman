@@ -59,9 +59,9 @@ def test_connect_action_existing_player_reconnect():
         name="player1",
         status=STATUS_DISCONNECTED,
         characters={
-            KNIGHT: knight_char,
-            ARCHER: Character(level=1, **CHARACTER_DEFAULT_STATS[CHARACTER_ARCHER]),
-            MAGE: Character(level=1, **CHARACTER_DEFAULT_STATS[CHARACTER_MAGE]),
+            CHARACTER_KNIGHT: knight_char,
+            CHARACTER_ARCHER: Character(level=1, **CHARACTER_DEFAULT_STATS[CHARACTER_ARCHER]),
+            CHARACTER_MAGE: Character(level=1, **CHARACTER_DEFAULT_STATS[CHARACTER_MAGE]),
         },
     )
 
