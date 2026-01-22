@@ -9,30 +9,30 @@ from .common import (
     StrictModel,
     ConnectionStatus,
     ChatacterType,
-    CONNECTED,
-    KNIGHT,
-    ARCHER,
-    MAGE,
+    STATUS_CONNECTED,
+    CHARACTER_KNIGHT,
+    CHARACTER_ARCHER,
+    CHARACTER_MAGE,
 )
 
 ########################################################
 # Stages
 ########################################################
-CHARACTER_SELECT = "character_select"
-CARD_DRAW = "card_draw"
-ABILITY_SELECTION = "ability_selection"
-ABILITY_OPPONENT_SELECTION = "ability_opponent_selection"
-OPPONENT_SELECTION = "opponent_selection"
-BATTLE_DICE_ROLL = "battle_dice_roll"
-BATTLE_END = "battle_end"
+STAGE_CHARACTER_SELECT = "character_select"
+STAGE_CARD_DRAW = "card_draw"
+STAGE_ABILITY_SELECTION = "ability_selection"
+STAGE_ABILITY_OPPONENT_SELECTION = "ability_opponent_selection"
+STAGE_OPPONENT_SELECTION = "opponent_selection"
+STAGE_BATTLE_DICE_ROLL = "battle_dice_roll"
+STAGE_BATTLE_END = "battle_end"
 STAGES_NAMES = [
-    CHARACTER_SELECT,
-    CARD_DRAW,
-    ABILITY_SELECTION,
-    ABILITY_OPPONENT_SELECTION,
-    OPPONENT_SELECTION,
-    BATTLE_DICE_ROLL,
-    BATTLE_END,
+    STAGE_CHARACTER_SELECT,
+    STAGE_CARD_DRAW,
+    STAGE_ABILITY_SELECTION,
+    STAGE_ABILITY_OPPONENT_SELECTION,
+    STAGE_OPPONENT_SELECTION,
+    STAGE_BATTLE_DICE_ROLL,
+    STAGE_BATTLE_END,
 ]
 StageName = Literal[*STAGES_NAMES]
 
@@ -45,9 +45,9 @@ from .abilities import (
     Ability,
     ABILITIES_MAP,
     AbilityName,
-    BATTLE_HOWL,
-    BOUNCING_ARROW,
-    FREEZE,
+    ABILITY_BATTLE_HOWL,
+    ABILITY_BOUNCING_ARROW,
+    ABILITY_FREEZE,
 )
 from .effects import (
     EffectUnion,
@@ -204,7 +204,7 @@ Opponent = Opponent2 | Opponent3 | Opponent4
 
 class Player(StrictModel):
     name: str
-    status: ConnectionStatus = CONNECTED
+    status: ConnectionStatus = STATUS_CONNECTED
     characters: Dict[ChatacterType, Character] = Field(default_factory=dict)
 
 
@@ -212,7 +212,7 @@ class Player(StrictModel):
 # GamePlay model
 ########################################################
 class GamePlay(StrictModel):
-    stage: StageName = CHARACTER_SELECT
+    stage: StageName = STAGE_CHARACTER_SELECT
     deck: Deck[str] = Field(default_factory=lambda: Deck(size=DECK_SIZE, cards=[]))
     players: dict[str, Player] = Field(default_factory=dict)
     active: Optional[ActivePlayer] = None  # The active player and its selections
@@ -253,19 +253,19 @@ KNIGHT_L1_DEFAULT_HEALTH = 2
 KNIGHT_L1_MAX_HEALTH = 2
 KNIGHT_L1_DICE = 1
 KNIGHT_L1_ATTACK = 1
-KNIGHT_L1_ABILITY = BATTLE_HOWL
+KNIGHT_L1_ABILITY = ABILITY_BATTLE_HOWL
 
 ARCHER_L1_DEFAULT_HEALTH = 3
 ARCHER_L1_MAX_HEALTH = 3
 ARCHER_L1_DICE = 1
 ARCHER_L1_ATTACK = 0
-ARCHER_L1_ABILITY = BOUNCING_ARROW
+ARCHER_L1_ABILITY = ABILITY_BOUNCING_ARROW
 
 MAGE_L1_DEFAULT_HEALTH = 2
 MAGE_L1_MAX_HEALTH = 2
 MAGE_L1_DICE = 1
 MAGE_L1_ATTACK = 0
-MAGE_L1_ABILITY = FREEZE
+MAGE_L1_ABILITY = ABILITY_FREEZE
 
 CHARACTER_DEFAULT_STATS = {
     "knight": {
@@ -296,5 +296,5 @@ def init_characters(level: int = 1) -> Dict[ChatacterType, Character]:
     """Initialize all character types with default stats"""
     return {
         char_type: Character(level=level, **CHARACTER_DEFAULT_STATS[char_type])
-        for char_type in [KNIGHT, ARCHER, MAGE]
+        for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]
     }

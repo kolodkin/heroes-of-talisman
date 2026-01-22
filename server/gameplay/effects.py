@@ -8,20 +8,20 @@ from .common import StrictModel
 from .actions_names import (
     ActionName,
     # Action name constants for dispose_actions
-    CHARACTER_SELECT_ACTION,
-    BATTLE_END_ACTION,
+    ACTION_CHARACTER_SELECT,
+    ACTION_BATTLE_END,
     ACTION_REROLL_EFFECT,
 )
 
 ########################################################
 # Effect names
 ########################################################
-ATTACK_BONUS = "attack_bonus"
-ATTACK_NEG_BONUS = "attack_neg_bonus"
-DEFENSE_BONUS = "defense_bonus"
-REROLL_DICE = "reroll_dice"
-SKIP_TURN = "skip_turn"
-DRAW_CARD = "draw_card"
+EFFECT_ATTACK_BONUS = "attack_bonus"
+EFFECT_ATTACK_NEG_BONUS = "attack_neg_bonus"
+EFFECT_DEFENSE_BONUS = "defense_bonus"
+EFFECT_REROLL_DICE = "reroll_dice"
+EFFECT_SKIP_TURN = "skip_turn"
+EFFECT_DRAW_CARD = "draw_card"
 
 ########################################################
 # Effect apply_to targets
@@ -71,8 +71,8 @@ class SkipTurnEffect(Effect):
     Applied to selected opponent (requires ability_opponent_selection stage).
     """
 
-    name: Literal[SKIP_TURN] = SKIP_TURN
-    dispose_actions: list[ActionName] = [CHARACTER_SELECT_ACTION]
+    name: Literal[EFFECT_SKIP_TURN] = EFFECT_SKIP_TURN
+    dispose_actions: list[ActionName] = [ACTION_CHARACTER_SELECT]
     apply_to: ApplyToTarget = APPLY_TO_SELECTED_OPPONENT
     skip_next_turn: bool = True
 
@@ -84,8 +84,8 @@ class AttackBonusEffect(Effect):
     Applied to self (active player's character).
     """
 
-    name: Literal[ATTACK_BONUS] = ATTACK_BONUS
-    dispose_actions: list[ActionName] = [BATTLE_END_ACTION]
+    name: Literal[EFFECT_ATTACK_BONUS] = EFFECT_ATTACK_BONUS
+    dispose_actions: list[ActionName] = [ACTION_BATTLE_END]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     attack_bonus: int
 
@@ -97,8 +97,8 @@ class DefenseBonusEffect(Effect):
     Applied to self (active player's character).
     """
 
-    name: Literal[DEFENSE_BONUS] = DEFENSE_BONUS
-    dispose_actions: list[ActionName] = [BATTLE_END_ACTION]
+    name: Literal[EFFECT_DEFENSE_BONUS] = EFFECT_DEFENSE_BONUS
+    dispose_actions: list[ActionName] = [ACTION_BATTLE_END]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     defense_bonus: int
 
@@ -110,8 +110,8 @@ class RerollDiceEffect(Effect):
     Applied to self (active player's character).
     """
 
-    name: Literal[REROLL_DICE] = REROLL_DICE
-    dispose_actions: list[ActionName] = [BATTLE_END_ACTION, ACTION_REROLL_EFFECT]
+    name: Literal[EFFECT_REROLL_DICE] = EFFECT_REROLL_DICE
+    dispose_actions: list[ActionName] = [ACTION_BATTLE_END, ACTION_REROLL_EFFECT]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     reroll_dice: bool = True
 
@@ -123,8 +123,8 @@ class AttackNegBonusEffect(Effect):
     Applied to battle opponent (no separate selection required).
     """
 
-    name: Literal[ATTACK_NEG_BONUS] = ATTACK_NEG_BONUS
-    dispose_actions: list[ActionName] = [BATTLE_END_ACTION]
+    name: Literal[EFFECT_ATTACK_NEG_BONUS] = EFFECT_ATTACK_NEG_BONUS
+    dispose_actions: list[ActionName] = [ACTION_BATTLE_END]
     apply_to: ApplyToTarget = APPLY_TO_BATTLE_OPPONENT
     attack_neg_bonus: int
 
@@ -136,8 +136,8 @@ class DrawCardEffect(Effect):
     Applied to self (active player's character).
     """
 
-    name: Literal[DRAW_CARD] = DRAW_CARD
-    dispose_actions: list[ActionName] = [BATTLE_END_ACTION]
+    name: Literal[EFFECT_DRAW_CARD] = EFFECT_DRAW_CARD
+    dispose_actions: list[ActionName] = [ACTION_BATTLE_END]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     draw_count: int = 1
 

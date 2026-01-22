@@ -2,7 +2,7 @@
 Tests for EffectTotal aggregation in Character
 """
 
-from .abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
+from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
 from .effects import (
     AttackBonusEffect,
     AttackNegBonusEffect,
@@ -36,8 +36,8 @@ def test_effect_total_attack_bonus():
         attack=2,
         abilities=[],
         effects=[
-            AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2),
-            AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=3),
+            AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2),
+            AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=3),
         ],
     )
 
@@ -57,8 +57,8 @@ def test_effect_total_attack_neg_bonus():
         attack=2,
         abilities=[],
         effects=[
-            AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2),
-            AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-1),
+            AttackNegBonusEffect(source=ABILITY_BATTLE_HOWL, attack_neg_bonus=-2),
+            AttackNegBonusEffect(source=ABILITY_BATTLE_HOWL, attack_neg_bonus=-1),
         ],
     )
 
@@ -77,7 +77,7 @@ def test_effect_total_skip_turn():
         dice=1,
         attack=2,
         abilities=[],
-        effects=[SkipTurnEffect(source=FREEZE)],
+        effects=[SkipTurnEffect(source=ABILITY_FREEZE)],
     )
 
     effect_total = character.effect
@@ -94,7 +94,7 @@ def test_effect_total_reroll_dice_available():
         dice=1,
         attack=2,
         abilities=[],
-        effects=[RerollDiceEffect(source=BOUNCING_ARROW)],
+        effects=[RerollDiceEffect(source=ABILITY_BOUNCING_ARROW)],
     )
 
     effect_total = character.effect
@@ -112,11 +112,11 @@ def test_effect_total_mixed_effects():
         attack=2,
         abilities=[],
         effects=[
-            AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2),
-            AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-1),
-            SkipTurnEffect(source=FREEZE),
-            RerollDiceEffect(source=BOUNCING_ARROW),
-            AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=1),
+            AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2),
+            AttackNegBonusEffect(source=ABILITY_BATTLE_HOWL, attack_neg_bonus=-1),
+            SkipTurnEffect(source=ABILITY_FREEZE),
+            RerollDiceEffect(source=ABILITY_BOUNCING_ARROW),
+            AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=1),
         ],
     )
 
@@ -137,7 +137,7 @@ def test_effect_total_is_computed_field():
         dice=1,
         attack=2,
         abilities=[],
-        effects=[AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2)],
+        effects=[AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2)],
     )
 
     # Should be included in regular model_dump

@@ -8,7 +8,7 @@ This module implements actions for the ability opponent selection stage:
 
 from .action import Action
 from ..common import GameException, ReportedException
-from ..gameplay import ABILITY_OPPONENT_SELECTION, OPPONENT_SELECTION, GamePlay, Opponent2
+from ..gameplay import STAGE_ABILITY_OPPONENT_SELECTION, STAGE_OPPONENT_SELECTION, GamePlay, Opponent2
 
 
 class AbilityOpponentPressAction(Action):
@@ -21,7 +21,7 @@ class AbilityOpponentPressAction(Action):
 
     @property
     def action_stages(self):
-        return [ABILITY_OPPONENT_SELECTION]
+        return [STAGE_ABILITY_OPPONENT_SELECTION]
 
     def _run(self, opponent: str, character: str) -> GamePlay:
         # Validate user is the active player
@@ -67,7 +67,7 @@ class AbilityOpponentSelectAction(Action):
 
     @property
     def action_stages(self):
-        return [ABILITY_OPPONENT_SELECTION]
+        return [STAGE_ABILITY_OPPONENT_SELECTION]
 
     def _run(self) -> GamePlay:
         # Validate user is the active player
@@ -107,7 +107,7 @@ class AbilityOpponentSelectAction(Action):
         self.game.ability_opponent = selected_opponent
 
         # Transition to opponent selection stage
-        self.game.stage = OPPONENT_SELECTION
+        self.game.stage = STAGE_OPPONENT_SELECTION
         self.game.stage_meta = None  # Clear stage metadata
 
         return self.game

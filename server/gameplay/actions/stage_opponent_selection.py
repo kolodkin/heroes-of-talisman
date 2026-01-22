@@ -10,7 +10,7 @@ import copy
 from .action import Action
 from ..common import GameException, ReportedException
 from ..effects import APPLY_TO_BATTLE_OPPONENT
-from ..gameplay import BATTLE_DICE_ROLL, OPPONENT_SELECTION, GamePlay, Opponent2
+from ..gameplay import STAGE_BATTLE_DICE_ROLL, STAGE_OPPONENT_SELECTION, GamePlay, Opponent2
 
 
 class OpponentPressAction(Action):
@@ -23,7 +23,7 @@ class OpponentPressAction(Action):
 
     @property
     def action_stages(self):
-        return [OPPONENT_SELECTION]
+        return [STAGE_OPPONENT_SELECTION]
 
     def _run(self, opponent: str, character: str) -> GamePlay:
         # Validate user is the active player
@@ -69,7 +69,7 @@ class OpponentSelectAction(Action):
 
     @property
     def action_stages(self):
-        return [OPPONENT_SELECTION]
+        return [STAGE_OPPONENT_SELECTION]
 
     def _run(self) -> GamePlay:
         # Validate user is the active player
@@ -120,7 +120,7 @@ class OpponentSelectAction(Action):
                     opponent_character.effects.append(effect_copy)
 
         # Transition to battle dice roll stage
-        self.game.stage = BATTLE_DICE_ROLL
+        self.game.stage = STAGE_BATTLE_DICE_ROLL
         self.game.stage_meta = None  # Clear stage metadata
 
         return self.game

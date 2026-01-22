@@ -9,8 +9,8 @@ and leaving actions.
 import pytest
 
 from .connection import ConnectAction, DisconnectAction, LeaveAction
-from ..common import CONNECTED, DISCONNECTED
-from ..gameplay import CHARACTER_SELECT, GamePlay
+from ..common import STATUS_CONNECTED, STATUS_DISCONNECTED
+from ..gameplay import STAGE_CHARACTER_SELECT, GamePlay
 
 
 def test_connect_then_disconnect_then_reconnect():
@@ -21,21 +21,21 @@ def test_connect_then_disconnect_then_reconnect():
     connect_action = ConnectAction("player1", game)
     updated_game = connect_action.run()
 
-    assert updated_game.players["player1"].status == CONNECTED
-    assert updated_game.stage == CHARACTER_SELECT
+    assert updated_game.players["player1"].status == STATUS_CONNECTED
+    assert updated_game.stage == STAGE_CHARACTER_SELECT
     assert updated_game.active.player == "player1"
 
     # Disconnect
     disconnect_action = DisconnectAction("player1", updated_game)
     updated_game = disconnect_action.run()
 
-    assert updated_game.players["player1"].status == DISCONNECTED
+    assert updated_game.players["player1"].status == STATUS_DISCONNECTED
 
     # Reconnect
     reconnect_action = ConnectAction("player1", updated_game)
     updated_game = reconnect_action.run()
 
-    assert updated_game.players["player1"].status == CONNECTED
+    assert updated_game.players["player1"].status == STATUS_CONNECTED
 
 
 def test_multiple_players_connect_disconnect_leave():
@@ -55,7 +55,7 @@ def test_multiple_players_connect_disconnect_leave():
     disconnect_action = DisconnectAction("player2", game)
     game = disconnect_action.run()
 
-    assert game.players["player2"].status == DISCONNECTED
+    assert game.players["player2"].status == STATUS_DISCONNECTED
     assert len(game.players) == 3  # Still in game
 
     # Player3 leaves
@@ -69,5 +69,5 @@ def test_multiple_players_connect_disconnect_leave():
     reconnect_action = ConnectAction("player2", game)
     game = reconnect_action.run()
 
-    assert game.players["player2"].status == CONNECTED
+    assert game.players["player2"].status == STATUS_CONNECTED
     assert len(game.players) == 2

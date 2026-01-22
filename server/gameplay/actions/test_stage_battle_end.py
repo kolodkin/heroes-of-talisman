@@ -16,12 +16,12 @@ from .battle_end import BattleEndAction
 from ..common import (
     GameException,
     ReportedException,
-    KNIGHT,
-    MAGE,
-    ARCHER,
+    CHARACTER_KNIGHT,
+    CHARACTER_MAGE,
+    CHARACTER_ARCHER,
 )
-from ..abilities import BATTLE_HOWL, FREEZE, BOUNCING_ARROW
-from ..gameplay import BATTLE_END, CHARACTER_SELECT
+from ..abilities import ABILITY_BATTLE_HOWL, ABILITY_FREEZE, ABILITY_BOUNCING_ARROW
+from ..gameplay import STAGE_BATTLE_END, STAGE_CHARACTER_SELECT
 from ..effects import AttackNegBonusEffect, SkipTurnEffect, RerollDiceEffect
 from ..gameplay import (
     GamePlay,
@@ -39,20 +39,20 @@ def test_battle_end_clears_battle_effects():
     characters2 = init_characters()
 
     # Add BattleEffect to both characters
-    characters1[KNIGHT].effects.append(AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2))
-    characters2[MAGE].effects.append(AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-1))
+    characters1[CHARACTER_KNIGHT].effects.append(AttackNegBonusEffect(source=ABILITY_BATTLE_HOWL, attack_neg_bonus=-2))
+    characters2[CHARACTER_MAGE].effects.append(AttackNegBonusEffect(source=ABILITY_BATTLE_HOWL, attack_neg_bonus=-1))
 
     game = GamePlay(
-        stage=BATTLE_END,
+        stage=STAGE_BATTLE_END,
         active=ActivePlayer4(
             player="player1",
-            character=KNIGHT,
+            character=CHARACTER_KNIGHT,
             dice_roll=[6],
             result=BattleResult(winner=True, score=7)
         ),
         opponent=Opponent4(
             player="player2",
-            character=MAGE,
+            character=CHARACTER_MAGE,
             dice_roll=[5],
             result=BattleResult(winner=False, score=5)
         ),
@@ -63,19 +63,19 @@ def test_battle_end_clears_battle_effects():
     )
 
     # Verify effects exist before battle end
-    assert len(game.players["player1"].characters[KNIGHT].effects) == 1
-    assert len(game.players["player2"].characters[MAGE].effects) == 1
+    assert len(game.players["player1"].characters[CHARACTER_KNIGHT].effects) == 1
+    assert len(game.players["player2"].characters[CHARACTER_MAGE].effects) == 1
 
     # Execute battle end action
     action = BattleEndAction("player1", game)
     updated_game = action.run()
 
     # Verify BattleEffects are cleared from both characters
-    assert len(updated_game.players["player1"].characters[KNIGHT].effects) == 0
-    assert len(updated_game.players["player2"].characters[MAGE].effects) == 0
+    assert len(updated_game.players["player1"].characters[CHARACTER_KNIGHT].effects) == 0
+    assert len(updated_game.players["player2"].characters[CHARACTER_MAGE].effects) == 0
 
     # Verify game transitioned to next turn
-    assert updated_game.stage == CHARACTER_SELECT
+    assert updated_game.stage == STAGE_CHARACTER_SELECT
     assert updated_game.active.player == "player2"  # Next player's turn
 
 
@@ -85,22 +85,22 @@ def test_battle_end_disposes_reroll_effect():
     characters2 = init_characters()
 
     # Add RerollDiceEffect to active player
-    characters1[ARCHER].effects.append(RerollDiceEffect(source=BOUNCING_ARROW, reroll_dice=True))
+    characters1[CHARACTER_ARCHER].effects.append(RerollDiceEffect(source=ABILITY_BOUNCING_ARROW, reroll_dice=True))
 
     # Add BattleEffect to opponent
-    characters2[KNIGHT].effects.append(AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2))
+    characters2[CHARACTER_KNIGHT].effects.append(AttackNegBonusEffect(source=ABILITY_BATTLE_HOWL, attack_neg_bonus=-2))
 
     game = GamePlay(
-        stage=BATTLE_END,
+        stage=STAGE_BATTLE_END,
         active=ActivePlayer4(
             player="player1",
-            character=ARCHER,
+            character=CHARACTER_ARCHER,
             dice_roll=[6],
             result=BattleResult(winner=True, score=7)
         ),
         opponent=Opponent4(
             player="player2",
-            character=KNIGHT,
+            character=CHARACTER_KNIGHT,
             dice_roll=[5],
             result=BattleResult(winner=False, score=5)
         ),
@@ -111,18 +111,18 @@ def test_battle_end_disposes_reroll_effect():
     )
 
     # Verify effects exist before battle end
-    assert len(game.players["player1"].characters[ARCHER].effects) == 1
-    assert len(game.players["player2"].characters[KNIGHT].effects) == 1
+    assert len(game.players["player1"].characters[CHARACTER_ARCHER].effects) == 1
+    assert len(game.players["player2"].characters[CHARACTER_KNIGHT].effects) == 1
 
     # Execute battle end action
     action = BattleEndAction("player1", game)
     updated_game = action.run()
 
     # Verify RerollDiceEffect is disposed (has battle_end in dispose_actions)
-    assert len(updated_game.players["player1"].characters[ARCHER].effects) == 0
+    assert len(updated_game.players["player1"].characters[CHARACTER_ARCHER].effects) == 0
 
     # Verify BattleEffect is cleared from opponent
-    assert len(updated_game.players["player2"].characters[KNIGHT].effects) == 0
+    assert len(updated_game.players["player2"].characters[CHARACTER_KNIGHT].effects) == 0
 
 
 def test_battle_end_mixed_effects():
@@ -130,21 +130,21 @@ def test_battle_end_mixed_effects():
     characters1 = init_characters()
 
     # Add multiple effects: AttackNegBonusEffect and multiple RerollDiceEffects
-    characters1[ARCHER].effects.append(AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2))
-    characters1[ARCHER].effects.append(RerollDiceEffect(source=BOUNCING_ARROW, reroll_dice=True))
-    characters1[ARCHER].effects.append(RerollDiceEffect(source=BOUNCING_ARROW, reroll_dice=True))
+    characters1[CHARACTER_ARCHER].effects.append(AttackNegBonusEffect(source=ABILITY_BATTLE_HOWL, attack_neg_bonus=-2))
+    characters1[CHARACTER_ARCHER].effects.append(RerollDiceEffect(source=ABILITY_BOUNCING_ARROW, reroll_dice=True))
+    characters1[CHARACTER_ARCHER].effects.append(RerollDiceEffect(source=ABILITY_BOUNCING_ARROW, reroll_dice=True))
 
     game = GamePlay(
-        stage=BATTLE_END,
+        stage=STAGE_BATTLE_END,
         active=ActivePlayer4(
             player="player1",
-            character=ARCHER,
+            character=CHARACTER_ARCHER,
             dice_roll=[6],
             result=BattleResult(winner=True, score=7)
         ),
         opponent=Opponent4(
             player="player2",
-            character=KNIGHT,
+            character=CHARACTER_KNIGHT,
             dice_roll=[5],
             result=BattleResult(winner=False, score=5)
         ),
@@ -155,14 +155,14 @@ def test_battle_end_mixed_effects():
     )
 
     # Verify 3 effects exist before battle end
-    assert len(game.players["player1"].characters[ARCHER].effects) == 3
+    assert len(game.players["player1"].characters[CHARACTER_ARCHER].effects) == 3
 
     # Execute battle end action
     action = BattleEndAction("player1", game)
     updated_game = action.run()
 
     # Verify all battle_end effects are disposed
-    assert len(updated_game.players["player1"].characters[ARCHER].effects) == 0
+    assert len(updated_game.players["player1"].characters[CHARACTER_ARCHER].effects) == 0
 
 
 def test_battle_end_keeps_skip_turn_effect():
@@ -171,21 +171,21 @@ def test_battle_end_keeps_skip_turn_effect():
     characters2 = init_characters()
 
     # Add SkipTurnEffect to opponent's mage
-    characters2[MAGE].effects.append(SkipTurnEffect(source=FREEZE, skip_next_turn=True))
+    characters2[CHARACTER_MAGE].effects.append(SkipTurnEffect(source=ABILITY_FREEZE, skip_next_turn=True))
     # Add BattleEffect to active character
-    characters1[KNIGHT].effects.append(AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2))
+    characters1[CHARACTER_KNIGHT].effects.append(AttackNegBonusEffect(source=ABILITY_BATTLE_HOWL, attack_neg_bonus=-2))
 
     game = GamePlay(
-        stage=BATTLE_END,
+        stage=STAGE_BATTLE_END,
         active=ActivePlayer4(
             player="player1",
-            character=KNIGHT,
+            character=CHARACTER_KNIGHT,
             dice_roll=[6],
             result=BattleResult(winner=True, score=7)
         ),
         opponent=Opponent4(
             player="player2",
-            character=MAGE,
+            character=CHARACTER_MAGE,
             dice_roll=[5],
             result=BattleResult(winner=False, score=5)
         ),
@@ -196,16 +196,16 @@ def test_battle_end_keeps_skip_turn_effect():
     )
 
     # Verify effects exist before battle end
-    assert len(game.players["player1"].characters[KNIGHT].effects) == 1
-    assert len(game.players["player2"].characters[MAGE].effects) == 1
+    assert len(game.players["player1"].characters[CHARACTER_KNIGHT].effects) == 1
+    assert len(game.players["player2"].characters[CHARACTER_MAGE].effects) == 1
 
     # Execute battle end action
     action = BattleEndAction("player1", game)
     updated_game = action.run()
 
     # Verify BattleEffect is cleared from active character
-    assert len(updated_game.players["player1"].characters[KNIGHT].effects) == 0
+    assert len(updated_game.players["player1"].characters[CHARACTER_KNIGHT].effects) == 0
 
     # Verify SkipTurnEffect is kept on opponent's character
-    assert len(updated_game.players["player2"].characters[MAGE].effects) == 1
-    assert isinstance(updated_game.players["player2"].characters[MAGE].effects[0], SkipTurnEffect)
+    assert len(updated_game.players["player2"].characters[CHARACTER_MAGE].effects) == 1
+    assert isinstance(updated_game.players["player2"].characters[CHARACTER_MAGE].effects[0], SkipTurnEffect)

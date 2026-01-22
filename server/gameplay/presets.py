@@ -1,7 +1,7 @@
 from typing import Literal, Optional
 
-from .common import KNIGHT, MAGE, ARCHER
-from .abilities import BATTLE_HOWL, BOUNCING_ARROW, FREEZE
+from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
+from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
 from .effects import (
     AttackBonusEffect,
     AttackNegBonusEffect,
@@ -12,12 +12,12 @@ from .effects import (
 )
 from .gameplay import (
     StageName,
-    ABILITY_SELECTION,
-    BATTLE_DICE_ROLL,
-    BATTLE_END,
-    CARD_DRAW,
-    CHARACTER_SELECT,
-    OPPONENT_SELECTION,
+    STAGE_ABILITY_SELECTION,
+    STAGE_BATTLE_DICE_ROLL,
+    STAGE_BATTLE_END,
+    STAGE_CARD_DRAW,
+    STAGE_CHARACTER_SELECT,
+    STAGE_OPPONENT_SELECTION,
     GamePlay,
     DEFAULT_GAME,
     Player,
@@ -32,26 +32,26 @@ from .gameplay import (
     init_characters,
 )
 
-ABILITY_SELECTION_KNIGHT = "ability_selection_knight"
-ABILITY_SELECTION_ARCHER = "ability_selection_archer"
-ABILITY_SELECTION_MAGE = "ability_selection_mage"
-EFFECT_REROLL = "effect_reroll"
-ARCHER_NOT_ALIVE = "archer_not_alive"
-BATTLE_DRAW = "battle_draw"
-BATTLE_PLAYER_1_WIN = "battle_player_1_win"
-BATTLE_PLAYER_2_WIN = "battle_player_2_win"
-BATTLE_WITH_EFFECTS = "battle_with_effects"
-BATTLE_METAL_ARMOR = "battle_metal_armor"
-BATTLE_SACRED_SWORD = "battle_sacred_sword"
-CARD_DRAW_KNIGHT_METAL_ARMOR = "card_draw_knight_metal_armor"
-CARD_DRAW_ARCHER_SACRED_SWORD = "card_draw_archer_sacred_sword"
-HEALTH_1 = "health_1"
-KNIGHT_NOT_ALIVE = "knight_not_alive"
-EFFECT_ATTACK_BONUS = "effect_attack_bonus"
-EFFECT_SKIP_TURN = "effect_skip_turn"
-MAGE_NOT_ALIVE = "mage_not_alive"
-OPPONENT_SELECTION_PRESET = "opponent_selection_preset"
-SINGLE_PLAYER = "single_player"
+PRESET_ABILITY_SELECTION_KNIGHT = "ability_selection_knight"
+PRESET_ABILITY_SELECTION_ARCHER = "ability_selection_archer"
+PRESET_ABILITY_SELECTION_MAGE = "ability_selection_mage"
+PRESET_EFFECT_REROLL = "effect_reroll"
+PRESET_ARCHER_NOT_ALIVE = "archer_not_alive"
+PRESET_BATTLE_DRAW = "battle_draw"
+PRESET_BATTLE_PLAYER_1_WIN = "battle_player_1_win"
+PRESET_BATTLE_PLAYER_2_WIN = "battle_player_2_win"
+PRESET_BATTLE_WITH_EFFECTS = "battle_with_effects"
+PRESET_BATTLE_METAL_ARMOR = "battle_metal_armor"
+PRESET_BATTLE_SACRED_SWORD = "battle_sacred_sword"
+PRESET_CARD_DRAW_KNIGHT_METAL_ARMOR = "card_draw_knight_metal_armor"
+PRESET_CARD_DRAW_ARCHER_SACRED_SWORD = "card_draw_archer_sacred_sword"
+PRESET_HEALTH_1 = "health_1"
+PRESET_KNIGHT_NOT_ALIVE = "knight_not_alive"
+PRESET_EFFECT_ATTACK_BONUS = "effect_attack_bonus"
+PRESET_EFFECT_SKIP_TURN = "effect_skip_turn"
+PRESET_MAGE_NOT_ALIVE = "mage_not_alive"
+PRESET_OPPONENT_SELECTION = "opponent_selection_preset"
+PRESET_SINGLE_PLAYER = "single_player"
 DEBUG_PRESETS = Literal[
     "default",
     "ability_selection_knight",
@@ -116,9 +116,9 @@ def get_debug_preset(
         # Knight has BATTLE_HOWL which does NOT require ability_opponent_selection
         # Single ability is auto-selected
         ret = GamePlay(
-            stage=ABILITY_SELECTION,
-            active=ActivePlayer2(player=p1_name, character=KNIGHT),
-            stage_meta=AbilitySelectMeta(selected=BATTLE_HOWL),
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=AbilitySelectMeta(selected=ABILITY_BATTLE_HOWL),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),
@@ -129,9 +129,9 @@ def get_debug_preset(
         # Archer has BOUNCING_ARROW which does NOT require ability_opponent_selection
         # Single ability is auto-selected
         ret = GamePlay(
-            stage=ABILITY_SELECTION,
-            active=ActivePlayer2(player=p1_name, character=ARCHER),
-            stage_meta=AbilitySelectMeta(selected=BOUNCING_ARROW),
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_ARCHER),
+            stage_meta=AbilitySelectMeta(selected=ABILITY_BOUNCING_ARROW),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),
@@ -142,9 +142,9 @@ def get_debug_preset(
         # Mage has FREEZE which REQUIRES ability_opponent_selection (SkipTurnEffect)
         # Single ability is auto-selected
         ret = GamePlay(
-            stage=ABILITY_SELECTION,
-            active=ActivePlayer2(player=p1_name, character=MAGE),
-            stage_meta=AbilitySelectMeta(selected=FREEZE),
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
+            stage_meta=AbilitySelectMeta(selected=ABILITY_FREEZE),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),
@@ -157,18 +157,18 @@ def get_debug_preset(
         # Player 2: mage (dice=[3], attack=0) = 3
         # Winner: player1
         ret = create_battle_preset(
-            ActivePlayer4(player=p1_name, character=KNIGHT, dice_roll=[6], result=BattleResult(winner=True, score=7)),
-            Opponent4(player=p2_name, character=MAGE, dice_roll=[3], result=BattleResult(winner=False, score=3)),
-            stage=BATTLE_END,
+            ActivePlayer4(player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[6], result=BattleResult(winner=True, score=7)),
+            Opponent4(player=p2_name, character=CHARACTER_MAGE, dice_roll=[3], result=BattleResult(winner=False, score=3)),
+            stage=STAGE_BATTLE_END,
         )
     elif preset == "battle_player_2_win":
         # Player 1: mage (dice=[2], attack=0) = 2
         # Player 2: knight (dice=[5], attack=1) = 6
         # Winner: player2
         ret = create_battle_preset(
-            ActivePlayer4(player=p1_name, character=MAGE, dice_roll=[2], result=BattleResult(winner=False, score=2)),
-            Opponent4(player=p2_name, character=KNIGHT, dice_roll=[5], result=BattleResult(winner=True, score=6)),
-            stage=BATTLE_END,
+            ActivePlayer4(player=p1_name, character=CHARACTER_MAGE, dice_roll=[2], result=BattleResult(winner=False, score=2)),
+            Opponent4(player=p2_name, character=CHARACTER_KNIGHT, dice_roll=[5], result=BattleResult(winner=True, score=6)),
+            stage=STAGE_BATTLE_END,
         )
     elif preset == "battle_draw":
         # Player 1: knight (dice=[5], attack=1) = 6
@@ -176,17 +176,17 @@ def get_debug_preset(
         # Draw: 6 == 6
         ret = create_battle_preset(
             ActivePlayer4(
-                player=p1_name, character=KNIGHT, dice_roll=[5], result=BattleResult(winner=False, score=6)
+                player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[5], result=BattleResult(winner=False, score=6)
             ),
-            Opponent4(player=p2_name, character=ARCHER, dice_roll=[6], result=BattleResult(winner=False, score=6)),
-            stage=BATTLE_DICE_ROLL,
+            Opponent4(player=p2_name, character=CHARACTER_ARCHER, dice_roll=[6], result=BattleResult(winner=False, score=6)),
+            stage=STAGE_BATTLE_DICE_ROLL,
         )
     elif preset == "knight_not_alive":
         # Character select stage with knight dead (health=0)
         characters = init_characters()
-        characters[KNIGHT].health = 0
+        characters[CHARACTER_KNIGHT].health = 0
         ret = GamePlay(
-            stage=CHARACTER_SELECT,
+            stage=STAGE_CHARACTER_SELECT,
             players={
                 p1_name: Player(name=p1_name, characters=characters),
                 p2_name: Player(name=p2_name, characters=init_characters()),
@@ -195,9 +195,9 @@ def get_debug_preset(
     elif preset == "mage_not_alive":
         # Character select stage with mage dead (health=0)
         characters = init_characters()
-        characters[MAGE].health = 0
+        characters[CHARACTER_MAGE].health = 0
         ret = GamePlay(
-            stage=CHARACTER_SELECT,
+            stage=STAGE_CHARACTER_SELECT,
             players={
                 p1_name: Player(name=p1_name, characters=characters),
                 p2_name: Player(name=p2_name, characters=init_characters()),
@@ -206,9 +206,9 @@ def get_debug_preset(
     elif preset == "archer_not_alive":
         # Character select stage with archer dead (health=0)
         characters = init_characters()
-        characters[ARCHER].health = 0
+        characters[CHARACTER_ARCHER].health = 0
         ret = GamePlay(
-            stage=CHARACTER_SELECT,
+            stage=STAGE_CHARACTER_SELECT,
             players={
                 p1_name: Player(name=p1_name, characters=characters),
                 p2_name: Player(name=p2_name, characters=init_characters()),
@@ -217,8 +217,8 @@ def get_debug_preset(
     elif preset == "opponent_selection_preset":
         # Opponent selection stage - player1 has selected knight
         ret = GamePlay(
-            stage=OPPONENT_SELECTION,
-            active=ActivePlayer2(player=p1_name, character=KNIGHT),
+            stage=STAGE_OPPONENT_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),
@@ -227,7 +227,7 @@ def get_debug_preset(
     elif preset == "single_player":
         # Character select stage with only one player (less than minimum 2 players)
         ret = GamePlay(
-            stage=CHARACTER_SELECT,
+            stage=STAGE_CHARACTER_SELECT,
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
             },
@@ -237,21 +237,21 @@ def get_debug_preset(
         # Player 1: knight with attack_bonus (+2 from BATTLE_HOWL) and reroll_dice (from BOUNCING_ARROW)
         # Player 2: mage with attack_neg_bonus (-2 from BATTLE_HOWL) and skip_turn (from FREEZE)
         characters_p1 = init_characters()
-        characters_p1[KNIGHT].effects = [
-            AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2),
-            RerollDiceEffect(source=BOUNCING_ARROW),
+        characters_p1[CHARACTER_KNIGHT].effects = [
+            AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2),
+            RerollDiceEffect(source=ABILITY_BOUNCING_ARROW),
         ]
 
         characters_p2 = init_characters()
-        characters_p2[MAGE].effects = [
-            AttackNegBonusEffect(source=BATTLE_HOWL, attack_neg_bonus=-2),
-            SkipTurnEffect(source=FREEZE),
+        characters_p2[CHARACTER_MAGE].effects = [
+            AttackNegBonusEffect(source=ABILITY_BATTLE_HOWL, attack_neg_bonus=-2),
+            SkipTurnEffect(source=ABILITY_FREEZE),
         ]
 
         ret = GamePlay(
-            stage=BATTLE_DICE_ROLL,
-            active=ActivePlayer3(player=p1_name, character=KNIGHT, dice_roll=[]),
-            opponent=Opponent3(player=p2_name, character=MAGE, dice_roll=[]),
+            stage=STAGE_BATTLE_DICE_ROLL,
+            active=ActivePlayer3(player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[]),
+            opponent=Opponent3(player=p2_name, character=CHARACTER_MAGE, dice_roll=[]),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
@@ -264,19 +264,19 @@ def get_debug_preset(
         # Result: archer loses (2 < 5), archer can use Bouncing Arrow to reroll
         # Stage stays BATTLE_DICE_ROLL because loser has reroll effect available
         characters_p1 = init_characters()
-        characters_p1[ARCHER].effects = [
-            RerollDiceEffect(source=BOUNCING_ARROW),
+        characters_p1[CHARACTER_ARCHER].effects = [
+            RerollDiceEffect(source=ABILITY_BOUNCING_ARROW),
         ]
 
         characters_p2 = init_characters()
 
         ret = GamePlay(
-            stage=BATTLE_DICE_ROLL,
+            stage=STAGE_BATTLE_DICE_ROLL,
             active=ActivePlayer4(
-                player=p1_name, character=ARCHER, dice_roll=[2], result=BattleResult(winner=False, score=2)
+                player=p1_name, character=CHARACTER_ARCHER, dice_roll=[2], result=BattleResult(winner=False, score=2)
             ),
             opponent=Opponent4(
-                player=p2_name, character=MAGE, dice_roll=[5], result=BattleResult(winner=True, score=5)
+                player=p2_name, character=CHARACTER_MAGE, dice_roll=[5], result=BattleResult(winner=True, score=5)
             ),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
@@ -289,19 +289,19 @@ def get_debug_preset(
         # Player 2: knight with no effects -> dice=[6] + attack=1 = 7
         # Result: Draw (7 == 7)
         characters_p1 = init_characters()
-        characters_p1[KNIGHT].effects = [
-            AttackBonusEffect(source=BATTLE_HOWL, attack_bonus=2),
+        characters_p1[CHARACTER_KNIGHT].effects = [
+            AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2),
         ]
 
         characters_p2 = init_characters()
 
         ret = GamePlay(
-            stage=BATTLE_DICE_ROLL,
+            stage=STAGE_BATTLE_DICE_ROLL,
             active=ActivePlayer4(
-                player=p1_name, character=KNIGHT, dice_roll=[4], result=BattleResult(winner=False, score=7)
+                player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[4], result=BattleResult(winner=False, score=7)
             ),
             opponent=Opponent4(
-                player=p2_name, character=KNIGHT, dice_roll=[6], result=BattleResult(winner=False, score=7)
+                player=p2_name, character=CHARACTER_KNIGHT, dice_roll=[6], result=BattleResult(winner=False, score=7)
             ),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
@@ -314,14 +314,14 @@ def get_debug_preset(
         # Player 2: no effects
         # Stage: CHARACTER_SELECT
         characters_p1 = init_characters()
-        characters_p1[KNIGHT].effects = [
-            SkipTurnEffect(source=FREEZE),
+        characters_p1[CHARACTER_KNIGHT].effects = [
+            SkipTurnEffect(source=ABILITY_FREEZE),
         ]
 
         characters_p2 = init_characters()
 
         ret = GamePlay(
-            stage=CHARACTER_SELECT,
+            stage=STAGE_CHARACTER_SELECT,
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
@@ -332,22 +332,22 @@ def get_debug_preset(
         # Player 1: knight (dice=[3], attack=1) with metal_armor (+2 defense) = 4
         # Player 2: mage (dice=[5], attack=0) = 5
         # Result: knight loses (4 < 5) but takes 0 damage (1 - 2 defense = 0)
-        from .cards import METAL_ARMOR
+        from .cards import CARD_METAL_ARMOR
 
         characters_p1 = init_characters()
-        characters_p1[KNIGHT].effects = [
-            DefenseBonusEffect(source=METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
+        characters_p1[CHARACTER_KNIGHT].effects = [
+            DefenseBonusEffect(source=CARD_METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
         ]
 
         characters_p2 = init_characters()
 
         ret = GamePlay(
-            stage=BATTLE_END,
+            stage=STAGE_BATTLE_END,
             active=ActivePlayer4(
-                player=p1_name, character=KNIGHT, dice_roll=[3], result=BattleResult(winner=False, score=4)
+                player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[3], result=BattleResult(winner=False, score=4)
             ),
             opponent=Opponent4(
-                player=p2_name, character=MAGE, dice_roll=[5], result=BattleResult(winner=True, score=5)
+                player=p2_name, character=CHARACTER_MAGE, dice_roll=[5], result=BattleResult(winner=True, score=5)
             ),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
@@ -359,22 +359,22 @@ def get_debug_preset(
         # Player 1: knight (dice=[2], attack=1, +3 from sacred_sword) = 6
         # Player 2: mage (dice=[5], attack=0) = 5
         # Result: knight wins (6 > 5)
-        from .cards import SACRED_SWORD
+        from .cards import CARD_SACRED_SWORD
 
         characters_p1 = init_characters()
-        characters_p1[KNIGHT].effects = [
-            AttackBonusEffect(source=SACRED_SWORD, attack_bonus=3, dispose_actions=[]),
+        characters_p1[CHARACTER_KNIGHT].effects = [
+            AttackBonusEffect(source=CARD_SACRED_SWORD, attack_bonus=3, dispose_actions=[]),
         ]
 
         characters_p2 = init_characters()
 
         ret = GamePlay(
-            stage=BATTLE_END,
+            stage=STAGE_BATTLE_END,
             active=ActivePlayer4(
-                player=p1_name, character=KNIGHT, dice_roll=[2], result=BattleResult(winner=True, score=6)
+                player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[2], result=BattleResult(winner=True, score=6)
             ),
             opponent=Opponent4(
-                player=p2_name, character=MAGE, dice_roll=[5], result=BattleResult(winner=False, score=5)
+                player=p2_name, character=CHARACTER_MAGE, dice_roll=[5], result=BattleResult(winner=False, score=5)
             ),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
@@ -384,12 +384,12 @@ def get_debug_preset(
     elif preset == "card_draw_knight_metal_armor":
         # Knight draws metal_armor (successful card draw)
         # Card will be applied and added to knight's card list
-        from .cards import METAL_ARMOR
+        from .cards import CARD_METAL_ARMOR
 
         ret = GamePlay(
-            stage=CARD_DRAW,
-            active=ActivePlayer2(player=p1_name, character=KNIGHT),
-            stage_meta=CardDrawMeta(drawn_card=METAL_ARMOR),
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=CARD_METAL_ARMOR),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),
@@ -398,12 +398,12 @@ def get_debug_preset(
     elif preset == "card_draw_archer_sacred_sword":
         # Archer draws sacred_sword (restricted card)
         # Card will not be applied or added to archer's card list
-        from .cards import SACRED_SWORD
+        from .cards import CARD_SACRED_SWORD
 
         ret = GamePlay(
-            stage=CARD_DRAW,
-            active=ActivePlayer2(player=p1_name, character=ARCHER),
-            stage_meta=CardDrawMeta(drawn_card=SACRED_SWORD),
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_ARCHER),
+            stage_meta=CardDrawMeta(drawn_card=CARD_SACRED_SWORD),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),

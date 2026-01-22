@@ -13,9 +13,9 @@ from .action import Action
 from ..common import GameException, ReportedException
 from ..effects import RerollDiceEffect
 from ..gameplay import (
-    BATTLE_DICE_ROLL,
-    BATTLE_END,
-    CHARACTER_SELECT,
+    STAGE_BATTLE_DICE_ROLL,
+    STAGE_BATTLE_END,
+    STAGE_CHARACTER_SELECT,
     GamePlay,
     ActivePlayer2,
     ActivePlayer3,
@@ -100,7 +100,7 @@ def set_winner_if_both_rolled(game: GamePlay) -> None:
                 return
 
         # No reroll available for loser, transition to BATTLE_END
-        game.stage = BATTLE_END
+        game.stage = STAGE_BATTLE_END
 
 
 class ActivePlayerRollAction(Action):
@@ -112,7 +112,7 @@ class ActivePlayerRollAction(Action):
 
     @property
     def action_stages(self):
-        return [BATTLE_DICE_ROLL]
+        return [STAGE_BATTLE_DICE_ROLL]
 
     def _run(self) -> GamePlay:
         # Validate user is the active player
@@ -159,7 +159,7 @@ class OpponentRollAction(Action):
 
     @property
     def action_stages(self):
-        return [BATTLE_DICE_ROLL]
+        return [STAGE_BATTLE_DICE_ROLL]
 
     def _run(self) -> GamePlay:
         # Validate opponent exists
@@ -246,7 +246,7 @@ class RerollAction(Action):
 
     @property
     def action_stages(self):
-        return [BATTLE_DICE_ROLL]
+        return [STAGE_BATTLE_DICE_ROLL]
 
     def _run(self) -> GamePlay:
         # Validate it's a draw (no winner) - must be ActivePlayer4/Opponent4 with results
@@ -274,7 +274,7 @@ class RerollEffectAction(Action):
 
     @property
     def action_stages(self):
-        return [BATTLE_DICE_ROLL]
+        return [STAGE_BATTLE_DICE_ROLL]
 
     def _run(self) -> GamePlay:
         # Validate user is the active player
@@ -321,7 +321,7 @@ class DebugSetBattleDiceRollsAction(Action):
 
     @property
     def action_stages(self):
-        return [BATTLE_DICE_ROLL, BATTLE_END]
+        return [STAGE_BATTLE_DICE_ROLL, STAGE_BATTLE_END]
 
     def _run(self, active_dice_roll: list[int], opponent_dice_roll: list[int]) -> GamePlay:
         # Validate both players have rolled (must be ActivePlayer3/4 and Opponent3/4)

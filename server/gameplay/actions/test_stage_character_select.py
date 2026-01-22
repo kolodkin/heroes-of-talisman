@@ -11,17 +11,17 @@ from .stage_character_select import CharacterPressAction, CharacterSelectAction
 from ..common import (
     GameException,
     ReportedException,
-    KNIGHT,
-    ARCHER,
-    MAGE,
+    CHARACTER_KNIGHT,
+    CHARACTER_ARCHER,
+    CHARACTER_MAGE,
 )
-from ..abilities import FREEZE, BATTLE_HOWL
+from ..abilities import ABILITY_FREEZE, ABILITY_BATTLE_HOWL
 from ..effects import SkipTurnEffect
 from ..gameplay import (
-    CHARACTER_SELECT,
-    CARD_DRAW,
-    ABILITY_SELECTION,
-    BATTLE_DICE_ROLL,
+    STAGE_CHARACTER_SELECT,
+    STAGE_CARD_DRAW,
+    STAGE_ABILITY_SELECTION,
+    STAGE_BATTLE_DICE_ROLL,
     GamePlay,
     Player,
     Character,
@@ -34,21 +34,21 @@ from ..gameplay import (
 
 def test_character_press_action_valid():
     """Test pressing a character highlights it in stage_meta"""
-    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = CharacterPressAction("player1", game)
-    updated_game = action.run(character=KNIGHT)
+    updated_game = action.run(character=CHARACTER_KNIGHT)
 
     assert updated_game.stage_meta is not None
-    assert updated_game.stage_meta.selected == KNIGHT
-    assert updated_game.stage == CHARACTER_SELECT  # Still in character select
+    assert updated_game.stage_meta.selected == CHARACTER_KNIGHT
+    assert updated_game.stage == STAGE_CHARACTER_SELECT  # Still in character select
 
 
 def test_character_press_action_not_active_player():
     """Test pressing character when not active player raises error"""
-    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
@@ -56,52 +56,52 @@ def test_character_press_action_not_active_player():
     action = CharacterPressAction("player2", game)
 
     with pytest.raises(ReportedException, match="It's not your turn"):
-        action.run(character=KNIGHT)
+        action.run(character=CHARACTER_KNIGHT)
 
 
 def test_character_press_action_wrong_stage():
     """Test pressing character in wrong stage raises error"""
-    game = GamePlay(stage=BATTLE_DICE_ROLL, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_BATTLE_DICE_ROLL, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = CharacterPressAction("player1", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        action.run(character=KNIGHT)
+        action.run(character=CHARACTER_KNIGHT)
 
 
 def test_character_press_action_invalid_character():
     """Test pressing non-existent character raises error"""
-    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     game.players["player1"] = Player(name="player1", characters={})
 
     action = CharacterPressAction("player1", game)
 
     with pytest.raises(ReportedException, match="not available"):
-        action.run(character=KNIGHT)
+        action.run(character=CHARACTER_KNIGHT)
 
 
 def test_character_select_action_valid():
     """Test confirming character selection transitions to card_draw"""
-    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = CharacterSelectAction("player1", game)
-    updated_game = action.run(character=KNIGHT)
+    updated_game = action.run(character=CHARACTER_KNIGHT)
 
     assert updated_game.active.player == "player1"
-    assert updated_game.active.character == KNIGHT
+    assert updated_game.active.character == CHARACTER_KNIGHT
     assert isinstance(updated_game.active, ActivePlayer2)
-    assert updated_game.stage == CARD_DRAW
+    assert updated_game.stage == STAGE_CARD_DRAW
     # Stage meta should be cleared (card will be drawn in next stage)
     assert updated_game.stage_meta is None
 
 
 def test_character_select_action_not_active_player():
     """Test confirming selection when not active player raises error"""
-    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=characters)
@@ -109,98 +109,98 @@ def test_character_select_action_not_active_player():
     action = CharacterSelectAction("player2", game)
 
     with pytest.raises(ReportedException, match="It's not your turn"):
-        action.run(character=KNIGHT)
+        action.run(character=CHARACTER_KNIGHT)
 
 
 def test_character_select_action_wrong_stage():
     """Test confirming selection in wrong stage raises error"""
-    game = GamePlay(stage=BATTLE_DICE_ROLL, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_BATTLE_DICE_ROLL, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = CharacterSelectAction("player1", game)
 
     with pytest.raises(GameException, match="Cannot perform action in stage"):
-        action.run(character=KNIGHT)
+        action.run(character=CHARACTER_KNIGHT)
 
 
 def test_character_select_action_invalid_character():
     """Test confirming non-existent character raises error"""
-    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     game.players["player1"] = Player(name="player1", characters={})
 
     action = CharacterSelectAction("player1", game)
 
     with pytest.raises(ReportedException, match="not available"):
-        action.run(character=KNIGHT)
+        action.run(character=CHARACTER_KNIGHT)
 
 
 def test_character_press_action_dead_character():
     """Test pressing a dead character raises error"""
-    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     # Kill the knight
-    characters[KNIGHT].health = 0
+    characters[CHARACTER_KNIGHT].health = 0
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = CharacterPressAction("player1", game)
 
     with pytest.raises(ReportedException, match="is dead and can't be selected"):
-        action.run(character=KNIGHT)
+        action.run(character=CHARACTER_KNIGHT)
 
 
 def test_character_select_action_dead_character():
     """Test confirming selection of a dead character raises error"""
-    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
     # Kill the knight
-    characters[KNIGHT].health = 0
+    characters[CHARACTER_KNIGHT].health = 0
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = CharacterSelectAction("player1", game)
 
     with pytest.raises(ReportedException, match="is dead and can't be selected"):
-        action.run(character=KNIGHT)
+        action.run(character=CHARACTER_KNIGHT)
 
 
 def test_character_select_action_removes_skip_turn_effects():
     """Test that character selection removes all SkipTurnEffects from active player's characters"""
-    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
 
     # Add SkipTurnEffect to knight (can't be selected this turn)
-    characters[KNIGHT].effects.append(SkipTurnEffect(source=FREEZE))
+    characters[CHARACTER_KNIGHT].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
     # Add SkipTurnEffect to archer too
-    characters[ARCHER].effects.append(SkipTurnEffect(source=FREEZE))
+    characters[CHARACTER_ARCHER].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
 
     game.players["player1"] = Player(name="player1", characters=characters)
 
     # Player selects mage (the only character without skip_turn)
     action = CharacterSelectAction("player1", game)
-    updated_game = action.run(character=MAGE)
+    updated_game = action.run(character=CHARACTER_MAGE)
 
     # Verify skip turn effects were removed from both knight and archer
-    assert len(updated_game.players["player1"].characters[KNIGHT].effects) == 0
-    assert len(updated_game.players["player1"].characters[ARCHER].effects) == 0
+    assert len(updated_game.players["player1"].characters[CHARACTER_KNIGHT].effects) == 0
+    assert len(updated_game.players["player1"].characters[CHARACTER_ARCHER].effects) == 0
     # Mage should still have no effects
-    assert len(updated_game.players["player1"].characters[MAGE].effects) == 0
+    assert len(updated_game.players["player1"].characters[CHARACTER_MAGE].effects) == 0
 
 
 def test_character_select_action_removes_all_skip_turn_effects():
     """Test that all SkipTurnEffects are removed (not just the first one)"""
-    game = GamePlay(stage=CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
 
     # Add two SkipTurnEffects to knight
-    characters[KNIGHT].effects.append(SkipTurnEffect(source=FREEZE))
-    characters[KNIGHT].effects.append(SkipTurnEffect(source=FREEZE))
+    characters[CHARACTER_KNIGHT].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
+    characters[CHARACTER_KNIGHT].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
 
     game.players["player1"] = Player(name="player1", characters=characters)
 
     # Player selects mage
     action = CharacterSelectAction("player1", game)
-    updated_game = action.run(character=MAGE)
+    updated_game = action.run(character=CHARACTER_MAGE)
 
     # Verify all skip turn effects were removed
-    knight_effects = updated_game.players["player1"].characters[KNIGHT].effects
+    knight_effects = updated_game.players["player1"].characters[CHARACTER_KNIGHT].effects
     assert len(knight_effects) == 0

@@ -10,14 +10,14 @@ import pytest
 from .connection import ConnectAction, MAX_PLAYERS
 from ..common import (
     ReportedException,
-    KNIGHT,
-    ARCHER,
-    MAGE,
-    CONNECTED,
-    DISCONNECTED,
+    CHARACTER_KNIGHT,
+    CHARACTER_ARCHER,
+    CHARACTER_MAGE,
+    STATUS_CONNECTED,
+    STATUS_DISCONNECTED,
 )
 from ..gameplay import (
-    CHARACTER_SELECT,
+    STAGE_CHARACTER_SELECT,
     GamePlay,
     Player,
     Character,
@@ -37,31 +37,31 @@ def test_connect_action_new_player():
 
     assert "player1" in updated_game.players
     assert updated_game.players["player1"].name == "player1"
-    assert updated_game.players["player1"].status == CONNECTED
+    assert updated_game.players["player1"].status == STATUS_CONNECTED
     assert len(updated_game.players["player1"].characters) == 3
-    assert KNIGHT in updated_game.players["player1"].characters
-    assert ARCHER in updated_game.players["player1"].characters
-    assert MAGE in updated_game.players["player1"].characters
+    assert CHARACTER_KNIGHT in updated_game.players["player1"].characters
+    assert CHARACTER_ARCHER in updated_game.players["player1"].characters
+    assert CHARACTER_MAGE in updated_game.players["player1"].characters
     # Verify each character has empty cards list
-    assert updated_game.players["player1"].characters[KNIGHT].cards == []
-    assert updated_game.players["player1"].characters[ARCHER].cards == []
-    assert updated_game.players["player1"].characters[MAGE].cards == []
-    assert updated_game.stage == CHARACTER_SELECT
+    assert updated_game.players["player1"].characters[CHARACTER_KNIGHT].cards == []
+    assert updated_game.players["player1"].characters[CHARACTER_ARCHER].cards == []
+    assert updated_game.players["player1"].characters[CHARACTER_MAGE].cards == []
+    assert updated_game.stage == STAGE_CHARACTER_SELECT
     assert updated_game.active.player == "player1"
 
 
 def test_connect_action_existing_player_reconnect():
     """Test reconnecting an existing player who was disconnected"""
     game = GamePlay()
-    knight_char = Character(level=2, **CHARACTER_DEFAULT_STATS[KNIGHT])
+    knight_char = Character(level=2, **CHARACTER_DEFAULT_STATS[CHARACTER_KNIGHT])
     knight_char.cards = ["talisman"]  # Knight has a card
     game.players["player1"] = Player(
         name="player1",
-        status=DISCONNECTED,
+        status=STATUS_DISCONNECTED,
         characters={
-            KNIGHT: knight_char,
-            ARCHER: Character(level=1, **CHARACTER_DEFAULT_STATS[ARCHER]),
-            MAGE: Character(level=1, **CHARACTER_DEFAULT_STATS[MAGE]),
+            CHARACTER_KNIGHT: knight_char,
+            CHARACTER_ARCHER: Character(level=1, **CHARACTER_DEFAULT_STATS[CHARACTER_ARCHER]),
+            CHARACTER_MAGE: Character(level=1, **CHARACTER_DEFAULT_STATS[CHARACTER_MAGE]),
         },
     )
 
@@ -69,9 +69,9 @@ def test_connect_action_existing_player_reconnect():
     updated_game = action.run()
 
     # Player should be reconnected with their existing data
-    assert updated_game.players["player1"].status == CONNECTED
-    assert updated_game.players["player1"].characters[KNIGHT].cards == ["talisman"]
-    assert updated_game.players["player1"].characters[KNIGHT].level == 2
+    assert updated_game.players["player1"].status == STATUS_CONNECTED
+    assert updated_game.players["player1"].characters[CHARACTER_KNIGHT].cards == ["talisman"]
+    assert updated_game.players["player1"].characters[CHARACTER_KNIGHT].level == 2
 
 
 def test_connect_action_game_full():
@@ -82,7 +82,7 @@ def test_connect_action_game_full():
     for i in range(MAX_PLAYERS):
         player_name = f"player{i+1}"
         characters = {}
-        for char_type in [KNIGHT, ARCHER, MAGE]:
+        for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]:
             characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
         game.players[player_name] = Player(name=player_name, characters=characters)
 
@@ -95,10 +95,10 @@ def test_connect_action_game_full():
 def test_connect_action_second_player():
     """Test connecting a second player to a game with one player"""
     game = GamePlay()
-    game.stage = CHARACTER_SELECT
+    game.stage = STAGE_CHARACTER_SELECT
     game.active = ActivePlayer1(player="player1")
     characters = {}
-    for char_type in [KNIGHT, ARCHER, MAGE]:
+    for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]:
         characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
     game.players["player1"] = Player(name="player1", characters=characters)
 
@@ -106,8 +106,8 @@ def test_connect_action_second_player():
     updated_game = action.run()
 
     assert "player2" in updated_game.players
-    assert updated_game.players["player2"].status == CONNECTED
-    assert updated_game.stage == CHARACTER_SELECT
+    assert updated_game.players["player2"].status == STATUS_CONNECTED
+    assert updated_game.stage == STAGE_CHARACTER_SELECT
     assert updated_game.active.player == "player1"  # Active player should not change
 
 
@@ -119,7 +119,7 @@ def test_connect_action_stage_none():
 
     updated_game = action.run()
 
-    assert updated_game.stage == CHARACTER_SELECT
+    assert updated_game.stage == STAGE_CHARACTER_SELECT
     assert updated_game.active.player == "player1"
 
 
@@ -133,25 +133,25 @@ def test_connect_action_character_stats():
     player = updated_game.players["player1"]
 
     # Check knight stats
-    knight = player.characters[KNIGHT]
+    knight = player.characters[CHARACTER_KNIGHT]
     assert knight.level == 1
-    assert knight.health == CHARACTER_DEFAULT_STATS[KNIGHT]["health"]
-    assert knight.max_health == CHARACTER_DEFAULT_STATS[KNIGHT]["max_health"]
-    assert knight.dice == CHARACTER_DEFAULT_STATS[KNIGHT]["dice"]
-    assert knight.attack == CHARACTER_DEFAULT_STATS[KNIGHT]["attack"]
+    assert knight.health == CHARACTER_DEFAULT_STATS[CHARACTER_KNIGHT]["health"]
+    assert knight.max_health == CHARACTER_DEFAULT_STATS[CHARACTER_KNIGHT]["max_health"]
+    assert knight.dice == CHARACTER_DEFAULT_STATS[CHARACTER_KNIGHT]["dice"]
+    assert knight.attack == CHARACTER_DEFAULT_STATS[CHARACTER_KNIGHT]["attack"]
 
     # Check archer stats (no attack bonus)
-    archer = player.characters[ARCHER]
+    archer = player.characters[CHARACTER_ARCHER]
     assert archer.level == 1
-    assert archer.health == CHARACTER_DEFAULT_STATS[ARCHER]["health"]
-    assert archer.max_health == CHARACTER_DEFAULT_STATS[ARCHER]["max_health"]
-    assert archer.dice == CHARACTER_DEFAULT_STATS[ARCHER]["dice"]
+    assert archer.health == CHARACTER_DEFAULT_STATS[CHARACTER_ARCHER]["health"]
+    assert archer.max_health == CHARACTER_DEFAULT_STATS[CHARACTER_ARCHER]["max_health"]
+    assert archer.dice == CHARACTER_DEFAULT_STATS[CHARACTER_ARCHER]["dice"]
     assert archer.attack == ARCHER_L1_ATTACK
 
     # Check mage stats (no attack bonus)
-    mage = player.characters[MAGE]
+    mage = player.characters[CHARACTER_MAGE]
     assert mage.level == 1
-    assert mage.health == CHARACTER_DEFAULT_STATS[MAGE]["health"]
-    assert mage.max_health == CHARACTER_DEFAULT_STATS[MAGE]["max_health"]
-    assert mage.dice == CHARACTER_DEFAULT_STATS[MAGE]["dice"]
+    assert mage.health == CHARACTER_DEFAULT_STATS[CHARACTER_MAGE]["health"]
+    assert mage.max_health == CHARACTER_DEFAULT_STATS[CHARACTER_MAGE]["max_health"]
+    assert mage.dice == CHARACTER_DEFAULT_STATS[CHARACTER_MAGE]["dice"]
     assert mage.attack == MAGE_L1_ATTACK

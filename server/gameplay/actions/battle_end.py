@@ -7,8 +7,8 @@ Ends the battle, calculates winner, and reduces loser's health by 1.
 from .action import Action
 from ..common import GameException, ReportedException
 from ..gameplay import (
-    BATTLE_END,
-    CHARACTER_SELECT,
+    STAGE_BATTLE_END,
+    STAGE_CHARACTER_SELECT,
     GamePlay,
     ActivePlayer1,
     ActivePlayer3,
@@ -28,7 +28,7 @@ class BattleEndAction(Action):
 
     @property
     def action_stages(self):
-        return [BATTLE_END]
+        return [STAGE_BATTLE_END]
 
     def _run(self) -> GamePlay:
         # Validate user is the active player
@@ -65,11 +65,11 @@ class BattleEndAction(Action):
         # If tied, no one loses health
 
         # Dispose effects with 'battle_end' in their dispose_actions list
-        from ..common import BATTLE_END_ACTION
+        from ..common import ACTION_BATTLE_END
 
         def should_keep_effect(effect):
             """Returns True if effect should be kept after battle"""
-            return BATTLE_END_ACTION not in effect.dispose_actions
+            return ACTION_BATTLE_END not in effect.dispose_actions
 
         active_character.effects = [
             effect for effect in active_character.effects
@@ -91,7 +91,7 @@ class BattleEndAction(Action):
         self.game.opponent = None
         self.game.card = None
         self.game.ability = None
-        self.game.stage = CHARACTER_SELECT
+        self.game.stage = STAGE_CHARACTER_SELECT
         self.game.stage_meta = None
 
         return self.game
