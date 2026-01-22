@@ -17,7 +17,7 @@ from ..common import (
     CHARACTER_ARCHER,
     CHARACTER_MAGE,
 )
-from ..effects import REROLL_DICE
+from ..effects import EFFECT_REROLL_DICE
 from ..abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
 from ..gameplay import (
     STAGE_ABILITY_SELECTION,
@@ -238,7 +238,7 @@ def test_ability_select_action_archer_applies_reroll_effect():
     archer = updated_game.players["player1"].characters[CHARACTER_ARCHER]
     assert len(archer.effects) == 1
     assert isinstance(archer.effects[0], RerollDiceEffect)
-    assert archer.effects[0].name == REROLL_DICE
+    assert archer.effects[0].name == EFFECT_REROLL_DICE
     # Verify the effect is available in effect totals
     assert archer.effect.reroll_dice_available is True
 
