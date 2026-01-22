@@ -52,6 +52,10 @@ test("card_draw stage - knight draws metal_armor successfully", async ({ page, g
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
   await expect(knightCard).toHaveAttribute("data-effects", /defense_bonus/);
 
+  // Minimize players after check
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
+
   // Cleanup
   await page2.close();
 });
@@ -102,6 +106,10 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
   if (effectsAttr) {
     expect(effectsAttr).not.toMatch(/attack_bonus/);
   }
+
+  // Minimize players after check
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
 
   // Cleanup
   await page2.close();
