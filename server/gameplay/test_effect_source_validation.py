@@ -16,19 +16,19 @@ from .effects import (
 
 def test_effects_accept_valid_sources():
     """Test that all effects accept their designated valid sources"""
-    # AttackBonusEffect accepts BATTLE_HOWL
+    # AttackBonusEffect accepts ABILITY_BATTLE_HOWL
     attack_bonus = AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2)
-    assert attack_bonus.source == BATTLE_HOWL
+    assert attack_bonus.source == ABILITY_BATTLE_HOWL
     assert attack_bonus.attack_bonus == 2
 
-    # RerollDiceEffect accepts BOUNCING_ARROW
+    # RerollDiceEffect accepts ABILITY_BOUNCING_ARROW
     reroll_dice = RerollDiceEffect(source=ABILITY_BOUNCING_ARROW)
-    assert reroll_dice.source == BOUNCING_ARROW
+    assert reroll_dice.source == ABILITY_BOUNCING_ARROW
     assert reroll_dice.reroll_dice is True
 
-    # SkipTurnEffect accepts FREEZE
+    # SkipTurnEffect accepts ABILITY_FREEZE
     skip_turn = SkipTurnEffect(source=ABILITY_FREEZE)
-    assert skip_turn.source == FREEZE
+    assert skip_turn.source == ABILITY_FREEZE
     assert skip_turn.skip_next_turn is True
 
 

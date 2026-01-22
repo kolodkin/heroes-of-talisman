@@ -256,7 +256,7 @@ def test_ability_select_action_mage():
     updated_game = action.run(ability=ABILITY_FREEZE)
 
     # ABILITY_FREEZE requires opponent selection (SkipTurnEffect), so go to ability_opponent_selection
-    assert updated_game.stage == STAGE_ABILITY_STAGE_OPPONENT_SELECTION
+    assert updated_game.stage == STAGE_ABILITY_OPPONENT_SELECTION
     assert updated_game.ability is not None
     assert updated_game.ability.name == ABILITY_FREEZE
     assert updated_game.stage_meta is None
