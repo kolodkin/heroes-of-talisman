@@ -8,6 +8,7 @@ import {
   joinGame,
   waitForStage,
   dismissConnectionToast,
+  validateCardHoverEffect,
 } from "./test_helpers.js";
 
 async function cleanupTestGame(page, gameName) {
@@ -79,7 +80,10 @@ async function testCharacterSelection(page, page2) {
   // Validate card sizes: shared area should have normal cards
   const sharedAreaCard = page.locator('[alt="knight"]').nth(2).locator("..");
   await expect(sharedAreaCard).toHaveClass(/card-normal/);
-  await screenshot(page, "card-sizes-verified");
+
+  // Validate card hover effects
+  await validateCardHoverEffect(sharedAreaCard);
+  await screenshot(page, "card-hover-and-sizes");
 
   // Test that non-active player (player2) cannot interact with SharedArea
   const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
@@ -290,14 +294,14 @@ test("basic game flow", async ({ page, gameName }) => {
   // Setup and create game
   await setupHomePage(page);
   await cleanupTestGame(page, gameName);
-  await screenshot(page, "home");
+  await screenshot(page, "homepage-initial");
 
   await createTestGame(page, gameName);
-  await screenshot(page, "home-with-test");
+  await screenshot(page, "homepage-with-test-game-created");
 
   // Player1 joins
   await joinGame(page, "player", gameName);
-  await screenshot(page, "joined-game");
+  await screenshot(page, "player1-joined-game");
 
   // Validate player1's characters
   await validatePlayerCharacters(page, "player");

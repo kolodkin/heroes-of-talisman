@@ -214,7 +214,6 @@ dist-ssr
 !.claude/skills/
 !.claude/commands/
 AGENTS.md
-CLAUDE.md
 .skill-example/
 
 

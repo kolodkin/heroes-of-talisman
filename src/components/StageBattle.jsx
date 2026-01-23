@@ -11,11 +11,11 @@
 import React, { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import className from "classnames";
-import CharacterCard from "../CharacterCard";
-import Dice from "../Dice";
-import { RerollIcon } from "../Icons";
+import CharacterCard from "./CharacterCard";
+import Dice from "./Dice";
+import { RerollIcon } from "./Icons";
 import { SharedAreaContent } from "./SharedAreaContent";
-import commonStyles from "../Common.module.css";
+import commonStyles from "./Common.module.css";
 import styles from "./StageBattle.module.css";
 
 const BattleParticipant = ({

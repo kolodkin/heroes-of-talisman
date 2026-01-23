@@ -8,7 +8,7 @@ if (import.meta.env.VITE_E2E === "true") {
   import("./e2e_patches.css");
 }
 import HomePage from "./components/HomePage.jsx";
-import GameHandler from "./components/GamePlay/GameHandler.jsx";
+import GameHandler from "./components/GameHandler.jsx";
 import DiceView from "./components/DiceView.jsx";
 import Presets from "./components/Presets.jsx";
 import IconGallery from "./components/IconGallery.jsx";

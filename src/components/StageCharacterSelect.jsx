@@ -11,12 +11,12 @@
  */
 import className from "classnames";
 import { useTranslation } from "react-i18next";
-import { notify } from "../../utils/notify";
-import { useScrollAlignment } from "../../hooks/useScrollAlignment";
+import { notify } from "../utils/notify";
+import { useScrollAlignment } from "../hooks/useScrollAlignment";
 import { SharedAreaContent } from "./SharedAreaContent";
 
-import commonStyles from "../Common.module.css";
-import CharacterCard from "../CharacterCard";
+import commonStyles from "./Common.module.css";
+import CharacterCard from "./CharacterCard";
 
 const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacter = null }) => {
   const { t } = useTranslation();

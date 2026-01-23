@@ -12,10 +12,10 @@
  */
 import { useTranslation } from "react-i18next";
 import { SharedAreaContent } from "./SharedAreaContent";
-import GameplayCard from "../GameplayCard";
-import DeckCard from "../DeckCard";
+import GameplayCard from "./GameplayCard";
+import DeckCard from "./DeckCard";
 
-import commonStyles from "../Common.module.css";
+import commonStyles from "./Common.module.css";
 
 const StageCardDraw = ({ drawnCard, sendAction, active }) => {
   const { t } = useTranslation();

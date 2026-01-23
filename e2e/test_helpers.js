@@ -141,3 +141,13 @@ export async function waitForGameUpdate(page, timeout = TIMEOUT) {
     timeout,
   });
 }
+
+/**
+ * Validate card hover effects (translateY and box-shadow)
+ * @param {Locator} cardLocator - Playwright locator for the card element
+ */
+export async function validateCardHoverEffect(cardLocator) {
+  await cardLocator.hover();
+  await expect(cardLocator).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -4)");
+  await expect(cardLocator).toHaveCSS("box-shadow", "rgba(0, 0, 0, 0.3) 0px 4px 8px 0px");
+}

@@ -71,7 +71,7 @@ test("shared area dynamic alignment - character selection stage", async ({ page,
   // Verify centered and no scroll
   expect(wideViewportInfo.wrapperJustifyContent).toBe("center");
   expect(wideViewportInfo.canScroll).toBe(false);
-  await screenshot(page, "wide-centered");
+  await screenshot(page, "shared-area-wide-centered");
 
   // All cards should be visible
   await expect(page.locator('[data-character="mage"]').first()).toBeInViewport();
