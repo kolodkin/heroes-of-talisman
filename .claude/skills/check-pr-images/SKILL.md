@@ -76,10 +76,13 @@ ls ./tmp/report/screenshots/
 ## Enhanced Features
 
 ### Repository Auto-Detection
+
 The skill automatically detects your repository from `git remote`, so it works with any GitHub repository without hardcoded values.
 
 ### Test Context Extraction
+
 When `results.json` is available, the summary report includes:
+
 - Test titles and file paths
 - Test status (passed/failed)
 - Test duration
@@ -87,7 +90,9 @@ When `results.json` is available, the summary report includes:
 - Mapping between screenshot names and files
 
 ### Duplicate Detection
+
 Automatically runs consecutive duplicate screenshot detection using perceptual hashing:
+
 - Identifies back-to-back identical screenshots within the same test
 - Uses visual comparison (tolerates minor pixel differences)
 - Reports which screenshots are redundant and should be removed
@@ -167,49 +172,57 @@ You are a front-end QA developer responsible for screenshots taken in tests. Mak
 ### Core Guidelines
 
 **1. Place screenshot capture AFTER relevant wait for UI change**
-   - Don't capture mid-transition or during animations
-   - Wait for the UI state to stabilize before capturing
-   - Example: After clicking a button, wait for the page to fully render
+
+- Don't capture mid-transition or during animations
+- Wait for the UI state to stabilize before capturing
+- Example: After clicking a button, wait for the page to fully render
 
 **2. Unless specifically tested, wait for loading UI indication to end**
-   - Avoid capturing spinners, skeleton screens, or "Loading..." text unless that's what you're testing
-   - Wait for content to fully load
-   - Ensure all async data has been fetched and rendered
+
+- Avoid capturing spinners, skeleton screens, or "Loading..." text unless that's what you're testing
+- Wait for content to fully load
+- Ensure all async data has been fetched and rendered
 
 **3. For toasts, wait for the toast to appear**
-   - Toasts often have animation delays
-   - Wait for the toast to be fully visible and stable
-   - Consider the toast's display duration when timing screenshots
+
+- Toasts often have animation delays
+- Wait for the toast to be fully visible and stable
+- Consider the toast's display duration when timing screenshots
 
 ### Playwright Examples
 
 ```typescript
 // ✅ Good: Wait for UI to stabilize
-await page.click('#submit-button');
-await page.waitForSelector('.success-message', { state: 'visible' });
-await page.screenshot({ path: 'form-submitted-success.png' });
+await page.click("#submit-button");
+await page.waitForSelector(".success-message", { state: "visible" });
+await page.screenshot({ path: "form-submitted-success.png" });
 
 // ✅ Good: Wait for loading to complete
-await page.goto('/dashboard');
-await page.waitForSelector('.loading-spinner', { state: 'hidden' });
-await page.waitForSelector('.dashboard-content', { state: 'visible' });
-await page.screenshot({ path: 'dashboard-loaded.png' });
+await page.goto("/dashboard");
+await page.waitForSelector(".loading-spinner", { state: "hidden" });
+await page.waitForSelector(".dashboard-content", { state: "visible" });
+await page.screenshot({ path: "dashboard-loaded.png" });
 
 // ✅ Good: Wait for toast animation
-await page.click('#delete-item');
-await page.waitForSelector('.toast', { state: 'visible' });
+await page.click("#delete-item");
+await page.waitForSelector(".toast", { state: "visible" });
 await page.waitForTimeout(300); // Wait for animation
-await page.screenshot({ path: 'delete-success-toast.png' });
+await page.screenshot({ path: "delete-success-toast.png" });
 ```
 
 ### Screenshot Naming Best Practices
 
-- Use descriptive names that reflect test context
+- **Names must accurately describe ALL items tested before the screenshot**
 - Use kebab-case for consistency
+- For multiple validations, use compound names or shorthand:
+  - Explicit if short: `card-hover-sizes-check`
+  - Shorthand for multiple items: `card-view` (covers size, hover, layout)
+  - Descriptive compound: `card-hover-and-sizes`
 - Examples:
-  - `login-success-with-welcome-message.png`
-  - `error-toast-invalid-credentials.png`
-  - `dashboard-after-data-load.png`
+  - `login-success-with-welcome-message.png` - captures login + welcome message
+  - `card-hover-and-sizes.png` - captures both hover effect and size validation
+  - `battle-participants-visible.png` - captures multiple participant elements
+  - `form-validation-errors.png` - captures multiple validation states
 
 ### Common Pitfalls to Avoid
 
