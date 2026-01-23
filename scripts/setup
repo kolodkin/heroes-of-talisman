@@ -79,9 +79,7 @@ if [ "$docker_installed" = "true" ]; then
   docker compose up -d
 fi
 
-# AI instructions conversion
-uv run .ai/ai.py -v
-# if claude command is available, run the conversion
+# if claude command is available, run the MCP setup
 if command -v claude >/dev/null 2>&1; then
   uv run .ai/claude_mcp_setup.py | bash | true
 fi
