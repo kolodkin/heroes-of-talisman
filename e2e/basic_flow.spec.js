@@ -80,7 +80,6 @@ async function testCharacterSelection(page, page2) {
   // Validate card sizes: shared area should have normal cards
   const sharedAreaCard = page.locator('[alt="knight"]').nth(2).locator("..");
   await expect(sharedAreaCard).toHaveClass(/card-normal/);
-  await screenshot(page, "card-sizes-verified");
 
   // Validate card hover effects
   await validateCardHoverEffect(sharedAreaCard);
