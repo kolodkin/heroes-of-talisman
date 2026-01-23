@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import className from "classnames";
 import styles from "./GamePlay.module.css";
 import commonStyles from "./Common.module.css";
-import FaceCard from "./FaceCard";
 import CharacterCard from "./CharacterCard";
 import StageCharacterSelect from "./StageCharacterSelect";
 import StageCardDraw from "./StageCardDraw";
@@ -28,9 +27,7 @@ const PlayersCards = ({ player }) => {
     <div className={commonStyles.cardsContainer} data-player-cards>
       {player.characters &&
         Object.entries(player.characters).map(([charName, character]) => (
-          <FaceCard key={charName} faceUp={true}>
-            <CharacterCard name={charName} character={character} />
-          </FaceCard>
+          <CharacterCard key={charName} name={charName} character={character} />
         ))}
     </div>
   );
