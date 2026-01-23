@@ -294,14 +294,14 @@ test("basic game flow", async ({ page, gameName }) => {
   // Setup and create game
   await setupHomePage(page);
   await cleanupTestGame(page, gameName);
-  await screenshot(page, "home");
+  await screenshot(page, "homepage-initial");
 
   await createTestGame(page, gameName);
-  await screenshot(page, "home-with-test");
+  await screenshot(page, "homepage-with-test-game-created");
 
   // Player1 joins
   await joinGame(page, "player", gameName);
-  await screenshot(page, "joined-game");
+  await screenshot(page, "player1-joined-game");
 
   // Validate player1's characters
   await validatePlayerCharacters(page, "player");

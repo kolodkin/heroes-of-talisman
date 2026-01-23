@@ -118,7 +118,7 @@ test("battle stage - player 2 wins", async ({ page, gameName }) => {
   const continueButton = page.locator("[data-continue-button]");
   await expect(continueButton).toBeVisible();
   await continueButton.click();
-  await screenshot(page, "after-continue-click");
+  await screenshot(page, "battle-after-continue-click");
 
   // Cleanup
   await page2.close();
@@ -167,7 +167,7 @@ test("battle stage - draw with reroll", async ({ page, gameName }) => {
 
   // Click reroll button
   await rerollButton.click();
-  await screenshot(page, "after-reroll");
+  await screenshot(page, "battle-after-reroll");
 
   // Verify dice rolls are reset - roll buttons should be visible again
   const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
@@ -249,7 +249,7 @@ test("battle stage - reroll effect after loss", async ({ page, gameName }) => {
   // Verify reroll effect button is also gone (since effect was used)
   await expect(rerollEffectButton).not.toBeVisible();
 
-  await screenshot(page, "after-reroll-effect-complete");
+  await screenshot(page, "battle-after-reroll-effect-complete");
 
   // Cleanup
   await page2.close();
@@ -288,7 +288,7 @@ test("battle stage - draw with attack bonus effect", async ({ page, gameName }) 
 
   // Click reroll button
   await rerollButton.click();
-  await screenshot(page, "after-reroll-attack-bonus");
+  await screenshot(page, "battle-after-reroll-attack-bonus");
 
   // Verify dice rolls are reset - roll buttons should be visible again
   const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
