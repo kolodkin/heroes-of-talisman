@@ -214,15 +214,13 @@ await page.screenshot({ path: "delete-success-toast.png" });
 
 - **Names must accurately describe ALL items tested before the screenshot**
 - Use kebab-case for consistency
-- For multiple validations, use compound names or shorthand:
-  - Explicit if short: `card-hover-sizes-check`
-  - Shorthand for multiple items: `card-view` (covers size, hover, layout)
-  - Descriptive compound: `card-hover-and-sizes`
+- Use descriptive names by default; only use shorthand if name exceeds 100 characters
 - Examples:
   - `login-success-with-welcome-message.png` - captures login + welcome message
   - `card-hover-and-sizes.png` - captures both hover effect and size validation
   - `battle-participants-visible.png` - captures multiple participant elements
   - `form-validation-errors.png` - captures multiple validation states
+  - `card-view.png` - shorthand acceptable if full name would exceed 100 chars
 
 ### Common Pitfalls to Avoid
 
