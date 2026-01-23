@@ -81,6 +81,12 @@ async function testCharacterSelection(page, page2) {
   await expect(sharedAreaCard).toHaveClass(/card-normal/);
   await screenshot(page, "card-sizes-verified");
 
+  // Validate card hover effects
+  await sharedAreaCard.hover();
+  await expect(sharedAreaCard).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -4)");
+  await expect(sharedAreaCard).toHaveCSS("box-shadow", "rgba(0, 0, 0, 0.3) 0px 4px 8px 0px");
+  await screenshot(page, "card-hover-effect");
+
   // Test that non-active player (player2) cannot interact with SharedArea
   const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
   await expect(page2SharedArea).toBeVisible();
