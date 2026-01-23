@@ -83,7 +83,7 @@ async function testCharacterSelection(page, page2) {
 
   // Validate card hover effects
   await validateCardHoverEffect(sharedAreaCard);
-  await screenshot(page, "card-hover-effect");
+  await screenshot(page, "card-hover-and-sizes");
 
   // Test that non-active player (player2) cannot interact with SharedArea
   const page2SharedArea = page2.locator('[data-shared-area-active="false"]');
