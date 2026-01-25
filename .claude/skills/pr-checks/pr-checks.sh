@@ -139,13 +139,78 @@ check_pr_exists() {
         echo ""
         echo -e "${YELLOW}Or push to main/master branch (if you have permissions)${NC}"
         echo ""
+        HAS_PR=false
         return 1
     else
         PR_NUMBER=$(echo "$PR_DATA" | jq -r '.[0].number')
         PR_URL=$(echo "$PR_DATA" | jq -r '.[0].url')
         echo -e "${GREEN}✓ Pull request found: ${NC}#$PR_NUMBER"
         echo -e "${BLUE}  URL: ${NC}$PR_URL"
+        HAS_PR=true
         return 0
+    fi
+}
+
+# Step 5a: Use gh pr checks for PR-based workflow monitoring
+poll_pr_checks() {
+    echo ""
+    echo -e "${BLUE}⏳ Waiting for GitHub to process push...${NC}"
+    sleep 3
+
+    echo -e "${BLUE}🔄 Running gh pr checks --watch...${NC}"
+    echo ""
+
+    # Show initial status
+    echo -e "${BLUE}Current check status:${NC}"
+    gh pr checks "$PR_NUMBER" --repo "$REPO" 2>/dev/null || true
+    echo ""
+
+    # Watch until all checks complete (with timeout)
+    echo -e "${BLUE}⏳ Watching checks until completion...${NC}"
+    if timeout 1200 gh pr checks "$PR_NUMBER" --repo "$REPO" --watch 2>/dev/null; then
+        echo ""
+        echo -e "${GREEN}✅ All checks PASSED!${NC}"
+        echo ""
+        echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${GREEN}STATUS: SUCCESS${NC}"
+        echo -e "${GREEN}PR: #$PR_NUMBER${NC}"
+        echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        exit 0
+    else
+        echo ""
+        echo -e "${RED}❌ Some checks FAILED!${NC}"
+        echo ""
+
+        # Show final check status
+        echo -e "${YELLOW}📋 Final check status:${NC}"
+        gh pr checks "$PR_NUMBER" --repo "$REPO" 2>/dev/null || true
+        echo ""
+
+        # Get the failed run ID for detailed logs
+        LATEST=$(gh run list --repo "$REPO" --branch "$BRANCH" --limit 1 --json databaseId,status,conclusion 2>/dev/null)
+        RUN_ID=$(echo "$LATEST" | jq -r '.[0].databaseId')
+        RUN_CONCLUSION=$(echo "$LATEST" | jq -r '.[0].conclusion')
+
+        echo -e "${YELLOW}📋 Fetching error logs...${NC}"
+        echo ""
+
+        # Get failed logs
+        LOGS=$(gh run view "$RUN_ID" --repo "$REPO" --log-failed 2>&1)
+
+        echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${RED}STATUS: FAILURE${NC}"
+        echo -e "${RED}PR: #$PR_NUMBER${NC}"
+        echo -e "${RED}RUN_ID: $RUN_ID${NC}"
+        echo -e "${RED}CONCLUSION: $RUN_CONCLUSION${NC}"
+        echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo -e "${YELLOW}ERROR LOGS:${NC}"
+        echo "$LOGS"
+        echo ""
+        echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo -e "${YELLOW}💡 Agent should analyze and fix these errors${NC}"
+        exit 1
     fi
 }
 
@@ -234,8 +299,14 @@ main() {
     check_auth
     detect_repo
     get_branch
-    check_pr_exists
-    poll_workflow
+
+    if check_pr_exists; then
+        # Use gh pr checks when PR exists (cleaner output)
+        poll_pr_checks
+    else
+        # Fall back to run-based polling for branches without PRs
+        poll_workflow
+    fi
 }
 
 main
