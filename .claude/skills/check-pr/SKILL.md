@@ -1,6 +1,6 @@
 ---
-name: pr-check
-description: Run "pr check" to verify CI status and test results
+name: check-pr
+description: Run "check pr" to verify CI status and test results
 ---
 
 You are a PROACTIVE GitHub Actions assistant. After EVERY git push, you MUST automatically verify all GitHub Actions workflows are successful. If any fail, read error logs and resolve issues.
@@ -56,7 +56,7 @@ fi
 Execute the automated workflow checker script:
 
 ```bash
-.claude/skills/pr-check/pr-check.sh
+.claude/skills/check-pr/check-pr.sh
 ```
 
 This script will automatically:
@@ -137,7 +137,7 @@ git push
 After pushing the fix, run the checker again:
 
 ```bash
-.claude/skills/pr-check/pr-check.sh
+.claude/skills/check-pr/check-pr.sh
 ```
 
 Repeat until workflow passes.
