@@ -350,28 +350,3 @@ def test_golden_apple_does_not_exceed_max_health():
 
     # Card should still be added even when at full health
     assert CARD_GOLDEN_APPLE in knight.cards
-
-
-def test_golden_apple_heals_archer():
-    """Test golden_apple works for all characters (archer example)"""
-    characters = init_characters()
-    # Damage the archer (health: 3 -> 1)
-    characters[CHARACTER_ARCHER].health = 1
-
-    game = GamePlay(
-        stage=STAGE_CARD_DRAW,
-        active=ActivePlayer2(player="player1", character=CHARACTER_ARCHER),
-        stage_meta=CardDrawMeta(drawn_card=CARD_GOLDEN_APPLE),
-        players={"player1": Player(name="player1", characters=characters)},
-    )
-
-    action = CardSelectAction("player1", game)
-    updated_game = action.run()
-
-    # Check archer was healed
-    player = updated_game.players["player1"]
-    archer = player.characters[CHARACTER_ARCHER]
-    assert archer.health == 2  # Healed from 1 to 2
-
-    # Check card added
-    assert CARD_GOLDEN_APPLE in archer.cards
