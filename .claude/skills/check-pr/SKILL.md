@@ -1,5 +1,5 @@
 ---
-name: pr-checks
+name: check-pr
 description: Review PR checks, check CI status, verify GitHub Actions workflows. Use when user asks to "review pr", "check pr", "review pr checks", "check ci", "check tests", "are tests passing", or after git push to verify workflows are successful
 ---
 
@@ -56,7 +56,7 @@ fi
 Execute the automated workflow checker script:
 
 ```bash
-.claude/skills/pr-checks/pr-checks.sh
+.claude/skills/check-pr/check-pr.sh
 ```
 
 This script will automatically:
@@ -137,7 +137,7 @@ git push
 After pushing the fix, run the checker again:
 
 ```bash
-.claude/skills/pr-checks/pr-checks.sh
+.claude/skills/check-pr/check-pr.sh
 ```
 
 Repeat until workflow passes.
