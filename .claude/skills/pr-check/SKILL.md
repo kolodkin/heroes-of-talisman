@@ -1,6 +1,6 @@
 ---
 name: pr-check
-description: Check PR status, CI workflows, and test results
+description: Run "pr check" to verify CI status and test results
 tags: [ci, github, testing, workflow]
 ---
 
