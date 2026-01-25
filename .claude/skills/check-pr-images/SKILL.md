@@ -21,7 +21,7 @@ if command -v gh &> /dev/null; then
 fi
 
 echo "GitHub CLI is required but not installed."
-echo "Please install it using the pr-checks skill first."
+echo "Please install it using the check-pr skill first."
 exit 1
 ```
 
