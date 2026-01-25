@@ -137,11 +137,6 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
   const player1Div = page.locator('[data-player="player1"]');
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
   await expect(knightCard).toContainText("[1/2]");
-  await screenshot(page, "golden-apple-knight-before-heal");
-
-  // Minimize players
-  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
-  await minimizeButton.click();
 
   // Verify golden_apple card is visible
   const sharedArea = page.locator('[data-shared-area-active="true"]');
@@ -151,7 +146,9 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
   // Verify card details are displayed
   await expect(goldenAppleCard).toContainText("תפוח זהב"); // Golden Apple
   await expect(goldenAppleCard).toContainText("+1 לבריאות"); // +1 to health
-  await screenshot(page, "card-draw-knight-golden-apple");
+
+  // Screenshot with both card and character health visible before selection
+  await screenshot(page, "golden-apple-knight-before-heal");
 
   // Confirm card selection
   const selectButton = page.getByRole("button", { name: "בחר" });
@@ -170,7 +167,6 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
   await screenshot(page, "golden-apple-knight-after-heal");
 
   // Cleanup
-  await minimizeButton.click();
   await page2.close();
 });
 
@@ -196,17 +192,14 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
   const player1Div = page.locator('[data-player="player1"]');
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
   await expect(knightCard).toContainText("[2/2]");
-  await screenshot(page, "golden-apple-knight-max-health-before");
-
-  // Minimize players
-  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
-  await minimizeButton.click();
 
   // Verify golden_apple card is visible
   const sharedArea = page.locator('[data-shared-area-active="true"]');
   const goldenAppleCard = sharedArea.locator('[data-card="golden_apple"]');
   await expect(goldenAppleCard).toBeVisible();
-  await screenshot(page, "card-draw-knight-golden-apple-max-health");
+
+  // Screenshot with both card and character health visible before selection
+  await screenshot(page, "golden-apple-knight-max-health-before");
 
   // Confirm card selection
   const selectButton = page.getByRole("button", { name: "בחר" });
@@ -223,6 +216,5 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
   await screenshot(page, "golden-apple-knight-max-health-after");
 
   // Cleanup
-  await minimizeButton.click();
   await page2.close();
 });
