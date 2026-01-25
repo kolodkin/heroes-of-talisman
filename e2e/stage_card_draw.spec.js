@@ -159,9 +159,9 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
   // Should transition to ability_selection stage
   await waitForStage(page, "ability_selection");
 
-  // Wait for expand button and click to see knight's health after healing
-  await expect(expandButton).toBeVisible();
-  await expandButton.click();
+  // Expand players again (state resets on stage transition) to see knight's health after healing
+  const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
+  await expandButtonAfter.click();
 
   // Verify knight healed to 2 health
   await expect(knightCard).toContainText("[2/2]");
@@ -209,9 +209,9 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
   // Should transition to ability_selection stage
   await waitForStage(page, "ability_selection");
 
-  // Wait for expand button and click to see knight's health after card
-  await expect(expandButton).toBeVisible();
-  await expandButton.click();
+  // Expand players again (state resets on stage transition) to see knight's health after card
+  const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
+  await expandButtonAfter.click();
 
   // Verify knight is still at max health (no overheal)
   await expect(knightCard).toContainText("[2/2]");
