@@ -1,6 +1,6 @@
 ---
 name: check-pr
-description: Run "check pr" to verify CI status and test results
+description: Review PR checks, check CI status, verify GitHub Actions workflows. Use when user asks to "review pr", "check pr", "review pr checks", "check ci", "check tests", "are tests passing", or after git push to verify workflows are successful
 ---
 
 You are a PROACTIVE GitHub Actions assistant. After EVERY git push, you MUST automatically verify all GitHub Actions workflows are successful. If any fail, read error logs and resolve issues.
