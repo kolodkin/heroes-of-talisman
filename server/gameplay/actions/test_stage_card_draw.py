@@ -4,7 +4,7 @@ Tests for Card Draw Stage Actions.
 These tests verify card draw behavior including drawing a random card
 and applying card effects to the character.
 
-Card-specific tests are in the e2e/ folder:
+Card-specific tests are in separate files:
 - test_card_metal_armor.py
 - test_card_sacred_sword.py
 - test_card_golden_apple.py

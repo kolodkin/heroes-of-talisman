@@ -6,11 +6,11 @@ Sacred Sword provides +3 attack bonus but is restricted from archers.
 
 import pytest
 
-from ..stage_card_draw import CardSelectAction
-from ...common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from ...cards import CARD_SACRED_SWORD
-from ...effects import AttackBonusEffect
-from ...gameplay import (
+from .stage_card_draw import CardSelectAction
+from ..common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
+from ..cards import CARD_SACRED_SWORD
+from ..effects import AttackBonusEffect
+from ..gameplay import (
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
     GamePlay,
@@ -19,7 +19,7 @@ from ...gameplay import (
     CardDrawMeta,
     init_characters,
 )
-from ...presets import get_debug_preset, PRESET_CARD_DRAW_ARCHER_SACRED_SWORD
+from ..presets import get_debug_preset, PRESET_CARD_DRAW_ARCHER_SACRED_SWORD
 
 
 def test_sacred_sword_applies_attack_bonus():

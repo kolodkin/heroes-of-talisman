@@ -6,12 +6,12 @@ Metal Armor provides +2 defense bonus that persists across battles.
 
 import pytest
 
-from ..stage_card_draw import CardSelectAction
-from ..battle_end import BattleEndAction
-from ...common import CHARACTER_KNIGHT
-from ...cards import CARD_METAL_ARMOR
-from ...effects import DefenseBonusEffect
-from ...gameplay import (
+from .stage_card_draw import CardSelectAction
+from .battle_end import BattleEndAction
+from ..common import CHARACTER_KNIGHT
+from ..cards import CARD_METAL_ARMOR
+from ..effects import DefenseBonusEffect
+from ..gameplay import (
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
     GamePlay,
@@ -20,7 +20,7 @@ from ...gameplay import (
     CardDrawMeta,
     init_characters,
 )
-from ...presets import get_debug_preset, PRESET_BATTLE_METAL_ARMOR
+from ..presets import get_debug_preset, PRESET_BATTLE_METAL_ARMOR
 
 
 def test_metal_armor_applies_defense_bonus():

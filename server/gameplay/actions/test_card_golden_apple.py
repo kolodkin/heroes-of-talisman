@@ -6,11 +6,11 @@ Golden Apple heals +1 health instantly, capped at max_health.
 
 import pytest
 
-from ..stage_card_draw import CardSelectAction
-from ...common import CHARACTER_KNIGHT
-from ...cards import CARD_GOLDEN_APPLE
-from ...gameplay import STAGE_CARD_DRAW
-from ...presets import (
+from .stage_card_draw import CardSelectAction
+from ..common import CHARACTER_KNIGHT
+from ..cards import CARD_GOLDEN_APPLE
+from ..gameplay import STAGE_CARD_DRAW
+from ..presets import (
     get_debug_preset,
     PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE,
     PRESET_CARD_DRAW_GOLDEN_APPLE_MAX_HEALTH,
