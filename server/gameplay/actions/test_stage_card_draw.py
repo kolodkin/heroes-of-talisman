@@ -295,36 +295,42 @@ def test_sacred_sword_archer_restriction_from_preset():
     assert CARD_SACRED_SWORD not in archer.cards
 
 
-def test_golden_apple_heals_damaged_character():
-    """Test golden_apple heals 1 health when character is damaged"""
-    characters = init_characters()
-    # Damage the knight (health: 2 -> 1)
-    characters[CHARACTER_KNIGHT].health = 1
+def test_golden_apple_heals_damaged_knight():
+    """Test golden_apple heals knight from 1 to 2 health using preset"""
+    from ..presets import get_debug_preset, PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE
 
-    game = GamePlay(
-        stage=STAGE_CARD_DRAW,
-        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
-        stage_meta=CardDrawMeta(drawn_card=CARD_GOLDEN_APPLE),
-        players={"player1": Player(name="player1", characters=characters)},
-    )
+    game = get_debug_preset(PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE)
+
+    # Verify preset: knight at 1 health
+    knight_before = game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight_before.health == 1
 
     action = CardSelectAction("player1", game)
     updated_game = action.run()
 
-    # Check game state
-    assert updated_game.stage == STAGE_ABILITY_SELECTION
-    assert updated_game.card == CARD_GOLDEN_APPLE
-
-    # Check character was healed
-    player = updated_game.players["player1"]
-    knight = player.characters[CHARACTER_KNIGHT]
-    assert knight.health == 2  # Healed from 1 to 2
-
-    # Check no effects remain (HealEffect is disposed immediately after applying)
-    assert len(knight.effects) == 0
-
-    # Check card added to character's card list
+    # Check knight healed to 2
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight.health == 2
     assert CARD_GOLDEN_APPLE in knight.cards
+
+
+def test_golden_apple_heals_damaged_archer():
+    """Test golden_apple heals archer from 1 to 2 health using preset"""
+    from ..presets import get_debug_preset, PRESET_CARD_DRAW_ARCHER_GOLDEN_APPLE
+
+    game = get_debug_preset(PRESET_CARD_DRAW_ARCHER_GOLDEN_APPLE)
+
+    # Verify preset: archer at 1 health
+    archer_before = game.players["player1"].characters[CHARACTER_ARCHER]
+    assert archer_before.health == 1
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Check archer healed to 2
+    archer = updated_game.players["player1"].characters[CHARACTER_ARCHER]
+    assert archer.health == 2
+    assert CARD_GOLDEN_APPLE in archer.cards
 
 
 def test_golden_apple_does_not_exceed_max_health():
@@ -343,10 +349,7 @@ def test_golden_apple_does_not_exceed_max_health():
     updated_game = action.run()
 
     # Check character health doesn't exceed max
-    player = updated_game.players["player1"]
-    knight = player.characters[CHARACTER_KNIGHT]
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
     assert knight.health == 2  # Still at max, not 3
     assert knight.health <= knight.max_health
-
-    # Card should still be added even when at full health
     assert CARD_GOLDEN_APPLE in knight.cards

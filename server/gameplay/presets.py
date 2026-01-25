@@ -45,6 +45,8 @@ PRESET_BATTLE_METAL_ARMOR = "battle_metal_armor"
 PRESET_BATTLE_SACRED_SWORD = "battle_sacred_sword"
 PRESET_CARD_DRAW_KNIGHT_METAL_ARMOR = "card_draw_knight_metal_armor"
 PRESET_CARD_DRAW_ARCHER_SACRED_SWORD = "card_draw_archer_sacred_sword"
+PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE = "card_draw_knight_golden_apple"
+PRESET_CARD_DRAW_ARCHER_GOLDEN_APPLE = "card_draw_archer_golden_apple"
 PRESET_HEALTH_1 = "health_1"
 PRESET_KNIGHT_NOT_ALIVE = "knight_not_alive"
 PRESET_EFFECT_ATTACK_BONUS = "effect_attack_bonus"
@@ -66,6 +68,8 @@ DEBUG_PRESETS = Literal[
     "battle_sacred_sword",
     "card_draw_knight_metal_armor",
     "card_draw_archer_sacred_sword",
+    "card_draw_knight_golden_apple",
+    "card_draw_archer_golden_apple",
     "effect_attack_bonus",
     "effect_reroll",
     "effect_skip_turn",
@@ -406,6 +410,38 @@ def get_debug_preset(
             stage_meta=CardDrawMeta(drawn_card=CARD_SACRED_SWORD),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "card_draw_knight_golden_apple":
+        # Knight with 1 health draws golden_apple (heals to 2)
+        from .cards import CARD_GOLDEN_APPLE
+
+        characters_p1 = init_characters()
+        characters_p1[CHARACTER_KNIGHT].health = 1
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=CARD_GOLDEN_APPLE),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "card_draw_archer_golden_apple":
+        # Archer with 1 health draws golden_apple (heals to 2)
+        from .cards import CARD_GOLDEN_APPLE
+
+        characters_p1 = init_characters()
+        characters_p1[CHARACTER_ARCHER].health = 1
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_ARCHER),
+            stage_meta=CardDrawMeta(drawn_card=CARD_GOLDEN_APPLE),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
