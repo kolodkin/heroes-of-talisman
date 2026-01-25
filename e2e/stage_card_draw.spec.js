@@ -150,6 +150,10 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
   // Screenshot with both card and character health visible before selection
   await screenshot(page, "golden-apple-knight-before-heal");
 
+  // Minimize players before card selection so we can expand again after
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
+
   // Confirm card selection
   const selectButton = page.getByRole("button", { name: "בחר" });
   await expect(selectButton).toBeVisible();
@@ -159,7 +163,7 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
   // Should transition to ability_selection stage
   await waitForStage(page, "ability_selection");
 
-  // Expand players again (state resets on stage transition) to see knight's health after healing
+  // Expand players to see knight's health after healing
   const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
   await expandButtonAfter.click();
 
@@ -202,6 +206,10 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
   // Screenshot with both card and character health visible before selection
   await screenshot(page, "golden-apple-knight-max-health-before");
 
+  // Minimize players before card selection so we can expand again after
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
+
   // Confirm card selection
   const selectButton = page.getByRole("button", { name: "בחר" });
   await selectButton.click();
@@ -209,7 +217,7 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
   // Should transition to ability_selection stage
   await waitForStage(page, "ability_selection");
 
-  // Expand players again (state resets on stage transition) to see knight's health after card
+  // Expand players to see knight's health after card
   const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
   await expandButtonAfter.click();
 
