@@ -9,7 +9,7 @@ This module implements actions for the card draw stage:
 import copy
 from .action import Action
 from ..common import GameException, ReportedException
-from ..effects import APPLY_TO_SELF, APPLY_TO_BATTLE_OPPONENT
+from ..effects import APPLY_TO_SELF, APPLY_TO_BATTLE_OPPONENT, HealEffect
 from ..cards import CardName, CARDS_MAP
 from ..gameplay import STAGE_CARD_DRAW, STAGE_ABILITY_SELECTION
 from ..gameplay import GamePlay, CardDrawMeta, AbilitySelectMeta
@@ -97,14 +97,16 @@ class CardSelectAction(Action):
                 if effect.apply_to == APPLY_TO_SELF:
                     # Deep copy the effect to avoid modifying the original card definition
                     effect_copy = copy.deepcopy(effect)
-                    character.effects.append(effect_copy)
 
-            # Apply instant healing if card has heal_amount (capped at max_health)
-            if card_obj.heal_amount > 0:
-                character.health = min(
-                    character.max_health,
-                    character.health + card_obj.heal_amount
-                )
+                    # Handle instant effects (like HealEffect) immediately
+                    if isinstance(effect_copy, HealEffect):
+                        character.health = min(
+                            character.max_health,
+                            character.health + effect_copy.heal_amount
+                        )
+                        # HealEffect is disposed immediately, not added to effects
+                    else:
+                        character.effects.append(effect_copy)
 
             # Add the card to the character's card list
             character.cards.append(drawn_card_name)

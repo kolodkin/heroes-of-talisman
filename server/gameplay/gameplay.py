@@ -55,6 +55,7 @@ from .effects import (
     AttackBonusEffect,
     AttackNegBonusEffect,
     DefenseBonusEffect,
+    HealEffect,
     SkipTurnEffect,
     RerollDiceEffect,
     DrawCardEffect,
@@ -124,6 +125,8 @@ class Character(StrictModel):
                 total.reroll_dice_available = True
             elif isinstance(eff, DrawCardEffect):
                 total.draw_card_count += eff.draw_count
+            elif isinstance(eff, HealEffect):
+                total.heal_amount += eff.heal_amount
 
         return total
 

@@ -320,7 +320,7 @@ def test_golden_apple_heals_damaged_character():
     knight = player.characters[CHARACTER_KNIGHT]
     assert knight.health == 2  # Healed from 1 to 2
 
-    # Check no effects were applied (golden_apple uses heal_amount, not effects)
+    # Check no effects remain (HealEffect is disposed immediately after applying)
     assert len(knight.effects) == 0
 
     # Check card added to character's card list

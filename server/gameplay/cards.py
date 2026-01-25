@@ -9,6 +9,7 @@ from .effects import (
     # Effect name constants for EFFECTS_SOURCE_CARD_MAP
     EFFECT_DEFENSE_BONUS,
     EFFECT_ATTACK_BONUS,
+    EFFECT_HEAL,
     # Apply to constants
     APPLY_TO_SELF,
 )
@@ -30,6 +31,7 @@ CardName = Literal[*CARDS_NAMES]
 EFFECTS_SOURCE_CARD_MAP: dict[str, set[str]] = {
     EFFECT_DEFENSE_BONUS: {CARD_METAL_ARMOR},
     EFFECT_ATTACK_BONUS: {CARD_SACRED_SWORD},
+    EFFECT_HEAL: {CARD_GOLDEN_APPLE},
 }
 
 # Import Effect classes after defining constants to avoid circular import
@@ -37,6 +39,7 @@ from .effects import (
     EffectUnion,
     DefenseBonusEffect,
     AttackBonusEffect,
+    HealEffect,
 )
 
 
@@ -44,7 +47,6 @@ class Card(StrictModel):
     name: str
     effects: list[EffectUnion] = Field(default_factory=list)
     restricted_characters: list[str] = Field(default_factory=list)
-    heal_amount: int = 0  # Instant healing when card is used (capped at max_health)
 
 
 CARDS_MAP: dict[CardName, Card] = {
@@ -63,6 +65,8 @@ CARDS_MAP: dict[CardName, Card] = {
     ),
     CARD_GOLDEN_APPLE: Card(
         name=CARD_GOLDEN_APPLE,
-        heal_amount=1,
+        effects=[
+            HealEffect(source=CARD_GOLDEN_APPLE, heal_amount=1),
+        ],
     ),
 }
