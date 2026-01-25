@@ -1,6 +1,6 @@
 ---
 name: pr-check
-description: Review PR checks, check CI status, verify GitHub Actions workflows. Use when user asks to "review pr", "check pr", "review pr checks", "check ci", "check tests", "are tests passing", or after git push to verify workflows are successful
+description: Check PR status, CI workflows, and test results
 tags: [ci, github, testing, workflow]
 ---
 
