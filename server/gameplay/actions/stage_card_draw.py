@@ -99,6 +99,13 @@ class CardSelectAction(Action):
                     effect_copy = copy.deepcopy(effect)
                     character.effects.append(effect_copy)
 
+            # Apply instant healing if card has heal_amount (capped at max_health)
+            if card_obj.heal_amount > 0:
+                character.health = min(
+                    character.max_health,
+                    character.health + card_obj.heal_amount
+                )
+
             # Add the card to the character's card list
             character.cards.append(drawn_card_name)
 

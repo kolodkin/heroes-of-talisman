@@ -18,7 +18,8 @@ from .effects import (
 ########################################################
 CARD_METAL_ARMOR = "metal_armor"
 CARD_SACRED_SWORD = "sacred_sord"
-CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD]
+CARD_GOLDEN_APPLE = "golden_apple"
+CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE]
 CardName = Literal[*CARDS_NAMES]
 
 ########################################################
@@ -43,6 +44,7 @@ class Card(StrictModel):
     name: str
     effects: list[EffectUnion] = Field(default_factory=list)
     restricted_characters: list[str] = Field(default_factory=list)
+    heal_amount: int = 0  # Instant healing when card is used (capped at max_health)
 
 
 CARDS_MAP: dict[CardName, Card] = {
@@ -58,5 +60,9 @@ CARDS_MAP: dict[CardName, Card] = {
             AttackBonusEffect(source=CARD_SACRED_SWORD, attack_bonus=3, dispose_actions=[]),
         ],
         restricted_characters=["archer"],
+    ),
+    CARD_GOLDEN_APPLE: Card(
+        name=CARD_GOLDEN_APPLE,
+        heal_amount=1,
     ),
 }

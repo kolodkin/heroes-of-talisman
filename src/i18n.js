@@ -73,6 +73,10 @@ const resources = {
           name: "חרב קדושה",
           description: '+3 להתקפה - לא ניתן לשימוש ע"י קשת',
         },
+        golden_apple: {
+          name: "תפוח זהב",
+          description: "+1 לבריאות - לא מעל המקסימום",
+        },
       },
       card_draw: {
         deck: "חפיסה",
