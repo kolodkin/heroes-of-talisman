@@ -19,12 +19,13 @@ from ..common import (
     ACTION_REROLL,
     ACTION_REROLL_EFFECT,
     ACTION_BATTLE_END,
+    ACTION_SKIP_TURN,
     ACTION_DEBUG_SET_BATTLE_DICE_ROLLS,
     ACTION_DEBUG_SET_DRAWN_CARD,
 )  # Action constants stay in models.py
 from .action import Action
 from .connection import ConnectAction, LeaveAction, DisconnectAction
-from .stage_character_select import CharacterPressAction, CharacterSelectAction
+from .stage_character_select import CharacterPressAction, CharacterSelectAction, SkipTurnAction
 from .stage_card_draw import CardDrawAction, CardSelectAction, DebugSetDrawnCardAction
 from .stage_ability_selection import AbilityPressAction, AbilitySelectAction
 from .stage_ability_opponent_selection import AbilityOpponentPressAction, AbilityOpponentSelectAction
@@ -52,6 +53,7 @@ ACTION_MAP: Dict[str, type[Action]] = {
     ACTION_REROLL: RerollAction,
     ACTION_REROLL_EFFECT: RerollEffectAction,
     ACTION_BATTLE_END: BattleEndAction,
+    ACTION_SKIP_TURN: SkipTurnAction,
     ACTION_DEBUG_SET_BATTLE_DICE_ROLLS: DebugSetBattleDiceRollsAction,
     ACTION_DEBUG_SET_DRAWN_CARD: DebugSetDrawnCardAction,
 }

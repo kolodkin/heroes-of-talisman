@@ -24,6 +24,7 @@ ACTION_OPPONENT_ROLL = "opponent_roll"
 ACTION_REROLL = "action_reroll"
 ACTION_REROLL_EFFECT = "action_reroll_effect"
 ACTION_BATTLE_END = "battle_end"
+ACTION_SKIP_TURN = "skip_turn"
 ACTION_DEBUG_SET_BATTLE_DICE_ROLLS = "debug_set_battle_dice_rolls"
 ACTION_DEBUG_SET_DRAWN_CARD = "debug_set_drawn_card"
 
@@ -46,6 +47,7 @@ ACTION_NAMES = [
     ACTION_REROLL,
     ACTION_REROLL_EFFECT,
     ACTION_BATTLE_END,
+    ACTION_SKIP_TURN,
     ACTION_DEBUG_SET_BATTLE_DICE_ROLLS,
     ACTION_DEBUG_SET_DRAWN_CARD,
 ]

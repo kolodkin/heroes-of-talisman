@@ -4,6 +4,7 @@ Character Select Stage Actions
 This module implements actions for the character selection stage:
 - CharacterPressAction: Highlights selected character by setting stage_meta
 - CharacterSelectAction: Confirms selection, disposes effects, and transitions to card_draw
+- SkipTurnAction: Skips turn when no character is available (all dead or have skip_turn effect)
 """
 
 from .action import Action
@@ -20,6 +21,7 @@ from ..gameplay import (
     CharacterSelectMeta,
     CardDrawMeta,
     AbilitySelectMeta,
+    ActivePlayer1,
     ActivePlayer2,
 )
 
@@ -104,6 +106,65 @@ class CharacterSelectAction(Action):
         self.game.stage = STAGE_CARD_DRAW
 
         # Clear stage_meta - will be populated by CardDrawAction
+        self.game.stage_meta = None
+
+        return self.game
+
+
+class SkipTurnAction(Action):
+    """
+    Action invoked when no character is available for selection.
+
+    This happens when all characters are either dead (health=0) or have
+    a skip_turn effect. The turn is skipped and passes to the next player.
+
+    Disposes effects with 'character_select' in dispose_actions and
+    transitions to the next player's character_select stage.
+    """
+
+    @property
+    def action_stages(self):
+        return [STAGE_CHARACTER_SELECT]
+
+    def _run(self) -> GamePlay:
+        # Validate user is the active player
+        if not self.game.active or self.game.active.player != self.user:
+            raise ReportedException("It's not your turn")
+
+        # Validate user exists
+        if self.user not in self.game.players:
+            raise GameException("Player not in game")
+
+        player = self.game.players[self.user]
+
+        # Validate that no character is available
+        # A character is unavailable if dead or has skip_turn effect
+        available_characters = [
+            char_name for char_name, char in player.characters.items()
+            if char.is_alive and not char.effect.skip_next_turn
+        ]
+
+        if available_characters:
+            raise ReportedException(
+                "Cannot skip turn: available characters exist"
+            )
+
+        # Dispose effects with 'character_select' in dispose_actions from active player's characters
+        for char in player.characters.values():
+            char.effects = [
+                effect for effect in char.effects
+                if ACTION_CHARACTER_SELECT not in effect.dispose_actions
+            ]
+
+        # Get next player (circular rotation)
+        player_names = list(self.game.players.keys())
+        current_active_index = player_names.index(self.game.active.player)
+        next_player_index = (current_active_index + 1) % len(player_names)
+        next_player_name = player_names[next_player_index]
+
+        # Transition to next player's character select
+        self.game.active = ActivePlayer1(player=next_player_name)
+        self.game.stage = STAGE_CHARACTER_SELECT
         self.game.stage_meta = None
 
         return self.game

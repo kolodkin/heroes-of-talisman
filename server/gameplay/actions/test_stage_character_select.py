@@ -7,7 +7,7 @@ selected characters and confirming selections to transition to battle.
 
 import pytest
 
-from .stage_character_select import CharacterPressAction, CharacterSelectAction
+from .stage_character_select import CharacterPressAction, CharacterSelectAction, SkipTurnAction
 from ..common import (
     GameException,
     ReportedException,
@@ -204,3 +204,116 @@ def test_character_select_action_removes_all_skip_turn_effects():
     # Verify all skip turn effects were removed
     knight_effects = updated_game.players["player1"].characters[CHARACTER_KNIGHT].effects
     assert len(knight_effects) == 0
+
+
+def test_skip_turn_action_with_preset():
+    """Test SkipTurnAction using the skip_turn_no_character preset"""
+    from ..presets import get_debug_preset
+
+    game = get_debug_preset("skip_turn_no_character")
+
+    # Verify preset state - knight and archer dead, mage has skip turn
+    p1_chars = game.players["player1"].characters
+    assert p1_chars[CHARACTER_KNIGHT].health == 0
+    assert p1_chars[CHARACTER_ARCHER].health == 0
+    assert p1_chars[CHARACTER_MAGE].effect.skip_next_turn is True
+
+    # Player 1 is active
+    assert game.active.player == "player1"
+
+    action = SkipTurnAction("player1", game)
+    updated_game = action.run()
+
+    # Verify turn was skipped to player2
+    assert updated_game.active.player == "player2"
+    assert updated_game.stage == STAGE_CHARACTER_SELECT
+
+    # Verify skip turn effects were disposed
+    assert p1_chars[CHARACTER_MAGE].effect.skip_next_turn is False
+    assert len(p1_chars[CHARACTER_MAGE].effects) == 0
+
+
+def test_skip_turn_action_not_active_player():
+    """Test SkipTurnAction raises error when not active player"""
+    from ..presets import get_debug_preset
+
+    game = get_debug_preset("skip_turn_no_character")
+
+    action = SkipTurnAction("player2", game)
+
+    with pytest.raises(ReportedException, match="It's not your turn"):
+        action.run()
+
+
+def test_skip_turn_action_with_available_character_fails():
+    """Test SkipTurnAction fails if there's an available character"""
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    characters = init_characters()
+
+    # Knight and archer dead, but mage is alive and has no skip turn
+    characters[CHARACTER_KNIGHT].health = 0
+    characters[CHARACTER_ARCHER].health = 0
+    # Mage is alive with no effects - should be available
+
+    game.players["player1"] = Player(name="player1", characters=characters)
+    game.players["player2"] = Player(name="player2", characters=init_characters())
+
+    action = SkipTurnAction("player1", game)
+
+    with pytest.raises(ReportedException, match="Cannot skip turn: available characters exist"):
+        action.run()
+
+
+def test_skip_turn_action_wrong_stage():
+    """Test SkipTurnAction raises error in wrong stage"""
+    game = GamePlay(stage=STAGE_BATTLE_DICE_ROLL, active=ActivePlayer1(player="player1"))
+    game.players["player1"] = Player(name="player1", characters=init_characters())
+
+    action = SkipTurnAction("player1", game)
+
+    with pytest.raises(GameException, match="Cannot perform action in stage"):
+        action.run()
+
+
+def test_skip_turn_action_disposes_effects():
+    """Test that SkipTurnAction disposes skip turn effects"""
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
+    characters = init_characters()
+
+    # All characters have skip turn effects
+    characters[CHARACTER_KNIGHT].health = 0
+    characters[CHARACTER_ARCHER].health = 0
+    characters[CHARACTER_MAGE].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
+
+    game.players["player1"] = Player(name="player1", characters=characters)
+    game.players["player2"] = Player(name="player2", characters=init_characters())
+
+    action = SkipTurnAction("player1", game)
+    updated_game = action.run()
+
+    # Verify skip turn effects were disposed from mage
+    mage = updated_game.players["player1"].characters[CHARACTER_MAGE]
+    assert len(mage.effects) == 0
+    assert mage.effect.skip_next_turn is False
+
+
+def test_skip_turn_action_circular_rotation():
+    """Test SkipTurnAction rotates to the next player correctly"""
+    game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player2"))
+    characters_p1 = init_characters()
+    characters_p2 = init_characters()
+
+    # Player 2 has no available characters
+    characters_p2[CHARACTER_KNIGHT].health = 0
+    characters_p2[CHARACTER_ARCHER].health = 0
+    characters_p2[CHARACTER_MAGE].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
+
+    game.players["player1"] = Player(name="player1", characters=characters_p1)
+    game.players["player2"] = Player(name="player2", characters=characters_p2)
+
+    action = SkipTurnAction("player2", game)
+    updated_game = action.run()
+
+    # Should rotate back to player1
+    assert updated_game.active.player == "player1"
+    assert updated_game.stage == STAGE_CHARACTER_SELECT

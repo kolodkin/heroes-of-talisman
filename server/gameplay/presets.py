@@ -21,6 +21,7 @@ from .gameplay import (
     GamePlay,
     DEFAULT_GAME,
     Player,
+    ActivePlayer1,
     ActivePlayer2,
     ActivePlayer3,
     ActivePlayer4,
@@ -51,6 +52,7 @@ PRESET_HEALTH_1 = "health_1"
 PRESET_KNIGHT_NOT_ALIVE = "knight_not_alive"
 PRESET_EFFECT_ATTACK_BONUS = "effect_attack_bonus"
 PRESET_EFFECT_SKIP_TURN = "effect_skip_turn"
+PRESET_SKIP_TURN_NO_CHARACTER = "skip_turn_no_character"
 PRESET_MAGE_NOT_ALIVE = "mage_not_alive"
 PRESET_OPPONENT_SELECTION = "opponent_selection_preset"
 PRESET_SINGLE_PLAYER = "single_player"
@@ -73,6 +75,7 @@ DEBUG_PRESETS = Literal[
     "effect_attack_bonus",
     "effect_reroll",
     "effect_skip_turn",
+    "skip_turn_no_character",
     "health_1",
     "knight_not_alive",
     "mage_not_alive",
@@ -326,6 +329,30 @@ def get_debug_preset(
 
         ret = GamePlay(
             stage=STAGE_CHARACTER_SELECT,
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "skip_turn_no_character":
+        # No character available for selection:
+        # - Knight: dead (health=0)
+        # - Archer: dead (health=0)
+        # - Mage: has skip_turn effect (from FREEZE)
+        # Expected behavior: SKIP_TURN action should be triggered
+        # Stage: CHARACTER_SELECT
+        characters_p1 = init_characters()
+        characters_p1[CHARACTER_KNIGHT].health = 0
+        characters_p1[CHARACTER_ARCHER].health = 0
+        characters_p1[CHARACTER_MAGE].effects = [
+            SkipTurnEffect(source=ABILITY_FREEZE),
+        ]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=STAGE_CHARACTER_SELECT,
+            active=ActivePlayer1(player=p1_name),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
