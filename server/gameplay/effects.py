@@ -9,6 +9,7 @@ from .actions_names import (
     ActionName,
     # Action name constants for dispose_actions
     ACTION_CHARACTER_SELECT,
+    ACTION_CARD_SELECT,
     ACTION_BATTLE_END,
     ACTION_REROLL_EFFECT,
 )
@@ -19,6 +20,7 @@ from .actions_names import (
 EFFECT_ATTACK_BONUS = "attack_bonus"
 EFFECT_ATTACK_NEG_BONUS = "attack_neg_bonus"
 EFFECT_DEFENSE_BONUS = "defense_bonus"
+EFFECT_HEAL = "heal"
 EFFECT_REROLL_DICE = "reroll_dice"
 EFFECT_SKIP_TURN = "skip_turn"
 EFFECT_DRAW_CARD = "draw_card"
@@ -142,9 +144,22 @@ class DrawCardEffect(Effect):
     draw_count: int = 1
 
 
+class HealEffect(Effect):
+    """
+    Character is healed by the specified amount (capped at max_health).
+    Disposed at card selection (instant effect).
+    Applied to self (active player's character).
+    """
+
+    name: Literal[EFFECT_HEAL] = EFFECT_HEAL
+    dispose_actions: list[ActionName] = [ACTION_CARD_SELECT]
+    apply_to: ApplyToTarget = APPLY_TO_SELF
+    heal_amount: int
+
+
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, HealEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect],
     Field(discriminator="name"),
 ]
 
@@ -158,6 +173,7 @@ class EffectTotal(StrictModel):
     attack_bonus: int = 0
     attack_neg_bonus: int = 0
     defense_bonus: int = 0
+    heal_amount: int = 0
     skip_next_turn: bool = False
     reroll_dice_available: bool = False
     draw_card_count: int = 0

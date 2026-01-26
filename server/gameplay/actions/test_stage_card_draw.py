@@ -8,8 +8,9 @@ and applying card effects to the character.
 import pytest
 
 from .stage_card_draw import CardDrawAction, CardSelectAction
+from .battle_end import BattleEndAction
 from ..common import GameException, ReportedException, CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARDS_MAP
+from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARDS_MAP
 from ..effects import DefenseBonusEffect, AttackBonusEffect
 from ..gameplay import (
     STAGE_CARD_DRAW,
@@ -20,6 +21,13 @@ from ..gameplay import (
     ActivePlayer2,
     CardDrawMeta,
     init_characters,
+)
+from ..presets import (
+    get_debug_preset,
+    PRESET_BATTLE_METAL_ARMOR,
+    PRESET_CARD_DRAW_ARCHER_SACRED_SWORD,
+    PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE,
+    PRESET_CARD_DRAW_GOLDEN_APPLE_MAX_HEALTH,
 )
 
 
@@ -157,9 +165,6 @@ def test_card_select_action_wrong_stage():
 
 def test_metal_armor_defense_persists():
     """Test metal_armor defense effect persists across battles using preset"""
-    from ..presets import get_debug_preset, PRESET_BATTLE_METAL_ARMOR
-    from .battle_end import BattleEndAction
-
     # Get preset with knight having metal_armor and losing battle
     game = get_debug_preset(PRESET_BATTLE_METAL_ARMOR, player1_name="player1", player2_name="player2")
 
@@ -270,8 +275,6 @@ def test_sacred_sword_works_for_mage():
 
 def test_sacred_sword_archer_restriction_from_preset():
     """Test archer sacred_sword restriction using the preset"""
-    from ..presets import get_debug_preset, PRESET_CARD_DRAW_ARCHER_SACRED_SWORD
-
     game = get_debug_preset(PRESET_CARD_DRAW_ARCHER_SACRED_SWORD)
 
     # Verify preset is set up correctly
@@ -293,3 +296,38 @@ def test_sacred_sword_archer_restriction_from_preset():
 
     # Card should not be added to archer's card list
     assert CARD_SACRED_SWORD not in archer.cards
+
+
+def test_golden_apple_heals_damaged_knight():
+    """Test golden_apple heals knight from 1 to 2 health using preset"""
+    game = get_debug_preset(PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE)
+
+    # Verify preset: knight at 1 health
+    knight_before = game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight_before.health == 1
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Check knight healed to 2
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight.health == 2
+    assert CARD_GOLDEN_APPLE in knight.cards
+
+
+def test_golden_apple_does_not_exceed_max_health():
+    """Test golden_apple healing is capped at max_health using preset"""
+    game = get_debug_preset(PRESET_CARD_DRAW_GOLDEN_APPLE_MAX_HEALTH)
+
+    # Verify preset: knight at max health (2/2)
+    knight_before = game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight_before.health == knight_before.max_health
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Check character health doesn't exceed max
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight.health == 2  # Still at max, not 3
+    assert knight.health <= knight.max_health
+    assert CARD_GOLDEN_APPLE in knight.cards
