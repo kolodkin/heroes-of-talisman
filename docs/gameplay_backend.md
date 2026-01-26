@@ -105,6 +105,30 @@ All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
 | `AttackNegBonusEffect` | Decreases attack by value  | `['battle_end']`                         | `battle_opponent`   |
 | `RerollDiceEffect`     | Allows dice reroll on loss | `['battle_end', 'action_reroll_effect']` | `self`              |
 | `DrawCardEffect`       | Draws cards                | `['battle_end']`                         | `self`              |
+| `DefenseBonusEffect`   | Increases defense by value | `['battle_end']`                         | `self`              |
+| `HealEffect`           | Heals character instantly  | `['card_select']`                        | `self`              |
+
+# Cards
+
+Cards provide bonuses and effects to characters. Cards are drawn from a shared deck during the `card_draw` stage.
+
+## Card Model
+
+- `name`: Unique card identifier
+- `effects`: List of effects applied when card is selected
+- `restricted_characters`: Characters that cannot use this card
+
+## Deck Model
+
+Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when empty.
+
+## Available Cards
+
+| Card           | Effects                    | Restrictions |
+| -------------- | -------------------------- | ------------ |
+| `metal_armor`  | `DefenseBonusEffect(+2)`   | None         |
+| `sacred_sword` | `AttackBonusEffect(+3)`    | Archer       |
+| `golden_apple` | `HealEffect(+1)` (instant) | None         |
 
 ## Available Abilities
 
@@ -126,7 +150,24 @@ The character selection stage allows players to choose which character will act 
 **Actions:**
 
 - [x] `character_press` – highlight selected character (`CharacterPressAction`)
-- [x] `character_select` – confirm character selection, dispose character_select effects, and transition to ability_selection (`CharacterSelectAction`)
+- [x] `character_select` – confirm character selection, dispose character_select effects, and transition to card_draw (`CharacterSelectAction`)
+
+## Stage: Card Draw
+
+The card draw stage allows players to draw a card from the deck and add it to their character.
+
+- **`CardDrawAction`**: Draws a random card from the deck and stores it in `stage_meta.drawn_card`. The deck auto-resets when empty.
+- **`CardSelectAction`**: Confirms the card selection by applying instant effects (e.g., `HealEffect`) and adding persistent effects to the character. Cards are tracked in `character.cards`. Transitions to `ability_selection` stage.
+
+**Card Restrictions:**
+
+- Some cards have `restricted_characters` that cannot use them
+- Restricted cards are skipped when drawn by excluded characters
+
+**Actions:**
+
+- [x] `card_draw` – draw a random card from deck, store in stage_meta (`CardDrawAction`)
+- [x] `card_select` – apply card effects and transition to ability_selection (`CardSelectAction`)
 
 ## Stage: Ability Selection
 

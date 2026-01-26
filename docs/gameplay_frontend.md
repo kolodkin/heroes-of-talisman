@@ -90,7 +90,14 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 - **StageCharacterSelect** (`character_select` stage): Player selects their character
   - Displays player's characters
   - Actions: `character_press` (highlight), `character_select` (confirm)
-  - Transitions to: `opponent_selection`
+  - Transitions to: `card_draw`
+
+- **StageCardDraw** (`card_draw` stage): Player draws a card from the deck
+  - Initially displays face-down `DeckCard` component
+  - After draw action, displays `GameplayCard` with card details
+  - Actions: `card_draw` (draw from deck), `card_select` (confirm selection)
+  - Non-active players see disabled interactions
+  - Transitions to: `ability_selection`
 
 - **StageOpponentSelection** (`opponent_selection` stage): Player selects opponent and their character
   - Displays all opponents with their characters (starting minimized)
@@ -222,6 +229,40 @@ Displays a character ability with image, name, and description (`src/components/
 - Uses common card styles from `Card.module.css`
 - Displays ability image from `/images/effects/{ability.name}.jpg`
 - Shows translated ability name and description via i18next
+
+## GameplayCard
+
+Displays a game card with image, name, and description (`src/components/GameplayCard.jsx`).
+
+**Props:**
+
+- `cardName` (string): Card identifier
+- `isSelected` (boolean): Whether the card is currently selected
+- `onClick` (function): Click handler for selection
+- `size` (string, default: `"normal"`): Card size - `"normal"` or `"small"`
+
+**Data Attributes:**
+
+- `data-card`: Card name (used for testing)
+
+**Features:**
+
+- Uses common card styles from `Card.module.css`
+- Displays card image from `/images/cards/{cardName}.png`
+- Shows translated card name and description via i18next
+
+## DeckCard
+
+Displays a face-down deck card for drawing (`src/components/DeckCard.jsx`).
+
+**Props:**
+
+- `onClick` (function): Click handler for drawing
+- `size` (string, default: `"normal"`): Card size
+
+**Data Attributes:**
+
+- `data-deck-card`: Presence attribute for testing
 
 ## SharedArea
 

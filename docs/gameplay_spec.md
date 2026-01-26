@@ -78,6 +78,24 @@ Effects are applied to different targets depending on their type: the active pla
 
 See [Backend GamePlay - Abilities & Effects](/docs/gameplay_backend.md#abilities--effects) for detailed implementation.
 
+# Cards
+
+Players collect cards throughout the game that provide bonuses and effects. Cards are drawn from a shared deck after character selection.
+
+## Card Types
+
+- **Equipment Cards**: Provide persistent bonuses (attack, defense) until battle ends
+- **Instant Cards**: Apply immediate effects (healing) when selected
+
+## Card Restrictions
+
+Some cards are restricted to specific character types and cannot be used by excluded characters.
+
+## Deck Behavior
+
+- Shared deck with auto-reset when empty
+- Cards drawn randomly from available pool
+
 # Game Stages
 
 The game progresses through distinct stages during each player's turn. Upon completing all stages, the turn passes to the next player.
@@ -85,8 +103,9 @@ The game progresses through distinct stages during each player's turn. Upon comp
 ## Turn Stages
 
 1. **Character Select** (`character_select`) - Player chooses which character will act during this turn
-2. **Ability Selection** (`ability_selection`) - Player selects which ability to use from the character's available abilities
-3. **Ability Opponent Selection** (`ability_opponent_selection`) - _(Only for effects requiring target selection, e.g., SkipTurnEffect)_ Player selects an opponent character to apply the ability to
-4. **Opponent Selection** (`opponent_selection`) - Player selects an opponent and one of the opponent's characters for battle
-5. **Battle Dice Roll** (`battle_dice_roll`) - Both players roll dice for combat
-6. **Battle End** (`battle_end`) - Combat results are calculated and applied
+2. **Card Draw** (`card_draw`) - Player draws a card from the deck and decides whether to keep it
+3. **Ability Selection** (`ability_selection`) - Player selects which ability to use from the character's available abilities
+4. **Ability Opponent Selection** (`ability_opponent_selection`) - _(Only for effects requiring target selection, e.g., SkipTurnEffect)_ Player selects an opponent character to apply the ability to
+5. **Opponent Selection** (`opponent_selection`) - Player selects an opponent and one of the opponent's characters for battle
+6. **Battle Dice Roll** (`battle_dice_roll`) - Both players roll dice for combat
+7. **Battle End** (`battle_end`) - Combat results are calculated and applied
