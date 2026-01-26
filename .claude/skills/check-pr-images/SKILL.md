@@ -45,6 +45,7 @@ When the user asks to review PR images or screenshots:
    This script will:
    - Auto-detect the repository from git remote (no hardcoded repo names)
    - Auto-detect the latest workflow run for the current branch (if no run ID provided)
+   - Poll for GitHub Pages availability (up to 10 minutes) before downloading
    - Download the playwright report from GitHub Pages
    - Save files to `./tmp/playwright-report/`
    - Extract all screenshots to `./tmp/report/screenshots/`
@@ -97,6 +98,18 @@ Automatically runs consecutive duplicate screenshot detection using perceptual h
 - Uses visual comparison (tolerates minor pixel differences)
 - Reports which screenshots are redundant and should be removed
 - Helps maintain clean, efficient test suites
+
+### GitHub Pages Polling
+
+The script automatically polls for GitHub Pages availability with a 10-minute timeout:
+
+- GitHub Pages deployment can take time after a workflow completes
+- The script polls every 10 seconds for up to 10 minutes (600 seconds)
+- Shows progress indicator while waiting: `Waiting... 30s / 600s`
+- Automatically proceeds once the page becomes accessible
+- Provides helpful error message with workflow URL if timeout is reached
+
+This eliminates the need to manually retry when GitHub Pages hasn't deployed yet.
 
 ## What to Look For
 
