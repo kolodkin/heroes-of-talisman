@@ -152,3 +152,72 @@ test("character_select stage - skip_turn effect removed after character selectio
   // Cleanup
   await page2.close();
 });
+
+test("character_select stage - no character available shows Skip Turn button", async ({ page, gameName }) => {
+  // Create preset game where all characters are unavailable
+  // (2 dead + 1 with skip_turn effect)
+  await createPresetGameViaAPI(gameName, "skip_turn_no_character");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
+
+  // Verify we're in character_select stage
+  await waitForStage(page, "character_select");
+
+  // Verify all characters are not clickable
+  await verifyCharacterNotClickable(page, "knight"); // dead
+  await verifyCharacterNotClickable(page, "archer"); // dead
+  await verifyCharacterNotClickable(page, "mage"); // has skip_turn effect
+
+  await screenshot(page, "no-character-available-initial");
+
+  // Verify the Skip Turn button is shown (has data-skip-turn attribute)
+  const skipTurnButton = page.locator("[data-skip-turn]");
+  await expect(skipTurnButton).toBeVisible();
+
+  await screenshot(page, "skip-turn-button-visible");
+});
+
+test("character_select stage - Skip Turn button passes turn to next player", async ({ page, gameName }) => {
+  // Create preset game where all characters are unavailable
+  await createPresetGameViaAPI(gameName, "skip_turn_no_character");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
+
+  // Player2 joins in a new page
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName, "[data-character]");
+
+  // Verify player1 is initially active
+  await waitForStage(page, "character_select");
+  const player1SharedArea = page.locator('[data-shared-area-active="true"]');
+  await expect(player1SharedArea).toBeVisible();
+
+  await screenshot(page, "before-skip-turn-player1-view");
+  await screenshot(page2, "before-skip-turn-player2-view");
+
+  // Click the Skip Turn button
+  const skipTurnButton = page.locator("[data-skip-turn]");
+  await skipTurnButton.click();
+
+  // Wait for game update - player2 should now be active
+  await page2.waitForSelector('[data-shared-area-active="true"]');
+
+  // Verify player1's shared area is no longer active
+  await expect(page.locator('[data-shared-area-active="true"]')).not.toBeVisible();
+
+  // Verify player2's shared area is now active
+  await expect(page2.locator('[data-shared-area-active="true"]')).toBeVisible();
+
+  // Verify skip_turn effects were disposed from mage
+  // (after character_select stage ends, effects with 'character_select' dispose action are removed)
+  const mageCard = page.locator('[data-character="mage"]').last();
+  await expect(mageCard).not.toHaveAttribute("data-effects", /skip_turn/);
+
+  await screenshot(page, "after-skip-turn-player1-view");
+  await screenshot(page2, "after-skip-turn-player2-view");
+
+  // Cleanup
+  await page2.close();
+});

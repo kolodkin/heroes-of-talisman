@@ -89,6 +89,7 @@ const resources = {
       character_select: {
         submit: "בחר",
         select_character: "בחר דמות בבקשה",
+        skip_turn: "דלג על תור",
       },
       ability_selection: {
         submit: "בחר",
