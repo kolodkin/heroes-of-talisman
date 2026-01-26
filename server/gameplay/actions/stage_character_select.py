@@ -7,7 +7,7 @@ This module implements actions for the character selection stage:
 - SkipTurnAction: Skips turn when no character is available (all dead or have skip_turn effect)
 """
 
-from .action import Action
+from .action import Action, rotate_to_next_player
 from ..common import (
     GameException,
     ReportedException,
@@ -21,7 +21,6 @@ from ..gameplay import (
     CharacterSelectMeta,
     CardDrawMeta,
     AbilitySelectMeta,
-    ActivePlayer1,
     ActivePlayer2,
 )
 
@@ -156,15 +155,7 @@ class SkipTurnAction(Action):
                 if ACTION_CHARACTER_SELECT not in effect.dispose_actions
             ]
 
-        # Get next player (circular rotation)
-        player_names = list(self.game.players.keys())
-        current_active_index = player_names.index(self.game.active.player)
-        next_player_index = (current_active_index + 1) % len(player_names)
-        next_player_name = player_names[next_player_index]
-
-        # Transition to next player's character select
-        self.game.active = ActivePlayer1(player=next_player_name)
-        self.game.stage = STAGE_CHARACTER_SELECT
-        self.game.stage_meta = None
+        # Rotate to next player's turn
+        rotate_to_next_player(self.game)
 
         return self.game
