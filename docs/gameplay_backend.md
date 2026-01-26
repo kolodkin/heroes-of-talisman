@@ -1,5 +1,4 @@
-Backend - GamePlay
-------------------
+## Backend - GamePlay
 
 A Pydantic-based engine for updating game state through [actions](#actions).
 
@@ -146,11 +145,13 @@ The character selection stage allows players to choose which character will act 
 
 - **`CharacterPressAction`**: Sets `stage_meta['selected']` to the character name pressed by the active player. Validates that the player is active, the stage is `character_select`, the character exists for this player, and the character is alive (`is_alive=True`).
 - **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name, **disposes all effects with `dispose_action='character_select'`** from the active player's characters (e.g., all SkipTurnEffects), and transitioning the game stage from `character_select` to `ability_selection`. Validates that the selected character is alive. **Auto-selects ability**: If the selected character has only one ability, `stage_meta.selected` is automatically set to that ability's name for the ability selection stage; otherwise `stage_meta` is cleared.
+- **`SkipTurnAction`**: Skips the current player's turn when no character is available for selection (all characters are either dead or have `SkipTurnEffect`). **Disposes all effects with `dispose_action='character_select'`** from the active player's characters, rotates to the next player (circular rotation), and stays in `character_select` stage for the next player's turn.
 
 **Actions:**
 
 - [x] `character_press` – highlight selected character (`CharacterPressAction`)
 - [x] `character_select` – confirm character selection, dispose character_select effects, and transition to card_draw (`CharacterSelectAction`)
+- [x] `skip_turn` – skip turn when no character available, dispose character_select effects, and rotate to next player (`SkipTurnAction`)
 
 ## Stage: Card Draw
 

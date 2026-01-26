@@ -1,5 +1,4 @@
-Game Play
----------
+## Game Play
 
 This document outlines the gameplay architecture and component hierarchy for the game engine, detailing main components.
 
@@ -102,7 +101,7 @@ The game progresses through distinct stages during each player's turn. Upon comp
 
 ## Turn Stages
 
-1. **Character Select** (`character_select`) - Player chooses which character will act during this turn
+1. **Character Select** (`character_select`) - Player chooses which character will act during this turn. If no character is available (all dead or have skip turn effect), the player must skip their turn.
 2. **Card Draw** (`card_draw`) - Player draws a card from the deck and decides whether to keep it
 3. **Ability Selection** (`ability_selection`) - Player selects which ability to use from the character's available abilities
 4. **Ability Opponent Selection** (`ability_opponent_selection`) - _(Only for effects requiring target selection, e.g., SkipTurnEffect)_ Player selects an opponent character to apply the ability to
