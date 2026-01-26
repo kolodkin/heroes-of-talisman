@@ -4,13 +4,11 @@ Battle End Action
 Ends the battle, calculates winner, and reduces loser's health by 1.
 """
 
-from .action import Action
-from ..common import GameException, ReportedException
+from .action import Action, rotate_to_next_player
+from ..common import GameException, ReportedException, ACTION_BATTLE_END
 from ..gameplay import (
     STAGE_BATTLE_END,
-    STAGE_CHARACTER_SELECT,
     GamePlay,
-    ActivePlayer1,
     ActivePlayer3,
     ActivePlayer4,
     Opponent3,
@@ -65,8 +63,6 @@ class BattleEndAction(Action):
         # If tied, no one loses health
 
         # Dispose effects with 'battle_end' in their dispose_actions list
-        from ..common import ACTION_BATTLE_END
-
         def should_keep_effect(effect):
             """Returns True if effect should be kept after battle"""
             return ACTION_BATTLE_END not in effect.dispose_actions
@@ -80,18 +76,7 @@ class BattleEndAction(Action):
             if should_keep_effect(effect)
         ]
 
-        # Get next player (circular rotation)
-        player_names = list(self.game.players.keys())
-        current_active_index = player_names.index(self.game.active.player)
-        next_player_index = (current_active_index + 1) % len(player_names)
-        next_player_name = player_names[next_player_index]
-
-        # Clear battle state and transition to next turn
-        self.game.active = ActivePlayer1(player=next_player_name)
-        self.game.opponent = None
-        self.game.card = None
-        self.game.ability = None
-        self.game.stage = STAGE_CHARACTER_SELECT
-        self.game.stage_meta = None
+        # Rotate to next player's turn
+        rotate_to_next_player(self.game)
 
         return self.game

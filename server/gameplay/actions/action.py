@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 from ..common import GameException, ReportedException
 from ..gameplay import (
     StageName,
+    STAGE_CHARACTER_SELECT,
     GamePlay,
     Player,
     Character,
@@ -128,3 +129,25 @@ class Action(ABC):
     @abstractmethod
     def _run(self, *args, **kwargs) -> GamePlay:
         """Execute the action logic. Implemented by subclasses."""
+
+
+def rotate_to_next_player(game: GamePlay) -> None:
+    """
+    Rotate to the next player and reset game state for character selection.
+
+    Clears battle state (opponent, card, ability) and transitions to
+    CHARACTER_SELECT stage with the next player as active.
+
+    Args:
+        game: The GamePlay instance to modify in place.
+    """
+    player_names = list(game.players.keys())
+    current_idx = player_names.index(game.active.player)
+    next_player = player_names[(current_idx + 1) % len(player_names)]
+
+    game.active = ActivePlayer1(player=next_player)
+    game.opponent = None
+    game.card = None
+    game.ability = None
+    game.stage = STAGE_CHARACTER_SELECT
+    game.stage_meta = None

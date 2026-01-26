@@ -18,6 +18,7 @@ const PRESET_OPTIONS = [
   { value: "mage_not_alive", label: "Mage Not Alive" },
   { value: "opponent_selection_preset", label: "Opponent Selection" },
   { value: "single_player", label: "Single Player" },
+  { value: "skip_turn_no_character", label: "Skip Turn: No Character Available" },
 ];
 
 const Presets = () => {
