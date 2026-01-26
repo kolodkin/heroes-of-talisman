@@ -17,6 +17,7 @@ from ..gameplay import (
     STAGE_BATTLE_END,
     STAGE_CHARACTER_SELECT,
     GamePlay,
+    BattleResult,
     ActivePlayer2,
     ActivePlayer3,
     ActivePlayer4,
@@ -70,9 +71,6 @@ def set_winner_if_both_rolled(game: GamePlay) -> None:
     active_score, opponent_score = calculate_winner(game)
     active_is_winner = active_score > opponent_score
     opponent_is_winner = opponent_score > active_score
-
-    # Import BattleResult at top of function to avoid circular imports
-    from ..gameplay import BattleResult
 
     # Upgrade to ActivePlayer4 and Opponent4 with result fields
     game.active = ActivePlayer4(

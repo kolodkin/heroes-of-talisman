@@ -7,7 +7,9 @@ This module implements actions for the opponent selection stage:
 """
 
 import copy
+
 from .action import Action
+from ..cards import CARDS_MAP
 from ..common import GameException, ReportedException
 from ..effects import APPLY_TO_BATTLE_OPPONENT
 from ..gameplay import STAGE_BATTLE_DICE_ROLL, STAGE_OPPONENT_SELECTION, GamePlay, Opponent2
@@ -102,7 +104,6 @@ class OpponentSelectAction(Action):
 
         # Apply "battle_opponent" effects from card to the opponent's character
         if self.game.card:
-            from ..cards import CARDS_MAP
             card_obj = CARDS_MAP.get(self.game.card)
             if card_obj:
                 for effect in card_obj.effects:

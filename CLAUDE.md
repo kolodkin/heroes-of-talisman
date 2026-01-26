@@ -23,6 +23,41 @@ If any workflows fail, analyze the error logs and fix issues automatically.
 
 # Backend
 
+## Import Organization
+
+All imports must be at the top of the file, organized in the following order:
+
+1. **Native/built-in modules** (e.g., `import copy`, `import random`)
+2. **Third-party packages** (e.g., `from pydantic import BaseModel`)
+3. **Local/relative imports** (e.g., `from .action import Action`, `from ..common import ...`)
+
+Separate each group with a blank line.
+
+**Good:**
+
+```python
+import copy
+import random
+
+from pydantic import BaseModel
+
+from .action import Action
+from ..common import GameException
+from ..gameplay import GamePlay
+```
+
+**Avoid:**
+
+```python
+from .action import Action
+import copy  # Wrong: native import after local
+from ..gameplay import GamePlay
+
+def my_function():
+    from ..cards import CARDS_MAP  # Wrong: import inside function
+    ...
+```
+
 ## String Literals and Type Safety
 
 When working with string constants in Python code:
@@ -139,6 +174,46 @@ def test_action_with_properties():
 ```
 
 # Frontend
+
+## Import Organization
+
+All imports must be at the top of the file, organized in the following order:
+
+**Non-components first:**
+1. **React** (e.g., `import React, { useState } from "react"`)
+2. **Third-party packages** (e.g., `import { useParams } from "react-router-dom"`)
+3. **Local utilities** (e.g., `import { formatDate } from "./utils"`)
+
+**Then components with their CSS (utility components first):**
+4. **Utility components** with CSS immediately after
+5. **Feature components** with CSS immediately after
+6. **Current component's CSS** last
+
+**Good:**
+
+```javascript
+import React, { useState, useEffect } from "react";
+
+import { useParams } from "react-router-dom";
+
+import { formatScore } from "./utils";
+
+import { Button } from "./Button";
+import buttonStyles from "./Button.module.css";
+
+import { CharacterCard } from "./CharacterCard";
+import characterStyles from "./CharacterCard.module.css";
+
+import styles from "./GamePlay.module.css";
+```
+
+**Avoid:**
+
+```javascript
+import styles from "./GamePlay.module.css";  // Wrong: CSS before React
+import { CharacterCard } from "./CharacterCard";
+import React from "react";
+```
 
 ## Coding Standards
 
