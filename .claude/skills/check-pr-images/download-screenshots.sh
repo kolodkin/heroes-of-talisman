@@ -72,13 +72,33 @@ GH_PAGES_URL="https://${REPO_OWNER}.github.io/artifact-view/${REPO_NAME}/playwri
 echo "📥 Downloading playwright report from GitHub Pages..."
 echo "   URL: $GH_PAGES_URL"
 
-# Check if the report is accessible
-if ! wget -q --spider "$GH_PAGES_URL/index.html" 2>/dev/null; then
-    echo "❌ Error: Report not accessible at: $GH_PAGES_URL"
-    echo "💡 The GitHub Pages deployment may still be in progress or may have failed."
-    echo "💡 Wait a moment and try again, or check the workflow run status."
-    exit 1
-fi
+# Poll for GitHub Pages availability with 10-minute timeout
+MAX_WAIT_SECONDS=600
+POLL_INTERVAL=10
+elapsed=0
+
+echo "⏳ Waiting for GitHub Pages to become available (max ${MAX_WAIT_SECONDS}s)..."
+
+while true; do
+    if wget -q --spider "$GH_PAGES_URL/index.html" 2>/dev/null; then
+        echo "✅ GitHub Pages is now accessible!"
+        break
+    fi
+
+    if [ $elapsed -ge $MAX_WAIT_SECONDS ]; then
+        echo "❌ Error: Report not accessible after ${MAX_WAIT_SECONDS}s timeout"
+        echo "   URL: $GH_PAGES_URL"
+        echo "💡 The GitHub Pages deployment may have failed."
+        echo "💡 Check the workflow run status at:"
+        echo "   https://github.com/$REPO/actions/runs/$RUN_ID"
+        exit 1
+    fi
+
+    printf "\r   Waiting... %ds / %ds" "$elapsed" "$MAX_WAIT_SECONDS"
+    sleep $POLL_INTERVAL
+    elapsed=$((elapsed + POLL_INTERVAL))
+done
+echo ""
 
 echo "  Downloading report files..."
 # Download main files
