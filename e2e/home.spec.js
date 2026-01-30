@@ -211,9 +211,6 @@ test("should show load more button when more results available", async ({ page }
     const loadMoreButton = page.locator('[data-testid="load-more-button"]');
     await expect(loadMoreButton).toBeVisible();
 
-    // Screenshot at top showing first 5 results (don't scroll)
-    await screenshot(page, "search-results-initial-5");
-
     // Click load more
     await loadMoreButton.click();
 
