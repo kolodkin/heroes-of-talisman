@@ -30,7 +30,7 @@ test("card_draw stage - knight draws magic_ball and levels up", async ({ page, g
   // Verify knight starts at level 1 with L1 stats (health=2/2)
   const player1Div = page.locator('[data-player="player1"]');
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
-  await expect(knightCard).toContainText("L1");
+  await expect(knightCard).toHaveAttribute("data-level", "1");
   await expect(knightCard).toContainText("[2/2]");
 
   // Verify magic_ball card is visible
@@ -59,7 +59,7 @@ test("card_draw stage - knight draws magic_ball and levels up", async ({ page, g
   await expandButtonAfter.click();
 
   // Verify knight leveled up to level 2 with L2 stats (health=6/6)
-  await expect(knightCard).toContainText("L2");
+  await expect(knightCard).toHaveAttribute("data-level", "2");
   await expect(knightCard).toContainText("[6/6]");
   await screenshot(page, "magic-ball-knight-after-level-up");
 
@@ -88,7 +88,7 @@ test("battle stage - level 2 knight loses and drops to level 1", async ({ page, 
   // Verify knight starts at level 2 with L2 stats (health=6/6)
   const player1Div = page.locator('[data-player="player1"]');
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
-  await expect(knightCard).toContainText("L2");
+  await expect(knightCard).toHaveAttribute("data-level", "2");
   await expect(knightCard).toContainText("[6/6]");
 
   // Screenshot with knight at level 2 before battle ends
@@ -111,7 +111,7 @@ test("battle stage - level 2 knight loses and drops to level 1", async ({ page, 
   await expandButtonAfter.click();
 
   // Verify knight dropped to level 1 with L1 stats (health=2/2, restored to max)
-  await expect(knightCard).toContainText("L1");
+  await expect(knightCard).toHaveAttribute("data-level", "1");
   await expect(knightCard).toContainText("[2/2]");
   await screenshot(page, "level-down-knight-after-battle-end");
 
