@@ -211,9 +211,8 @@ test("should show load more button when more results available", async ({ page }
     const loadMoreButton = page.locator('[data-testid="load-more-button"]');
     await expect(loadMoreButton).toBeVisible();
 
-    // Scroll dropdown to bottom to show load more button clearly
-    await dropdown.evaluate((el) => (el.scrollTop = el.scrollHeight));
-    await screenshot(page, "load-more-button-visible");
+    // Screenshot at top showing first 5 results (don't scroll)
+    await screenshot(page, "search-results-initial-5");
 
     // Click load more
     await loadMoreButton.click();
@@ -224,9 +223,9 @@ test("should show load more button when more results available", async ({ page }
     // Load more button should be hidden now (no more results)
     await expect(loadMoreButton).not.toBeVisible();
 
-    // Scroll dropdown to bottom to show there is no load more button
+    // Scroll dropdown to bottom to show additional results loaded
     await dropdown.evaluate((el) => (el.scrollTop = el.scrollHeight));
-    await screenshot(page, "all-results-loaded");
+    await screenshot(page, "search-results-all-7-loaded");
   } finally {
     for (const name of gameNames) {
       await deleteGameViaAPI(name);
@@ -278,16 +277,15 @@ test("should reset search when query changes", async ({ page }) => {
     await expect(results).toHaveCount(3);
     await expect(results.first()).toContainText(prefix1);
 
-    await screenshot(page, "search-first-query");
-
     // Change query to second prefix
     await gameNameInput.fill(prefix2);
 
-    // Results should update to show second game
+    // Results should update to show second game (reset happened)
     await expect(results).toHaveCount(1);
     await expect(results.first()).toContainText(game2);
 
-    await screenshot(page, "search-second-query");
+    // Screenshot showing results updated after query change
+    await screenshot(page, "search-query-changed-results-updated");
   } finally {
     for (const name of games1) {
       await deleteGameViaAPI(name);
