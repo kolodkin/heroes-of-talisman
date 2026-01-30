@@ -145,6 +145,7 @@ const HomePage = () => {
 
   const handleSearchResultClick = (gameName) => {
     setNewGameName(gameName);
+    setSearchResults([]);
     setShowDropdown(false);
   };
 
