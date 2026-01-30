@@ -153,7 +153,7 @@ async def search_games(
     query = select(GameTable.name).order_by(GameTable.name)
 
     if q:
-        query = query.where(GameTable.name.ilike(f"%{q}%"))
+        query = query.where(GameTable.name.ilike(f"{q}%"))
 
     # Get total count
     count_result = await session.execute(query)
