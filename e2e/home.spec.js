@@ -211,6 +211,8 @@ test("should show load more button when more results available", async ({ page }
     const loadMoreButton = page.locator('[data-testid="load-more-button"]');
     await expect(loadMoreButton).toBeVisible();
 
+    // Scroll dropdown to bottom to show load more button clearly
+    await dropdown.evaluate((el) => (el.scrollTop = el.scrollHeight));
     await screenshot(page, "load-more-button-visible");
 
     // Click load more
@@ -222,6 +224,8 @@ test("should show load more button when more results available", async ({ page }
     // Load more button should be hidden now (no more results)
     await expect(loadMoreButton).not.toBeVisible();
 
+    // Scroll dropdown to bottom to show there is no load more button
+    await dropdown.evaluate((el) => (el.scrollTop = el.scrollHeight));
     await screenshot(page, "all-results-loaded");
   } finally {
     for (const name of gameNames) {
@@ -249,14 +253,16 @@ test("should show no results message when no games match", async ({ page }) => {
 });
 
 test("should reset search when query changes", async ({ page }) => {
-  // Create games with different prefixes
+  // Create games with different prefixes - more games for first prefix to make visual difference
   const prefix1 = `reset-a-${Date.now()}`;
   const prefix2 = `reset-b-${Date.now()}`;
-  const game1 = `${prefix1}-game`;
+  const games1 = [`${prefix1}-game-1`, `${prefix1}-game-2`, `${prefix1}-game-3`];
   const game2 = `${prefix2}-game`;
 
   try {
-    await createGameViaAPI(game1);
+    for (const name of games1) {
+      await createGameViaAPI(name);
+    }
     await createGameViaAPI(game2);
 
     await setupHomePage(page);
@@ -269,8 +275,8 @@ test("should reset search when query changes", async ({ page }) => {
     await expect(dropdown).toBeVisible();
 
     let results = page.locator('[data-testid="search-result"]');
-    await expect(results).toHaveCount(1);
-    await expect(results.first()).toContainText(game1);
+    await expect(results).toHaveCount(3);
+    await expect(results.first()).toContainText(prefix1);
 
     await screenshot(page, "search-first-query");
 
@@ -283,7 +289,9 @@ test("should reset search when query changes", async ({ page }) => {
 
     await screenshot(page, "search-second-query");
   } finally {
-    await deleteGameViaAPI(game1);
+    for (const name of games1) {
+      await deleteGameViaAPI(name);
+    }
     await deleteGameViaAPI(game2);
   }
 });
