@@ -85,11 +85,11 @@ test("battle stage - level 2 knight loses and drops to level 1", async ({ page, 
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
-  // Verify knight starts at level 2 with L2 stats (health=6/6)
+  // Verify knight starts at level 2 with 1 health (about to trigger level down)
   const player1Div = page.locator('[data-player="player1"]');
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
   await expect(knightCard).toHaveAttribute("data-level", "2");
-  await expect(knightCard).toContainText("[6/6]");
+  await expect(knightCard).toContainText("[1/6]");
 
   // Screenshot with knight at level 2 before battle ends
   await screenshot(page, "level-down-knight-before-battle-end");

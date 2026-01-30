@@ -490,11 +490,12 @@ def get_debug_preset(
         )
     elif preset == "battle_level_down":
         # Level 2 knight loses battle and should drop to level 1
-        # Player 1: knight L2 (dice=[2], attack=1) = 3
+        # Player 1: knight L2 with 1 health (dice=[2], attack=1) = 3
         # Player 2: mage L1 (dice=[6], attack=0) = 6
-        # Result: knight loses (3 < 6) and drops from level 2 to level 1
-        # After level down: knight stats become L1 (health=2, max_health=2, dice=1, attack=1)
+        # Result: knight loses (3 < 6), takes 1 damage, health drops to 0
+        # Level down triggers: knight becomes L1 (health=2, max_health=2, dice=1, attack=1)
         characters_p1 = init_characters(level=2)  # Start at level 2
+        characters_p1[CHARACTER_KNIGHT].health = 1  # Set health to 1 so damage triggers level down
 
         characters_p2 = init_characters()
 
