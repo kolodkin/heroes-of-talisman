@@ -129,6 +129,9 @@ const HomePage = () => {
     const value = event.target.value;
     setNewGameName(value);
 
+    // Reset pagination for new query
+    setSearchOffset(0);
+
     // Clear existing timeout
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
