@@ -1,16 +1,27 @@
-import React, { useState, useEffect } from "react";
-import styles from "./HomePage.module.css";
-import classNames from "classnames";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
+import styles from "./HomePage.module.css";
+
+const SEARCH_LIMIT = 5;
+const DEBOUNCE_MS = 300;
 
 const HomePage = () => {
   const { t } = useTranslation();
   const [games, setGames] = useState([]);
   const [username, setUserName] = useState(localStorage.getItem("username") || "");
   const [newGameName, setNewGameName] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchOffset, setSearchOffset] = useState(0);
+  const [hasMoreResults, setHasMoreResults] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchTimeoutRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
   const navigate = useNavigate();
 
   const getGames = async () => {
@@ -52,8 +63,60 @@ const HomePage = () => {
     await getGames();
   };
 
+  const searchGames = useCallback(async (query, offset = 0, append = false) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setHasMoreResults(false);
+      setShowDropdown(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `/api/games/search?q=${encodeURIComponent(query)}&offset=${offset}&limit=${SEARCH_LIMIT}`,
+      );
+      const data = await response.json();
+
+      if (append) {
+        setSearchResults((prev) => [...prev, ...data.games]);
+      } else {
+        setSearchResults(data.games);
+      }
+      setHasMoreResults(data.has_more);
+      setSearchOffset(offset);
+      setShowDropdown(true);
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  const loadMoreResults = () => {
+    const nextOffset = searchOffset + SEARCH_LIMIT;
+    searchGames(newGameName, nextOffset, true);
+  };
+
   useEffect(() => {
     getGames();
+  }, []);
+
+  // Handle click outside dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleNameChange = (event) => {
@@ -63,10 +126,26 @@ const HomePage = () => {
   };
 
   const handleNewGameNameChange = (event) => {
-    setNewGameName(event.target.value);
+    const value = event.target.value;
+    setNewGameName(value);
+
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Debounced search
+    searchTimeoutRef.current = setTimeout(() => {
+      searchGames(value, 0, false);
+    }, DEBOUNCE_MS);
   };
 
-  const handleNewGame = (event) => {
+  const handleSearchResultClick = (gameName) => {
+    setNewGameName(gameName);
+    setShowDropdown(false);
+  };
+
+  const handleNewGame = () => {
     addNewGame(newGameName);
   };
 
@@ -96,7 +175,49 @@ const HomePage = () => {
         <div className={styles["input-container"]}>
           <label>
             Add New Game:
-            <input className={styles.input} type="text" value={newGameName} onChange={handleNewGameNameChange} />
+            <div className={styles["search-wrapper"]}>
+              <input
+                ref={inputRef}
+                className={styles.input}
+                type="text"
+                value={newGameName}
+                onChange={handleNewGameNameChange}
+                onFocus={() => newGameName.trim() && searchResults.length > 0 && setShowDropdown(true)}
+                data-testid="game-name-input"
+              />
+              {showDropdown && (
+                <div ref={dropdownRef} className={styles["search-dropdown"]} data-testid="search-dropdown">
+                  {isSearching && searchResults.length === 0 ? (
+                    <div className={styles["search-loading"]}>Searching...</div>
+                  ) : searchResults.length > 0 ? (
+                    <>
+                      {searchResults.map((game, index) => (
+                        <div
+                          key={index}
+                          className={styles["search-result"]}
+                          onClick={() => handleSearchResultClick(game)}
+                          data-testid="search-result"
+                        >
+                          {game}
+                        </div>
+                      ))}
+                      {hasMoreResults && (
+                        <button
+                          className={styles["load-more-button"]}
+                          onClick={loadMoreResults}
+                          disabled={isSearching}
+                          data-testid="load-more-button"
+                        >
+                          {isSearching ? "Loading..." : "Load more"}
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <div className={styles["search-no-results"]}>No games found</div>
+                  )}
+                </div>
+              )}
+            </div>
           </label>
           <button className={styles.button} onClick={handleNewGame}>
             +

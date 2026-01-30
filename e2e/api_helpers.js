@@ -92,6 +92,29 @@ export async function getGamesViaAPI() {
 }
 
 /**
+ * Search for games via the server API
+ * @param {string} query - Search query
+ * @param {number} [offset=0] - Number of results to skip
+ * @param {number} [limit=5] - Maximum number of results
+ * @returns {Promise<{games: string[], total: number, offset: number, limit: number, has_more: boolean}>}
+ */
+export async function searchGamesViaAPI(query, offset = 0, limit = 5) {
+  const params = new URLSearchParams({
+    q: query,
+    offset: offset.toString(),
+    limit: limit.toString(),
+  });
+
+  const response = await fetch(`${API_URL}/games/search?${params}`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to search games: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Delete all games with a given prefix via the server API
  * @param {string} prefix - Prefix to match (case-insensitive)
  * @returns {Promise<string[]>} Array of deleted game names
