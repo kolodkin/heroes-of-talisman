@@ -149,6 +149,9 @@ async def search_games(
     session: AsyncSession = Depends(get_db),
 ):
     """Search for games by name with pagination"""
+    # Strip leading/trailing whitespace from query
+    q = q.strip()
+
     # Build query with case-insensitive search
     query = select(GameTable.name).order_by(GameTable.name)
 
