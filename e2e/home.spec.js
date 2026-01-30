@@ -113,7 +113,7 @@ test("should trim whitespace from username when joining", async ({ page, gameNam
   await screenshot(page, "joined-with-trimmed-username");
 });
 
-test("should show search dropdown when typing game name", async ({ page }) => {
+test("should filter games list when typing game name", async ({ page }) => {
   // Create multiple test games with a common prefix
   const prefix = `search-test-${Date.now()}`;
   const gameNames = [`${prefix}-alpha`, `${prefix}-beta`, `${prefix}-gamma`];
@@ -125,59 +125,20 @@ test("should show search dropdown when typing game name", async ({ page }) => {
 
     await setupHomePage(page);
 
-    // Type in the game name input
+    // Type in the game name input to filter
     const gameNameInput = page.locator('[data-testid="game-name-input"]');
     await gameNameInput.fill(prefix);
 
-    // Wait for search dropdown to appear
-    const dropdown = page.locator('[data-testid="search-dropdown"]');
-    await expect(dropdown).toBeVisible();
+    // Wait for filtered results
+    const gameItems = page.locator('[data-testid="game-list-item"]');
+    await expect(gameItems).toHaveCount(3);
 
-    await screenshot(page, "search-dropdown-visible");
-
-    // Verify search results are shown
-    const results = page.locator('[data-testid="search-result"]');
-    await expect(results).toHaveCount(3);
+    await screenshot(page, "games-list-filtered");
   } finally {
     // Cleanup
     for (const name of gameNames) {
       await deleteGameViaAPI(name);
     }
-  }
-});
-
-test("should populate input when clicking search result", async ({ page }) => {
-  // Create a test game
-  const prefix = `click-test-${Date.now()}`;
-  const gameName = `${prefix}-game`;
-
-  try {
-    await createGameViaAPI(gameName);
-
-    await setupHomePage(page);
-
-    // Type in the game name input
-    const gameNameInput = page.locator('[data-testid="game-name-input"]');
-    await gameNameInput.fill(prefix);
-
-    // Wait for search dropdown and result to appear
-    const dropdown = page.locator('[data-testid="search-dropdown"]');
-    await expect(dropdown).toBeVisible();
-
-    // Wait for the search result to be visible before clicking
-    const result = page.locator('[data-testid="search-result"]').first();
-    await expect(result).toBeVisible();
-    await result.click();
-
-    // Verify input is populated with the game name
-    await expect(gameNameInput).toHaveValue(gameName);
-
-    // Verify dropdown is closed
-    await expect(dropdown).not.toBeVisible();
-
-    await screenshot(page, "search-result-clicked");
-  } finally {
-    await deleteGameViaAPI(gameName);
   }
 });
 
@@ -196,17 +157,13 @@ test("should show load more button when more results available", async ({ page }
 
     await setupHomePage(page);
 
-    // Type in the game name input
+    // Type in the game name input to filter
     const gameNameInput = page.locator('[data-testid="game-name-input"]');
     await gameNameInput.fill(prefix);
 
-    // Wait for search dropdown
-    const dropdown = page.locator('[data-testid="search-dropdown"]');
-    await expect(dropdown).toBeVisible();
-
-    // Verify only 5 results shown initially
-    const results = page.locator('[data-testid="search-result"]');
-    await expect(results).toHaveCount(5);
+    // Wait for filtered results - only 5 shown initially
+    const gameItems = page.locator('[data-testid="game-list-item"]');
+    await expect(gameItems).toHaveCount(5);
 
     // Verify load more button is visible
     const loadMoreButton = page.locator('[data-testid="load-more-button"]');
@@ -216,14 +173,12 @@ test("should show load more button when more results available", async ({ page }
     await loadMoreButton.click();
 
     // Wait for more results to load
-    await expect(results).toHaveCount(7);
+    await expect(gameItems).toHaveCount(7);
 
     // Load more button should be hidden now (no more results)
     await expect(loadMoreButton).not.toBeVisible();
 
-    // Scroll dropdown to bottom to show additional results loaded
-    await dropdown.evaluate((el) => (el.scrollTop = el.scrollHeight));
-    await screenshot(page, "search-results-all-7-loaded");
+    await screenshot(page, "games-list-all-loaded");
   } finally {
     for (const name of gameNames) {
       await deleteGameViaAPI(name);
@@ -238,19 +193,16 @@ test("should show no results message when no games match", async ({ page }) => {
   const gameNameInput = page.locator('[data-testid="game-name-input"]');
   await gameNameInput.fill(`nonexistent-game-${Date.now()}`);
 
-  // Wait for dropdown to appear with no results message
-  const dropdown = page.locator('[data-testid="search-dropdown"]');
-  await expect(dropdown).toBeVisible();
-
+  // Wait for no results message
   const noResults = page.locator('[class*="search-no-results"]');
   await expect(noResults).toBeVisible();
   await expect(noResults).toContainText("No games found");
 
-  await screenshot(page, "no-search-results");
+  await screenshot(page, "no-games-found");
 });
 
-test("should reset search when query changes", async ({ page }) => {
-  // Create games with different prefixes - more games for first prefix to make visual difference
+test("should reset games list when query changes", async ({ page }) => {
+  // Create games with different prefixes
   const prefix1 = `reset-a-${Date.now()}`;
   const prefix2 = `reset-b-${Date.now()}`;
   const games1 = [`${prefix1}-game-1`, `${prefix1}-game-2`, `${prefix1}-game-3`];
@@ -265,29 +217,59 @@ test("should reset search when query changes", async ({ page }) => {
     await setupHomePage(page);
 
     const gameNameInput = page.locator('[data-testid="game-name-input"]');
+    const gameItems = page.locator('[data-testid="game-list-item"]');
 
     // Search for first prefix
     await gameNameInput.fill(prefix1);
-    const dropdown = page.locator('[data-testid="search-dropdown"]');
-    await expect(dropdown).toBeVisible();
-
-    let results = page.locator('[data-testid="search-result"]');
-    await expect(results).toHaveCount(3);
-    await expect(results.first()).toContainText(prefix1);
+    await expect(gameItems).toHaveCount(3);
 
     // Change query to second prefix
     await gameNameInput.fill(prefix2);
 
     // Results should update to show second game (reset happened)
-    await expect(results).toHaveCount(1);
-    await expect(results.first()).toContainText(game2);
+    await expect(gameItems).toHaveCount(1);
 
-    // Screenshot showing results updated after query change
-    await screenshot(page, "search-query-changed-results-updated");
+    await screenshot(page, "games-list-query-changed");
   } finally {
     for (const name of games1) {
       await deleteGameViaAPI(name);
     }
     await deleteGameViaAPI(game2);
+  }
+});
+
+test("should show all games when search is cleared", async ({ page }) => {
+  // Create test games
+  const prefix = `clear-test-${Date.now()}`;
+  const gameNames = [`${prefix}-alpha`, `${prefix}-beta`];
+
+  try {
+    for (const name of gameNames) {
+      await createGameViaAPI(name);
+    }
+
+    await setupHomePage(page);
+
+    const gameNameInput = page.locator('[data-testid="game-name-input"]');
+    const gameItems = page.locator('[data-testid="game-list-item"]');
+
+    // Get initial count (all games)
+    const initialCount = await gameItems.count();
+
+    // Filter games
+    await gameNameInput.fill(prefix);
+    await expect(gameItems).toHaveCount(2);
+
+    // Clear search
+    await gameNameInput.fill("");
+
+    // Should show all games again
+    await expect(gameItems).toHaveCount(initialCount);
+
+    await screenshot(page, "games-list-search-cleared");
+  } finally {
+    for (const name of gameNames) {
+      await deleteGameViaAPI(name);
+    }
   }
 });

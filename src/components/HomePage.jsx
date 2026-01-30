@@ -14,37 +14,68 @@ const HomePage = () => {
   const [games, setGames] = useState([]);
   const [username, setUserName] = useState(localStorage.getItem("username") || "");
   const [newGameName, setNewGameName] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
   const [searchOffset, setSearchOffset] = useState(0);
   const [hasMoreResults, setHasMoreResults] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
   const searchTimeoutRef = useRef(null);
-  const dropdownRef = useRef(null);
-  const inputRef = useRef(null);
   const navigate = useNavigate();
 
   const getGames = async () => {
     const response = await fetch("/api/games/");
-    const games = await response.json();
-    console.log("Games:", games);
-    setGames(games);
+    const allGames = await response.json();
+    console.log("Games:", allGames);
+    setGames(allGames);
+    setHasMoreResults(false);
   };
 
-  const addNewGame = async (newGameName) => {
+  const searchGames = useCallback(async (query, offset = 0, append = false) => {
+    if (!query.trim()) {
+      // No search query - show all games
+      await getGames();
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `/api/games/search?q=${encodeURIComponent(query)}&offset=${offset}&limit=${SEARCH_LIMIT}`,
+      );
+      const data = await response.json();
+
+      if (append) {
+        setGames((prev) => [...prev, ...data.games]);
+      } else {
+        setGames(data.games);
+      }
+      setHasMoreResults(data.has_more);
+      setSearchOffset(offset);
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  const loadMoreResults = () => {
+    const nextOffset = searchOffset + SEARCH_LIMIT;
+    searchGames(newGameName, nextOffset, true);
+  };
+
+  const addNewGame = async (gameName) => {
     const response = await fetch("/api/games/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name: newGameName }),
+      body: JSON.stringify({ name: gameName }),
     });
     const msg = await response.json();
     console.log("New game:", msg);
     if (!response.ok) {
       toast.error(msg.detail);
     }
-    await getGames();
+    // Refresh games list with current search
+    searchGames(newGameName, 0, false);
   };
 
   const deleteGame = async (gameName) => {
@@ -59,64 +90,12 @@ const HomePage = () => {
     if (!response.ok) {
       toast.error(msg.message);
     }
-
-    await getGames();
-  };
-
-  const searchGames = useCallback(async (query, offset = 0, append = false) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setHasMoreResults(false);
-      setShowDropdown(false);
-      return;
-    }
-
-    setIsSearching(true);
-    try {
-      const response = await fetch(
-        `/api/games/search?q=${encodeURIComponent(query)}&offset=${offset}&limit=${SEARCH_LIMIT}`,
-      );
-      const data = await response.json();
-
-      if (append) {
-        setSearchResults((prev) => [...prev, ...data.games]);
-      } else {
-        setSearchResults(data.games);
-      }
-      setHasMoreResults(data.has_more);
-      setSearchOffset(offset);
-      setShowDropdown(true);
-    } catch (error) {
-      console.error("Search error:", error);
-    } finally {
-      setIsSearching(false);
-    }
-  }, []);
-
-  const loadMoreResults = () => {
-    const nextOffset = searchOffset + SEARCH_LIMIT;
-    searchGames(newGameName, nextOffset, true);
+    // Refresh games list with current search
+    searchGames(newGameName, 0, false);
   };
 
   useEffect(() => {
     getGames();
-  }, []);
-
-  // Handle click outside dropdown to close it
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target)
-      ) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleNameChange = (event) => {
@@ -141,12 +120,6 @@ const HomePage = () => {
     searchTimeoutRef.current = setTimeout(() => {
       searchGames(value, 0, false);
     }, DEBOUNCE_MS);
-  };
-
-  const handleSearchResultClick = (gameName) => {
-    setNewGameName(gameName);
-    setSearchResults([]);
-    setShowDropdown(false);
   };
 
   const handleNewGame = () => {
@@ -179,67 +152,49 @@ const HomePage = () => {
         <div className={styles["input-container"]}>
           <label>
             Add New Game:
-            <div className={styles["search-wrapper"]}>
-              <input
-                ref={inputRef}
-                className={styles.input}
-                type="text"
-                value={newGameName}
-                onChange={handleNewGameNameChange}
-                onFocus={() => newGameName.trim() && searchResults.length > 0 && setShowDropdown(true)}
-                data-testid="game-name-input"
-              />
-              {showDropdown && (
-                <div ref={dropdownRef} className={styles["search-dropdown"]} data-testid="search-dropdown">
-                  {isSearching && searchResults.length === 0 ? (
-                    <div className={styles["search-loading"]}>Searching...</div>
-                  ) : searchResults.length > 0 ? (
-                    <>
-                      {searchResults.map((game, index) => (
-                        <div
-                          key={index}
-                          className={styles["search-result"]}
-                          onClick={() => handleSearchResultClick(game)}
-                          data-testid="search-result"
-                        >
-                          {game}
-                        </div>
-                      ))}
-                      {hasMoreResults && (
-                        <button
-                          className={styles["load-more-button"]}
-                          onClick={loadMoreResults}
-                          disabled={isSearching}
-                          data-testid="load-more-button"
-                        >
-                          {isSearching ? "Loading..." : "Load more"}
-                        </button>
-                      )}
-                    </>
-                  ) : (
-                    <div className={styles["search-no-results"]}>No games found</div>
-                  )}
-                </div>
-              )}
-            </div>
+            <input
+              className={styles.input}
+              type="text"
+              value={newGameName}
+              onChange={handleNewGameNameChange}
+              data-testid="game-name-input"
+            />
           </label>
           <button className={styles.button} onClick={handleNewGame}>
             +
           </button>
         </div>
         <h2 data-section="join-game">Join A Game:</h2>
-        <ul>
-          {games.map((game, index) => (
-            <li key={index} className={styles["game-list-item"]}>
-              <button className={styles.button} onClick={() => joinGame(game)}>
-                {game}
+        {isSearching && games.length === 0 ? (
+          <div className={styles["search-loading"]}>Searching...</div>
+        ) : games.length === 0 && newGameName.trim() ? (
+          <div className={styles["search-no-results"]}>No games found</div>
+        ) : (
+          <>
+            <ul>
+              {games.map((game, index) => (
+                <li key={index} className={styles["game-list-item"]} data-testid="game-list-item">
+                  <button className={styles.button} onClick={() => joinGame(game)}>
+                    {game}
+                  </button>
+                  <button className={styles["game-list-delete"]} onClick={() => handleDeleteGame(game)}>
+                    🗑️
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {hasMoreResults && (
+              <button
+                className={styles["load-more-button"]}
+                onClick={loadMoreResults}
+                disabled={isSearching}
+                data-testid="load-more-button"
+              >
+                {isSearching ? "Loading..." : "Load more"}
               </button>
-              <button className={styles["game-list-delete"]} onClick={() => handleDeleteGame(game)}>
-                🗑️
-              </button>
-            </li>
-          ))}
-        </ul>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
