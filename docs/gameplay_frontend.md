@@ -180,13 +180,18 @@ Character cards represent individual characters belonging to players. Each chara
 
 **Data Model** (from backend):
 
-- `level`: Character level
+- `level`: Character level (1 or 2). Higher levels have improved stats. See [Character Levels](/docs/gameplay_spec.md#character-levels) for stats per level.
 - `health`: Current health points
-- `max_health`: Maximum health points
-- `dice`: Number of dice to roll in battle
-- `attack`: Attack bonus value
+- `max_health`: Maximum health points (varies by level)
+- `dice`: Number of dice to roll in battle (varies by level)
+- `attack`: Attack bonus value (varies by level)
 - `effects`: List of active effects applied to this character (each effect has `source` ability name)
 - `is_alive`: Computed property (true when health > 0)
+
+**Level Display:**
+
+- Character level should be displayed prominently on the card
+- Level changes (up or down) should be visually reflected immediately after state update
 
 ### Dead Characters
 

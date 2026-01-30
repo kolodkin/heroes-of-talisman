@@ -97,15 +97,16 @@ All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
 
 ## Effect Types
 
-| Effect                 | Description                | `dispose_actions`                        | `apply_to`          |
-| ---------------------- | -------------------------- | ---------------------------------------- | ------------------- |
-| `SkipTurnEffect`       | Character skips next turn  | `['character_select']`                   | `selected_opponent` |
-| `AttackBonusEffect`    | Increases attack by value  | `['battle_end']`                         | `self`              |
-| `AttackNegBonusEffect` | Decreases attack by value  | `['battle_end']`                         | `battle_opponent`   |
-| `RerollDiceEffect`     | Allows dice reroll on loss | `['battle_end', 'action_reroll_effect']` | `self`              |
-| `DrawCardEffect`       | Draws cards                | `['battle_end']`                         | `self`              |
-| `DefenseBonusEffect`   | Increases defense by value | `['battle_end']`                         | `self`              |
-| `HealEffect`           | Heals character instantly  | `['card_select']`                        | `self`              |
+| Effect                 | Description                          | `dispose_actions`                        | `apply_to`          |
+| ---------------------- | ------------------------------------ | ---------------------------------------- | ------------------- |
+| `SkipTurnEffect`       | Character skips next turn            | `['character_select']`                   | `selected_opponent` |
+| `AttackBonusEffect`    | Increases attack by value            | `['battle_end']`                         | `self`              |
+| `AttackNegBonusEffect` | Decreases attack by value            | `['battle_end']`                         | `battle_opponent`   |
+| `RerollDiceEffect`     | Allows dice reroll on loss           | `['battle_end', 'action_reroll_effect']` | `self`              |
+| `DrawCardEffect`       | Draws cards                          | `['battle_end']`                         | `self`              |
+| `DefenseBonusEffect`   | Increases defense by value           | `['battle_end']`                         | `self`              |
+| `HealEffect`           | Heals character instantly            | `['card_select']`                        | `self`              |
+| `LevelUpEffect`        | Levels up character, restores health | `['card_select']`                        | `self`              |
 
 # Cards
 
@@ -123,11 +124,12 @@ Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when
 
 ## Available Cards
 
-| Card           | Effects                    | Restrictions |
-| -------------- | -------------------------- | ------------ |
-| `metal_armor`  | `DefenseBonusEffect(+2)`   | None         |
-| `sacred_sword` | `AttackBonusEffect(+3)`    | Archer       |
-| `golden_apple` | `HealEffect(+1)` (instant) | None         |
+| Card           | Effects                        | Restrictions |
+| -------------- | ------------------------------ | ------------ |
+| `metal_armor`  | `DefenseBonusEffect(+2)`       | None         |
+| `sacred_sword` | `AttackBonusEffect(+3)`        | Archer       |
+| `golden_apple` | `HealEffect(+1)` (instant)     | None         |
+| `magic_ball`   | `LevelUpEffect(+1)` (instant)  | None         |
 
 ## Available Abilities
 
@@ -158,7 +160,11 @@ The character selection stage allows players to choose which character will act 
 The card draw stage allows players to draw a card from the deck and add it to their character.
 
 - **`CardDrawAction`**: Draws a random card from the deck and stores it in `stage_meta.drawn_card`. The deck auto-resets when empty.
-- **`CardSelectAction`**: Confirms the card selection by applying instant effects (e.g., `HealEffect`) and adding persistent effects to the character. Cards are tracked in `character.cards`. Transitions to `ability_selection` stage.
+- **`CardSelectAction`**: Confirms the card selection by applying instant effects and adding persistent effects to the character. Instant effects are applied immediately:
+  - **`HealEffect`**: Heals character (capped at max_health)
+  - **`LevelUpEffect`**: Increases character level, updates stats to new level, and restores health to new max_health
+
+  Cards are tracked in `character.cards`. Transitions to `ability_selection` stage.
 
 **Card Restrictions:**
 
@@ -214,7 +220,11 @@ The battle stage handles dice rolling for both the active player and opponent, f
 - **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle_dice_roll`. Note: This action can be invoked by the opponent player (not the active player), as the opponent needs to roll their own dice.
 - **`RerollAction`**: Resets dice rolls when both players rolled and the result is a draw. Downgrades `ActivePlayer4`/`Opponent4` back to `ActivePlayer2`/`Opponent2` for re-rolling.
 - **`RerollEffectAction`**: Allows the active player to use a `RerollDiceEffect` after losing a battle. Removes the effect and resets dice for re-rolling. Only available in `battle_dice_roll` stage when the loser has a reroll effect.
-- **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1 (which may set `is_alive=False` if health reaches 0), disposes effects with `'battle_end'` in `dispose_actions`, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
+- **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1 with level-based death handling:
+  - **Level 2+ character at 0 health**: Reduces level by 1 and restores health to new level's max_health (character survives)
+  - **Level 1 character at 0 health**: Character dies (`is_alive=False`)
+
+  Also disposes effects with `'battle_end'` in `dispose_actions`, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
 
 **Stage Transition Logic:**
 
