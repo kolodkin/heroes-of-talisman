@@ -4,7 +4,7 @@ import json
 from http import HTTPStatus
 from pathlib import Path
 
-from fastapi import APIRouter, FastAPI, WebSocket, HTTPException, WebSocketDisconnect, Depends, Request
+from fastapi import APIRouter, FastAPI, WebSocket, HTTPException, WebSocketDisconnect, Depends, Request, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -18,6 +18,7 @@ from .env import REDIS_HOST, REDIS_PORT
 from .game_engine import GameEngine
 from .gameplay.gameplay import StageName, DEFAULT_GAME, GamePlay
 from .gameplay.presets import get_debug_preset, DEBUG_PRESETS
+from .gameplay.common import GameException
 from .db_models import Game as GameTable
 from .database import get_db, AsyncSessionLocal
 
@@ -138,6 +139,38 @@ async def get_games(session: AsyncSession = Depends(get_db)):
     result = await session.execute(select(GameTable.name))
     games = result.scalars().all()
     return list(games)
+
+
+@router.get("/search")
+async def search_games(
+    q: str = Query(default="", description="Search query for game name"),
+    offset: int = Query(default=0, ge=0, description="Number of results to skip"),
+    limit: int = Query(default=5, ge=1, le=50, description="Maximum number of results"),
+    session: AsyncSession = Depends(get_db),
+):
+    """Search for games by name with pagination"""
+    # Build query with case-insensitive search
+    query = select(GameTable.name).order_by(GameTable.name)
+
+    if q:
+        query = query.where(GameTable.name.ilike(f"%{q}%"))
+
+    # Get total count
+    count_result = await session.execute(query)
+    total = len(count_result.scalars().all())
+
+    # Apply pagination
+    query = query.offset(offset).limit(limit)
+    result = await session.execute(query)
+    games = result.scalars().all()
+
+    return {
+        "games": list(games),
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "has_more": offset + len(games) < total,
+    }
 
 
 @router.delete("/{gamename}")
