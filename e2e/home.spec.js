@@ -160,12 +160,13 @@ test("should populate input when clicking search result", async ({ page }) => {
     const gameNameInput = page.locator('[data-testid="game-name-input"]');
     await gameNameInput.fill(prefix);
 
-    // Wait for search dropdown
+    // Wait for search dropdown and result to appear
     const dropdown = page.locator('[data-testid="search-dropdown"]');
     await expect(dropdown).toBeVisible();
 
-    // Click on the search result
+    // Wait for the search result to be visible before clicking
     const result = page.locator('[data-testid="search-result"]').first();
+    await expect(result).toBeVisible();
     await result.click();
 
     // Verify input is populated with the game name
