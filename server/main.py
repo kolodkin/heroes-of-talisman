@@ -12,6 +12,7 @@ from fastapi.responses import PlainTextResponse, FileResponse
 import uvicorn
 from redis.asyncio import Redis
 from sqlmodel import select
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .env import REDIS_HOST, REDIS_PORT
@@ -152,17 +153,20 @@ async def search_games(
     # Strip leading/trailing whitespace from query
     q = q.strip()
 
-    # Build query with case-insensitive search
+    # Build base filter condition
+    filter_condition = GameTable.name.ilike(f"{q}%") if q else None
+
+    # Get total count using COUNT query
+    count_query = select(func.count()).select_from(GameTable)
+    if filter_condition is not None:
+        count_query = count_query.where(filter_condition)
+    count_result = await session.execute(count_query)
+    total = count_result.scalar()
+
+    # Build paginated query
     query = select(GameTable.name).order_by(GameTable.name)
-
-    if q:
-        query = query.where(GameTable.name.ilike(f"{q}%"))
-
-    # Get total count
-    count_result = await session.execute(query)
-    total = len(count_result.scalars().all())
-
-    # Apply pagination
+    if filter_condition is not None:
+        query = query.where(filter_condition)
     query = query.offset(offset).limit(limit)
     result = await session.execute(query)
     games = result.scalars().all()
