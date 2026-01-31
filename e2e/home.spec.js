@@ -113,38 +113,9 @@ test("should trim whitespace from username when joining", async ({ page, gameNam
   await screenshot(page, "joined-with-trimmed-username");
 });
 
-test("should filter games list when typing game name", async ({ page }) => {
-  // Create multiple test games with a common prefix
+test("should filter games list when typing game name and load more", async ({ page }) => {
+  // Create more than 5 games (the default limit) to test load more
   const prefix = `search-test-${Date.now()}`;
-  const gameNames = [`${prefix}-alpha`, `${prefix}-beta`, `${prefix}-gamma`];
-
-  try {
-    for (const name of gameNames) {
-      await createGameViaAPI(name);
-    }
-
-    await setupHomePage(page);
-
-    // Type in the game name input to filter
-    const gameNameInput = page.locator('[data-testid="game-name-input"]');
-    await gameNameInput.fill(prefix);
-
-    // Wait for filtered results
-    const gameItems = page.locator('[data-testid="game-list-item"]');
-    await expect(gameItems).toHaveCount(3);
-
-    await screenshot(page, "games-list-filtered");
-  } finally {
-    // Cleanup
-    for (const name of gameNames) {
-      await deleteGameViaAPI(name);
-    }
-  }
-});
-
-test("should show load more button when more results available", async ({ page }) => {
-  // Create more than 5 games (the default limit)
-  const prefix = `loadmore-test-${Date.now()}`;
   const gameNames = [];
   for (let i = 1; i <= 7; i++) {
     gameNames.push(`${prefix}-game-${i}`);
@@ -169,15 +140,13 @@ test("should show load more button when more results available", async ({ page }
     const loadMoreButton = page.locator('[data-testid="load-more-button"]');
     await expect(loadMoreButton).toBeVisible();
 
-    await screenshot(page, "games-list-with-load-more-button");
+    await screenshot(page, "games-list-filtered-with-load-more");
 
-    // Click load more
+    // Click load more to get remaining results
     await loadMoreButton.click();
-
-    // Wait for more results to load
     await expect(gameItems).toHaveCount(7);
 
-    // Load more button should be hidden now (no more results)
+    // Load more button should be hidden now
     await expect(loadMoreButton).not.toBeVisible();
 
     await screenshot(page, "games-list-all-loaded");
@@ -241,9 +210,12 @@ test("should reset games list when query changes", async ({ page }) => {
 });
 
 test("should show all games when search is cleared", async ({ page }) => {
-  // Create test games
+  // Create more than 5 games to test load more is also reset
   const prefix = `clear-test-${Date.now()}`;
-  const gameNames = [`${prefix}-alpha`, `${prefix}-beta`];
+  const gameNames = [];
+  for (let i = 1; i <= 7; i++) {
+    gameNames.push(`${prefix}-game-${i}`);
+  }
 
   try {
     for (const name of gameNames) {
@@ -254,19 +226,27 @@ test("should show all games when search is cleared", async ({ page }) => {
 
     const gameNameInput = page.locator('[data-testid="game-name-input"]');
     const gameItems = page.locator('[data-testid="game-list-item"]');
+    const loadMoreButton = page.locator('[data-testid="load-more-button"]');
 
-    // Filter games
+    // Filter games - only 5 shown initially
     await gameNameInput.fill(prefix);
-    await expect(gameItems).toHaveCount(2);
+    await expect(gameItems).toHaveCount(5);
+    await expect(loadMoreButton).toBeVisible();
 
-    // Clear search - should show more games than filtered
+    // Load more results
+    await loadMoreButton.click();
+    await expect(gameItems).toHaveCount(7);
+
+    await screenshot(page, "games-list-before-clear");
+
+    // Clear search - should show all games (not just filtered ones)
     await gameNameInput.fill("");
 
-    // Wait for debounce and verify we have more than the filtered count
-    // (we can't predict exact count due to parallel tests, but should have at least our 2 games)
+    // Wait for debounce and verify we have more games
+    // (can't predict exact count due to parallel tests)
     await expect(async () => {
       const count = await gameItems.count();
-      expect(count).toBeGreaterThanOrEqual(2);
+      expect(count).toBeGreaterThanOrEqual(7);
     }).toPass({ timeout: 5000 });
 
     await screenshot(page, "games-list-search-cleared");
