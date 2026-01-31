@@ -29,13 +29,3 @@ Entry point for the game at `/`. Allows users to create, search, and join games.
 ## Component
 
 `src/components/HomePage.jsx` with `HomePage.module.css`
-
-## Tests
-
-E2E tests in `e2e/home.spec.js` cover:
-
-- Username validation (empty, whitespace, valid)
-- Game filtering and load more
-- No results message
-- Query reset behavior
-- Clear search
