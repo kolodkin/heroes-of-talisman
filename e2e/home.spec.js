@@ -169,6 +169,8 @@ test("should show load more button when more results available", async ({ page }
     const loadMoreButton = page.locator('[data-testid="load-more-button"]');
     await expect(loadMoreButton).toBeVisible();
 
+    await screenshot(page, "games-list-with-load-more-button");
+
     // Click load more
     await loadMoreButton.click();
 
