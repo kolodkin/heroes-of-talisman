@@ -179,6 +179,7 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
 
 test("card_draw stage - knight draws magic_ball and levels up", async ({ page, gameName }) => {
   // Create preset game at card_draw stage with knight having drawn magic_ball
+  // Knight starts damaged (1/2 health) to demonstrate that level up restores health to new max
   await createPresetGameViaAPI(gameName, "card_draw_knight_magic_ball");
 
   // Player1 joins
@@ -195,11 +196,11 @@ test("card_draw stage - knight draws magic_ball and levels up", async ({ page, g
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
-  // Verify knight starts at level 1 with L1 stats (health=2/2)
+  // Verify knight starts at level 1 with damaged health (1/2)
   const player1Div = page.locator('[data-player="player1"]');
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
   await expect(knightCard).toHaveAttribute("data-level", "1");
-  await expect(knightCard).toContainText("[2/2]");
+  await expect(knightCard).toContainText("[1/2]");
 
   // Verify magic_ball card is visible
   const sharedArea = page.locator('[data-shared-area-active="true"]');
@@ -226,7 +227,8 @@ test("card_draw stage - knight draws magic_ball and levels up", async ({ page, g
   const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
   await expandButtonAfter.click();
 
-  // Verify knight leveled up to level 2 with L2 stats (health=6/6)
+  // Verify knight leveled up to level 2 with full health at new max (6/6)
+  // Note: Level up restores health to new level's max_health
   await expect(knightCard).toHaveAttribute("data-level", "2");
   await expect(knightCard).toContainText("[6/6]");
   await screenshot(page, "magic-ball-knight-after-level-up");

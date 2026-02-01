@@ -475,16 +475,19 @@ def get_debug_preset(
         )
     elif preset == "card_draw_knight_magic_ball":
         # Knight draws magic_ball (levels up from 1 to 2)
-        # Knight L1: health=2, max_health=2, dice=1, attack=1
-        # After level up: health=6, max_health=6, dice=2, attack=1
+        # Knight L1: health=1 (damaged), max_health=2, dice=1, attack=1
+        # After level up: health=6, max_health=6, dice=2, attack=1 (health restored to new max)
         from .cards import CARD_MAGIC_BALL
+
+        characters_p1 = init_characters()
+        characters_p1[CHARACTER_KNIGHT].health = 1  # Damaged knight to show health restore on level up
 
         ret = GamePlay(
             stage=STAGE_CARD_DRAW,
             active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
             stage_meta=CardDrawMeta(drawn_card=CARD_MAGIC_BALL),
             players={
-                p1_name: Player(name=p1_name, characters=init_characters()),
+                p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
