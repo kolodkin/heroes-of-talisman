@@ -24,6 +24,7 @@ EFFECT_HEAL = "heal"
 EFFECT_REROLL_DICE = "reroll_dice"
 EFFECT_SKIP_TURN = "skip_turn"
 EFFECT_DRAW_CARD = "draw_card"
+EFFECT_LEVEL_UP = "level_up"
 
 ########################################################
 # Effect apply_to targets
@@ -157,9 +158,22 @@ class HealEffect(Effect):
     heal_amount: int
 
 
+class LevelUpEffect(Effect):
+    """
+    Character's level is increased by 1 and health is restored to max.
+    Disposed at card selection (instant effect).
+    Applied to self (active player's character).
+    """
+
+    name: Literal[EFFECT_LEVEL_UP] = EFFECT_LEVEL_UP
+    dispose_actions: list[ActionName] = [ACTION_CARD_SELECT]
+    apply_to: ApplyToTarget = APPLY_TO_SELF
+    level_increase: int = 1
+
+
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, HealEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, HealEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect],
     Field(discriminator="name"),
 ]
 
@@ -174,6 +188,7 @@ class EffectTotal(StrictModel):
     attack_neg_bonus: int = 0
     defense_bonus: int = 0
     heal_amount: int = 0
+    level_up_amount: int = 0
     skip_next_turn: bool = False
     reroll_dice_available: bool = False
     draw_card_count: int = 0

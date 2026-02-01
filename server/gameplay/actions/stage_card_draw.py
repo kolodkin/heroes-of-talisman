@@ -9,9 +9,9 @@ This module implements actions for the card draw stage:
 import copy
 from .action import Action
 from ..common import GameException, ReportedException
-from ..effects import APPLY_TO_SELF, APPLY_TO_BATTLE_OPPONENT, HealEffect
+from ..effects import APPLY_TO_SELF, APPLY_TO_BATTLE_OPPONENT, HealEffect, LevelUpEffect
 from ..cards import CardName, CARDS_MAP
-from ..gameplay import STAGE_CARD_DRAW, STAGE_ABILITY_SELECTION
+from ..gameplay import STAGE_CARD_DRAW, STAGE_ABILITY_SELECTION, CHARACTER_STATS_BY_LEVEL
 from ..gameplay import GamePlay, CardDrawMeta, AbilitySelectMeta
 
 
@@ -98,13 +98,31 @@ class CardSelectAction(Action):
                     # Deep copy the effect to avoid modifying the original card definition
                     effect_copy = copy.deepcopy(effect)
 
-                    # Handle instant effects (like HealEffect) immediately
+                    # Handle instant effects (like HealEffect, LevelUpEffect) immediately
                     if isinstance(effect_copy, HealEffect):
                         character.health = min(
                             character.max_health,
                             character.health + effect_copy.heal_amount
                         )
                         # HealEffect is disposed immediately, not added to effects
+                    elif isinstance(effect_copy, LevelUpEffect):
+                        # Increase character level
+                        new_level = character.level + effect_copy.level_increase
+                        # Get stats for new level (fallback to highest available level)
+                        max_available_level = max(CHARACTER_STATS_BY_LEVEL.keys())
+                        level_stats = CHARACTER_STATS_BY_LEVEL.get(
+                            new_level,
+                            CHARACTER_STATS_BY_LEVEL[max_available_level]
+                        )
+                        char_stats = level_stats[character_type]
+                        # Update character stats
+                        character.level = new_level
+                        character.max_health = char_stats["max_health"]
+                        character.dice = char_stats["dice"]
+                        character.attack = char_stats["attack"]
+                        # Restore health to new max_health
+                        character.health = character.max_health
+                        # LevelUpEffect is disposed immediately, not added to effects
                     else:
                         character.effects.append(effect_copy)
 

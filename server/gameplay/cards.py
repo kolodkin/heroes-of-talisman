@@ -10,6 +10,7 @@ from .effects import (
     EFFECT_DEFENSE_BONUS,
     EFFECT_ATTACK_BONUS,
     EFFECT_HEAL,
+    EFFECT_LEVEL_UP,
     # Apply to constants
     APPLY_TO_SELF,
 )
@@ -20,7 +21,8 @@ from .effects import (
 CARD_METAL_ARMOR = "metal_armor"
 CARD_SACRED_SWORD = "sacred_sord"
 CARD_GOLDEN_APPLE = "golden_apple"
-CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE]
+CARD_MAGIC_BALL = "magic_ball"
+CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL]
 CardName = Literal[*CARDS_NAMES]
 
 ########################################################
@@ -32,6 +34,7 @@ EFFECTS_SOURCE_CARD_MAP: dict[str, set[str]] = {
     EFFECT_DEFENSE_BONUS: {CARD_METAL_ARMOR},
     EFFECT_ATTACK_BONUS: {CARD_SACRED_SWORD},
     EFFECT_HEAL: {CARD_GOLDEN_APPLE},
+    EFFECT_LEVEL_UP: {CARD_MAGIC_BALL},
 }
 
 # Import Effect classes after defining constants to avoid circular import
@@ -40,6 +43,7 @@ from .effects import (
     DefenseBonusEffect,
     AttackBonusEffect,
     HealEffect,
+    LevelUpEffect,
 )
 
 
@@ -67,6 +71,12 @@ CARDS_MAP: dict[CardName, Card] = {
         name=CARD_GOLDEN_APPLE,
         effects=[
             HealEffect(source=CARD_GOLDEN_APPLE, heal_amount=1),
+        ],
+    ),
+    CARD_MAGIC_BALL: Card(
+        name=CARD_MAGIC_BALL,
+        effects=[
+            LevelUpEffect(source=CARD_MAGIC_BALL),
         ],
     ),
 }

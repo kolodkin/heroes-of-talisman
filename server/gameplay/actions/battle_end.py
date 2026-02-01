@@ -2,18 +2,48 @@
 Battle End Action
 
 Ends the battle, calculates winner, and reduces loser's health by 1.
+At level 2+, dropping to 0 health reduces level instead of dying.
+At level 1, dropping to 0 health means the character dies.
 """
 
 from .action import Action, rotate_to_next_player
-from ..common import GameException, ReportedException, ACTION_BATTLE_END
+from ..common import GameException, ReportedException, ACTION_BATTLE_END, ChatacterType
 from ..gameplay import (
     STAGE_BATTLE_END,
     GamePlay,
+    Character,
     ActivePlayer3,
     ActivePlayer4,
     Opponent3,
     Opponent4,
+    CHARACTER_STATS_BY_LEVEL,
 )
+
+
+def apply_damage_with_level_check(character: Character, character_type: ChatacterType, damage: int) -> None:
+    """
+    Apply damage to a character with level-based death mechanic.
+
+    If character health drops to 0 or below:
+    - At level 2+: Reduce level by 1 and restore health to new level's max_health
+    - At level 1: Character dies (health stays at 0)
+    """
+    character.health = max(0, character.health - damage)
+
+    # Check if character "died" (health reached 0)
+    if character.health <= 0 and character.level > 1:
+        # Reduce level by 1
+        new_level = character.level - 1
+        level_stats = CHARACTER_STATS_BY_LEVEL.get(new_level, CHARACTER_STATS_BY_LEVEL[1])
+        char_stats = level_stats[character_type]
+
+        # Update character to new level stats
+        character.level = new_level
+        character.max_health = char_stats["max_health"]
+        character.dice = char_stats["dice"]
+        character.attack = char_stats["attack"]
+        # Restore health to new max_health
+        character.health = character.max_health
 
 
 class BattleEndAction(Action):
@@ -55,11 +85,19 @@ class BattleEndAction(Action):
         if active_score > opponent_score:
             # Active player wins, opponent loses health
             damage = max(0, 1 - opponent_character.effect.defense_bonus)
-            opponent_character.health = max(0, opponent_character.health - damage)
+            apply_damage_with_level_check(
+                opponent_character,
+                self.game.opponent.character,
+                damage
+            )
         elif opponent_score > active_score:
             # Opponent wins, active player loses health
             damage = max(0, 1 - active_character.effect.defense_bonus)
-            active_character.health = max(0, active_character.health - damage)
+            apply_damage_with_level_check(
+                active_character,
+                self.game.active.character,
+                damage
+            )
         # If tied, no one loses health
 
         # Dispose effects with 'battle_end' in their dispose_actions list

@@ -65,9 +65,27 @@ The game features three distinct character types:
 - **Archer**: Has the highest health
 - **Mage**: Has the strongest special skills
 
+## Character Levels
+
+Characters can progress through levels, gaining improved stats at higher levels.
+
+| Character | Level | Max Health | Dice | Attack | Bonuses from Previous Level  |
+| --------- | ----- | ---------- | ---- | ------ | ---------------------------- |
+| Knight    | 1     | 2          | 1    | 1      | -                            |
+| Knight    | 2     | 6          | 2    | 1      | +4 max life, +1 dice         |
+| Archer    | 1     | 3          | 1    | 0      | -                            |
+| Archer    | 2     | 7          | 2    | 2      | +4 max life, +1 dice, +2 attack |
+| Mage      | 1     | 2          | 1    | 0      | -                            |
+| Mage      | 2     | 6          | 2    | 1      | +4 max life, +1 dice, +1 attack |
+
+### Level Progression
+
+- **Leveling Up**: Characters level up when using the Magic Ball card. Upon leveling up, health is restored to the new max health.
+- **Leveling Down**: When a character at level 2+ drops to 0 health, they lose one level instead of dying. Their stats are reduced to the lower level and health is restored to the new max health.
+
 ## Lifespan
 
-Once a character's health hits 0, it dies. A dead character can no longer be selected neither as an active player character nor as an opponent.
+A character dies only when their health hits 0 while at **level 1**. Characters at level 2 or higher will instead lose a level and have their health restored (see Level Progression above). A dead character can no longer be selected neither as an active player character nor as an opponent.
 
 # Abilities & Effects
 
@@ -84,7 +102,7 @@ Players collect cards throughout the game that provide bonuses and effects. Card
 ## Card Types
 
 - **Equipment Cards**: Provide persistent bonuses (attack, defense) until battle ends
-- **Instant Cards**: Apply immediate effects (healing) when selected
+- **Instant Cards**: Apply immediate effects (healing, level up) when selected
 
 ## Card Restrictions
 

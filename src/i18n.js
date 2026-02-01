@@ -77,6 +77,10 @@ const resources = {
           name: "תפוח זהב",
           description: "+1 לבריאות - לא מעל המקסימום",
         },
+        magic_ball: {
+          name: "כדור קסם",
+          description: "מעלה דרגה ומחזיר בריאות למקסימום",
+        },
       },
       card_draw: {
         deck: "חפיסה",

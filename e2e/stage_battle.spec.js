@@ -1,5 +1,16 @@
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, joinGameViaUrl } from "./test_helpers.js";
+import { test, expect, screenshot, joinGameViaUrl, waitForStage } from "./test_helpers.js";
+
+/**
+ * Tests for battle stage functionality using presets.
+ *
+ * Tests cover:
+ * - Player 1 wins, Player 2 wins scenarios
+ * - Draw with reroll
+ * - Reroll effect after loss
+ * - Attack bonus effect causing draw
+ * - Level down mechanic (L2 character drops to L1 instead of dying)
+ */
 
 /**
  * Helper to verify battle stage is displayed with expected participants
@@ -295,6 +306,61 @@ test("battle stage - draw with attack bonus effect", async ({ page, gameName }) 
   const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
   await expect(activeRollButton).toBeVisible();
   await expect(opponentRollButton).toBeVisible();
+
+  // Cleanup
+  await page2.close();
+});
+
+test("battle stage - level 2 knight loses and drops to level 1", async ({ page, gameName }) => {
+  // Create preset game at battle_end stage with level 2 knight about to lose
+  await createPresetGameViaAPI(gameName, "battle_level_down");
+
+  // Player1 joins (knight L2)
+  await joinGameViaUrl(page, "player1", gameName);
+
+  // Player2 joins (mage L1)
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName);
+
+  // Verify we're in battle_end stage
+  await expect(page.locator('[data-game-stage="battle_end"]')).toBeVisible();
+
+  // Expand players to see knight's stats before level down
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  await expandButton.click();
+
+  // Verify knight starts at level 2 with 1 health (about to trigger level down)
+  const player1Div = page.locator('[data-player="player1"]');
+  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
+  await expect(knightCard).toHaveAttribute("data-level", "2");
+  await expect(knightCard).toContainText("[1/6]");
+
+  // Screenshot with knight at level 2 before battle ends
+  await screenshot(page, "level-down-knight-before-battle-end");
+
+  // Minimize players before clicking continue
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
+
+  // Click continue button to end battle (knight loses and should drop level)
+  const continueButton = page.locator("[data-continue-button]");
+  await expect(continueButton).toBeVisible();
+  await continueButton.click();
+
+  // Wait for stage transition to character_select
+  await waitForStage(page, "character_select");
+
+  // Expand players to see knight's stats after level down
+  const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
+  await expandButtonAfter.click();
+
+  // Verify knight dropped to level 1 with L1 stats (health=2/2, restored to max)
+  await expect(knightCard).toHaveAttribute("data-level", "1");
+  await expect(knightCard).toContainText("[2/2]");
+  await screenshot(page, "level-down-knight-after-battle-end");
+
+  // Verify knight is still alive (didn't die because was at L2)
+  await expect(knightCard).not.toHaveAttribute("data-is-alive", "false");
 
   // Cleanup
   await page2.close();

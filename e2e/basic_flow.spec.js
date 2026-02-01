@@ -43,6 +43,9 @@ async function validatePlayerCharacters(page, playerName) {
   // Validate player div is visible
   await expect(playerDiv).toBeVisible();
 
+  // Dismiss any toasts that might be overlaying the expand button
+  await dismissConnectionToast(page);
+
   // Expand player cards if minimized (click + button to show full cards with images)
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   if (await expandButton.isVisible()) {
