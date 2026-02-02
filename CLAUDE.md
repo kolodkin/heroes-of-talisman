@@ -1,5 +1,11 @@
 # Agent Guidelines
 
+## Related Documentation
+
+- [Gameplay Spec](docs/gameplay_spec.md) - Game mechanics and rules
+- [Gameplay Frontend](docs/gameplay_frontend.md) - Frontend implementation details
+- [Gameplay Backend](docs/gameplay_backend.md) - Backend implementation details
+
 ## Git Workflow
 
 After each `git push`, use the `check-pr` skill to verify GitHub Actions workflows are successful.
@@ -11,7 +17,7 @@ If any workflows fail, analyze the error logs and fix issues automatically.
 - Whenever a file is referenced, always verify if a corresponding <filename>.md or <foldername>.md file exists in the same directory to gather additional context.
 - Always run Python scripts using the following command to ensure correct module resolution:
   `PYTHONPATH=. uv run <script path>`
-- When coding, check if a file named test_<filename>.py exists in the same folder as the file you are working on. If it exists, use it for testing. If it does not exist, recommend creating one following the Testing Guidelines.
+- When coding, check if a file named test\_<filename>.py exists in the same folder as the file you are working on. If it exists, use it for testing. If it does not exist, recommend creating one following the Testing Guidelines.
 
 # Development Services
 
@@ -180,14 +186,12 @@ def test_action_with_properties():
 All imports must be at the top of the file, organized in the following order:
 
 **Non-components first:**
+
 1. **React** (e.g., `import React, { useState } from "react"`)
 2. **Third-party packages** (e.g., `import { useParams } from "react-router-dom"`)
 3. **Local utilities** (e.g., `import { formatDate } from "./utils"`)
 
-**Then components with their CSS (utility components first):**
-4. **Utility components** with CSS immediately after
-5. **Feature components** with CSS immediately after
-6. **Current component's CSS** last
+**Then components with their CSS (utility components first):** 4. **Utility components** with CSS immediately after 5. **Feature components** with CSS immediately after 6. **Current component's CSS** last
 
 **Good:**
 
@@ -210,7 +214,7 @@ import styles from "./GamePlay.module.css";
 **Avoid:**
 
 ```javascript
-import styles from "./GamePlay.module.css";  // Wrong: CSS before React
+import styles from "./GamePlay.module.css"; // Wrong: CSS before React
 import { CharacterCard } from "./CharacterCard";
 import React from "react";
 ```
