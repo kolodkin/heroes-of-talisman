@@ -89,11 +89,19 @@
 }
 
 /* Search status styles */
-.search-loading,
-.search-no-results {
+.search-loading {
   padding: 10px;
   color: #888888;
   text-align: center;
+}
+
+.search-no-results {
+  padding: 10px;
+  color: #ffffff;
+  text-align: center;
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 5px;
 }
 
 /* Load more button */
