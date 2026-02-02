@@ -149,10 +149,6 @@ test("should filter games list when typing game name and load more twice", async
     await expect(gameItems).toHaveCount(10);
     await expect(loadMoreButton).toBeVisible();
 
-    // Scroll to load more button before screenshot
-    await loadMoreButton.scrollIntoViewIfNeeded();
-    await screenshot(page, "games-list-after-first-load-more-10-games");
-
     // Click load more second time - should show all 15 games
     await loadMoreButton.click();
     await expect(gameItems).toHaveCount(15);
