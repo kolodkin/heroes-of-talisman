@@ -23,7 +23,7 @@
 }
 
 /* Mobile landscape: horizontal layout */
-@media (max-width: 768px) and (orientation: landscape) {
+@media (max-width: 900px) and (orientation: landscape) {
   .homepage-container {
     flex-direction: row;
     align-items: flex-start;
