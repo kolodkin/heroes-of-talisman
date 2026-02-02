@@ -12,6 +12,30 @@
 .homepage-container {
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.left-section,
+.right-section {
+  flex: 1;
+}
+
+/* Mobile landscape: horizontal layout */
+@media (max-width: 768px) and (orientation: landscape) {
+  .homepage-container {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .left-section {
+    text-align: left;
+  }
+
+  .right-section {
+    flex: 1;
+  }
 }
 
 .homepage::before {

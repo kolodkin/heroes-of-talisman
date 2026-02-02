@@ -142,59 +142,63 @@ const HomePage = () => {
   return (
     <div className={styles.homepage}>
       <div className={styles["homepage-container"]}>
-        <h1>Welcome to Heroes of Talisman</h1>
-        <div className={styles["input-container"]}>
-          <label>
-            Enter your name:
-            <input className={styles.input} type="text" value={username} onChange={handleNameChange} />
-          </label>
+        <div className={styles["left-section"]}>
+          <h1>Welcome to Heroes of Talisman</h1>
+          <div className={styles["input-container"]}>
+            <label>
+              Enter your name:
+              <input className={styles.input} type="text" value={username} onChange={handleNameChange} />
+            </label>
+          </div>
+          <div className={styles["input-container"]}>
+            <label>
+              Add New Game:
+              <input
+                className={styles.input}
+                type="text"
+                value={newGameName}
+                onChange={handleNewGameNameChange}
+                data-testid="game-name-input"
+              />
+            </label>
+            <button className={styles.button} onClick={handleNewGame}>
+              +
+            </button>
+          </div>
         </div>
-        <div className={styles["input-container"]}>
-          <label>
-            Add New Game:
-            <input
-              className={styles.input}
-              type="text"
-              value={newGameName}
-              onChange={handleNewGameNameChange}
-              data-testid="game-name-input"
-            />
-          </label>
-          <button className={styles.button} onClick={handleNewGame}>
-            +
-          </button>
+        <div className={styles["right-section"]}>
+          <h2 data-section="join-game">Join A Game:</h2>
+          {isSearching && games.length === 0 ? (
+            <div className={styles["search-loading"]}>Searching...</div>
+          ) : games.length === 0 && newGameName.trim() ? (
+            <div className={styles["search-no-results"]}>No games found</div>
+          ) : (
+            <>
+              <ul>
+                {games.map((game, index) => (
+                  <li key={index} className={styles["game-list-item"]} data-testid="game-list-item">
+                    <button className={styles.button} onClick={() => joinGame(game)}>
+                      {game}
+                    </button>
+                    <button className={styles["game-list-delete"]} onClick={() => handleDeleteGame(game)}>
+                      🗑️
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {hasMoreResults && (
+                <button
+                  className={styles["load-more-button"]}
+                  onClick={loadMoreResults}
+                  disabled={isSearching}
+                  data-testid="load-more-button"
+                >
+                  {isSearching ? "Loading..." : "Load more"}
+                </button>
+              )}
+            </>
+          )}
         </div>
-        <h2 data-section="join-game">Join A Game:</h2>
-        {isSearching && games.length === 0 ? (
-          <div className={styles["search-loading"]}>Searching...</div>
-        ) : games.length === 0 && newGameName.trim() ? (
-          <div className={styles["search-no-results"]}>No games found</div>
-        ) : (
-          <>
-            <ul>
-              {games.map((game, index) => (
-                <li key={index} className={styles["game-list-item"]} data-testid="game-list-item">
-                  <button className={styles.button} onClick={() => joinGame(game)}>
-                    {game}
-                  </button>
-                  <button className={styles["game-list-delete"]} onClick={() => handleDeleteGame(game)}>
-                    🗑️
-                  </button>
-                </li>
-              ))}
-            </ul>
-            {hasMoreResults && (
-              <button
-                className={styles["load-more-button"]}
-                onClick={loadMoreResults}
-                disabled={isSearching}
-                data-testid="load-more-button"
-              >
-                {isSearching ? "Loading..." : "Load more"}
-              </button>
-            )}
-          </>
-        )}
       </div>
     </div>
   );
