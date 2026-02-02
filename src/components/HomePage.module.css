@@ -56,6 +56,11 @@
     overflow-y: auto;
     min-height: 0;
   }
+
+  .homepage::before {
+    background: url("/images/background1.png") no-repeat top center;
+    background-size: cover;
+  }
 }
 
 .homepage::before {
