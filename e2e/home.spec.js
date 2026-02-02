@@ -114,10 +114,10 @@ test("should trim whitespace from username when joining", async ({ page, gameNam
 });
 
 test("should filter games list when typing game name and load more twice", async ({ page }) => {
-  // Create more than 10 games to test load more twice and verify scroll
+  // Create 15 games to test load more twice (5 -> 10 -> 15)
   const prefix = `search-test-${Date.now()}`;
   const gameNames = [];
-  for (let i = 1; i <= 12; i++) {
+  for (let i = 1; i <= 15; i++) {
     gameNames.push(`${prefix}-game-${String(i).padStart(2, "0")}`);
   }
 
@@ -140,23 +140,29 @@ test("should filter games list when typing game name and load more twice", async
     const loadMoreButton = page.locator('[data-testid="load-more-button"]');
     await expect(loadMoreButton).toBeVisible();
 
-    await screenshot(page, "games-list-filtered-with-load-more");
+    // Scroll to load more button before screenshot
+    await loadMoreButton.scrollIntoViewIfNeeded();
+    await screenshot(page, "games-list-filtered-5-games");
 
     // Click load more first time - should show 10 games
     await loadMoreButton.click();
     await expect(gameItems).toHaveCount(10);
     await expect(loadMoreButton).toBeVisible();
 
-    await screenshot(page, "games-list-after-first-load-more");
+    // Scroll to load more button before screenshot
+    await loadMoreButton.scrollIntoViewIfNeeded();
+    await screenshot(page, "games-list-after-first-load-more-10-games");
 
-    // Click load more second time - should show all 12 games
+    // Click load more second time - should show all 15 games
     await loadMoreButton.click();
-    await expect(gameItems).toHaveCount(12);
+    await expect(gameItems).toHaveCount(15);
 
     // Load more button should be hidden now
     await expect(loadMoreButton).not.toBeVisible();
 
-    await screenshot(page, "games-list-all-loaded");
+    // Scroll to last game item before final screenshot
+    await gameItems.last().scrollIntoViewIfNeeded();
+    await screenshot(page, "games-list-all-15-games-loaded");
   } finally {
     for (const name of gameNames) {
       await deleteGameViaAPI(name);
