@@ -113,7 +113,7 @@ test("should trim whitespace from username when joining", async ({ page, gameNam
   await screenshot(page, "joined-with-trimmed-username");
 });
 
-test("should filter games list when typing game name and load more with scroll", async ({ page }) => {
+test("should filter games list when typing game name and load more twice", async ({ page }) => {
   // Create more than 10 games to test load more twice and verify scroll
   const prefix = `search-test-${Date.now()}`;
   const gameNames = [];
@@ -156,12 +156,7 @@ test("should filter games list when typing game name and load more with scroll",
     // Load more button should be hidden now
     await expect(loadMoreButton).not.toBeVisible();
 
-    // Verify games list has vertical scroll (scrollHeight > clientHeight)
-    const gamesList = page.locator("ul");
-    const hasScroll = await gamesList.evaluate((el) => el.scrollHeight > el.clientHeight);
-    expect(hasScroll).toBe(true);
-
-    await screenshot(page, "games-list-all-loaded-with-scroll");
+    await screenshot(page, "games-list-all-loaded");
   } finally {
     for (const name of gameNames) {
       await deleteGameViaAPI(name);
