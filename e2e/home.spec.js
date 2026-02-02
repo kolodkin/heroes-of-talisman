@@ -113,12 +113,12 @@ test("should trim whitespace from username when joining", async ({ page, gameNam
   await screenshot(page, "joined-with-trimmed-username");
 });
 
-test("should filter games list when typing game name and load more", async ({ page }) => {
-  // Create more than 5 games (the default limit) to test load more
+test("should filter games list when typing game name and load more with scroll", async ({ page }) => {
+  // Create more than 10 games to test load more twice and verify scroll
   const prefix = `search-test-${Date.now()}`;
   const gameNames = [];
-  for (let i = 1; i <= 7; i++) {
-    gameNames.push(`${prefix}-game-${i}`);
+  for (let i = 1; i <= 12; i++) {
+    gameNames.push(`${prefix}-game-${String(i).padStart(2, "0")}`);
   }
 
   try {
@@ -142,14 +142,26 @@ test("should filter games list when typing game name and load more", async ({ pa
 
     await screenshot(page, "games-list-filtered-with-load-more");
 
-    // Click load more to get remaining results
+    // Click load more first time - should show 10 games
     await loadMoreButton.click();
-    await expect(gameItems).toHaveCount(7);
+    await expect(gameItems).toHaveCount(10);
+    await expect(loadMoreButton).toBeVisible();
+
+    await screenshot(page, "games-list-after-first-load-more");
+
+    // Click load more second time - should show all 12 games
+    await loadMoreButton.click();
+    await expect(gameItems).toHaveCount(12);
 
     // Load more button should be hidden now
     await expect(loadMoreButton).not.toBeVisible();
 
-    await screenshot(page, "games-list-all-loaded");
+    // Verify games list has vertical scroll (scrollHeight > clientHeight)
+    const gamesList = page.locator("ul");
+    const hasScroll = await gamesList.evaluate((el) => el.scrollHeight > el.clientHeight);
+    expect(hasScroll).toBe(true);
+
+    await screenshot(page, "games-list-all-loaded-with-scroll");
   } finally {
     for (const name of gameNames) {
       await deleteGameViaAPI(name);
@@ -210,15 +222,16 @@ test("should reset games list when query changes", async ({ page }) => {
 });
 
 test("should show all games when search is cleared", async ({ page }) => {
-  // Create more than 5 games to test load more is also reset
-  const prefix = `clear-test-${Date.now()}`;
-  const gameNames = [];
-  for (let i = 1; i <= 7; i++) {
-    gameNames.push(`${prefix}-game-${i}`);
-  }
+  // Create games with two different prefixes
+  const timestamp = Date.now();
+  const prefixA = `clear-test-a-${timestamp}`;
+  const prefixB = `clear-test-b-${timestamp}`;
+  const gamesA = [`${prefixA}-game-1`, `${prefixA}-game-2`, `${prefixA}-game-3`];
+  const gamesB = [`${prefixB}-game-1`, `${prefixB}-game-2`];
+  const allGames = [...gamesA, ...gamesB];
 
   try {
-    for (const name of gameNames) {
+    for (const name of allGames) {
       await createGameViaAPI(name);
     }
 
@@ -226,32 +239,29 @@ test("should show all games when search is cleared", async ({ page }) => {
 
     const gameNameInput = page.locator('[data-testid="game-name-input"]');
     const gameItems = page.locator('[data-testid="game-list-item"]');
-    const loadMoreButton = page.locator('[data-testid="load-more-button"]');
 
-    // Filter games - only 5 shown initially
-    await gameNameInput.fill(prefix);
-    await expect(gameItems).toHaveCount(5);
-    await expect(loadMoreButton).toBeVisible();
+    // Search for prefix A - should only show A games
+    await gameNameInput.fill(prefixA);
+    await expect(gameItems).toHaveCount(3);
 
-    // Load more results
-    await loadMoreButton.click();
-    await expect(gameItems).toHaveCount(7);
+    await screenshot(page, "games-list-prefix-a-filtered");
 
-    await screenshot(page, "games-list-before-clear");
-
-    // Clear search - should show all games (not just filtered ones)
+    // Clear search - should show both A and B games
     await gameNameInput.fill("");
 
-    // Wait for debounce and verify we have more games
-    // (can't predict exact count due to parallel tests)
+    // Wait for debounce and verify both prefixes are visible
     await expect(async () => {
       const count = await gameItems.count();
-      expect(count).toBeGreaterThanOrEqual(7);
+      expect(count).toBeGreaterThanOrEqual(5);
     }).toPass({ timeout: 5000 });
 
-    await screenshot(page, "games-list-search-cleared");
+    // Verify we can see games from both prefixes
+    await expect(page.locator(`[data-testid="game-list-item"]:has-text("${prefixA}")`).first()).toBeVisible();
+    await expect(page.locator(`[data-testid="game-list-item"]:has-text("${prefixB}")`).first()).toBeVisible();
+
+    await screenshot(page, "games-list-search-cleared-shows-both");
   } finally {
-    for (const name of gameNames) {
+    for (const name of allGames) {
       await deleteGameViaAPI(name);
     }
   }
