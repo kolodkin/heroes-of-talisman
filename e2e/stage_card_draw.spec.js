@@ -43,9 +43,8 @@ test("card_draw stage - knight draws metal_armor successfully", async ({ page, g
 
   // Should transition to ability_selection stage
   await waitForStage(page, "ability_selection");
-  await screenshot(page, "card-selected-transition-to-ability");
 
-  // Expand players to see character cards with effects
+  // Expand players to see character cards with armor icon
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -53,6 +52,12 @@ test("card_draw stage - knight draws metal_armor successfully", async ({ page, g
   const player1Div = page.locator('[data-player="player1"]');
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
   await expect(knightCard).toHaveAttribute("data-effects", /defense_bonus/);
+
+  // Verify armor icon is visible on knight card
+  await expect(knightCard.locator("[data-icon-armor]")).toBeVisible();
+
+  // Screenshot with expanded player menu showing armor icon
+  await screenshot(page, "card-selected-transition-to-ability");
 
   // Minimize players after check
   const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
