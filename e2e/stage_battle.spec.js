@@ -149,8 +149,8 @@ test("battle stage - draw with reroll", async ({ page, gameName }) => {
   // Verify battle stage
   await verifyBattleStage(page, "player1", "player2", "knight", "archer");
 
-  // For draw, scores and winner badges are not shown (showWinner is false)
-  // Just verify dice are visible
+  // For draw, scores are shown but winner badges are not
+  // Verify dice are visible
   const activeDice = page.locator('[data-battle-role="active"] [class*="diceContainer"]');
   const opponentDice = page.locator('[data-battle-role="opponent"] [class*="diceContainer"]');
   await expect(activeDice.first()).toBeVisible();
@@ -162,11 +162,12 @@ test("battle stage - draw with reroll", async ({ page, gameName }) => {
   await expect(activeWinnerBadge).not.toBeVisible();
   await expect(opponentWinnerBadge).not.toBeVisible();
 
-  // Verify no score is shown for draw
-  const activeScore = page.locator('[data-battle-role="active"] [data-score]');
-  const opponentScore = page.locator('[data-battle-role="opponent"] [data-score]');
-  await expect(activeScore).not.toBeVisible();
-  await expect(opponentScore).not.toBeVisible();
+  // Verify scores are shown for draw (both should be equal: knight=5+1=6, archer=6+0=6)
+  const player1Score = await getScore(page, "active");
+  const player2Score = await getScore(page, "opponent");
+  expect(player1Score).toBe(6);
+  expect(player2Score).toBe(6);
+  await screenshot(page, "draw-with-scores");
 
   // Verify reroll button appears
   const rerollButton = page.locator("[data-reroll-button]");
@@ -286,6 +287,12 @@ test("battle stage - draw with attack bonus effect", async ({ page, gameName }) 
   // Verify attack bonus effect is present in player1's character card
   const activeCharacterCard = page.locator('[data-battle-role="active"] [data-character="knight"]');
   await expect(activeCharacterCard).toHaveAttribute("data-effects", /attack_bonus/);
+
+  // Verify scores are shown for draw (player1: 4+1+2=7, player2: 6+1=7)
+  const player1Score = await getScore(page, "active");
+  const player2Score = await getScore(page, "opponent");
+  expect(player1Score).toBe(7);
+  expect(player2Score).toBe(7);
 
   // Verify reroll button is visible (indicates draw)
   const rerollButton = page.locator("[data-reroll-button]");

@@ -122,6 +122,9 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   // Detect draw: both rolled, all dice stopped, but neither is winner
   const isDraw = diceStoppedCount >= totalExpectedDice && bothRolled && !activeIsWinner && !opponentIsWinner;
 
+  // Show results (scores) when there's a winner OR it's a draw
+  const showResults = showWinner || isDraw;
+
   // Detect if active player lost and has reroll effect available
   const activeLost = diceStoppedCount >= totalExpectedDice && bothRolled && opponentIsWinner && !activeIsWinner;
   const hasRerollEffect = activeCharacter?.effect?.reroll_dice_available ?? false;
@@ -162,9 +165,9 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
     }
   };
 
-  // Get scores from backend (only when winner is set)
-  const activeScore = showWinner ? (gamePlay.active?.result?.score ?? null) : null;
-  const opponentScore = showWinner ? (opponent?.result?.score ?? null) : null;
+  // Get scores from backend (when winner is set or it's a draw)
+  const activeScore = showResults ? (gamePlay.active?.result?.score ?? null) : null;
+  const opponentScore = showResults ? (opponent?.result?.score ?? null) : null;
 
   // Determine action button
   let actionButtonContent = null;
@@ -202,7 +205,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         score={activeScore}
         onDiceStop={handleDiceStop}
         winner={showWinner && activeIsWinner}
-        showScore={showWinner}
+        showScore={showResults}
       />
       <BattleParticipant
         playerName={opponent.player}
@@ -215,7 +218,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         score={opponentScore}
         onDiceStop={handleDiceStop}
         winner={showWinner && opponentIsWinner}
-        showScore={showWinner}
+        showScore={showResults}
       />
     </div>
   );
