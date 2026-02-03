@@ -4,7 +4,7 @@ import json
 from http import HTTPStatus
 from pathlib import Path
 
-from fastapi import APIRouter, FastAPI, WebSocket, HTTPException, WebSocketDisconnect, Depends, Request
+from fastapi import APIRouter, FastAPI, WebSocket, HTTPException, WebSocketDisconnect, Depends, Request, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -12,12 +12,14 @@ from fastapi.responses import PlainTextResponse, FileResponse
 import uvicorn
 from redis.asyncio import Redis
 from sqlmodel import select
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .env import REDIS_HOST, REDIS_PORT
 from .game_engine import GameEngine
 from .gameplay.gameplay import StageName, DEFAULT_GAME, GamePlay
 from .gameplay.presets import get_debug_preset, DEBUG_PRESETS
+from .gameplay.common import GameException
 from .db_models import Game as GameTable
 from .database import get_db, AsyncSessionLocal
 
@@ -138,6 +140,44 @@ async def get_games(session: AsyncSession = Depends(get_db)):
     result = await session.execute(select(GameTable.name))
     games = result.scalars().all()
     return list(games)
+
+
+@router.get("/search")
+async def search_games(
+    q: str = Query(default="", description="Search query for game name"),
+    offset: int = Query(default=0, ge=0, description="Number of results to skip"),
+    limit: int = Query(default=5, ge=1, le=50, description="Maximum number of results"),
+    session: AsyncSession = Depends(get_db),
+):
+    """Search for games by name with pagination"""
+    # Strip leading/trailing whitespace from query
+    q = q.strip()
+
+    # Build base filter condition
+    filter_condition = GameTable.name.ilike(f"{q}%") if q else None
+
+    # Get total count using COUNT query
+    count_query = select(func.count()).select_from(GameTable)
+    if filter_condition is not None:
+        count_query = count_query.where(filter_condition)
+    count_result = await session.execute(count_query)
+    total = count_result.scalar()
+
+    # Build paginated query
+    query = select(GameTable.name).order_by(GameTable.name)
+    if filter_condition is not None:
+        query = query.where(filter_condition)
+    query = query.offset(offset).limit(limit)
+    result = await session.execute(query)
+    games = result.scalars().all()
+
+    return {
+        "games": list(games),
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "has_more": offset + len(games) < total,
+    }
 
 
 @router.delete("/{gamename}")

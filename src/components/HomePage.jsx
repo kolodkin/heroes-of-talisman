@@ -1,39 +1,81 @@
-import React, { useState, useEffect } from "react";
-import styles from "./HomePage.module.css";
-import classNames from "classnames";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
+import styles from "./HomePage.module.css";
+
+const SEARCH_LIMIT = 5;
+const DEBOUNCE_MS = 300;
 
 const HomePage = () => {
   const { t } = useTranslation();
   const [games, setGames] = useState([]);
   const [username, setUserName] = useState(localStorage.getItem("username") || "");
   const [newGameName, setNewGameName] = useState("");
+  const [searchOffset, setSearchOffset] = useState(0);
+  const [hasMoreResults, setHasMoreResults] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef(null);
   const navigate = useNavigate();
 
   const getGames = async () => {
     const response = await fetch("/api/games/");
-    const games = await response.json();
-    console.log("Games:", games);
-    setGames(games);
+    const allGames = await response.json();
+    console.log("Games:", allGames);
+    setGames(allGames);
+    setHasMoreResults(false);
   };
 
-  const addNewGame = async (newGameName) => {
+  const searchGames = useCallback(async (query, offset = 0, append = false) => {
+    if (!query.trim()) {
+      // No search query - show all games
+      await getGames();
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(
+        `/api/games/search?q=${encodeURIComponent(query)}&offset=${offset}&limit=${SEARCH_LIMIT}`,
+      );
+      const data = await response.json();
+
+      if (append) {
+        setGames((prev) => [...prev, ...data.games]);
+      } else {
+        setGames(data.games);
+      }
+      setHasMoreResults(data.has_more);
+      setSearchOffset(offset);
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  const loadMoreResults = () => {
+    const nextOffset = searchOffset + SEARCH_LIMIT;
+    searchGames(newGameName, nextOffset, true);
+  };
+
+  const addNewGame = async (gameName) => {
     const response = await fetch("/api/games/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name: newGameName }),
+      body: JSON.stringify({ name: gameName }),
     });
     const msg = await response.json();
     console.log("New game:", msg);
     if (!response.ok) {
       toast.error(msg.detail);
     }
-    await getGames();
+    // Refresh games list with current search
+    searchGames(newGameName, 0, false);
   };
 
   const deleteGame = async (gameName) => {
@@ -48,8 +90,8 @@ const HomePage = () => {
     if (!response.ok) {
       toast.error(msg.message);
     }
-
-    await getGames();
+    // Refresh games list with current search
+    searchGames(newGameName, 0, false);
   };
 
   useEffect(() => {
@@ -63,10 +105,24 @@ const HomePage = () => {
   };
 
   const handleNewGameNameChange = (event) => {
-    setNewGameName(event.target.value);
+    const value = event.target.value;
+    setNewGameName(value);
+
+    // Reset pagination for new query
+    setSearchOffset(0);
+
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Debounced search
+    searchTimeoutRef.current = setTimeout(() => {
+      searchGames(value, 0, false);
+    }, DEBOUNCE_MS);
   };
 
-  const handleNewGame = (event) => {
+  const handleNewGame = () => {
     addNewGame(newGameName);
   };
 
@@ -86,35 +142,63 @@ const HomePage = () => {
   return (
     <div className={styles.homepage}>
       <div className={styles["homepage-container"]}>
-        <h1>Welcome to Heroes of Talisman</h1>
-        <div className={styles["input-container"]}>
-          <label>
-            Enter your name:
-            <input className={styles.input} type="text" value={username} onChange={handleNameChange} />
-          </label>
+        <div className={styles["inputs-section"]}>
+          <h1>Welcome to Heroes of Talisman</h1>
+          <div className={styles["input-container"]}>
+            <label>
+              Enter your name:
+              <input className={styles.input} type="text" value={username} onChange={handleNameChange} />
+            </label>
+          </div>
+          <div className={styles["input-container"]}>
+            <label>
+              Add New Game:
+              <input
+                className={styles.input}
+                type="text"
+                value={newGameName}
+                onChange={handleNewGameNameChange}
+                data-testid="game-name-input"
+              />
+            </label>
+            <button className={styles.button} onClick={handleNewGame}>
+              +
+            </button>
+          </div>
         </div>
-        <div className={styles["input-container"]}>
-          <label>
-            Add New Game:
-            <input className={styles.input} type="text" value={newGameName} onChange={handleNewGameNameChange} />
-          </label>
-          <button className={styles.button} onClick={handleNewGame}>
-            +
-          </button>
+        <div className={styles["games-list-section"]}>
+          <h2 data-section="join-game">Join A Game:</h2>
+          {isSearching && games.length === 0 ? (
+            <div className={styles["search-loading"]}>Searching...</div>
+          ) : games.length === 0 && newGameName.trim() ? (
+            <div className={styles["search-no-results"]}>No games found</div>
+          ) : (
+            <>
+              <ul>
+                {games.map((game, index) => (
+                  <li key={index} className={styles["game-list-item"]} data-testid="game-list-item">
+                    <button className={styles.button} onClick={() => joinGame(game)}>
+                      {game}
+                    </button>
+                    <button className={styles["game-list-delete"]} onClick={() => handleDeleteGame(game)}>
+                      🗑️
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {hasMoreResults && (
+                <button
+                  className={styles["load-more-button"]}
+                  onClick={loadMoreResults}
+                  disabled={isSearching}
+                  data-testid="load-more-button"
+                >
+                  {isSearching ? "Loading..." : "Load more"}
+                </button>
+              )}
+            </>
+          )}
         </div>
-        <h2 data-section="join-game">Join A Game:</h2>
-        <ul>
-          {games.map((game, index) => (
-            <li key={index} className={styles["game-list-item"]}>
-              <button className={styles.button} onClick={() => joinGame(game)}>
-                {game}
-              </button>
-              <button className={styles["game-list-delete"]} onClick={() => handleDeleteGame(game)}>
-                🗑️
-              </button>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

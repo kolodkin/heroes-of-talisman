@@ -1,3 +1,9 @@
+# Related Documentation
+
+- [Gameplay Spec](docs/gameplay_spec.md) - Game mechanics and rules
+- [Gameplay Frontend](docs/gameplay_frontend.md) - Frontend implementation details
+- [Gameplay Backend](docs/gameplay_backend.md) - Backend implementation details
+
 # Git Workflow
 
 After completing each task, use the `check-pr` skill to verify GitHub Actions workflows are successful.
