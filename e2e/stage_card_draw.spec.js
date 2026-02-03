@@ -99,9 +99,8 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
 
   // Should transition to ability_selection stage even though card is restricted
   await waitForStage(page, "ability_selection");
-  await screenshot(page, "restricted-card-transition-to-ability");
 
-  // Expand players to see character cards with effects
+  // Expand players to see character cards
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -113,6 +112,12 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
   if (effectsAttr) {
     expect(effectsAttr).not.toMatch(/attack_bonus/);
   }
+
+  // Verify sword icon is NOT visible on archer card (restricted)
+  await expect(archerCard.locator("[data-icon-sword]")).not.toBeVisible();
+
+  // Screenshot with expanded player menu showing no sword icon on archer
+  await screenshot(page, "restricted-card-transition-to-ability");
 
   // Minimize players after check
   const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
