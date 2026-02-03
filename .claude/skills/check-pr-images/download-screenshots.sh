@@ -14,7 +14,13 @@ if [ -z "$REPO" ]; then
     exit 1
 fi
 
-echo "📦 Repository: $REPO"
+# Parse owner and repo name
+REPO_OWNER=$(echo "$REPO" | cut -d'/' -f1)
+REPO_NAME=$(echo "$REPO" | cut -d'/' -f2)
+
+echo "✓ REPO: $REPO"
+echo "✓ REPO_OWNER: $REPO_OWNER"
+echo "✓ REPO_NAME: $REPO_NAME"
 
 # Auto-detect run ID if not provided
 if [ -z "$1" ]; then
@@ -64,9 +70,6 @@ if [ -z "$RUN_NUMBER" ] || [ "$RUN_NUMBER" = "null" ]; then
     exit 1
 fi
 
-# Extract owner from REPO (format: owner/repo)
-REPO_OWNER=$(echo "$REPO" | cut -d'/' -f1)
-REPO_NAME=$(echo "$REPO" | cut -d'/' -f2)
 GH_PAGES_URL="https://${REPO_OWNER}.github.io/artifact-view/${REPO_NAME}/playwright-report/${RUN_NUMBER}"
 
 echo "📥 Downloading playwright report from GitHub Pages..."

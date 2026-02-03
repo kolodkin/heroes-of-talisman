@@ -1,17 +1,58 @@
-# Agent Guidelines
-
-## Git Workflow
+# Git Workflow
 
 After each `git push`, use the `check-pr` skill to verify GitHub Actions workflows are successful.
 
 If any workflows fail, analyze the error logs and fix issues automatically.
 
-## General Guidelines
+## Commit Guidelines
+
+This project uses pre-commit hooks that may modify files during commit (formatting, linting, etc.).
+
+**Commit message format** (conventional commits):
+
+- `feature:` for new features
+- `bugfix:` for bug fixes
+- `refactor:` for code refactoring
+- `cleanup:` for code cleanup
+- Multiple types can be combined: `[feature, cleanup]: description`
+
+**Creating commits**:
+
+1. Check staged changes with `git status` and `git diff --staged --stat`
+2. Suggest commit message following the format above
+3. Get user approval before committing
+4. Use HEREDOC for commit messages:
+
+   ```bash
+   git commit -m "$(cat <<'EOF'
+   <type>: <short description>
+
+   <optional longer description>
+   EOF
+   )"
+   ```
+
+**Handling pre-commit hook failures**:
+
+- Hooks run BEFORE commit is created, so no commit exists yet
+- Only re-stage the originally staged files (NOT all modified files)
+- Do NOT use `git add -u` (stages unrelated changes)
+- Do NOT use `--amend` (no commit exists to amend)
+- Re-run commit with same message
+
+**Important**:
+
+- NEVER amend commits authored by others or already pushed
+- Always use HEREDOC for multi-line messages
+- Always get user approval before committing
+- Do NOT include "Generated with ..." in commit messages
+
+# General Guidelines
 
 - Whenever a file is referenced, always verify if a corresponding <filename>.md or <foldername>.md file exists in the same directory to gather additional context.
 - Always run Python scripts using the following command to ensure correct module resolution:
   `PYTHONPATH=. uv run <script path>`
-- When coding, check if a file named test_<filename>.py exists in the same folder as the file you are working on. If it exists, use it for testing. If it does not exist, recommend creating one following the Testing Guidelines.
+- When coding, check if a file named test\_<filename>.py exists in the same folder as the file you are working on. If it exists, use it for testing. If it does not exist, recommend creating one following the Testing Guidelines.
 
 # Development Services
 
@@ -57,6 +98,17 @@ def my_function():
     from ..cards import CARDS_MAP  # Wrong: import inside function
     ...
 ```
+
+## Coding Guidelines
+
+- **No history comments**: Do NOT add comments about removed code (e.g., `# Removed: ...`)
+  - Keep code clean - version control tracks history
+  - Remove outdated comments during refactoring
+
+- **Top-level imports**: **ALWAYS** keep imports at the top of the file
+  - Do NOT import inside functions, loops, or conditional blocks
+  - Do NOT import inside test functions - put all imports at module level
+  - The ONLY exception is lazy imports to avoid circular dependencies
 
 ## String Literals and Type Safety
 
@@ -180,14 +232,12 @@ def test_action_with_properties():
 All imports must be at the top of the file, organized in the following order:
 
 **Non-components first:**
+
 1. **React** (e.g., `import React, { useState } from "react"`)
 2. **Third-party packages** (e.g., `import { useParams } from "react-router-dom"`)
 3. **Local utilities** (e.g., `import { formatDate } from "./utils"`)
 
-**Then components with their CSS (utility components first):**
-4. **Utility components** with CSS immediately after
-5. **Feature components** with CSS immediately after
-6. **Current component's CSS** last
+**Then components with their CSS (utility components first):** 4. **Utility components** with CSS immediately after 5. **Feature components** with CSS immediately after 6. **Current component's CSS** last
 
 **Good:**
 
@@ -210,7 +260,7 @@ import styles from "./GamePlay.module.css";
 **Avoid:**
 
 ```javascript
-import styles from "./GamePlay.module.css";  // Wrong: CSS before React
+import styles from "./GamePlay.module.css"; // Wrong: CSS before React
 import { CharacterCard } from "./CharacterCard";
 import React from "react";
 ```
