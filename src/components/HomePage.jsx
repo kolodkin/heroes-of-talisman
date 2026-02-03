@@ -142,7 +142,7 @@ const HomePage = () => {
   return (
     <div className={styles.homepage}>
       <div className={styles["homepage-container"]}>
-        <div className={styles["left-section"]}>
+        <div className={styles["inputs-section"]}>
           <h1>Welcome to Heroes of Talisman</h1>
           <div className={styles["input-container"]}>
             <label>
@@ -166,7 +166,7 @@ const HomePage = () => {
             </button>
           </div>
         </div>
-        <div className={styles["right-section"]}>
+        <div className={styles["games-list-section"]}>
           <h2 data-section="join-game">Join A Game:</h2>
           {isSearching && games.length === 0 ? (
             <div className={styles["search-loading"]}>Searching...</div>

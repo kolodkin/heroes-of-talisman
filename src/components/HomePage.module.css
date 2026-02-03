@@ -17,8 +17,8 @@
   gap: 20px;
 }
 
-.left-section,
-.right-section {
+.inputs-section,
+.games-list-section {
   flex: 1;
 }
 
@@ -30,16 +30,17 @@
     height: calc(100vh - 40px);
   }
 
-  .left-section {
+  .inputs-section {
     text-align: start;
     flex: 1;
   }
 
-  .left-section h1 {
-    font-size: 1.1rem;
+  .inputs-section h1 {
+    font-size: 0.8rem;
+    margin-bottom: 10px;
   }
 
-  .right-section {
+  .games-list-section {
     flex: 1;
     height: 100%;
     display: flex;
@@ -47,11 +48,11 @@
     overflow: hidden;
   }
 
-  .right-section h2 {
+  .games-list-section h2 {
     flex-shrink: 0;
   }
 
-  .right-section ul {
+  .games-list-section ul {
     flex: 1;
     overflow-y: auto;
     min-height: 0;
