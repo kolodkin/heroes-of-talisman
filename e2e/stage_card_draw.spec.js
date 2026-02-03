@@ -127,6 +127,62 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
   await page2.close();
 });
 
+test("card_draw stage - knight draws sacred_sword successfully", async ({ page, gameName }) => {
+  // Create preset game at card_draw stage with knight having drawn sacred_sword
+  await createPresetGameViaAPI(gameName, "card_draw_knight_sacred_sword");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
+
+  // Player2 joins
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+
+  // Verify we're in card_draw stage
+  await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
+
+  // Verify sacred_sword card is visible
+  const sharedArea = page.locator('[data-shared-area-active="true"]');
+  const sacredSwordCard = sharedArea.locator('[data-card="sacred_sord"]'); // Note: typo in card name
+  await expect(sacredSwordCard).toBeVisible();
+  await screenshot(page, "card-draw-knight-sacred-sword");
+
+  // Verify card details are displayed
+  await expect(sacredSwordCard).toContainText("חרב קדושה"); // Sacred Sword
+  await expect(sacredSwordCard).toContainText("+3 להתקפה"); // +3 to attack
+
+  // Confirm card selection
+  const selectButton = page.getByRole("button", { name: "בחר" });
+  await expect(selectButton).toBeVisible();
+  await expect(selectButton).toBeEnabled();
+  await selectButton.click();
+
+  // Should transition to ability_selection stage
+  await waitForStage(page, "ability_selection");
+
+  // Expand players to see character cards with sword icon
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  await expandButton.click();
+
+  // Verify knight has the attack bonus effect applied
+  const player1Div = page.locator('[data-player="player1"]');
+  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
+  await expect(knightCard).toHaveAttribute("data-effects", /attack_bonus/);
+
+  // Verify sword icon is visible on knight card
+  await expect(knightCard.locator("[data-icon-sword]")).toBeVisible();
+
+  // Screenshot with expanded player menu showing sword icon
+  await screenshot(page, "card-selected-knight-with-sword");
+
+  // Minimize players after check
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
+
+  // Cleanup
+  await page2.close();
+});
+
 test("card_draw stage - knight draws golden_apple and heals", async ({ page, gameName }) => {
   // Create preset game at card_draw stage with damaged knight having drawn golden_apple
   await createPresetGameViaAPI(gameName, "card_draw_knight_golden_apple");

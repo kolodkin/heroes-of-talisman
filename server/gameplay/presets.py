@@ -46,6 +46,7 @@ PRESET_BATTLE_METAL_ARMOR = "battle_metal_armor"
 PRESET_BATTLE_SACRED_SWORD = "battle_sacred_sword"
 PRESET_CARD_DRAW_KNIGHT_METAL_ARMOR = "card_draw_knight_metal_armor"
 PRESET_CARD_DRAW_ARCHER_SACRED_SWORD = "card_draw_archer_sacred_sword"
+PRESET_CARD_DRAW_KNIGHT_SACRED_SWORD = "card_draw_knight_sacred_sword"
 PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE = "card_draw_knight_golden_apple"
 PRESET_CARD_DRAW_GOLDEN_APPLE_MAX_HEALTH = "card_draw_golden_apple_max_health"
 PRESET_CARD_DRAW_KNIGHT_MAGIC_BALL = "card_draw_knight_magic_ball"
@@ -73,6 +74,7 @@ DEBUG_PRESETS = Literal[
     "battle_sacred_sword",
     "card_draw_knight_metal_armor",
     "card_draw_archer_sacred_sword",
+    "card_draw_knight_sacred_sword",
     "card_draw_knight_golden_apple",
     "card_draw_golden_apple_max_health",
     "card_draw_knight_magic_ball",
@@ -438,6 +440,20 @@ def get_debug_preset(
         ret = GamePlay(
             stage=STAGE_CARD_DRAW,
             active=ActivePlayer2(player=p1_name, character=CHARACTER_ARCHER),
+            stage_meta=CardDrawMeta(drawn_card=CARD_SACRED_SWORD),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "card_draw_knight_sacred_sword":
+        # Knight draws sacred_sword (successful card draw)
+        # Card will be applied and added to knight's card list
+        from .cards import CARD_SACRED_SWORD
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
             stage_meta=CardDrawMeta(drawn_card=CARD_SACRED_SWORD),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
