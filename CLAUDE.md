@@ -1,8 +1,10 @@
 # Git Workflow
 
-After each `git push`, use the `check-pr` skill to verify GitHub Actions workflows are successful.
+After completing each task, use the `check-pr` skill to verify GitHub Actions workflows are successful.
 
 If any workflows fail, analyze the error logs and fix issues automatically.
+
+For frontend changes, also run the `check-pr-images` skill to evaluate visual changes in E2E test screenshots.
 
 ## Commit Guidelines
 
