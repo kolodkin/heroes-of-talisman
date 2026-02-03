@@ -13,6 +13,10 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# GitHub CLI version for installation
+GH_VERSION="2.62.0"
+GH_ARCHIVE="gh_${GH_VERSION}_linux_amd64"
+
 echo -e "${BLUE}🔍 GitHub Actions Workflow Checker${NC}"
 echo ""
 
@@ -27,24 +31,14 @@ install_gh() {
     echo -e "${YELLOW}⚠️  GitHub CLI not found. Installing...${NC}"
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        echo "Installing on Linux..."
-        wget -q https://github.com/cli/cli/releases/download/v2.62.0/gh_2.62.0_linux_amd64.tar.gz
-        tar -xzf gh_2.62.0_linux_amd64.tar.gz
-
-        # Try to install to /usr/local/bin with sudo, fallback to local install
-        if sudo -n true 2>/dev/null; then
-            sudo mv gh_2.62.0_linux_amd64/bin/gh /usr/local/bin/
-            rm -rf gh_2.62.0_linux_amd64*
-        else
-            # Install to user's local bin directory
-            mkdir -p ~/.local/bin
-            mv gh_2.62.0_linux_amd64/bin/gh ~/.local/bin/
-            rm -rf gh_2.62.0_linux_amd64*
-            export PATH="$HOME/.local/bin:$PATH"
-            echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> ~/.bashrc 2>/dev/null || true
-        fi
-
-        echo -e "${GREEN}✓ GitHub CLI installed successfully${NC}"
+        echo "Installing on Linux (local)..."
+        wget -q "https://github.com/cli/cli/releases/download/v${GH_VERSION}/${GH_ARCHIVE}.tar.gz"
+        tar -xzf "${GH_ARCHIVE}.tar.gz"
+        mkdir -p ~/.local/bin
+        mv "${GH_ARCHIVE}/bin/gh" ~/.local/bin/
+        rm -rf "${GH_ARCHIVE}"*
+        export PATH="$HOME/.local/bin:$PATH"
+        echo -e "${GREEN}✓ GitHub CLI installed successfully (~/.local/bin)${NC}"
         gh --version
 
     elif [[ "$OSTYPE" == "darwin"* ]]; then
@@ -119,25 +113,126 @@ get_branch() {
     echo -e "${BLUE}📝 Branch: ${NC}$BRANCH"
 }
 
-# Step 5: Check if PR exists for this branch
+# Step 4.5: Check if PR exists for this branch
 check_pr_exists() {
     echo ""
     echo -e "${BLUE}Checking for pull request...${NC}"
 
+    # Check if PR exists for this branch
     PR_DATA=$(gh pr list --repo "$REPO" --head "$BRANCH" --json number,state,url 2>/dev/null)
 
     if [ -z "$PR_DATA" ] || [ "$PR_DATA" = "[]" ]; then
-        echo -e "${RED}❌ No pull request found for branch '$BRANCH'${NC}"
+        echo -e "${YELLOW}⚠️  No pull request found for branch '$BRANCH'${NC}"
         echo ""
-        echo -e "${YELLOW}💡 Create a pull request first:${NC}"
+        echo -e "${YELLOW}ℹ️  Workflow runs only trigger for:${NC}"
+        echo "  • Pushes to main/master branches"
+        echo "  • Pull requests targeting main/master"
+        echo ""
+        echo -e "${YELLOW}💡 To trigger CI checks, create a pull request:${NC}"
         echo "  gh pr create --repo $REPO --head $BRANCH --base main --fill"
-        exit 1
+        echo ""
+        echo -e "${YELLOW}Or push to main/master branch (if you have permissions)${NC}"
+        echo ""
+        return 1
+    else
+        PR_NUMBER=$(echo "$PR_DATA" | jq -r '.[0].number')
+        PR_URL=$(echo "$PR_DATA" | jq -r '.[0].url')
+        echo -e "${GREEN}✓ Pull request found: ${NC}#$PR_NUMBER"
+        echo -e "${BLUE}  URL: ${NC}$PR_URL"
+        return 0
+    fi
+}
+
+# Step 5: Check for PR review comments
+check_review_comments() {
+    echo ""
+    echo -e "${BLUE}🔍 Checking for unresolved PR review comments...${NC}"
+    echo ""
+
+    # Get PR review decision
+    REVIEW_DATA=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json reviewDecision 2>/dev/null)
+
+    if [ -z "$REVIEW_DATA" ]; then
+        echo -e "${YELLOW}⚠️  Could not fetch PR review data${NC}"
+        return 0
     fi
 
-    PR_NUMBER=$(echo "$PR_DATA" | jq -r '.[0].number')
-    PR_URL=$(echo "$PR_DATA" | jq -r '.[0].url')
-    echo -e "${GREEN}✓ Pull request found: ${NC}#$PR_NUMBER"
-    echo -e "${BLUE}  URL: ${NC}$PR_URL"
+    REVIEW_DECISION=$(echo "$REVIEW_DATA" | jq -r '.reviewDecision')
+    echo -e "${BLUE}Review Status: ${NC}$REVIEW_DECISION"
+
+    # Get unresolved review threads using GraphQL API
+    UNRESOLVED_THREADS=$(gh api graphql -f query='
+    query($owner: String!, $repo: String!, $number: Int!) {
+      repository(owner: $owner, name: $repo) {
+        pullRequest(number: $number) {
+          reviewThreads(first: 100) {
+            nodes {
+              isResolved
+              comments(first: 1) {
+                nodes {
+                  path
+                  body
+                  line
+                }
+              }
+            }
+          }
+        }
+      }
+    }' -f owner="${REPO%/*}" -f repo="${REPO#*/}" -F number="$PR_NUMBER" 2>/dev/null)
+
+    # Count unresolved threads
+    UNRESOLVED_COUNT=$(echo "$UNRESOLVED_THREADS" | jq -r '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' 2>/dev/null || echo "0")
+
+    if [ "$UNRESOLVED_COUNT" -gt 0 ]; then
+        echo ""
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${YELLOW}📝 PR HAS $UNRESOLVED_COUNT UNRESOLVED REVIEW THREAD(S)${NC}"
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+
+        # Get comment IDs from REST API for reply capability
+        COMMENTS_WITH_IDS=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}/comments" 2>/dev/null | jq -r '.[] | "ID: \(.id)\nFile: \(.path)\nLine: \(.line // .original_line // "N/A")\nComment: \(.body)\n---"' 2>/dev/null)
+
+        if [ -n "$COMMENTS_WITH_IDS" ]; then
+            echo "$COMMENTS_WITH_IDS"
+        else
+            # Fallback to GraphQL output without IDs
+            echo "$UNRESOLVED_THREADS" | jq -r '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .comments.nodes[0] | "File: \(.path)\nLine: \(.line // "N/A")\nComment: \(.body)\n---"' 2>/dev/null
+        fi
+
+        echo ""
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        echo -e "${YELLOW}💡 See SKILL.md 'Address PR Review Comments' section for reply guidelines${NC}"
+        echo ""
+    else
+        echo -e "${GREEN}✅ No unresolved review comments${NC}"
+        echo ""
+    fi
+
+    # Check review decision
+    if [ "$REVIEW_DECISION" = "CHANGES_REQUESTED" ]; then
+        echo -e "${YELLOW}⚠️  Changes requested by reviewers${NC}"
+        echo -e "${YELLOW}Please address all feedback and push changes${NC}"
+        echo ""
+        return 1
+    elif [ "$REVIEW_DECISION" = "APPROVED" ]; then
+        echo -e "${GREEN}✅ PR is approved!${NC}"
+        echo ""
+        return 0
+    elif [ "$REVIEW_DECISION" = "REVIEW_REQUIRED" ]; then
+        echo -e "${YELLOW}⏳ PR is awaiting review${NC}"
+        if [ "$UNRESOLVED_COUNT" -gt 0 ]; then
+            echo -e "${YELLOW}But unresolved comments exist - consider addressing them${NC}"
+        fi
+        echo ""
+        return 0
+    else
+        echo -e "${BLUE}ℹ️  Review status: $REVIEW_DECISION${NC}"
+        echo ""
+        return 0
+    fi
 }
 
 # Step 6: Poll PR checks using gh pr checks --watch
@@ -159,6 +254,9 @@ poll_checks() {
         echo -e "${GREEN}STATUS: SUCCESS${NC}"
         echo -e "${GREEN}PR: #$PR_NUMBER${NC}"
         echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+        # Check for PR review comments after CI passes
+        check_review_comments
         exit 0
     fi
 
