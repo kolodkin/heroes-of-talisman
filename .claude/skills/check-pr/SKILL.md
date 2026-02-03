@@ -1,212 +1,74 @@
 ---
 name: check-pr
-description: Check PR, CI status, and test results
+description: Check PR status and verify GitHub Actions CI workflows. Use after git push or when user asks to check PR/CI status.
 ---
+
+# PR Check Skill
 
 You are a PROACTIVE GitHub Actions assistant. After EVERY git push, you MUST automatically verify all GitHub Actions workflows are successful. If any fail, read error logs and resolve issues.
 
-## Installation
-
-```bash
-#!/bin/bash
-set -e
-
-echo "Installing GitHub CLI (gh)..."
-
-# Check if gh is already installed
-if command -v gh &> /dev/null; then
-    echo "✓ GitHub CLI is already installed"
-    gh --version
-    exit 0
-fi
-
-# Detect OS and install accordingly
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    echo "Installing on Linux..."
-
-    # Try binary installation (works without apt)
-    wget -q https://github.com/cli/cli/releases/download/v2.62.0/gh_2.62.0_linux_amd64.tar.gz
-    tar -xzf gh_2.62.0_linux_amd64.tar.gz
-    sudo mv gh_2.62.0_linux_amd64/bin/gh /usr/local/bin/
-    rm -rf gh_2.62.0_linux_amd64*
-
-    echo "✓ GitHub CLI installed successfully"
-    gh --version
-
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "Installing on macOS..."
-    if command -v brew &> /dev/null; then
-        brew install gh
-    else
-        echo "Error: Homebrew not found. Please install Homebrew first."
-        exit 1
-    fi
-else
-    echo "Error: Unsupported OS: $OSTYPE"
-    exit 1
-fi
-```
-
-## AUTOMATIC POST-PUSH WORKFLOW
-
-**Immediately after EVERY `git push`, run the automated workflow checker:**
-
-### Step 1: Run the Check Script
+## Run the Check Script
 
 Execute the automated workflow checker script:
 
 ```bash
-.claude/skills/check-pr/check-pr.sh
+.claude/skills/check-pr/run-workflow-check.sh
 ```
 
 This script will automatically:
 
-1. ✅ Install gh CLI if not available
-2. ✅ Check authentication
-3. ✅ Get current branch
-4. ✅ Poll workflow status every 10 seconds until complete
-5. ✅ Report SUCCESS or FAILURE with full logs
+1. Install gh CLI if not available
+2. Check authentication
+3. Get current branch
+4. Poll workflow status every 10 seconds until complete
+5. Report SUCCESS or FAILURE with full logs
 
-### Step 2: Analyze Output
+## On Failure
 
-The script outputs in one of two formats:
+1. **Get logs from failed runs:**
 
-**SUCCESS:**
+   ```bash
+   gh run view RUN_ID --repo OWNER/REPO --log-failed
+   ```
 
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-STATUS: SUCCESS
-RUN_ID: 12345
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
+2. **Analyze, fix, commit, push, and re-run the script until workflow passes.**
 
-→ Report success to user and stop
+## Address PR Review Comments
 
-**FAILURE:**
+The script displays unresolved comments with their IDs. Address ONLY unresolved comments.
 
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-STATUS: FAILURE
-RUN_ID: 12345
-CONCLUSION: failure
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**Option A: Fix the issue**
 
-ERROR LOGS:
-[Full error logs from failed steps]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
+1. Fix and commit
+2. Push changes
+3. Reply within the comment thread: `[Agent] Fixed - <what was fixed>`
 
-→ Analyze logs and fix automatically (see Step 3)
+**Option B: Ask for clarification**
 
-### Step 3: Auto-Fix Failures
+- Reply within the comment thread: `[Agent] Question: <your question>`
 
-When the script reports FAILURE, analyze the error logs and fix:
+**Reply within comment thread (REQUIRED):**
 
-**Test Failures:**
-
-- Syntax errors → Fix code
-- Import errors → Fix imports or add dependencies
-- Assertion failures → Fix logic or tests
-
-**Dependency Issues:**
-
-- Missing packages → Add to pyproject.toml
-- Version conflicts → Update constraints
-
-**Linting/Formatting:**
-
-- Ruff errors → Run `ruff check --fix .`
-- Black formatting → Run `black .`
-
-**Build/CI Issues:**
-
-- Missing env vars → Add to workflow
-- Service failures → Fix health checks
-- Timeout issues → Increase timeout or optimize
-
-### Step 4: Commit & Push Fix
+Use the `/replies` endpoint to respond within the same comment thread (not as a separate comment):
 
 ```bash
-git add <fixed-files>
-git commit -m "Fix CI: <description of issue>"
-git push
+gh api repos/OWNER/REPO/pulls/PR_NUMBER/comments/COMMENT_ID/replies \
+  -f body="[Agent] Fixed - <description of what was fixed>"
 ```
 
-### Step 5: Verify Fix
-
-After pushing the fix, run the checker again:
+Example:
 
 ```bash
-.claude/skills/check-pr/check-pr.sh
+# Reply to comment ID 2744833797 on PR #52
+gh api repos/kolodkin/heroes-of-talisman/pulls/52/comments/2744833797/replies \
+  -f body="[Agent] Fixed - changed return type to Self"
 ```
 
-Repeat until workflow passes.
+**IMPORTANT:**
 
-## Key Commands
+- Always prefix responses with `[Agent]` to identify agent-generated replies
+- Use the `/replies` endpoint to keep responses in the comment thread
+- Only respond to unresolved comments
+- Be concise in responses
 
-```bash
-# List runs
-gh run list --branch <branch> --limit 5
-
-# View specific run
-gh run view <run-id>
-
-# Get only failed logs
-gh run view <run-id> --log-failed
-
-# Watch in real-time
-gh run watch <run-id>
-
-# Re-run failed
-gh run rerun <run-id> --failed
-```
-
-## Authentication
-
-If not authenticated:
-
-```bash
-gh auth login
-# Or
-export GH_TOKEN=<token>
-```
-
-## Proactive Rules
-
-**ALWAYS:**
-
-- ✅ Check workflows immediately after push
-- ✅ **POLL actively** until workflow completes (check every 10 seconds)
-- ✅ Read full error logs for failures
-- ✅ **Report errors to agent** for automatic resolution
-- ✅ Fix issues automatically
-- ✅ Commit and push fixes
-- ✅ Verify fixes worked (poll again)
-
-**NEVER:**
-
-- ❌ Ignore failures
-- ❌ Skip error log analysis
-- ❌ Ask user to manually check
-- ❌ Give up after first check (must poll until complete)
-
-## Polling Strategy
-
-After push, continuously monitor the workflow:
-
-1. Check status every 10 seconds
-2. If "in_progress" or "queued" → continue polling
-3. If "completed" with "success" → report success, stop polling
-4. If "completed" with "failure" → fetch logs, report to agent, agent fixes
-
-## Success Criteria
-
-After every push, ensure:
-
-- ✅ All workflows passing
-- ✅ No failures in latest runs
-- ✅ Errors analyzed and resolved
-- ✅ User informed of status
-- ✅ **Polling continues until definitive result**
-
-Be PROACTIVE: Don't wait for user to ask - automatically check and poll workflows after every push!
+Be PROACTIVE: Check and poll workflows after every push!

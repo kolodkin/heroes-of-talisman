@@ -14,7 +14,13 @@ if [ -z "$REPO" ]; then
     exit 1
 fi
 
-echo "📦 Repository: $REPO"
+# Parse owner and repo name
+REPO_OWNER=$(echo "$REPO" | cut -d'/' -f1)
+REPO_NAME=$(echo "$REPO" | cut -d'/' -f2)
+
+echo "✓ REPO: $REPO"
+echo "✓ REPO_OWNER: $REPO_OWNER"
+echo "✓ REPO_NAME: $REPO_NAME"
 
 # Auto-detect run ID if not provided
 if [ -z "$1" ]; then
@@ -64,9 +70,6 @@ if [ -z "$RUN_NUMBER" ] || [ "$RUN_NUMBER" = "null" ]; then
     exit 1
 fi
 
-# Extract owner from REPO (format: owner/repo)
-REPO_OWNER=$(echo "$REPO" | cut -d'/' -f1)
-REPO_NAME=$(echo "$REPO" | cut -d'/' -f2)
 GH_PAGES_URL="https://${REPO_OWNER}.github.io/artifact-view/${REPO_NAME}/playwright-report/${RUN_NUMBER}"
 
 echo "📥 Downloading playwright report from GitHub Pages..."
@@ -112,7 +115,7 @@ mkdir -p "$TMP_DIR/data"
 
 # Method 1: Try to list data files from GitHub API (works for gh-pages)
 echo "  Fetching list of screenshot files from data directory..."
-DATA_FILES=$(gh api "repos/${REPO_OWNER}/artifact-view/contents/heroes-of-talisman/playwright-report/${RUN_NUMBER}/data?ref=gh-pages" 2>/dev/null | \
+DATA_FILES=$(gh api "repos/${REPO_OWNER}/artifact-view/contents/${REPO_NAME}/playwright-report/${RUN_NUMBER}/data?ref=gh-pages" 2>/dev/null | \
     grep -oE '"name":"[^"]+\.dat"' | sed 's/"name":"//;s/\.dat"//' || true)
 
 if [ -n "$DATA_FILES" ]; then
