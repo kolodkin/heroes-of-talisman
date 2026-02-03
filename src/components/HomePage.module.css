@@ -33,6 +33,8 @@
   .inputs-section {
     text-align: start;
     flex: 1;
+    overflow-y: auto;
+    min-height: 0;
   }
 
   .inputs-section h1 {

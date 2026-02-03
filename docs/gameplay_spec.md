@@ -69,14 +69,15 @@ The game features three distinct character types:
 
 Characters can progress through levels, gaining improved stats at higher levels.
 
-| Character | Level | Max Health | Dice | Attack | Bonuses from Previous Level  |
-| --------- | ----- | ---------- | ---- | ------ | ---------------------------- |
-| Knight    | 1     | 2          | 1    | 1      | -                            |
-| Knight    | 2     | 6          | 2    | 1      | +4 max life, +1 dice         |
-| Archer    | 1     | 3          | 1    | 0      | -                            |
-| Archer    | 2     | 7          | 2    | 2      | +4 max life, +1 dice, +2 attack |
-| Mage      | 1     | 2          | 1    | 0      | -                            |
-| Mage      | 2     | 6          | 2    | 1      | +4 max life, +1 dice, +1 attack |
+| Character | Level | Max Health | Dice | Attack |
+| --------- | ----- | ---------- | ---- | ------ |
+| Knight    | 1     | 2          | 1    | 1      |
+| Knight    | 2     | 6          | 2    | 1      |
+| Archer    | 1     | 3          | 1    | 0      |
+| Archer    | 2     | 7          | 2    | 2      |
+| Mage      | 1     | 2          | 1    | 0      |
+| Mage      | 2     | 3          | 1    | 2      |
+| Mage      | 2     | 3          | 1    | 2      |
 
 ### Level Progression
 
