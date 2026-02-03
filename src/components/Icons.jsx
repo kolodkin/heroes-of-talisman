@@ -64,3 +64,28 @@ export const NotAliveIcon = ({ size, color, fill }) => (
     <path d="M8 8 L16 16 M16 8 L8 16" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
   </svg>
 );
+
+export const ArmorIcon = ({ size, color, fill }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon-armor>
+    <path
+      d="M12 2 L4 6 L4 12 C4 16.5 7.5 20.5 12 22 C16.5 20.5 20 16.5 20 12 L20 6 L12 2 Z"
+      fill={fill}
+      stroke={color}
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const SwordIcon = ({ size, color, fill }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" data-icon-sword>
+    <path
+      d="M19 2 L10 11 M19 2 L22 2 L22 5 L19 2 Z M10 11 L6 15 L5 14 L2 17 L3 18 L2 19 L5 22 L6 21 L7 22 L10 19 L9 18 L13 14 L10 11 Z"
+      fill={fill}
+      stroke={color}
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
