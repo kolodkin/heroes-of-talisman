@@ -112,7 +112,7 @@ mkdir -p "$TMP_DIR/data"
 
 # Method 1: Try to list data files from GitHub API (works for gh-pages)
 echo "  Fetching list of screenshot files from data directory..."
-DATA_FILES=$(gh api "repos/${REPO_OWNER}/artifact-view/contents/heroes-of-talisman/playwright-report/${RUN_NUMBER}/data?ref=gh-pages" 2>/dev/null | \
+DATA_FILES=$(gh api "repos/${REPO_OWNER}/artifact-view/contents/${REPO_NAME}/playwright-report/${RUN_NUMBER}/data?ref=gh-pages" 2>/dev/null | \
     grep -oE '"name":"[^"]+\.dat"' | sed 's/"name":"//;s/\.dat"//' || true)
 
 if [ -n "$DATA_FILES" ]; then
