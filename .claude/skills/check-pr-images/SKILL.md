@@ -125,6 +125,18 @@ When analyzing screenshots:
    - Is there sufficient contrast?
    - Are buttons easily accessible?
 
+## Reporting Behavior
+
+**By default, only report on relevant screenshots** - those that show:
+
+- Issues, regressions, or problems that need attention
+- Significant changes from expected behavior
+- Key features or states being tested in the current PR
+
+**When to report on all screenshots:**
+
+- Only when the user explicitly asks to "review all", "review all screenshots", or "show everything"
+
 ## Output Format
 
 Provide a structured review:
