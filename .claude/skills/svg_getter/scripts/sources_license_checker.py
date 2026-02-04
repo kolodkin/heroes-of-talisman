@@ -44,12 +44,6 @@ SOURCES = {
         "github_repo": "tabler/tabler-icons",
         "website": "https://tabler.io/icons",
     },
-    "gameicons": {
-        "name": "Game Icons",
-        "github_repo": "game-icons/icons",
-        "website": "https://game-icons.net",
-        "attribution_required": True,
-    },
 }
 
 
@@ -149,15 +143,7 @@ class LicenseChecker:
             return "MPL-2.0"
         elif "unlicense" in content_lower:
             return "Unlicense"
-        elif "creative commons" in content_lower:
-            if "cc0" in content_lower or "public domain" in content_lower:
-                return "CC0-1.0"
-            elif "attribution 3.0" in content_lower or "cc by 3.0" in content_lower or "cc-by-3.0" in content_lower:
-                return "CC-BY-3.0"
-            elif "attribution 4.0" in content_lower or "cc by 4.0" in content_lower or "cc-by-4.0" in content_lower:
-                return "CC-BY-4.0"
-            return "CC"
-        elif "cc0" in content_lower:
+        elif "creative commons" in content_lower or "cc0" in content_lower:
             return "CC0-1.0"
         else:
             return "Unknown"
@@ -173,18 +159,8 @@ class LicenseChecker:
             "Apache-2.0",
             "Unlicense",
             "CC0-1.0",
-            "CC-BY-3.0",  # Permissive but requires attribution
-            "CC-BY-4.0",  # Permissive but requires attribution
         }
         return license_type in permissive_licenses
-
-    def requires_attribution(self, license_type: str) -> bool:
-        """Check if license requires attribution."""
-        attribution_required = {
-            "CC-BY-3.0",
-            "CC-BY-4.0",
-        }
-        return license_type in attribution_required
 
 
 def main():
@@ -203,15 +179,7 @@ def main():
 
             if license_info:
                 is_permissive = checker.is_permissive_license(license_info["type"])
-                requires_attribution = checker.requires_attribution(license_info["type"])
-
-                if is_permissive:
-                    if requires_attribution:
-                        status = "✓ PERMISSIVE (attribution required)"
-                    else:
-                        status = "✓ PERMISSIVE"
-                else:
-                    status = "⚠ RESTRICTIVE"
+                status = "✓ PERMISSIVE" if is_permissive else "⚠ RESTRICTIVE"
 
                 results.append(
                     {
@@ -223,7 +191,6 @@ def main():
                         "github": f"https://github.com/{source_info['github_repo']}",
                         "status": status,
                         "is_permissive": is_permissive,
-                        "requires_attribution": requires_attribution,
                     }
                 )
 
@@ -239,7 +206,6 @@ def main():
                         "github": f"https://github.com/{source_info['github_repo']}",
                         "status": "✗ FAILED TO CHECK",
                         "is_permissive": False,
-                        "requires_attribution": False,
                     }
                 )
                 print(f"  ✗ FAILED TO CHECK: Could not fetch license\n")
@@ -258,23 +224,14 @@ def main():
         print(f"  GitHub:   {result['github']}")
         if result["url"]:
             print(f"  License:  {result['url']}")
-        if result.get("requires_attribution"):
-            print(f"  Note:     Attribution required when using these icons")
         print()
 
     # Check if all are permissive
     all_permissive = all(r["is_permissive"] for r in results)
-    any_attribution = any(r.get("requires_attribution", False) for r in results)
 
     if all_permissive:
         print("=" * 80)
         print("✓ All sources use permissive licenses suitable for commercial use")
-        if any_attribution:
-            print()
-            print("Note: Some sources require attribution:")
-            for r in results:
-                if r.get("requires_attribution"):
-                    print(f"  - {r['source']} ({r['license_type']})")
         print("=" * 80)
         return 0
     else:
