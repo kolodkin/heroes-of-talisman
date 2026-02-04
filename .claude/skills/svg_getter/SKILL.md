@@ -1,6 +1,6 @@
 ---
 name: svg-getter
-description: Search and download SVG icons and illustrations from free online sources (Heroicons, Lucide, Feather, Bootstrap Icons, Tabler). Use when working with SVG icons, need UI graphics, or want to add icons to a project. Requires httpx package.
+description: Search and download SVG icons from free online sources (Heroicons, Lucide, Feather, Bootstrap Icons, Tabler, Game Icons). Use when working with SVG icons, need UI graphics, game icons, or want to add icons to a project. Requires httpx package.
 ---
 
 # SVG Search and Fetch
@@ -16,14 +16,24 @@ Use this skill when the user needs to:
 - Search for illustrations or graphics
 - Get SVG code for UI elements
 - Browse available icons from popular icon libraries
+- Find game-related icons (weapons, armor, items, creatures)
 
 ## Supported Sources
 
-- **Heroicons** - Clean, MIT-licensed icons by Tailwind Labs
-- **Lucide** - Open source icon library with consistent design
-- **Feather Icons** - Minimalist open source icons
-- **Bootstrap Icons** - 2,000+ free icons from Bootstrap
-- **Tabler Icons** - 5,000+ free MIT-licensed icons
+### UI Icon Libraries (MIT/ISC License)
+
+- **Heroicons** - Clean icons by Tailwind Labs (MIT)
+- **Lucide** - Open source icon library with consistent design (ISC)
+- **Feather Icons** - Minimalist open source icons (MIT)
+- **Bootstrap Icons** - 2,000+ free icons from Bootstrap (MIT)
+- **Tabler Icons** - 5,000+ free MIT-licensed icons (MIT)
+
+### Game Icon Libraries (CC BY 3.0 License)
+
+- **Game Icons** - 4,000+ RPG/game icons from [game-icons.net](https://game-icons.net) (CC BY 3.0)
+  - Includes: weapons, armor, creatures, items, skills, etc.
+  - Attribution required: Credit the author (e.g., "Icon by Lorc, https://game-icons.net")
+  - Perfect for games, RPGs, and fantasy-themed projects
 
 ## How to Search
 
@@ -35,8 +45,8 @@ python .claude/skills/svg_getter/scripts/svg_search.py --query "SEARCH_TERM" [--
 
 **Parameters:**
 
-- `--query` (required): What to search for (e.g., "user", "calendar", "arrow")
-- `--source` (optional): Specific source (heroicons, lucide, feather, bootstrap, tabler). If omitted, searches all sources.
+- `--query` (required): What to search for (e.g., "user", "calendar", "sword", "shield")
+- `--source` (optional): Specific source (heroicons, lucide, feather, bootstrap, tabler, gameicons). If omitted, searches all sources.
 - `--output` (optional): Directory to save SVGs (default: src/assets/icons)
 - `--limit` (optional): Max results to return (default: 5)
 
@@ -58,6 +68,19 @@ Get arrow icons and save to custom directory:
 
 ```bash
 python .claude/skills/svg_getter/scripts/svg_search.py --query "arrow" --output public/icons --limit 10
+```
+
+Search Game Icons for sword icons (RPG/game icons):
+
+```bash
+python .claude/skills/svg_getter/scripts/svg_search.py --query "sword" --source gameicons
+```
+
+Search Game Icons for armor/shield icons:
+
+```bash
+python .claude/skills/svg_getter/scripts/svg_search.py --query "shield" --source gameicons
+python .claude/skills/svg_getter/scripts/svg_search.py --query "armor" --source gameicons
 ```
 
 ## Output

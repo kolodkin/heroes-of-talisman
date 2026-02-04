@@ -3,7 +3,7 @@
 SVG Search and Fetch Script
 
 Searches and downloads SVG icons from free online sources.
-Supports: Heroicons, Lucide, Feather Icons, Bootstrap Icons, Tabler Icons
+Supports: Heroicons, Lucide, Feather Icons, Bootstrap Icons, Tabler Icons, Game Icons
 """
 
 import argparse
@@ -26,34 +26,48 @@ SOURCES = {
         "base_url": "https://cdn.jsdelivr.net/npm/heroicons@2.0.18/24/outline",
         "search_url": "https://api.github.com/repos/tailwindlabs/heroicons/contents/optimized/24/outline",
         "file_pattern": ".svg",
+        "license": "MIT",
     },
     "lucide": {
         "name": "Lucide",
         "base_url": "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons",
         "search_url": "https://api.github.com/repos/lucide-icons/lucide/contents/icons",
         "file_pattern": ".svg",
+        "license": "ISC",
     },
     "feather": {
         "name": "Feather Icons",
         "base_url": "https://cdn.jsdelivr.net/npm/feather-icons/dist/icons",
         "search_url": "https://api.github.com/repos/feathericons/feather/contents/icons",
         "file_pattern": ".svg",
+        "license": "MIT",
     },
     "bootstrap": {
         "name": "Bootstrap Icons",
         "base_url": "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons",
         "search_url": "https://api.github.com/repos/twbs/icons/contents/icons",
         "file_pattern": ".svg",
+        "license": "MIT",
     },
     "tabler": {
         "name": "Tabler Icons",
         "base_url": "https://cdn.jsdelivr.net/npm/@tabler/icons@latest/icons",
         "search_url": "https://api.github.com/repos/tabler/tabler-icons/contents/icons/outline",
         "file_pattern": ".svg",
+        "license": "MIT",
+    },
+    "gameicons": {
+        "name": "Game Icons",
+        "base_url": "https://cdn.jsdelivr.net/gh/game-icons/icons/svg",
+        "search_url": "https://api.github.com/repos/game-icons/icons/git/trees/master?recursive=1",
+        "file_pattern": ".svg",
+        "license": "CC BY 3.0",
+        "nested": True,  # Icons are in author subfolders
+        "website": "https://game-icons.net",
     },
 }
 
-SourceType = Literal["heroicons", "lucide", "feather", "bootstrap", "tabler"]
+SourceType = Literal["heroicons", "lucide", "feather", "bootstrap", "tabler", "gameicons"]
 
 
 class SVGSearcher:
@@ -80,7 +94,13 @@ class SVGSearcher:
             # Fetch the directory listing from GitHub API
             response = self.client.get(config["search_url"])
             response.raise_for_status()
-            files = response.json()
+            data = response.json()
+
+            # Handle nested sources (like game-icons) that use Git tree API
+            if config.get("nested"):
+                files = self._parse_tree_response(data, config)
+            else:
+                files = data
 
             # Filter and match icons
             query_lower = query.lower()
@@ -95,15 +115,26 @@ class SVGSearcher:
                 # Check if query matches the filename
                 icon_name = name.replace(config["file_pattern"], "")
                 if query_lower in icon_name.lower():
-                    results.append(
-                        {
-                            "name": icon_name,
-                            "source": source,
-                            "source_name": config["name"],
-                            "filename": name,
-                            "url": f"{config['base_url']}/{name}",
-                        }
-                    )
+                    # For nested sources, include the path in URL
+                    if "path" in file:
+                        url = f"{config['base_url']}/{file['path']}"
+                    else:
+                        url = f"{config['base_url']}/{name}"
+
+                    result = {
+                        "name": icon_name,
+                        "source": source,
+                        "source_name": config["name"],
+                        "filename": name,
+                        "url": url,
+                        "license": config.get("license", "Unknown"),
+                    }
+
+                    # Add author info for game-icons
+                    if "author" in file:
+                        result["author"] = file["author"]
+
+                    results.append(result)
 
                 if len(results) >= limit:
                     break
@@ -112,6 +143,30 @@ class SVGSearcher:
             print(f"Warning: Failed to search {config['name']}: {e}", file=sys.stderr)
 
         return results
+
+    def _parse_tree_response(self, data: dict, config: dict) -> list[dict]:
+        """Parse GitHub Git tree API response for nested sources."""
+        files = []
+        tree = data.get("tree", [])
+
+        for item in tree:
+            path = item.get("path", "")
+            # Only include SVG files from the svg/ folder
+            if path.startswith("svg/") and path.endswith(config["file_pattern"]):
+                # Extract author and icon name from path like "svg/lorc/breastplate.svg"
+                parts = path.split("/")
+                if len(parts) >= 3:
+                    author = parts[1]
+                    filename = parts[-1]
+                    # Use path relative to svg/ folder for URL construction
+                    relative_path = "/".join(parts[1:])
+                    files.append({
+                        "name": filename,
+                        "path": relative_path,
+                        "author": author,
+                    })
+
+        return files
 
     def fetch_svg(self, url: str) -> str:
         """Fetch SVG content from a URL."""
@@ -198,16 +253,20 @@ Examples:
                 output_file = args.output / f"{result['name']}.svg"
                 searcher.save_svg(svg_content, output_file)
 
-                downloaded.append(
-                    {
-                        "name": result["name"],
-                        "source": result["source_name"],
-                        "file": str(output_file),
-                    }
-                )
+                item = {
+                    "name": result["name"],
+                    "source": result["source_name"],
+                    "file": str(output_file),
+                    "license": result.get("license", "Unknown"),
+                }
+                if "author" in result:
+                    item["author"] = result["author"]
+
+                downloaded.append(item)
 
                 if args.verbose:
-                    print(f"✓ {result['source_name']}: {result['name']} → {output_file}")
+                    author_info = f" by {result['author']}" if "author" in result else ""
+                    print(f"✓ {result['source_name']}: {result['name']}{author_info} → {output_file}")
 
             except Exception as e:
                 print(f"✗ Failed to download {result['name']}: {e}", file=sys.stderr)
@@ -218,7 +277,8 @@ Examples:
         if downloaded:
             print("Downloaded files:")
             for item in downloaded:
-                print(f"  • {item['name']} ({item['source']}) → {item['file']}")
+                author_info = f" by {item['author']}" if "author" in item else ""
+                print(f"  • {item['name']} ({item['source']}{author_info}, {item['license']}) → {item['file']}")
 
             print("\nUsage in JSX/TSX:")
             example = downloaded[0]

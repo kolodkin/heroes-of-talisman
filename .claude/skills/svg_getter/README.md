@@ -6,12 +6,20 @@ A Claude Code skill for searching and downloading SVG icons from free online sou
 
 - Search multiple free SVG icon libraries simultaneously
 - Download SVG files directly to your project
-- Support for 5 major icon libraries:
+- Support for 6 major icon libraries:
+
+  **UI Icon Libraries (MIT/ISC License):**
   - **Heroicons** - Clean, MIT-licensed icons by Tailwind Labs
-  - **Lucide** - Open source icon library with consistent design
-  - **Feather Icons** - Minimalist open source icons
-  - **Bootstrap Icons** - 2,000+ free icons from Bootstrap
-  - **Tabler Icons** - 5,000+ free MIT-licensed icons
+  - **Lucide** - Open source icon library with consistent design (ISC)
+  - **Feather Icons** - Minimalist open source icons (MIT)
+  - **Bootstrap Icons** - 2,000+ free icons from Bootstrap (MIT)
+  - **Tabler Icons** - 5,000+ free MIT-licensed icons (MIT)
+
+  **Game Icon Libraries (CC BY 3.0 License):**
+  - **Game Icons** - 4,000+ RPG/game icons from [game-icons.net](https://game-icons.net)
+    - Includes: weapons, armor, creatures, items, skills, magic, etc.
+    - Attribution required when using these icons
+
 - License verification tool to ensure all sources use permissive licenses
 - Usage examples in JSX/TSX
 
@@ -44,6 +52,12 @@ uv run python .claude/skills/svg_getter/scripts/svg_search.py --query "calendar"
 
 # Get arrow icons and save to custom directory
 uv run python .claude/skills/svg_getter/scripts/svg_search.py --query "arrow" --output public/icons --limit 10
+
+# Search Game Icons for sword/weapon icons (great for games!)
+uv run python .claude/skills/svg_getter/scripts/svg_search.py --query "sword" --source gameicons
+
+# Search Game Icons for armor/shield icons
+uv run python .claude/skills/svg_getter/scripts/svg_search.py --query "armor" --source gameicons
 ```
 
 ### Testing
@@ -73,8 +87,8 @@ src/assets/icons/
 
 ## Script Parameters
 
-- `--query, -q` (required): Search term (e.g., "user", "calendar", "arrow")
-- `--source, -s` (optional): Specific source (heroicons, lucide, feather, bootstrap, tabler)
+- `--query, -q` (required): Search term (e.g., "user", "calendar", "sword", "armor")
+- `--source, -s` (optional): Specific source (heroicons, lucide, feather, bootstrap, tabler, gameicons)
 - `--output, -o` (optional): Output directory (default: src/assets/icons)
 - `--limit, -l` (optional): Maximum results per source (default: 5)
 - `--verbose, -v` (optional): Verbose output
@@ -118,10 +132,19 @@ This will check all sources and confirm they use MIT or ISC licenses.
 
 This skill is provided as-is. All icon libraries use permissive licenses verified by our license checker:
 
+**MIT/ISC Licensed (no attribution required):**
+
 - **Heroicons**: MIT License
 - **Lucide**: ISC License
 - **Feather Icons**: MIT License
 - **Bootstrap Icons**: MIT License
 - **Tabler Icons**: MIT License
+
+**CC BY 3.0 Licensed (attribution required):**
+
+- **Game Icons**: CC BY 3.0 License
+  - Website: https://game-icons.net
+  - Attribution: Credit the icon author (shown in download output)
+  - Example: "Icon by Lorc, https://game-icons.net"
 
 All these licenses allow free commercial use. Run the license checker to view full license details and GitHub links.
