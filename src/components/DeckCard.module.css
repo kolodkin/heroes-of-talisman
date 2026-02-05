@@ -1,0 +1,22 @@
+.deckCard {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.deckCard:hover {
+  transform: translateY(-4px);
+}
+
+/* Mobile landscape base styles */
+.deckImage {
+  width: 100px;
+  height: auto;
+  display: block;
+}
+
+/* Desktop/larger screen adjustments */
+@media (min-height: 501px), (orientation: portrait) {
+  .deckImage {
+    width: 200px;
+  }
+}
