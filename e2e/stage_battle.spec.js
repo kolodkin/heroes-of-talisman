@@ -340,7 +340,7 @@ test("battle stage - level 2 knight loses and drops to level 1", async ({ page, 
   const player1Div = page.locator('[data-player="player1"]');
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
   await expect(knightCard).toHaveAttribute("data-level", "2");
-  await expect(knightCard).toContainText("[1/6]");
+  await expect(knightCard).toContainText("[1/3]");
 
   // Screenshot with knight at level 2 before battle ends
   await screenshot(page, "level-down-knight-before-battle-end");

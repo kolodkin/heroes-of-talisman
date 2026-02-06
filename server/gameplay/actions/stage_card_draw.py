@@ -11,7 +11,7 @@ from .action import Action
 from ..common import GameException, ReportedException
 from ..effects import APPLY_TO_SELF, APPLY_TO_BATTLE_OPPONENT, HealEffect, LevelUpEffect
 from ..cards import CardName, CARDS_MAP
-from ..gameplay import STAGE_CARD_DRAW, STAGE_ABILITY_SELECTION, CHARACTER_STATS_BY_LEVEL
+from ..gameplay import STAGE_CARD_DRAW, STAGE_ABILITY_SELECTION, CHARACTER_STATS_BY_LEVEL, MAX_LEVEL
 from ..gameplay import GamePlay, CardDrawMeta, AbilitySelectMeta
 
 
@@ -106,22 +106,21 @@ class CardSelectAction(Action):
                         )
                         # HealEffect is disposed immediately, not added to effects
                     elif isinstance(effect_copy, LevelUpEffect):
-                        # Increase character level
-                        new_level = character.level + effect_copy.level_increase
-                        # Get stats for new level (fallback to highest available level)
-                        max_available_level = max(CHARACTER_STATS_BY_LEVEL.keys())
-                        level_stats = CHARACTER_STATS_BY_LEVEL.get(
-                            new_level,
-                            CHARACTER_STATS_BY_LEVEL[max_available_level]
-                        )
-                        char_stats = level_stats[character_type]
-                        # Update character stats
-                        character.level = new_level
-                        character.max_health = char_stats["max_health"]
-                        character.dice = char_stats["dice"]
-                        character.attack = char_stats["attack"]
-                        # Restore health to new max_health
-                        character.health = character.max_health
+                        # No effect if already at max level
+                        if character.level >= MAX_LEVEL:
+                            pass
+                        else:
+                            # Increase character level
+                            new_level = character.level + effect_copy.level_increase
+                            level_stats = CHARACTER_STATS_BY_LEVEL[new_level]
+                            char_stats = level_stats[character_type]
+                            # Update character stats
+                            character.level = new_level
+                            character.max_health = char_stats["max_health"]
+                            character.dice = char_stats["dice"]
+                            character.attack = char_stats["attack"]
+                            # Restore health to new max_health
+                            character.health = character.max_health
                         # LevelUpEffect is disposed immediately, not added to effects
                     else:
                         character.effects.append(effect_copy)

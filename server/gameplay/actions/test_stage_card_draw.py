@@ -22,12 +22,14 @@ from ..gameplay import (
     CardDrawMeta,
     init_characters,
 )
+from ..gameplay import MAX_LEVEL
 from ..presets import (
     get_debug_preset,
     PRESET_BATTLE_METAL_ARMOR,
     PRESET_CARD_DRAW_ARCHER_SACRED_SWORD,
     PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE,
     PRESET_CARD_DRAW_GOLDEN_APPLE_MAX_HEALTH,
+    PRESET_CARD_DRAW_KNIGHT_MAGIC_BALL_MAX_LEVEL,
 )
 
 
@@ -331,3 +333,27 @@ def test_golden_apple_does_not_exceed_max_health():
     assert knight.health == 2  # Still at max, not 3
     assert knight.health <= knight.max_health
     assert CARD_GOLDEN_APPLE in knight.cards
+
+
+def test_magic_ball_no_effect_at_max_level():
+    """Test magic_ball has no effect when knight is already at MAX_LEVEL"""
+    game = get_debug_preset(PRESET_CARD_DRAW_KNIGHT_MAGIC_BALL_MAX_LEVEL)
+
+    # Verify preset: knight at max level with damaged health
+    knight_before = game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight_before.level == MAX_LEVEL
+    assert knight_before.health == 4  # Damaged (max is 5)
+    assert knight_before.max_health == 5
+    assert knight_before.dice == 2
+    assert knight_before.attack == 3
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Verify no stats changed
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight.level == MAX_LEVEL  # Still at max level
+    assert knight.health == 4  # Health NOT restored (no level up occurred)
+    assert knight.max_health == 5
+    assert knight.dice == 2
+    assert knight.attack == 3

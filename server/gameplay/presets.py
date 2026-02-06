@@ -50,6 +50,7 @@ PRESET_CARD_DRAW_KNIGHT_SACRED_SWORD = "card_draw_knight_sacred_sword"
 PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE = "card_draw_knight_golden_apple"
 PRESET_CARD_DRAW_GOLDEN_APPLE_MAX_HEALTH = "card_draw_golden_apple_max_health"
 PRESET_CARD_DRAW_KNIGHT_MAGIC_BALL = "card_draw_knight_magic_ball"
+PRESET_CARD_DRAW_KNIGHT_MAGIC_BALL_MAX_LEVEL = "card_draw_knight_magic_ball_max_level"
 PRESET_BATTLE_LEVEL_DOWN = "battle_level_down"
 PRESET_HEALTH_1 = "health_1"
 PRESET_KNIGHT_NOT_ALIVE = "knight_not_alive"
@@ -78,6 +79,7 @@ DebugPresetsType = Literal[
     "card_draw_knight_golden_apple",
     "card_draw_golden_apple_max_health",
     "card_draw_knight_magic_ball",
+    "card_draw_knight_magic_ball_max_level",
     "effect_attack_bonus",
     "effect_reroll",
     "effect_skip_turn",
@@ -495,7 +497,7 @@ def get_debug_preset(
     elif preset == "card_draw_knight_magic_ball":
         # Knight draws magic_ball (levels up from 1 to 2)
         # Knight L1: health=1 (damaged), max_health=2, dice=1, attack=1
-        # After level up: health=6, max_health=6, dice=2, attack=1 (health restored to new max)
+        # After level up: health=3, max_health=3, dice=1, attack=3 (health restored to new max)
         from .cards import CARD_MAGIC_BALL
 
         characters_p1 = init_characters()
@@ -510,11 +512,29 @@ def get_debug_preset(
                 p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
+    elif preset == "card_draw_knight_magic_ball_max_level":
+        # Knight at MAX_LEVEL draws magic_ball (no effect)
+        # Knight L4: health=4 (damaged), max_health=5, dice=2, attack=3
+        # After level up attempt: no change (already at max level)
+        from .cards import CARD_MAGIC_BALL
+
+        characters_p1 = init_characters(level=4)
+        characters_p1[CHARACTER_KNIGHT].health = 4  # Damaged to verify health is NOT restored
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=CARD_MAGIC_BALL),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
     elif preset == "battle_level_down":
         # Level 2 knight loses battle and should drop to level 1
-        # Player 1: knight L2 with 1 health (dice=[2], attack=1) = 3
+        # Player 1: knight L2 with 1 health (dice=[2], attack=3) = 5
         # Player 2: mage L1 (dice=[6], attack=0) = 6
-        # Result: knight loses (3 < 6), takes 1 damage, health drops to 0
+        # Result: knight loses (5 < 6), takes 1 damage, health drops to 0
         # Level down triggers: knight becomes L1 (health=2, max_health=2, dice=1, attack=1)
         characters_p1 = init_characters(level=2)  # Start at level 2
         characters_p1[CHARACTER_KNIGHT].health = 1  # Set health to 1 so damage triggers level down
@@ -524,7 +544,7 @@ def get_debug_preset(
         ret = GamePlay(
             stage=STAGE_BATTLE_END,
             active=ActivePlayer4(
-                player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[2], result=BattleResult(winner=False, score=3)
+                player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[2], result=BattleResult(winner=False, score=5)
             ),
             opponent=Opponent4(
                 player=p2_name, character=CHARACTER_MAGE, dice_roll=[6], result=BattleResult(winner=True, score=6)
