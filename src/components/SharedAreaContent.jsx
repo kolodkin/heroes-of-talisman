@@ -26,7 +26,7 @@ export const SharedAreaContent = ({
       if (e.key !== "Enter") return;
       if (actionButtonDisabled || !onActionClick || !actionButtonContent) return;
 
-      const isDesktop = window.matchMedia("(min-width: 769px)").matches;
+      const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
       if (!isDesktop) return;
 
       e.preventDefault();

@@ -283,7 +283,7 @@ Displays a face-down deck card for drawing (`src/components/DeckCard.jsx`).
   - Stage components also receive `active` prop as defensive coding for programmatic checks
 - **Keyboard Shortcut (Desktop)**:
   - Pressing **Enter** triggers the action button in the shared area, equivalent to clicking it
-  - Only active on desktop viewports (min-width: 769px) — disabled on mobile
+  - Only active on desktop viewports (min-width: 1024px) — disabled on mobile/tablet
   - Respects disabled state: does nothing when the action button is disabled or not rendered
 - **Minimum Player Requirement**:
   - When there are less than 2 players in the game (regardless of connection status), SharedArea displays a grayed overlay
