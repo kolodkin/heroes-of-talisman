@@ -49,7 +49,7 @@ async function validatePlayerCharacters(page, playerName) {
   // Expand player cards if minimized (click + button to show full cards with images)
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   if (await expandButton.isVisible()) {
-    await expandButton.click({ force: true });
+    await expandButton.click();
     // Wait for cards to appear
     await expect(playerDiv.getByAltText("knight")).toBeVisible({ timeout: TIMEOUT });
   }
