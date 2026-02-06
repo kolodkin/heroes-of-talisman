@@ -156,8 +156,8 @@ test("shared area dynamic alignment - opponent selection stage", async ({ page, 
 test("Enter key triggers action button on desktop", async ({ page, gameName }) => {
   const playerName = "player1";
 
-  // Setup: Create game in character selection stage
-  await createPresetGameViaAPI(gameName, "default");
+  // Setup: Create game in character selection stage with 2 players
+  await createPresetGameViaAPI(gameName, "mage_not_alive");
 
   // Navigate to game with desktop viewport
   await page.setViewportSize({ width: 1200, height: 900 });
@@ -166,7 +166,7 @@ test("Enter key triggers action button on desktop", async ({ page, gameName }) =
   await dismissConnectionToast(page);
   await screenshot(page, "enter-key-character-select-loaded");
 
-  // Select a character by clicking it
+  // Select knight character by clicking it
   const knightCard = page.locator('[data-shared-area-active="true"] [data-character="knight"]').first();
   await knightCard.click();
   await expect(knightCard).toHaveClass(/selected/);
