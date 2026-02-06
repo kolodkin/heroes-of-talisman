@@ -3,23 +3,11 @@ import styles from "./Presets.module.css";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-const PRESET_OPTIONS = [
-  { value: "default", label: "Default" },
-  { value: "archer_not_alive", label: "Archer Not Alive" },
-  { value: "battle_draw", label: "Battle Draw" },
-  { value: "battle_player_1_win", label: "Battle Player 1 Win" },
-  { value: "battle_player_2_win", label: "Battle Player 2 Win" },
-  { value: "battle_with_effects", label: "Battle with Effects" },
-  { value: "effect_attack_bonus", label: "Effect: Attack Bonus" },
-  { value: "effect_reroll", label: "Effect: Reroll" },
-  { value: "effect_skip_turn", label: "Effect: Skip Turn" },
-  { value: "health_1", label: "Health 1" },
-  { value: "knight_not_alive", label: "Knight Not Alive" },
-  { value: "mage_not_alive", label: "Mage Not Alive" },
-  { value: "opponent_selection_preset", label: "Opponent Selection" },
-  { value: "single_player", label: "Single Player" },
-  { value: "skip_turn_no_character", label: "Skip Turn: No Character Available" },
-];
+const formatPresetLabel = (value) =>
+  value
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
 const Presets = () => {
   const navigate = useNavigate();
@@ -27,6 +15,13 @@ const Presets = () => {
   const [player1Name, setPlayer1Name] = useState(localStorage.getItem("preset_player1_name") || "");
   const [player2Name, setPlayer2Name] = useState(localStorage.getItem("preset_player2_name") || "");
   const [preset, setPreset] = useState(localStorage.getItem("preset_selected") || "default");
+  const [presetOptions, setPresetOptions] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/games/presets")
+      .then((res) => res.json())
+      .then((presets) => setPresetOptions(presets.map((value) => ({ value, label: formatPresetLabel(value) }))));
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -157,7 +152,7 @@ const Presets = () => {
           <div className={styles.inputGroup}>
             <label htmlFor="preset">Preset:</label>
             <select id="preset" className={styles.select} value={preset} onChange={handlePresetChange}>
-              {PRESET_OPTIONS.map((option) => (
+              {presetOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>

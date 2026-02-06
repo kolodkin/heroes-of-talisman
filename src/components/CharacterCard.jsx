@@ -57,7 +57,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
       data-level={character.level}
       data-effects={effectNames}
     >
-      <img src={`/images/${name}.png`} alt={name} />
+      <img className={styles["card-img"]} src={`/images/${name}.png`} alt={name} />
       <p className="w-full text-center font-bold">
         {nameStr} {t("character_card.level")} {character.level}
       </p>
@@ -78,8 +78,8 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         )}
         {hasReroll && <RerollIcon color="white" fill="purple" />}
         {hasSkipTurn && <SkipTurnIcon color="white" fill="orange" />}
-        {hasArmor && <ArmorIcon color="white" fill="#4a90d9" />}
-        {hasSword && <SwordIcon color="white" fill="#d4af37" />}
+        {hasArmor && <ArmorIcon />}
+        {hasSword && <SwordIcon />}
       </div>
       <div className={className("flex items-center gap-1", styles.stats)}>
         <HeartIcon color="red" />

@@ -74,7 +74,8 @@ def fit_image(
     mode: str = "fit",
     quality: int = 95,
     trim: bool = False,
-    margin: int = 0
+    margin: int = 0,
+    center: bool = True
 ) -> str:
     """
     Fit an image into target dimensions.
@@ -206,12 +207,18 @@ def fit_image(
         else:
             raise ValueError(f"Invalid mode: {mode}")
 
-        # Add margin if specified
-        if margin > 0:
+        # Add margin if specified or center the image
+        if margin > 0 or (center and (img.size[0] < width or img.size[1] < height)):
             if bg_color is None:
                 bg_color = (255, 255, 255, 255)
             new_img = Image.new('RGBA', (width, height), bg_color)
-            new_img.paste(img, (margin, margin))
+            if center:
+                paste_x = (width - img.size[0]) // 2
+                paste_y = (height - img.size[1]) // 2
+            else:
+                paste_x = margin
+                paste_y = margin
+            new_img.paste(img, (paste_x, paste_y))
             img = new_img
 
     elif width or height:
@@ -330,6 +337,11 @@ Examples:
         default=0,
         help='Add margin (in pixels) around the image (default: 0)'
     )
+    parser.add_argument(
+        '--no-center',
+        action='store_true',
+        help='Disable centering (place at top-left with margin offset instead)'
+    )
 
     args = parser.parse_args()
 
@@ -341,7 +353,8 @@ Examples:
             mode=args.mode,
             quality=args.quality,
             trim=args.trim,
-            margin=args.margin
+            margin=args.margin,
+            center=not args.no_center
         )
         print(f"✓ Success! Fitted image saved to: {output_path}")
     except Exception as e:

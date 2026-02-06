@@ -15,7 +15,7 @@
   gap: 0.3rem;
 }
 
-.card-normal img {
+.card-normal .card-img {
   min-width: 80px;
   width: 80px;
   height: 80px;
@@ -30,7 +30,9 @@
   font-size: 0.6rem;
 }
 
-.card-normal .stats svg {
+.card-normal .stats svg,
+.card-normal .stats img[data-icon-armor],
+.card-normal .stats img[data-icon-sword] {
   width: 12px;
   height: 12px;
 }
@@ -41,7 +43,7 @@
   gap: 0.2rem;
 }
 
-.card-small img {
+.card-small .card-img {
   min-width: 50px;
   width: 50px;
   height: 50px;
@@ -55,7 +57,9 @@
   font-size: 0.5rem;
 }
 
-.card-small .stats svg {
+.card-small .stats svg,
+.card-small .stats img[data-icon-armor],
+.card-small .stats img[data-icon-sword] {
   width: 10px;
   height: 10px;
 }
@@ -103,7 +107,7 @@
     gap: 0.8rem;
   }
 
-  .card-normal img {
+  .card-normal .card-img {
     min-width: 160px;
     width: 160px;
     height: 160px;
@@ -118,7 +122,9 @@
     font-size: 1rem;
   }
 
-  .card-normal .stats svg {
+  .card-normal .stats svg,
+  .card-normal .stats img[data-icon-armor],
+  .card-normal .stats img[data-icon-sword] {
     width: 20px;
     height: 20px;
   }
@@ -129,7 +135,7 @@
     gap: 0.4rem;
   }
 
-  .card-small img {
+  .card-small .card-img {
     min-width: 80px;
     width: 80px;
     height: 80px;
@@ -144,7 +150,9 @@
     font-size: 0.65rem;
   }
 
-  .card-small .stats svg {
+  .card-small .stats svg,
+  .card-small .stats img[data-icon-armor],
+  .card-small .stats img[data-icon-sword] {
     width: 12px;
     height: 12px;
   }

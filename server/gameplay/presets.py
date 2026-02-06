@@ -1,4 +1,4 @@
-from typing import Literal, Optional
+from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
 from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
@@ -59,7 +59,7 @@ PRESET_SKIP_TURN_NO_CHARACTER = "skip_turn_no_character"
 PRESET_MAGE_NOT_ALIVE = "mage_not_alive"
 PRESET_OPPONENT_SELECTION = "opponent_selection_preset"
 PRESET_SINGLE_PLAYER = "single_player"
-DEBUG_PRESETS = Literal[
+DebugPresetsType = Literal[
     "default",
     "ability_selection_knight",
     "ability_selection_archer",
@@ -90,6 +90,9 @@ DEBUG_PRESETS = Literal[
 ]
 
 
+DEBUG_PRESETS = list(get_args(DebugPresetsType))
+
+
 def set_health_1(game: GamePlay) -> GamePlay:
     ret = game.model_copy(deep=True)
     for player in ret.players.values():
@@ -113,7 +116,7 @@ def create_battle_preset(active: ActivePlayer4, opponent: Opponent4, stage: Stag
 
 
 def get_debug_preset(
-    preset: DEBUG_PRESETS,
+    preset: DebugPresetsType,
     stage: Optional[StageName] = None,
     player1_name: Optional[str] = None,
     player2_name: Optional[str] = None,

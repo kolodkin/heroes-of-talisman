@@ -34,6 +34,7 @@ The script will:
   - `stretch`: Ignore aspect ratio, stretch to exact dimensions
 - `--trim` - Auto-crop transparent/white borders before fitting
 - `--margin` - Add margin (in pixels) around the fitted image (default: 0)
+- `--no-center` - Disable centering (place at top-left with margin offset instead). Centering is enabled by default.
 - `-q, --quality` - JPEG quality (1-100, default: 95)
 
 ## Supported Formats
@@ -74,6 +75,7 @@ fit.py icon.png --width 48 --height 48 --mode fill --quality 90
 - **Stretch Mode**: Ignores aspect ratio and stretches to exact dimensions. May distort the image.
 - **Trim**: Auto-crops transparent or white borders before fitting. Automatically enabled in fill mode and when margin is used with detected background.
 - **Margin**: Adds padding around the final image. Uses transparent background for RGBA images, preserving transparency. Applied after fitting.
+- **Centering** (default: on): Automatically centers the fitted image within the target dimensions. Use `--no-center` to place at top-left instead.
 - **Quality**: Only affects JPEG output. Higher values = better quality but larger file size.
 - **Output Naming**: Files are named `original_MODE_WIDTHxHEIGHT.ext` (e.g., `photo_fit_800x600.jpg`)
 
