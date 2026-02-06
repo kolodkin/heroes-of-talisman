@@ -50,7 +50,7 @@ const StageCardDraw = ({ drawnCard, sendAction, active }) => {
     <SharedAreaContent
       content={content}
       onActionClick={handleSubmit}
-      actionButtonContent={t("card_draw.select")}
+      actionButtonContent={t("card_draw.draw")}
       actionButtonDisabled={!active || !drawnCard}
     />
   );

@@ -85,6 +85,7 @@ const resources = {
       card_draw: {
         deck: "חפיסה",
         select: "בחר",
+        draw: "משוך",
         drawing: "מושך קלף...",
       },
       character_card: {
