@@ -1,5 +1,5 @@
 import { createGameViaAPI } from "./api_helpers.js";
-import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame } from "./test_helpers.js";
+import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame, dismissConnectionToast } from "./test_helpers.js";
 
 test("players menu minified by default with global toggle", async ({ page, gameName }) => {
   // Setup: Create game via API
@@ -36,6 +36,9 @@ test("players menu minified by default with global toggle", async ({ page, gameN
   await expect(playerDiv.getByText(/קשת/)).toBeVisible(); // archer in Hebrew
   await expect(playerDiv.getByText(/קוסם/)).toBeVisible(); // mage in Hebrew
   await expect(playerDiv.getByText(/דרגה 1/).first()).toBeVisible(); // level 1
+
+  // Dismiss any lingering connection toast before clicking
+  await dismissConnectionToast(page);
 
   // Click toggle button to expand all players
   await toggleButton.click();
