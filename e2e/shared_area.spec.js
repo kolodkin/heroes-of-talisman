@@ -1,5 +1,5 @@
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, FRONTEND_URL } from "./test_helpers.js";
+import { test, expect, screenshot, FRONTEND_URL, dismissConnectionToast } from "./test_helpers.js";
 
 test("shared area dynamic alignment - character selection stage", async ({ page, gameName }) => {
   const playerName = "player1";
@@ -151,4 +151,31 @@ test("shared area dynamic alignment - opponent selection stage", async ({ page, 
   await expect(firstOpponent.locator('[data-character="mage"]').first()).toBeInViewport();
   await expect(firstOpponent.locator('[data-character="archer"]').first()).toBeInViewport();
   await expect(firstOpponent.locator('[data-character="knight"]').first()).toBeInViewport();
+});
+
+test("Enter key triggers action button on desktop", async ({ page, gameName }) => {
+  const playerName = "player1";
+
+  // Setup: Create game in character selection stage with 2 players
+  await createPresetGameViaAPI(gameName, "mage_not_alive");
+
+  // Navigate to game with desktop viewport
+  await page.setViewportSize({ width: 1200, height: 900 });
+  await page.goto(`${FRONTEND_URL}/games/${gameName}/${playerName}`);
+  await page.waitForSelector('[data-game-stage="character_select"]', { timeout: 5000 });
+  await dismissConnectionToast(page);
+  await screenshot(page, "enter-key-character-select-loaded");
+
+  // Select knight character by clicking it
+  const knightCard = page.locator('[data-shared-area-active="true"] [data-character="knight"]').first();
+  await knightCard.click();
+  await expect(knightCard).toHaveClass(/selected/);
+  await screenshot(page, "enter-key-knight-selected");
+
+  // Press Enter to confirm selection (instead of clicking action button)
+  await page.keyboard.press("Enter");
+
+  // Verify stage transitioned to card_draw (action button was triggered)
+  await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible({ timeout: 5000 });
+  await screenshot(page, "enter-key-stage-transitioned-to-card-draw");
 });

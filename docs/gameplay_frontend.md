@@ -281,6 +281,10 @@ Displays a face-down deck card for drawing (`src/components/DeckCard.jsx`).
   - Only the active player (`gamePlay.active.player`) can interact with UI elements in SharedArea
   - Non-active players see the SharedArea with `pointer-events: none` to prevent all interactions
   - Stage components also receive `active` prop as defensive coding for programmatic checks
+- **Keyboard Shortcut (Desktop)**:
+  - Pressing **Enter** triggers the action button in the shared area, equivalent to clicking it
+  - Only active on desktop viewports (min-width: 1024px) — disabled on mobile/tablet
+  - Respects disabled state: does nothing when the action button is disabled or not rendered
 - **Minimum Player Requirement**:
   - When there are less than 2 players in the game (regardless of connection status), SharedArea displays a grayed overlay
   - Overlay prevents any interaction until the minimum player count is reached

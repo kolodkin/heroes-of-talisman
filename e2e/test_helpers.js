@@ -76,12 +76,9 @@ export async function dismissConnectionToast(page) {
     const closeButton = toastLocator.locator(".Toastify__close-button");
     if (await closeButton.isVisible()) {
       await closeButton.click({ force: true, timeout: 1000 }).catch(() => {});
-      // Only wait for toast to disappear when e2e patches are NOT applied
-      // With VITE_E2E=true, animations are instant (0s) so toast is already gone
-      if (process.env.VITE_E2E !== "true") {
-        await toastLocator.waitFor({ state: "hidden", timeout: 3000 }).catch(() => {});
-      }
     }
+    // Always wait for toast to disappear (DOM needs a tick even with instant animations)
+    await toastLocator.waitFor({ state: "hidden", timeout: 3000 }).catch(() => {});
   }
 }
 
