@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useCallback } from "react";
+
 import styles from "./SharedAreaContent.module.css";
 
 /**
@@ -20,6 +21,25 @@ export const SharedAreaContent = ({
   actionButtonDisabled = false,
   actionButtonDataAttrs = {},
 }) => {
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key !== "Enter") return;
+      if (actionButtonDisabled || !onActionClick || !actionButtonContent) return;
+
+      const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+      if (!isDesktop) return;
+
+      e.preventDefault();
+      onActionClick();
+    },
+    [onActionClick, actionButtonDisabled, actionButtonContent],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
   return (
     <div className={styles.container}>
       {/* Action button (positioned at end: right in LTR, left in RTL) */}
