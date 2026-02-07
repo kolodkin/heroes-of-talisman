@@ -169,8 +169,6 @@ test("character_select stage - no character available shows Skip Turn button", a
   await verifyCharacterNotClickable(page, "archer"); // dead
   await verifyCharacterNotClickable(page, "mage"); // has skip_turn effect
 
-  await screenshot(page, "no-character-available-initial");
-
   // Verify the Skip Turn button is shown (has data-skip-turn attribute)
   const skipTurnButton = page.locator("[data-skip-turn]");
   await expect(skipTurnButton).toBeVisible();
