@@ -36,16 +36,15 @@ test("card_draw stage - knight draws metal_armor successfully", async ({ page, g
   await expect(metalArmorCard).toContainText("+2 להגנה"); // +2 to defense
 
   // Confirm card selection
-  const selectButton = page.getByRole("button", { name: "בחר" });
+  const selectButton = page.getByRole("button", { name: "שלוף" });
   await expect(selectButton).toBeVisible();
   await expect(selectButton).toBeEnabled();
   await selectButton.click();
 
   // Should transition to ability_selection stage
   await waitForStage(page, "ability_selection");
-  await screenshot(page, "card-selected-transition-to-ability");
 
-  // Expand players to see character cards with effects
+  // Expand players to see character cards with armor icon
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -53,6 +52,12 @@ test("card_draw stage - knight draws metal_armor successfully", async ({ page, g
   const player1Div = page.locator('[data-player="player1"]');
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
   await expect(knightCard).toHaveAttribute("data-effects", /defense_bonus/);
+
+  // Verify armor icon is visible on knight card
+  await expect(knightCard.locator("[data-icon-armor]")).toBeVisible();
+
+  // Screenshot with expanded player menu showing armor icon
+  await screenshot(page, "card-selected-transition-to-ability");
 
   // Minimize players after check
   const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
@@ -87,16 +92,15 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
   await expect(sacredSwordCard).toContainText("+3 להתקפה"); // +3 to attack
 
   // Confirm card selection
-  const selectButton = page.getByRole("button", { name: "בחר" });
+  const selectButton = page.getByRole("button", { name: "שלוף" });
   await expect(selectButton).toBeVisible();
   await expect(selectButton).toBeEnabled();
   await selectButton.click();
 
   // Should transition to ability_selection stage even though card is restricted
   await waitForStage(page, "ability_selection");
-  await screenshot(page, "restricted-card-transition-to-ability");
 
-  // Expand players to see character cards with effects
+  // Expand players to see character cards
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -108,6 +112,68 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
   if (effectsAttr) {
     expect(effectsAttr).not.toMatch(/attack_bonus/);
   }
+
+  // Verify sword icon is NOT visible on archer card (restricted)
+  await expect(archerCard.locator("[data-icon-sword]")).not.toBeVisible();
+
+  // Screenshot with expanded player menu showing no sword icon on archer
+  await screenshot(page, "restricted-card-transition-to-ability");
+
+  // Minimize players after check
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
+
+  // Cleanup
+  await page2.close();
+});
+
+test("card_draw stage - knight draws sacred_sword successfully", async ({ page, gameName }) => {
+  // Create preset game at card_draw stage with knight having drawn sacred_sword
+  await createPresetGameViaAPI(gameName, "card_draw_knight_sacred_sword");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
+
+  // Player2 joins
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+
+  // Verify we're in card_draw stage
+  await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
+
+  // Verify sacred_sword card is visible
+  const sharedArea = page.locator('[data-shared-area-active="true"]');
+  const sacredSwordCard = sharedArea.locator('[data-card="sacred_sord"]'); // Note: typo in card name
+  await expect(sacredSwordCard).toBeVisible();
+  await screenshot(page, "card-draw-knight-sacred-sword");
+
+  // Verify card details are displayed
+  await expect(sacredSwordCard).toContainText("חרב קדושה"); // Sacred Sword
+  await expect(sacredSwordCard).toContainText("+3 להתקפה"); // +3 to attack
+
+  // Confirm card selection
+  const selectButton = page.getByRole("button", { name: "שלוף" });
+  await expect(selectButton).toBeVisible();
+  await expect(selectButton).toBeEnabled();
+  await selectButton.click();
+
+  // Should transition to ability_selection stage
+  await waitForStage(page, "ability_selection");
+
+  // Expand players to see character cards with sword icon
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  await expandButton.click();
+
+  // Verify knight has the attack bonus effect applied
+  const player1Div = page.locator('[data-player="player1"]');
+  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
+  await expect(knightCard).toHaveAttribute("data-effects", /attack_bonus/);
+
+  // Verify sword icon is visible on knight card
+  await expect(knightCard.locator("[data-icon-sword]")).toBeVisible();
+
+  // Screenshot with expanded player menu showing sword icon
+  await screenshot(page, "card-selected-knight-with-sword");
 
   // Minimize players after check
   const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
@@ -157,7 +223,7 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
   await minimizeButton.click();
 
   // Confirm card selection
-  const selectButton = page.getByRole("button", { name: "בחר" });
+  const selectButton = page.getByRole("button", { name: "שלוף" });
   await expect(selectButton).toBeVisible();
   await expect(selectButton).toBeEnabled();
   await selectButton.click();
@@ -215,7 +281,7 @@ test("card_draw stage - knight draws magic_ball and levels up", async ({ page, g
   await minimizeButton.click();
 
   // Confirm card selection
-  const selectButton = page.getByRole("button", { name: "בחר" });
+  const selectButton = page.getByRole("button", { name: "שלוף" });
   await expect(selectButton).toBeVisible();
   await expect(selectButton).toBeEnabled();
   await selectButton.click();
@@ -227,10 +293,10 @@ test("card_draw stage - knight draws magic_ball and levels up", async ({ page, g
   const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
   await expandButtonAfter.click();
 
-  // Verify knight leveled up to level 2 with full health at new max (6/6)
+  // Verify knight leveled up to level 2 with full health at new max (3/3)
   // Note: Level up restores health to new level's max_health
   await expect(knightCard).toHaveAttribute("data-level", "2");
-  await expect(knightCard).toContainText("[6/6]");
+  await expect(knightCard).toContainText("[3/3]");
   await screenshot(page, "magic-ball-knight-after-level-up");
 
   // Cleanup
@@ -273,7 +339,7 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
   await minimizeButton.click();
 
   // Confirm card selection
-  const selectButton = page.getByRole("button", { name: "בחר" });
+  const selectButton = page.getByRole("button", { name: "שלוף" });
   await selectButton.click();
 
   // Should transition to ability_selection stage
@@ -286,6 +352,64 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
   // Verify knight is still at max health (no overheal)
   await expect(knightCard).toContainText("[2/2]");
   await screenshot(page, "golden-apple-knight-max-health-after");
+
+  // Cleanup
+  await page2.close();
+});
+
+test("card_draw stage - knight at max level draws magic_ball (no effect)", async ({ page, gameName }) => {
+  // Create preset game at card_draw stage with max level knight having drawn magic_ball
+  // Knight L4 starts damaged (4/5 health) to verify level up has no effect
+  await createPresetGameViaAPI(gameName, "card_draw_knight_magic_ball_max_level");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
+
+  // Player2 joins
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+
+  // Verify we're in card_draw stage
+  await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
+
+  // Expand players to see knight's stats before card
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  await expandButton.click();
+
+  // Verify knight starts at level 4 with damaged health (4/5)
+  const player1Div = page.locator('[data-player="player1"]');
+  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
+  await expect(knightCard).toHaveAttribute("data-level", "4");
+  await expect(knightCard).toContainText("[4/5]");
+
+  // Verify magic_ball card is visible
+  const sharedArea = page.locator('[data-shared-area-active="true"]');
+  const magicBallCard = sharedArea.locator('[data-card="magic_ball"]');
+  await expect(magicBallCard).toBeVisible();
+
+  await screenshot(page, "magic-ball-knight-max-level-before");
+
+  // Minimize players before card selection so we can expand again after
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
+
+  // Confirm card selection
+  const selectButton = page.getByRole("button", { name: "שלוף" });
+  await expect(selectButton).toBeVisible();
+  await expect(selectButton).toBeEnabled();
+  await selectButton.click();
+
+  // Should transition to ability_selection stage
+  await waitForStage(page, "ability_selection");
+
+  // Expand players to see knight's stats after card (should be unchanged)
+  const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
+  await expandButtonAfter.click();
+
+  // Verify knight is still at level 4 with same damaged health (no level up occurred)
+  await expect(knightCard).toHaveAttribute("data-level", "4");
+  await expect(knightCard).toContainText("[4/5]");
+  await screenshot(page, "magic-ball-knight-max-level-after");
 
   // Cleanup
   await page2.close();

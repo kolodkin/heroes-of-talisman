@@ -137,7 +137,7 @@ async function testCardDraw(page, page2, gameName) {
   await screenshot(page, "card-drawn-metal-armor");
 
   // Verify select button is enabled after card is drawn
-  const selectButton = page.getByRole("button", { name: "בחר" });
+  const selectButton = page.getByRole("button", { name: "שלוף" });
   await expect(selectButton).toBeVisible();
   await expect(selectButton).toBeEnabled();
 

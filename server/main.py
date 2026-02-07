@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .env import REDIS_HOST, REDIS_PORT
 from .game_engine import GameEngine
 from .gameplay.gameplay import StageName, DEFAULT_GAME, GamePlay
-from .gameplay.presets import get_debug_preset, DEBUG_PRESETS
+from .gameplay.presets import get_debug_preset, DEBUG_PRESETS, DebugPresetsType
 from .gameplay.common import GameException
 from .db_models import Game as GameTable
 from .database import get_db, AsyncSessionLocal
@@ -73,7 +73,7 @@ async def health():
 
 class Game(BaseModel):
     name: str
-    preset: DEBUG_PRESETS | None = None
+    preset: DebugPresetsType | None = None
     stage: StageName | None = None
     player1_name: str | None = None
     player2_name: str | None = None
@@ -81,8 +81,13 @@ class Game(BaseModel):
 
 class PresetGame(BaseModel):
     name: str
-    preset: DEBUG_PRESETS
+    preset: DebugPresetsType
     stage: StageName | None = None
+
+
+@router.get("/presets")
+async def list_presets():
+    return DEBUG_PRESETS
 
 
 @router.post("/")

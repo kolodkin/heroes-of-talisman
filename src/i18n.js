@@ -9,6 +9,7 @@ const resources = {
       disconnected: "התנתק",
       nav: {
         playing: "משחק",
+        stage: "שלב",
       },
       home: {
         notify_empty: "אנא הזן שם",
@@ -29,7 +30,7 @@ const resources = {
       },
       stageNames: {
         character_select: "בחירת דמות",
-        card_draw: "משיכת קלף",
+        card_draw: "שליפת קלף",
         ability_selection: "בחירת יכולת",
         ability_opponent_selection: "בחירת יעד ליכולת",
         opponent_selection: "בחירת יריב",
@@ -38,7 +39,7 @@ const resources = {
       },
       stageInstructions: {
         character_select: "בחר דמות",
-        card_draw: "משוך קלף מהחפיסה",
+        card_draw: "שלוף קלף",
         ability_selection: "בחר יכולת",
         ability_opponent_selection: "בחר יריב ודמות להחלת היכולת",
         opponent_selection: "בחר את יריבך",
@@ -84,8 +85,8 @@ const resources = {
       },
       card_draw: {
         deck: "חפיסה",
-        select: "בחר",
-        drawing: "מושך קלף...",
+        draw: "שלוף",
+        drawing: "שולף קלף...",
       },
       character_card: {
         level: "דרגה",

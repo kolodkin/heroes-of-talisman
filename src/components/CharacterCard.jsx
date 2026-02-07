@@ -2,7 +2,7 @@ import className from "classnames";
 import { useTranslation } from "react-i18next";
 import styles from "./CharacterCard.module.css";
 import cardStyles from "./Card.module.css";
-import { DiceIcon, HeartIcon, RerollIcon, SkipTurnIcon, NotAliveIcon } from "./Icons";
+import { DiceIcon, HeartIcon, RerollIcon, SkipTurnIcon, NotAliveIcon, ArmorIcon, SwordIcon } from "./Icons";
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `${num}`) : "");
 
@@ -26,6 +26,8 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
   const totalAttack = baseAttack + attackBonus + attackNegBonus;
   const netEffect = attackBonus + attackNegBonus; // Positive = bonus, negative = penalty
   const hasReroll = character.effect?.reroll_dice_available || false;
+  const hasArmor = character.cards?.includes("metal_armor") || false;
+  const hasSword = character.cards?.includes("sacred_sord") || false;
 
   // Get all effect names for data attribute
   const effectNames = character.effects?.map((effect) => effect.name).join(",") || "";
@@ -55,7 +57,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
       data-level={character.level}
       data-effects={effectNames}
     >
-      <img src={`/images/${name}.png`} alt={name} />
+      <img className={styles["card-img"]} src={`/images/${name}.png`} alt={name} />
       <p className="w-full text-center font-bold">
         {nameStr} {t("character_card.level")} {character.level}
       </p>
@@ -76,6 +78,8 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         )}
         {hasReroll && <RerollIcon color="white" fill="purple" />}
         {hasSkipTurn && <SkipTurnIcon color="white" fill="orange" />}
+        {hasArmor && <ArmorIcon />}
+        {hasSword && <SwordIcon />}
       </div>
       <div className={className("flex items-center gap-1", styles.stats)}>
         <HeartIcon color="red" />

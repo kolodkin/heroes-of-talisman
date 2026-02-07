@@ -255,6 +255,8 @@ DEFAULT_GAME = GamePlay()
 ########################################################
 # Character default stats
 ########################################################
+MAX_LEVEL = 4
+
 # Knight Level 1
 KNIGHT_L1_DEFAULT_HEALTH = 2
 KNIGHT_L1_MAX_HEALTH = 2
@@ -262,11 +264,23 @@ KNIGHT_L1_DICE = 1
 KNIGHT_L1_ATTACK = 1
 KNIGHT_L1_ABILITY = ABILITY_BATTLE_HOWL
 
-# Knight Level 2: +4 max life, +1 dice
-KNIGHT_L2_DEFAULT_HEALTH = 6
-KNIGHT_L2_MAX_HEALTH = 6
-KNIGHT_L2_DICE = 2
-KNIGHT_L2_ATTACK = 1
+# Knight Level 2
+KNIGHT_L2_DEFAULT_HEALTH = 3
+KNIGHT_L2_MAX_HEALTH = 3
+KNIGHT_L2_DICE = 1
+KNIGHT_L2_ATTACK = 3
+
+# Knight Level 3
+KNIGHT_L3_DEFAULT_HEALTH = 4
+KNIGHT_L3_MAX_HEALTH = 4
+KNIGHT_L3_DICE = 2
+KNIGHT_L3_ATTACK = 1
+
+# Knight Level 4
+KNIGHT_L4_DEFAULT_HEALTH = 5
+KNIGHT_L4_MAX_HEALTH = 5
+KNIGHT_L4_DICE = 2
+KNIGHT_L4_ATTACK = 3
 
 # Archer Level 1
 ARCHER_L1_DEFAULT_HEALTH = 3
@@ -275,11 +289,23 @@ ARCHER_L1_DICE = 1
 ARCHER_L1_ATTACK = 0
 ARCHER_L1_ABILITY = ABILITY_BOUNCING_ARROW
 
-# Archer Level 2: +4 max life, +1 dice with +2 attack
-ARCHER_L2_DEFAULT_HEALTH = 7
-ARCHER_L2_MAX_HEALTH = 7
-ARCHER_L2_DICE = 2
+# Archer Level 2
+ARCHER_L2_DEFAULT_HEALTH = 4
+ARCHER_L2_MAX_HEALTH = 4
+ARCHER_L2_DICE = 1
 ARCHER_L2_ATTACK = 2
+
+# Archer Level 3
+ARCHER_L3_DEFAULT_HEALTH = 5
+ARCHER_L3_MAX_HEALTH = 5
+ARCHER_L3_DICE = 2
+ARCHER_L3_ATTACK = 0
+
+# Archer Level 4
+ARCHER_L4_DEFAULT_HEALTH = 6
+ARCHER_L4_MAX_HEALTH = 6
+ARCHER_L4_DICE = 2
+ARCHER_L4_ATTACK = 1
 
 # Mage Level 1
 MAGE_L1_DEFAULT_HEALTH = 2
@@ -288,11 +314,23 @@ MAGE_L1_DICE = 1
 MAGE_L1_ATTACK = 0
 MAGE_L1_ABILITY = ABILITY_FREEZE
 
-# Mage Level 2: +4 max life, +1 dice with +1 attack
-MAGE_L2_DEFAULT_HEALTH = 6
-MAGE_L2_MAX_HEALTH = 6
-MAGE_L2_DICE = 2
-MAGE_L2_ATTACK = 1
+# Mage Level 2
+MAGE_L2_DEFAULT_HEALTH = 3
+MAGE_L2_MAX_HEALTH = 3
+MAGE_L2_DICE = 1
+MAGE_L2_ATTACK = 2
+
+# Mage Level 3
+MAGE_L3_DEFAULT_HEALTH = 4
+MAGE_L3_MAX_HEALTH = 4
+MAGE_L3_DICE = 2
+MAGE_L3_ATTACK = 0
+
+# Mage Level 4
+MAGE_L4_DEFAULT_HEALTH = 5
+MAGE_L4_MAX_HEALTH = 5
+MAGE_L4_DICE = 2
+MAGE_L4_ATTACK = 1
 
 CHARACTER_STATS_BY_LEVEL = {
     1: {
@@ -338,6 +376,52 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": MAGE_L2_MAX_HEALTH,
             "dice": MAGE_L2_DICE,
             "attack": MAGE_L2_ATTACK,
+            "abilities": [ABILITIES_MAP[MAGE_L1_ABILITY]],
+        },
+    },
+    3: {
+        "knight": {
+            "health": KNIGHT_L3_DEFAULT_HEALTH,
+            "max_health": KNIGHT_L3_MAX_HEALTH,
+            "dice": KNIGHT_L3_DICE,
+            "attack": KNIGHT_L3_ATTACK,
+            "abilities": [ABILITIES_MAP[KNIGHT_L1_ABILITY]],
+        },
+        "archer": {
+            "health": ARCHER_L3_DEFAULT_HEALTH,
+            "max_health": ARCHER_L3_MAX_HEALTH,
+            "dice": ARCHER_L3_DICE,
+            "attack": ARCHER_L3_ATTACK,
+            "abilities": [ABILITIES_MAP[ARCHER_L1_ABILITY]],
+        },
+        "mage": {
+            "health": MAGE_L3_DEFAULT_HEALTH,
+            "max_health": MAGE_L3_MAX_HEALTH,
+            "dice": MAGE_L3_DICE,
+            "attack": MAGE_L3_ATTACK,
+            "abilities": [ABILITIES_MAP[MAGE_L1_ABILITY]],
+        },
+    },
+    4: {
+        "knight": {
+            "health": KNIGHT_L4_DEFAULT_HEALTH,
+            "max_health": KNIGHT_L4_MAX_HEALTH,
+            "dice": KNIGHT_L4_DICE,
+            "attack": KNIGHT_L4_ATTACK,
+            "abilities": [ABILITIES_MAP[KNIGHT_L1_ABILITY]],
+        },
+        "archer": {
+            "health": ARCHER_L4_DEFAULT_HEALTH,
+            "max_health": ARCHER_L4_MAX_HEALTH,
+            "dice": ARCHER_L4_DICE,
+            "attack": ARCHER_L4_ATTACK,
+            "abilities": [ABILITIES_MAP[ARCHER_L1_ABILITY]],
+        },
+        "mage": {
+            "health": MAGE_L4_DEFAULT_HEALTH,
+            "max_health": MAGE_L4_MAX_HEALTH,
+            "dice": MAGE_L4_DICE,
+            "attack": MAGE_L4_ATTACK,
             "abilities": [ABILITIES_MAP[MAGE_L1_ABILITY]],
         },
     },

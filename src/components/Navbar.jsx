@@ -12,7 +12,7 @@ function Navbar({ stage, playing }) {
         <div className={styles.startGroup}>
           <h1 className={styles.gameName}>{gamename || "Heroes of Talisman"}</h1>
           <div className={styles.username}>{username || "Guest"}</div>
-          <div className={styles.stage}>{stage ? t(`stageNames.${stage}`) : "Loading..."}</div>
+          <div className={styles.stage}>{stage ? `${t("nav.stage")}: ${t(`stageNames.${stage}`)}` : "Loading..."}</div>
           <div className={styles.playing}>
             {t("nav.playing")}: {playing || "..."}
           </div>

@@ -72,12 +72,17 @@ Characters can progress through levels, gaining improved stats at higher levels.
 | Character | Level | Max Health | Dice | Attack |
 | --------- | ----- | ---------- | ---- | ------ |
 | Knight    | 1     | 2          | 1    | 1      |
-| Knight    | 2     | 6          | 2    | 1      |
+| Knight    | 2     | 3          | 1    | 3      |
+| Knight    | 3     | 4          | 2    | 1      |
+| Knight    | 4     | 5          | 2    | 3      |
 | Archer    | 1     | 3          | 1    | 0      |
-| Archer    | 2     | 7          | 2    | 2      |
+| Archer    | 2     | 4          | 1    | 2      |
+| Archer    | 3     | 5          | 2    | 0      |
+| Archer    | 4     | 6          | 2    | 1      |
 | Mage      | 1     | 2          | 1    | 0      |
 | Mage      | 2     | 3          | 1    | 2      |
-| Mage      | 2     | 3          | 1    | 2      |
+| Mage      | 3     | 4          | 2    | 0      |
+| Mage      | 4     | 5          | 2    | 1      |
 
 ### Level Progression
 
