@@ -1,10 +1,4 @@
 .deckCard {
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.deckCard:hover {
-  transform: translateY(-4px);
 }
 
 /* Mobile landscape base styles */
