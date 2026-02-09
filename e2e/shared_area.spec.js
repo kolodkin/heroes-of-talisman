@@ -220,7 +220,6 @@ test("Enter key triggers action button on ability_selection stage", async ({ pag
   // Verify ability is auto-selected
   const abilityCard = page.locator('[data-shared-area-active="true"] [data-ability="battle_howl"]');
   await expect(abilityCard).toBeVisible();
-  await screenshot(page, "enter-key-ability-selection-loaded");
 
   // Press Enter to confirm ability selection (instead of clicking action button)
   await page.keyboard.press("Enter");
@@ -241,7 +240,6 @@ test("Enter key triggers action button on opponent_selection stage", async ({ pa
   await page.goto(`${FRONTEND_URL}/games/${gameName}/${playerName}`);
   await page.waitForSelector('[data-game-stage="opponent_selection"]', { timeout: 5000 });
   await dismissConnectionToast(page);
-  await screenshot(page, "enter-key-opponent-selection-loaded");
 
   // Click on opponent's character to select them
   const opponentChar = page.locator('[data-shared-area-active="true"] [data-player="player2"] [data-character="mage"]');
