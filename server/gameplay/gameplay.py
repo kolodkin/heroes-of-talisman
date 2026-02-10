@@ -39,7 +39,7 @@ StageName = Literal[*STAGES_NAMES]
 ########################################################
 # Deck configuration
 ########################################################
-DECK_SIZE = 10
+DECK_CARD_COUNT = 5
 
 from .abilities import (
     Ability,
@@ -62,6 +62,10 @@ from .effects import (
     DrawCardEffect,
 )
 
+from .cards import CARDS_NAMES
+
+DEFAULT_CARD_COUNTS: dict[str, int] = {card: DECK_CARD_COUNT for card in CARDS_NAMES}
+
 ########################################################
 # Deck
 ########################################################
@@ -72,7 +76,7 @@ class Deck(StrictModel, Generic[T]):
     """Generic deck for drawing cards with auto-reset when empty"""
 
     cards: list[T] = Field(default_factory=list)
-    size: int
+    card_counts: dict[str, int]
 
     def draw(self) -> T:
         """Draw top card from deck, auto-reset when empty"""
@@ -83,10 +87,10 @@ class Deck(StrictModel, Generic[T]):
         return self.cards.pop(0)
 
     def reset(self) -> None:
-        """Reset deck with shuffled cards (with replacement)"""
-        from .cards import CARDS_NAMES
-
-        self.cards = random.choices(CARDS_NAMES, k=self.size)
+        """Reset deck with shuffled cards based on card_counts"""
+        self.cards = []
+        for card_name, count in self.card_counts.items():
+            self.cards.extend([card_name] * count)
         random.shuffle(self.cards)
 
 
@@ -219,7 +223,7 @@ class Player(StrictModel):
 ########################################################
 class GamePlay(StrictModel):
     stage: StageName = STAGE_CHARACTER_SELECT
-    deck: Deck[str] = Field(default_factory=lambda: Deck(size=DECK_SIZE, cards=[]))
+    deck: Deck[str] = Field(default_factory=lambda: Deck(card_counts=DEFAULT_CARD_COUNTS, cards=[]))
     players: dict[str, Player] = Field(default_factory=dict)
     active: Optional[ActivePlayer] = None  # The active player and its selections
     card: Optional[str] = None  # Selected card from card_draw stage
