@@ -95,7 +95,7 @@ class AttackBonusEffect(Effect):
 
 class DefenseBonusEffect(Effect):
     """
-    Character's defense is increased, reducing incoming attack damage.
+    Character's defense is increased, reducing opponent's battle score.
     Disposed at battle end.
     Applied to self (active player's character).
     """
