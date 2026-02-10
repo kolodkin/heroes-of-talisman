@@ -61,7 +61,14 @@ from .effects import (
     DrawCardEffect,
 )
 
-DEFAULT_CARD_COUNTS: dict[str, int] = {"metal_armor": 5, "sacred_sord": 5, "golden_apple": 5, "magic_ball": 5}
+from .cards import CardName, CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL
+
+DEFAULT_CARD_COUNTS: dict[CardName, int] = {
+    CARD_METAL_ARMOR: 5,
+    CARD_SACRED_SWORD: 5,
+    CARD_GOLDEN_APPLE: 5,
+    CARD_MAGIC_BALL: 5,
+}
 
 ########################################################
 # Deck
