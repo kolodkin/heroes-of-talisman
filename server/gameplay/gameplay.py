@@ -39,7 +39,6 @@ StageName = Literal[*STAGES_NAMES]
 ########################################################
 # Deck configuration
 ########################################################
-DECK_CARD_COUNT = 5
 
 from .abilities import (
     Ability,
@@ -62,9 +61,7 @@ from .effects import (
     DrawCardEffect,
 )
 
-from .cards import CARDS_NAMES
-
-DEFAULT_CARD_COUNTS: dict[str, int] = {card: DECK_CARD_COUNT for card in CARDS_NAMES}
+DEFAULT_CARD_COUNTS: dict[str, int] = {"metal_armor": 5, "sacred_sord": 5, "golden_apple": 5, "magic_ball": 5}
 
 ########################################################
 # Deck
