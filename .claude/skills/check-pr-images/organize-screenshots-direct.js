@@ -89,6 +89,7 @@ function extractTestInfo(data, tests = [], context = {}) {
               name: att.name,
               hash: hash, // Full 64-char hex hash
               buffer: imageBuffer,
+              ext: att.contentType === "image/png" ? "png" : "jpg",
             };
           })
           .filter(Boolean);
@@ -112,9 +113,9 @@ function extractTestInfo(data, tests = [], context = {}) {
  */
 function sanitizeFilename(name) {
   return name
-    .replace(/[^a-zA-Z0-9-_ ]/g, '-')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .replace(/[^a-zA-Z0-9-_ ]/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
     .toLowerCase();
 }
 
@@ -136,30 +137,35 @@ try {
 
   for (const test of tests) {
     // Create test directory structure: test_filename/test_name/
-    const testFile = sanitizeFilename(basename(test.testFile, '.spec.js'));
+    const testFile = sanitizeFilename(basename(test.testFile, ".spec.js"));
     const testName = sanitizeFilename(test.testTitle);
 
     // Handle duplicate test names by adding counter
     const testKey = `${testFile}/${testName}`;
     testCounter[testKey] = (testCounter[testKey] || 0) + 1;
-    const testPath = testCounter[testKey] > 1
-      ? `${testFile}/${testName}-${testCounter[testKey]}`
-      : `${testFile}/${testName}`;
+    const testPath =
+      testCounter[testKey] > 1 ? `${testFile}/${testName}-${testCounter[testKey]}` : `${testFile}/${testName}`;
 
     const testDir = join(outputDir, testPath);
     mkdirSync(testDir, { recursive: true });
 
     for (const screenshot of test.screenshots) {
-      // Find source .dat file by hash
-      const datFile = join(dataDir, `${screenshot.hash}.dat`);
+      const ext = screenshot.ext || "png";
+      const destFile = join(testDir, `${screenshot.name}.${ext}`);
 
-      if (existsSync(datFile)) {
-        const destFile = join(testDir, `${screenshot.name}.png`);
-        copyFileSync(datFile, destFile);
+      // Find source file by hash (try .dat, .jpg, .png)
+      const candidates = [
+        join(dataDir, `${screenshot.hash}.dat`),
+        join(dataDir, `${screenshot.hash}.jpg`),
+        join(dataDir, `${screenshot.hash}.png`),
+      ];
+      const sourceFile = candidates.find((f) => existsSync(f));
+
+      if (sourceFile) {
+        copyFileSync(sourceFile, destFile);
         totalCopied++;
       } else {
-        // Fallback: write from buffer if .dat file not found
-        const destFile = join(testDir, `${screenshot.name}.png`);
+        // Fallback: write from buffer if source file not found
         writeFileSync(destFile, screenshot.buffer);
         totalCopied++;
       }
@@ -168,7 +174,6 @@ try {
 
   console.log(`✅ Organized ${totalCopied} screenshots into ${Object.keys(testCounter).length} test directories`);
   process.exit(0);
-
 } catch (err) {
   console.error(`⚠️  Error: ${err.message}`);
   process.exit(1);
