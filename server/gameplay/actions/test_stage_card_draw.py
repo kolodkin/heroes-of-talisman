@@ -165,8 +165,8 @@ def test_card_select_action_wrong_stage():
         action.run()
 
 
-def test_metal_armor_defense_persists():
-    """Test metal_armor defense effect persists across battles using preset"""
+def test_metal_armor_defense_reduces_opponent_score():
+    """Test metal_armor defense reduces opponent's battle score, loser still takes 1 damage"""
     # Get preset with knight having metal_armor and losing battle
     game = get_debug_preset(PRESET_BATTLE_METAL_ARMOR, player1_name="player1", player2_name="player2")
 
@@ -180,13 +180,13 @@ def test_metal_armor_defense_persists():
     # Knight's initial health
     knight_health_before = knight.health
 
-    # End battle (knight loses but has +2 defense)
+    # End battle (knight loses, defense reduces opponent score but knight still loses)
     action = BattleEndAction("player1", game)
     updated_game = action.run()
 
-    # Knight should take 0 damage (1 - 2 defense = 0)
+    # Knight takes 1 damage (defense affects score, not damage)
     knight_after = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
-    assert knight_after.health == knight_health_before  # No damage taken
+    assert knight_after.health == knight_health_before - 1
 
     # Defense effect should still be present (persistent, not disposed)
     assert len(knight_after.effects) == 1

@@ -78,25 +78,23 @@ class BattleEndAction(Action):
         active_total_attack = active_character.attack + active_character.effect.attack_bonus + active_character.effect.attack_neg_bonus
         opponent_total_attack = opponent_character.attack + opponent_character.effect.attack_bonus + opponent_character.effect.attack_neg_bonus
 
-        active_score = sum(self.game.active.dice_roll) + active_total_attack
-        opponent_score = sum(self.game.opponent.dice_roll) + opponent_total_attack
+        active_score = sum(self.game.active.dice_roll) + active_total_attack - opponent_character.effect.defense_bonus
+        opponent_score = sum(self.game.opponent.dice_roll) + opponent_total_attack - active_character.effect.defense_bonus
 
-        # Determine loser and reduce health (defense reduces incoming damage)
+        # Determine loser and reduce health by 1
         if active_score > opponent_score:
             # Active player wins, opponent loses health
-            damage = max(0, 1 - opponent_character.effect.defense_bonus)
             apply_damage_with_level_check(
                 opponent_character,
                 self.game.opponent.character,
-                damage
+                1
             )
         elif opponent_score > active_score:
             # Opponent wins, active player loses health
-            damage = max(0, 1 - active_character.effect.defense_bonus)
             apply_damage_with_level_check(
                 active_character,
                 self.game.active.character,
-                damage
+                1
             )
         # If tied, no one loses health
 

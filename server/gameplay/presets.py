@@ -370,10 +370,10 @@ def get_debug_preset(
             },
         )
     elif preset == "battle_metal_armor":
-        # Knight with metal_armor loses to mage but takes 0 damage due to +2 defense
-        # Player 1: knight (dice=[3], attack=1) with metal_armor (+2 defense) = 4
-        # Player 2: mage (dice=[5], attack=0) = 5
-        # Result: knight loses (4 < 5) but takes 0 damage (1 - 2 defense = 0)
+        # Knight with metal_armor loses to mage, defense reduces opponent's score
+        # Player 1: knight (dice=[1], attack=1) with metal_armor (+2 defense) → score = 2
+        # Player 2: mage (dice=[6], attack=0) - knight defense(2) → score = 4
+        # Result: knight loses (2 < 4), takes 1 damage
         from .cards import CARD_METAL_ARMOR
 
         characters_p1 = init_characters()
@@ -386,10 +386,10 @@ def get_debug_preset(
         ret = GamePlay(
             stage=STAGE_BATTLE_END,
             active=ActivePlayer4(
-                player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[3], result=BattleResult(winner=False, score=4)
+                player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[1], result=BattleResult(winner=False, score=2)
             ),
             opponent=Opponent4(
-                player=p2_name, character=CHARACTER_MAGE, dice_roll=[5], result=BattleResult(winner=True, score=5)
+                player=p2_name, character=CHARACTER_MAGE, dice_roll=[6], result=BattleResult(winner=True, score=4)
             ),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
