@@ -77,13 +77,9 @@ export async function dismissConnectionToast(page) {
     if (await closeButton.isVisible()) {
       await closeButton.click({ force: true, timeout: 1000 }).catch(() => {});
     }
-    // Wait for toast to disappear (DOM needs a tick even with instant animations)
-    await toastLocator.waitFor({ state: "hidden", timeout: 3000 }).catch(() => {});
-    // Wait for the toast container to disappear too (it intercepts pointer events)
-    await page
-      .locator(".Toastify__toast-container")
-      .waitFor({ state: "hidden", timeout: 3000 })
-      .catch(() => {});
+    // Wait for toast to be fully removed from DOM (not just hidden)
+    // Using "detached" ensures the Toastify container no longer intercepts pointer events
+    await toastLocator.waitFor({ state: "detached", timeout: 3000 }).catch(() => {});
   }
 }
 
