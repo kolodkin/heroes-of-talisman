@@ -340,6 +340,8 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
 
   // Confirm card selection
   const selectButton = page.getByRole("button", { name: "שלוף" });
+  await expect(selectButton).toBeVisible();
+  await expect(selectButton).toBeEnabled();
   await selectButton.click();
 
   // Should transition to ability_selection stage
@@ -347,6 +349,7 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
 
   // Expand players to see knight's health after card
   const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
+  await expect(expandButtonAfter).toBeVisible();
   await expandButtonAfter.click();
 
   // Verify knight is still at max health (no overheal)
