@@ -6,7 +6,7 @@
  */
 
 import { readFileSync, existsSync, mkdirSync, copyFileSync, readdirSync, writeFileSync } from "fs";
-import { join, basename } from "path";
+import { join, basename, dirname } from "path";
 import { createHash } from "crypto";
 
 const resultsJsonPath = process.argv[2];
@@ -72,17 +72,26 @@ function extractTestInfo(data, tests = [], context = {}) {
     for (const result of data.results) {
       if (result.attachments && Array.isArray(result.attachments)) {
         const screenshots = result.attachments
-          .filter((att) => att.body && att.contentType?.startsWith("image/"))
+          .filter((att) => (att.body || att.path) && att.contentType?.startsWith("image/"))
           .map((att) => {
-            // Compute full hash to match with .dat filenames
-            const imageBuffer = Buffer.from(att.body, "base64");
+            // Get image buffer from body (base64) or path (external file)
+            let imageBuffer;
+            if (att.body) {
+              imageBuffer = Buffer.from(att.body, "base64");
+            } else if (att.path) {
+              const reportDir = dirname(resultsJsonPath);
+              const filePath = join(reportDir, att.path);
+              imageBuffer = existsSync(filePath) ? readFileSync(filePath) : null;
+            }
+            if (!imageBuffer) return null;
             const hash = createHash("sha256").update(imageBuffer).digest("hex");
             return {
               name: att.name,
               hash: hash, // Full 64-char hex hash
               buffer: imageBuffer,
             };
-          });
+          })
+          .filter(Boolean);
 
         if (screenshots.length > 0) {
           tests.push({

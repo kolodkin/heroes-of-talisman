@@ -110,55 +110,90 @@ wget -q -P "$TMP_DIR" "$GH_PAGES_URL/results.json" 2>/dev/null || true
 
 DOWNLOAD_SUCCESS=false
 
-# Download data directory (screenshots)
+# Download screenshots directory (extracted by compress-result-json-images.js)
+mkdir -p "$TMP_DIR/screenshots"
 mkdir -p "$TMP_DIR/data"
 
-# Method 1: Try to list data files from GitHub API (works for gh-pages)
+DOWNLOAD_SUCCESS_SCREENSHOTS=false
+DOWNLOAD_SUCCESS_DATA=false
+
+# Method 1: Try screenshots/ directory first (new format - images extracted from results.json)
+echo "  Fetching list of screenshot files from screenshots directory..."
+SCREENSHOT_FILES=$(gh api "repos/${REPO_OWNER}/artifact-view/contents/${REPO_NAME}/playwright-report/${RUN_NUMBER}/screenshots?ref=gh-pages" 2>/dev/null | \
+    grep -oE '"name":"[^"]+"' | sed 's/"name":"//;s/"$//' || true)
+
+if [ -n "$SCREENSHOT_FILES" ]; then
+    file_count=$(echo "$SCREENSHOT_FILES" | wc -l)
+    echo "  Found $file_count screenshot files in screenshots/, downloading..."
+    downloaded=0
+    for file in $SCREENSHOT_FILES; do
+        if wget -q -P "$TMP_DIR/screenshots" "$GH_PAGES_URL/screenshots/${file}" 2>/dev/null; then
+            downloaded=$((downloaded + 1))
+        fi
+    done
+    echo "  Downloaded $downloaded/$file_count files from screenshots/"
+    if [ "$downloaded" -gt 0 ]; then
+        DOWNLOAD_SUCCESS_SCREENSHOTS=true
+    fi
+fi
+
+# Method 2: Also try data/ directory (legacy format - .dat files from HTML reporter)
 echo "  Fetching list of screenshot files from data directory..."
 DATA_FILES=$(gh api "repos/${REPO_OWNER}/artifact-view/contents/${REPO_NAME}/playwright-report/${RUN_NUMBER}/data?ref=gh-pages" 2>/dev/null | \
     grep -oE '"name":"[^"]+\.dat"' | sed 's/"name":"//;s/\.dat"//' || true)
 
 if [ -n "$DATA_FILES" ]; then
     file_count=$(echo "$DATA_FILES" | wc -l)
-    echo "  Found $file_count screenshot files, downloading..."
+    echo "  Found $file_count files in data/, downloading..."
     downloaded=0
     for file in $DATA_FILES; do
         if wget -q -P "$TMP_DIR/data" "$GH_PAGES_URL/data/${file}.dat" 2>/dev/null; then
             downloaded=$((downloaded + 1))
         fi
     done
-    echo "  Downloaded $downloaded/$file_count files"
+    echo "  Downloaded $downloaded/$file_count files from data/"
     if [ "$downloaded" -gt 0 ]; then
-        DOWNLOAD_SUCCESS=true
-        echo "✅ Downloaded from GitHub Pages successfully"
+        DOWNLOAD_SUCCESS_DATA=true
     fi
-else
-    # Method 2: Fallback - try to parse path references from results.json
-    if [ -f "$TMP_DIR/results.json" ]; then
-        echo "  Parsing results.json for screenshot references..."
-        DATA_FILES=$(grep -oE '"path"[[:space:]]*:[[:space:]]*"data/[^"]+\.dat"' "$TMP_DIR/results.json" 2>/dev/null | \
-            sed 's/"path"[[:space:]]*:[[:space:]]*"data\///;s/\.dat"$//' | sort -u || true)
+fi
 
-        if [ -n "$DATA_FILES" ]; then
-            file_count=$(echo "$DATA_FILES" | wc -l)
-            echo "  Found $file_count screenshot files, downloading..."
+# Method 3: Fallback - parse path references from results.json
+if [ "$DOWNLOAD_SUCCESS_SCREENSHOTS" = false ] && [ "$DOWNLOAD_SUCCESS_DATA" = false ]; then
+    if [ -f "$TMP_DIR/results.json" ]; then
+        echo "  Parsing results.json for screenshot path references..."
+        # Look for path references like "screenshots/<hash>.jpg" or "data/<hash>.dat"
+        PATH_REFS=$(grep -oE '"path"[[:space:]]*:[[:space:]]*"[^"]+"' "$TMP_DIR/results.json" 2>/dev/null | \
+            sed 's/"path"[[:space:]]*:[[:space:]]*"//;s/"$//' | sort -u || true)
+
+        if [ -n "$PATH_REFS" ]; then
+            file_count=$(echo "$PATH_REFS" | wc -l)
+            echo "  Found $file_count path references, downloading..."
             downloaded=0
-            for file in $DATA_FILES; do
-                if wget -q -P "$TMP_DIR/data" "$GH_PAGES_URL/data/${file}.dat" 2>/dev/null; then
+            for ref in $PATH_REFS; do
+                ref_dir=$(dirname "$ref")
+                mkdir -p "$TMP_DIR/$ref_dir"
+                if wget -q -O "$TMP_DIR/$ref" "$GH_PAGES_URL/$ref" 2>/dev/null; then
                     downloaded=$((downloaded + 1))
                 fi
             done
             echo "  Downloaded $downloaded/$file_count files"
             if [ "$downloaded" -gt 0 ]; then
-                DOWNLOAD_SUCCESS=true
-                echo "✅ Downloaded from GitHub Pages successfully"
+                DOWNLOAD_SUCCESS_SCREENSHOTS=true
             fi
         else
             echo "⚠️  No screenshot references found in results.json"
         fi
     else
-        echo "⚠️  Could not list data directory and results.json not available"
+        echo "⚠️  Could not list directories and results.json not available"
     fi
+fi
+
+if [ "$DOWNLOAD_SUCCESS_SCREENSHOTS" = true ]; then
+    DOWNLOAD_SUCCESS=true
+    echo "✅ Downloaded screenshots successfully"
+elif [ "$DOWNLOAD_SUCCESS_DATA" = true ]; then
+    DOWNLOAD_SUCCESS=true
+    echo "✅ Downloaded data files successfully"
 fi
 
 if [ "$DOWNLOAD_SUCCESS" = false ]; then
@@ -184,41 +219,49 @@ echo "🔄 Extracting and organizing screenshots..."
 SCREENSHOTS_DIR="$REPORT_DIR/screenshots"
 ORGANIZE_SCRIPT="$ORIGINAL_DIR/.claude/skills/check-pr-images/organize-screenshots-direct.js"
 
+# Determine which data directory to use for organizing
+if [ -d "$TMP_DIR/screenshots" ] && [ "$(ls -A "$TMP_DIR/screenshots" 2>/dev/null)" ]; then
+    DATA_SOURCE_DIR="$TMP_DIR/screenshots"
+    echo "  Using screenshots/ directory (new format)"
+elif [ -d "$TMP_DIR/data" ] && [ "$(ls -A "$TMP_DIR/data" 2>/dev/null)" ]; then
+    DATA_SOURCE_DIR="$TMP_DIR/data"
+    echo "  Using data/ directory (legacy format)"
+else
+    DATA_SOURCE_DIR=""
+fi
+
 # Try to organize screenshots by test name using results.json
-if [ -n "$RESULTS_JSON" ] && [ -f "$ORGANIZE_SCRIPT" ] && [ -d "$TMP_DIR/data" ]; then
+if [ -n "$RESULTS_JSON" ] && [ -f "$ORGANIZE_SCRIPT" ] && [ -n "$DATA_SOURCE_DIR" ]; then
     echo "📊 Organizing screenshots into test_filename/test_name/ directories..."
-    if node "$ORGANIZE_SCRIPT" "$RESULTS_JSON" "$TMP_DIR/data" "$SCREENSHOTS_DIR" 2>/dev/null; then
+    if node "$ORGANIZE_SCRIPT" "$RESULTS_JSON" "$DATA_SOURCE_DIR" "$SCREENSHOTS_DIR" 2>/dev/null; then
         echo "✅ Screenshots organized by test name"
     else
-        echo "⚠️  Organization failed, falling back to hash-based extraction"
-        # Fallback to simple extraction
+        echo "⚠️  Organization failed, falling back to flat copy"
         mkdir -p "$SCREENSHOTS_DIR"
         screenshot_count=0
-        for dat_file in "$TMP_DIR/data"/*.dat; do
-            if [ -f "$dat_file" ]; then
-                filename=$(basename "$dat_file" .dat)
-                cp "$dat_file" "$SCREENSHOTS_DIR/${filename}.png"
+        for img_file in "$DATA_SOURCE_DIR"/*; do
+            if [ -f "$img_file" ]; then
+                cp "$img_file" "$SCREENSHOTS_DIR/"
                 screenshot_count=$((screenshot_count + 1))
             fi
         done
-        echo "  ✓ Extracted $screenshot_count screenshots"
+        echo "  ✓ Copied $screenshot_count screenshots"
     fi
 else
-    # Fallback: simple extraction with hash names
-    echo "  Using hash-based extraction..."
+    # Fallback: flat copy of all image files
+    echo "  Using flat copy extraction..."
     mkdir -p "$SCREENSHOTS_DIR"
     screenshot_count=0
-    if [ -d "$TMP_DIR/data" ]; then
-        for dat_file in "$TMP_DIR/data"/*.dat; do
-            if [ -f "$dat_file" ]; then
-                filename=$(basename "$dat_file" .dat)
-                cp "$dat_file" "$SCREENSHOTS_DIR/${filename}.png"
+    if [ -n "$DATA_SOURCE_DIR" ]; then
+        for img_file in "$DATA_SOURCE_DIR"/*; do
+            if [ -f "$img_file" ]; then
+                cp "$img_file" "$SCREENSHOTS_DIR/"
                 screenshot_count=$((screenshot_count + 1))
             fi
         done
-        echo "  ✓ Extracted $screenshot_count screenshots"
+        echo "  ✓ Copied $screenshot_count screenshots"
     else
-        echo "  ⚠️  Warning: No data directory found"
+        echo "  ⚠️  Warning: No screenshot source directory found"
     fi
 fi
 
@@ -249,12 +292,12 @@ if [ -n "$RESULTS_JSON" ] && [ -f "$PARSE_SCRIPT" ]; then
             echo ""
 
             if [ -d "$SCREENSHOTS_DIR" ]; then
-                find "$SCREENSHOTS_DIR" -name "*.png" -type f -exec basename {} \; | sort | sed 's/^/   - /'
+                find "$SCREENSHOTS_DIR" \( -name "*.png" -o -name "*.jpg" \) -type f -exec basename {} \; | sort | sed 's/^/   - /'
             fi
 
             echo ""
             echo "============================"
-            total_screenshots=$(find "$SCREENSHOTS_DIR" -name "*.png" -type f 2>/dev/null | wc -l)
+            total_screenshots=$(find "$SCREENSHOTS_DIR" \( -name "*.png" -o -name "*.jpg" \) -type f 2>/dev/null | wc -l)
             echo "Total: $total_screenshots screenshots"
         } > "$SUMMARY_FILE"
     fi
@@ -272,12 +315,12 @@ else
         echo ""
 
         if [ -d "$SCREENSHOTS_DIR" ]; then
-            find "$SCREENSHOTS_DIR" -name "*.png" -type f -exec basename {} \; | sort | sed 's/^/   - /'
+            find "$SCREENSHOTS_DIR" \( -name "*.png" -o -name "*.jpg" \) -type f -exec basename {} \; | sort | sed 's/^/   - /'
         fi
 
         echo ""
         echo "============================"
-        total_screenshots=$(find "$SCREENSHOTS_DIR" -name "*.png" -type f 2>/dev/null | wc -l)
+        total_screenshots=$(find "$SCREENSHOTS_DIR" \( -name "*.png" -o -name "*.jpg" \) -type f 2>/dev/null | wc -l)
         echo "Total: $total_screenshots screenshots"
     } > "$SUMMARY_FILE"
 fi

@@ -31,8 +31,8 @@ export const test = base.extend({
 export { expect };
 
 export async function screenshot(page, name) {
-  const screenshot = await page.screenshot();
-  await test.info().attach(name, { body: screenshot, contentType: "image/jpg" });
+  const screenshot = await page.screenshot({ type: "jpeg", quality: 80 });
+  await test.info().attach(name, { body: screenshot, contentType: "image/jpeg" });
 }
 
 export async function setupHomePage(page) {

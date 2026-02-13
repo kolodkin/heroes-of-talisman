@@ -101,6 +101,10 @@ jobs:
         id: e2e
         run: npm run e2e
 
+      - name: Extract images from results.json
+        if: ${{ !cancelled() }}
+        run: npm run e2e:compress
+
       - name: Check if Playwright report exists
         id: check-report
         if: ${{ !cancelled() }}
