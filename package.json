@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "e2e": "playwright test",
+    "e2e:compress": "node scripts/compress-result-json-images.js",
     "e2e:check-dup": "node scripts/check-consecutive-duplicate-screenshots.js",
     "e2u": "playwright test --ui",
     "e2p": "playwright show-report"

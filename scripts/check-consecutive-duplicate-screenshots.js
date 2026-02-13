@@ -35,6 +35,23 @@ const REPORT_DIR = process.argv[2] || join(projectRoot, "playwright-report");
 const REPORT_PORT = process.env.PLAYWRIGHT_REPORT_PORT || "9323";
 
 /**
+ * Read image buffer from an attachment.
+ * Supports both inline base64 (body) and external file (path) references.
+ */
+function readAttachmentBuffer(att) {
+  if (att.body) {
+    return Buffer.from(att.body, "base64");
+  }
+  if (att.path) {
+    const filePath = join(REPORT_DIR, att.path);
+    if (existsSync(filePath)) {
+      return readFileSync(filePath);
+    }
+  }
+  return null;
+}
+
+/**
  * Compute perceptual hash of an image buffer using sharp.
  * This creates a hash based on the visual structure of the image,
  * tolerating minor pixel differences from anti-aliasing, subpixel
@@ -150,14 +167,12 @@ function extractTestScreenshots(data, tests, context = {}) {
       if (result.attachments && Array.isArray(result.attachments)) {
         // Extract only image attachments in order
         const screenshots = result.attachments
-          .filter((att) => att.body && att.contentType?.startsWith("image/"))
-          .map((att) => {
-            const imageBuffer = Buffer.from(att.body, "base64");
-            return {
-              name: att.name,
-              buffer: imageBuffer,
-            };
-          });
+          .filter((att) => (att.body || att.path) && att.contentType?.startsWith("image/"))
+          .map((att) => ({
+            name: att.name,
+            buffer: readAttachmentBuffer(att),
+          }))
+          .filter((s) => s.buffer !== null);
 
         if (screenshots.length > 0) {
           tests.push({

@@ -31,8 +31,8 @@ export const test = base.extend({
 export { expect };
 
 export async function screenshot(page, name) {
-  const screenshot = await page.screenshot();
-  await test.info().attach(name, { body: screenshot, contentType: "image/jpg" });
+  const screenshot = await page.screenshot({ type: "jpeg", quality: 80 });
+  await test.info().attach(name, { body: screenshot, contentType: "image/jpeg" });
 }
 
 export async function setupHomePage(page) {
@@ -77,8 +77,13 @@ export async function dismissConnectionToast(page) {
     if (await closeButton.isVisible()) {
       await closeButton.click({ force: true, timeout: 1000 }).catch(() => {});
     }
-    // Always wait for toast to disappear (DOM needs a tick even with instant animations)
+    // Wait for toast to disappear (DOM needs a tick even with instant animations)
     await toastLocator.waitFor({ state: "hidden", timeout: 3000 }).catch(() => {});
+    // Wait for the toast container to disappear too (it intercepts pointer events)
+    await page
+      .locator(".Toastify__toast-container")
+      .waitFor({ state: "hidden", timeout: 3000 })
+      .catch(() => {});
   }
 }
 

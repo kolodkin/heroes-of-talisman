@@ -6,7 +6,7 @@
  */
 
 import { readFileSync, existsSync, mkdirSync, copyFileSync, readdirSync } from "fs";
-import { join, basename } from "path";
+import { join, basename, dirname } from "path";
 import { createHash } from "crypto";
 
 const resultsJsonPath = process.argv[2];
@@ -67,16 +67,26 @@ function extractTestInfo(data, tests = [], context = {}) {
     for (const result of data.results) {
       if (result.attachments && Array.isArray(result.attachments)) {
         const screenshots = result.attachments
-          .filter((att) => att.body && att.contentType?.startsWith("image/"))
+          .filter((att) => (att.body || att.path) && att.contentType?.startsWith("image/"))
           .map((att) => {
-            // Compute hash to match with .dat/.png filenames
-            const imageBuffer = Buffer.from(att.body, "base64");
+            // Get image buffer from body (base64) or path (external file)
+            let imageBuffer;
+            if (att.body) {
+              imageBuffer = Buffer.from(att.body, "base64");
+            } else if (att.path) {
+              const reportDir = dirname(resultsJsonPath);
+              const filePath = join(reportDir, att.path);
+              imageBuffer = existsSync(filePath) ? readFileSync(filePath) : null;
+            }
+            if (!imageBuffer) return null;
             const hash = createHash("sha256").update(imageBuffer).digest("hex");
             return {
               name: att.name,
               hash: hash.substring(0, 20), // Match Playwright's hash length
+              ext: att.contentType === "image/png" ? "png" : "jpg",
             };
-          });
+          })
+          .filter(Boolean);
 
         if (screenshots.length > 0) {
           tests.push({
@@ -97,9 +107,9 @@ function extractTestInfo(data, tests = [], context = {}) {
  */
 function sanitizeFilename(name) {
   return name
-    .replace(/[^a-zA-Z0-9-_ ]/g, '-')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .replace(/[^a-zA-Z0-9-_ ]/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
     .toLowerCase();
 }
 
@@ -124,14 +134,13 @@ try {
   for (const test of tests) {
     // Create unique test directory name
     const baseTestName = sanitizeFilename(test.testTitle);
-    const testFile = basename(test.testFile, '.spec.js');
+    const testFile = basename(test.testFile, ".spec.js");
 
     // Handle duplicate test names by adding counter
     const testKey = `${testFile}-${baseTestName}`;
     testCounter[testKey] = (testCounter[testKey] || 0) + 1;
-    const testDirName = testCounter[testKey] > 1
-      ? `${testFile}/${baseTestName}-${testCounter[testKey]}`
-      : `${testFile}/${baseTestName}`;
+    const testDirName =
+      testCounter[testKey] > 1 ? `${testFile}/${baseTestName}-${testCounter[testKey]}` : `${testFile}/${baseTestName}`;
 
     const testDir = join(outputDir, testDirName);
     mkdirSync(testDir, { recursive: true });
@@ -139,25 +148,34 @@ try {
     console.log(`📂 ${testDirName}`);
 
     for (const screenshot of test.screenshots) {
-      // Find source file - try exact hash first, then wildcard pattern
-      let sourceFile = join(screenshotsDir, `${screenshot.hash}.png`);
+      const ext = screenshot.ext || "png";
 
-      if (!existsSync(sourceFile)) {
+      // Find source file - try exact hash with known extensions, then wildcard
+      let sourceFile = null;
+      const candidates = [
+        join(screenshotsDir, `${screenshot.hash}.${ext}`),
+        join(screenshotsDir, `${screenshot.hash}.png`),
+        join(screenshotsDir, `${screenshot.hash}.jpg`),
+        join(screenshotsDir, `${screenshot.hash}.dat`),
+      ];
+      sourceFile = candidates.find((f) => existsSync(f));
+
+      if (!sourceFile) {
         // Try with wildcard for partial hash match
         const files = readdirSync(screenshotsDir);
-        const matchingFile = files.find(f => f.startsWith(screenshot.hash));
+        const matchingFile = files.find((f) => f.startsWith(screenshot.hash));
         if (matchingFile) {
           sourceFile = join(screenshotsDir, matchingFile);
         }
       }
 
-      if (existsSync(sourceFile)) {
-        const destFile = join(testDir, `${screenshot.name}.png`);
+      if (sourceFile) {
+        const destFile = join(testDir, `${screenshot.name}.${ext}`);
         copyFileSync(sourceFile, destFile);
-        console.log(`   ✓ ${screenshot.name}.png`);
+        console.log(`   ✓ ${screenshot.name}.${ext}`);
         totalCopied++;
       } else {
-        console.log(`   ✗ ${screenshot.name}.png (source not found: ${screenshot.hash}*.png)`);
+        console.log(`   ✗ ${screenshot.name}.${ext} (source not found: ${screenshot.hash}*)`);
       }
     }
     console.log();
@@ -167,7 +185,6 @@ try {
   console.log(`✅ Organized ${totalCopied} screenshots into ${Object.keys(testCounter).length} test directories`);
   console.log(`📂 Location: ${outputDir}`);
   console.log("═══════════════════════════════════════════════════════════════");
-
 } catch (err) {
   console.error(`⚠️  Error: ${err.message}`);
   process.exit(1);
