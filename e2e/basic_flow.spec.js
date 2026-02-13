@@ -362,7 +362,6 @@ test("basic game flow", async ({ page, gameName }) => {
 
   // Navigate back to home and delete the test game
   await page.goto("/");
-  await screenshot(page, "homepage-before-cleanup");
   await cleanupTestGame(page, gameName);
   await screenshot(page, "homepage-after-cleanup");
 });
