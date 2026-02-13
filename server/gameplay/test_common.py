@@ -23,10 +23,11 @@ def test_character_is_alive_when_health_positive():
     assert characters[CHARACTER_KNIGHT].is_alive is True
 
 
-def test_character_is_dead_when_health_zero():
-    """Test character is dead when health = 0"""
+def test_character_is_dead_when_is_alive_false():
+    """Test character is dead when is_alive is set to False"""
     characters = init_characters()
     characters[CHARACTER_KNIGHT].health = 0
+    characters[CHARACTER_KNIGHT].is_alive = False
     assert characters[CHARACTER_KNIGHT].is_alive is False
 
 

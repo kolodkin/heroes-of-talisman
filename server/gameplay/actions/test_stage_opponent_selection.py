@@ -189,6 +189,7 @@ def test_opponent_press_action_dead_character():
     characters_p2 = init_characters()
     # Kill opponent's knight
     characters_p2[CHARACTER_KNIGHT].health = 0
+    characters_p2[CHARACTER_KNIGHT].is_alive = False
     game.players["player1"] = Player(name="player1", characters=characters_p1)
     game.players["player2"] = Player(name="player2", characters=characters_p2)
 
@@ -205,6 +206,7 @@ def test_opponent_select_action_dead_character():
     characters_p2 = init_characters()
     # Kill opponent's knight
     characters_p2[CHARACTER_KNIGHT].health = 0
+    characters_p2[CHARACTER_KNIGHT].is_alive = False
     game.players["player1"] = Player(name="player1", characters=characters_p1)
     game.players["player2"] = Player(name="player2", characters=characters_p2)
 

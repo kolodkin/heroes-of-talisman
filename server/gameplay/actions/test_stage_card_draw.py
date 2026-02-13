@@ -10,8 +10,8 @@ import pytest
 from .stage_card_draw import CardDrawAction, CardSelectAction
 from .battle_end import BattleEndAction
 from ..common import GameException, ReportedException, CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARDS_MAP
-from ..effects import DefenseBonusEffect, AttackBonusEffect
+from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_TALISMAN, CARDS_MAP
+from ..effects import DefenseBonusEffect, AttackBonusEffect, TalismanEffect
 from ..gameplay import (
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
@@ -30,6 +30,7 @@ from ..presets import (
     PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE,
     PRESET_CARD_DRAW_GOLDEN_APPLE_MAX_HEALTH,
     PRESET_CARD_DRAW_KNIGHT_MAGIC_BALL_MAX_LEVEL,
+    PRESET_CARD_DRAW_KNIGHT_TALISMAN,
 )
 
 
@@ -357,3 +358,28 @@ def test_magic_ball_no_effect_at_max_level():
     assert knight.max_health == 5
     assert knight.dice == 2
     assert knight.attack == 3
+
+
+def test_talisman_card_applies_effect():
+    """Test talisman card applies TalismanEffect as persistent effect"""
+    game = get_debug_preset(PRESET_CARD_DRAW_KNIGHT_TALISMAN)
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Check game state
+    assert updated_game.stage == STAGE_ABILITY_SELECTION
+    assert updated_game.card == CARD_TALISMAN
+
+    # Check character has talisman effect
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert len(knight.effects) == 1
+    assert isinstance(knight.effects[0], TalismanEffect)
+    assert knight.effects[0].source == CARD_TALISMAN
+    assert knight.effects[0].dispose_actions == []  # Persistent effect
+
+    # Check card added to character's card list
+    assert CARD_TALISMAN in knight.cards
+
+    # Check effect aggregation
+    assert knight.effect.has_talisman is True

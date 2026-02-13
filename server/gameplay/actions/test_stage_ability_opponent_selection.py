@@ -122,6 +122,7 @@ def test_ability_opponent_press_action_dead_character():
     characters = init_characters()
     # Kill the knight
     characters[CHARACTER_KNIGHT].health = 0
+    characters[CHARACTER_KNIGHT].is_alive = False
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_MAGE),
@@ -236,6 +237,7 @@ def test_ability_opponent_select_action_dead_character():
     characters2 = init_characters()
     # Kill the target knight
     characters2[CHARACTER_KNIGHT].health = 0
+    characters2[CHARACTER_KNIGHT].is_alive = False
 
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,

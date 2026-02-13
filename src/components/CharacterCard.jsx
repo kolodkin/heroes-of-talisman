@@ -2,7 +2,7 @@ import className from "classnames";
 import { useTranslation } from "react-i18next";
 import styles from "./CharacterCard.module.css";
 import cardStyles from "./Card.module.css";
-import { DiceIcon, HeartIcon, RerollIcon, SkipTurnIcon, NotAliveIcon, ArmorIcon, SwordIcon } from "./Icons";
+import { DiceIcon, HeartIcon, RerollIcon, SkipTurnIcon, NotAliveIcon, ArmorIcon, SwordIcon, TalismanIcon } from "./Icons";
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `${num}`) : "");
 
@@ -28,6 +28,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
   const hasReroll = character.effect?.reroll_dice_available || false;
   const hasArmor = character.cards?.includes("metal_armor") || false;
   const hasSword = character.cards?.includes("sacred_sord") || false;
+  const hasTalisman = character.cards?.includes("talisman") || false;
 
   // Get all effect names for data attribute
   const effectNames = character.effects?.map((effect) => effect.name).join(",") || "";
@@ -80,6 +81,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         {hasSkipTurn && <SkipTurnIcon color="white" fill="orange" />}
         {hasArmor && <ArmorIcon />}
         {hasSword && <SwordIcon />}
+        {hasTalisman && <TalismanIcon />}
       </div>
       <div className={className("flex items-center gap-1", styles.stats)}>
         <HeartIcon color="red" />

@@ -141,6 +141,7 @@ def test_character_press_action_dead_character():
     characters = init_characters()
     # Kill the knight
     characters[CHARACTER_KNIGHT].health = 0
+    characters[CHARACTER_KNIGHT].is_alive = False
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = CharacterPressAction("player1", game)
@@ -155,6 +156,7 @@ def test_character_select_action_dead_character():
     characters = init_characters()
     # Kill the knight
     characters[CHARACTER_KNIGHT].health = 0
+    characters[CHARACTER_KNIGHT].is_alive = False
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = CharacterSelectAction("player1", game)
@@ -252,7 +254,9 @@ def test_skip_turn_action_with_available_character_fails():
 
     # Knight and archer dead, but mage is alive and has no skip turn
     characters[CHARACTER_KNIGHT].health = 0
+    characters[CHARACTER_KNIGHT].is_alive = False
     characters[CHARACTER_ARCHER].health = 0
+    characters[CHARACTER_ARCHER].is_alive = False
     # Mage is alive with no effects - should be available
 
     game.players["player1"] = Player(name="player1", characters=characters)
@@ -282,7 +286,9 @@ def test_skip_turn_action_disposes_effects():
 
     # All characters have skip turn effects
     characters[CHARACTER_KNIGHT].health = 0
+    characters[CHARACTER_KNIGHT].is_alive = False
     characters[CHARACTER_ARCHER].health = 0
+    characters[CHARACTER_ARCHER].is_alive = False
     characters[CHARACTER_MAGE].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
 
     game.players["player1"] = Player(name="player1", characters=characters)
@@ -305,7 +311,9 @@ def test_skip_turn_action_circular_rotation():
 
     # Player 2 has no available characters
     characters_p2[CHARACTER_KNIGHT].health = 0
+    characters_p2[CHARACTER_KNIGHT].is_alive = False
     characters_p2[CHARACTER_ARCHER].health = 0
+    characters_p2[CHARACTER_ARCHER].is_alive = False
     characters_p2[CHARACTER_MAGE].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
 
     game.players["player1"] = Player(name="player1", characters=characters_p1)

@@ -9,6 +9,7 @@ from .effects import (
     SkipTurnEffect,
     RerollDiceEffect,
     DrawCardEffect,
+    TalismanEffect,
 )
 from .gameplay import (
     StageName,
@@ -60,6 +61,8 @@ PRESET_SKIP_TURN_NO_CHARACTER = "skip_turn_no_character"
 PRESET_MAGE_NOT_ALIVE = "mage_not_alive"
 PRESET_OPPONENT_SELECTION = "opponent_selection_preset"
 PRESET_SINGLE_PLAYER = "single_player"
+PRESET_BATTLE_TALISMAN_KILL = "battle_talisman_kill"
+PRESET_CARD_DRAW_KNIGHT_TALISMAN = "card_draw_knight_talisman"
 DebugPresetsType = Literal[
     "default",
     "ability_selection_knight",
@@ -73,6 +76,7 @@ DebugPresetsType = Literal[
     "battle_with_effects",
     "battle_metal_armor",
     "battle_sacred_sword",
+    "battle_talisman_kill",
     "card_draw_knight_metal_armor",
     "card_draw_archer_sacred_sword",
     "card_draw_knight_sacred_sword",
@@ -80,6 +84,7 @@ DebugPresetsType = Literal[
     "card_draw_golden_apple_max_health",
     "card_draw_knight_magic_ball",
     "card_draw_knight_magic_ball_max_level",
+    "card_draw_knight_talisman",
     "effect_attack_bonus",
     "effect_reroll",
     "effect_skip_turn",
@@ -203,6 +208,7 @@ def get_debug_preset(
         # Character select stage with knight dead (health=0)
         characters = init_characters()
         characters[CHARACTER_KNIGHT].health = 0
+        characters[CHARACTER_KNIGHT].is_alive = False
         ret = GamePlay(
             stage=STAGE_CHARACTER_SELECT,
             players={
@@ -214,6 +220,7 @@ def get_debug_preset(
         # Character select stage with mage dead (health=0)
         characters = init_characters()
         characters[CHARACTER_MAGE].health = 0
+        characters[CHARACTER_MAGE].is_alive = False
         ret = GamePlay(
             stage=STAGE_CHARACTER_SELECT,
             players={
@@ -225,6 +232,7 @@ def get_debug_preset(
         # Character select stage with archer dead (health=0)
         characters = init_characters()
         characters[CHARACTER_ARCHER].health = 0
+        characters[CHARACTER_ARCHER].is_alive = False
         ret = GamePlay(
             stage=STAGE_CHARACTER_SELECT,
             players={
@@ -354,7 +362,9 @@ def get_debug_preset(
         # Stage: CHARACTER_SELECT
         characters_p1 = init_characters()
         characters_p1[CHARACTER_KNIGHT].health = 0
+        characters_p1[CHARACTER_KNIGHT].is_alive = False
         characters_p1[CHARACTER_ARCHER].health = 0
+        characters_p1[CHARACTER_ARCHER].is_alive = False
         characters_p1[CHARACTER_MAGE].effects = [
             SkipTurnEffect(source=ABILITY_FREEZE),
         ]
@@ -552,6 +562,49 @@ def get_debug_preset(
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "battle_talisman_kill":
+        # Knight L2 with talisman wins against mage L2 with 1 health
+        # Talisman should kill the mage instead of level down
+        # Player 1: knight L2 (dice=[6], attack=3) with talisman = 9
+        # Player 2: mage L2 (dice=[2], attack=2) with 1 health = 4
+        # Result: knight wins (9 > 4), mage health drops to 0, talisman kills
+        from .cards import CARD_TALISMAN
+
+        characters_p1 = init_characters(level=2)
+        characters_p1[CHARACTER_KNIGHT].effects = [
+            TalismanEffect(source=CARD_TALISMAN),
+        ]
+        characters_p1[CHARACTER_KNIGHT].cards = [CARD_TALISMAN]
+
+        characters_p2 = init_characters(level=2)
+        characters_p2[CHARACTER_MAGE].health = 1
+
+        ret = GamePlay(
+            stage=STAGE_BATTLE_END,
+            active=ActivePlayer4(
+                player=p1_name, character=CHARACTER_KNIGHT, dice_roll=[6], result=BattleResult(winner=True, score=9)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=CHARACTER_MAGE, dice_roll=[2], result=BattleResult(winner=False, score=4)
+            ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "card_draw_knight_talisman":
+        # Knight draws talisman card
+        from .cards import CARD_TALISMAN
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=CARD_TALISMAN),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
     else:

@@ -71,3 +71,7 @@ export const ArmorIcon = ({ size }) => (
 export const SwordIcon = ({ size }) => (
   <PNGIcon src="/images/cards/sacred_sword_icon.png" alt="sword" size={size} dataAttr={{ "data-icon-sword": true }} />
 );
+
+export const TalismanIcon = ({ size }) => (
+  <PNGIcon src="/images/cards/talisman.png" alt="talisman" size={size} dataAttr={{ "data-icon-talisman": true }} />
+);

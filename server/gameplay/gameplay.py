@@ -59,6 +59,7 @@ from .effects import (
     SkipTurnEffect,
     RerollDiceEffect,
     DrawCardEffect,
+    TalismanEffect,
 )
 
 from .cards import CardName, CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL
@@ -105,15 +106,10 @@ class Character(StrictModel):
     max_health: int
     dice: int
     attack: int
+    is_alive: bool = True
     abilities: list[Ability] = Field(default_factory=list)
     effects: list[EffectUnion] = Field(default_factory=list)
     cards: list[str] = Field(default_factory=list)
-
-    @computed_field
-    @property
-    def is_alive(self) -> bool:
-        """Character is alive if health > 0"""
-        return self.health > 0
 
     @computed_field
     @property
@@ -138,11 +134,13 @@ class Character(StrictModel):
                 total.heal_amount += eff.heal_amount
             elif isinstance(eff, LevelUpEffect):
                 total.level_up_amount += eff.level_increase
+            elif isinstance(eff, TalismanEffect):
+                total.has_talisman = True
 
         return total
 
     def db_model_dump(self) -> dict:
-        return self.model_dump(exclude={"is_alive", "effect"})
+        return self.model_dump(exclude={"effect"})
 
 
 class CharacterSelectMeta(StrictModel):
