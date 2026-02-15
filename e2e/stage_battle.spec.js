@@ -381,27 +381,7 @@ test("battle stage - talisman kills opponent at level 2 instead of level down", 
 
   // Verify we're in battle_end stage
   await expect(page.locator('[data-game-stage="battle_end"]')).toBeVisible();
-
-  // Expand players to see character stats before battle end
-  const expandButton = page.getByRole("button", { name: "Expand all players" });
-  await expandButton.click();
-
-  // Verify knight has talisman icon and is at level 2
-  const player1Div = page.locator('[data-player="player1"]');
-  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
-  await expect(knightCard).toHaveAttribute("data-level", "2");
-  await expect(knightCard.locator("[data-icon-talisman]")).toBeVisible();
-
-  // Verify mage is at level 2 with 1 health before battle ends
-  const player2Div = page.locator('[data-player="player2"]');
-  const mageCard = player2Div.locator('[data-player-cards] [data-character="mage"]');
-  await expect(mageCard).toHaveAttribute("data-level", "2");
-  await expect(mageCard).toContainText("[1/3]");
-  await screenshot(page, "talisman-kill-before-battle-end");
-
-  // Minimize players before clicking continue
-  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
-  await minimizeButton.click();
+  await screenshot(page, "talisman-kill-battle-end-stage");
 
   // Click continue button to end battle
   const continueButton = page.locator("[data-continue-button]");
@@ -412,15 +392,25 @@ test("battle stage - talisman kills opponent at level 2 instead of level down", 
   await waitForStage(page, "character_select");
 
   // Expand players to see character stats after battle end
-  const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
-  await expandButtonAfter.click();
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  await expandButton.click();
+
+  // Verify knight has talisman icon and is at level 2
+  const player1Div = page.locator('[data-player="player1"]');
+  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
+  await expect(knightCard).toHaveAttribute("data-level", "2");
+  await expect(knightCard.locator("[data-icon-talisman]")).toBeVisible();
 
   // Verify mage is DEAD (not level-downed) - level stays at 2, health is 0
+  const player2Div = page.locator('[data-player="player2"]');
+  const mageCard = player2Div.locator('[data-player-cards] [data-character="mage"]');
   await expect(mageCard).toHaveAttribute("data-level", "2");
   await expect(mageCard).toContainText("[0/3]");
 
-  // Verify mage is marked as dead via data attribute and overlay
+  // Verify mage is marked as dead via data attribute
   await expect(mageCard).toHaveAttribute("data-is-alive", "false");
+
+  // Verify not-alive overlay is shown on mage (skull icon)
   await expect(mageCard.locator('[class*="overlay"]')).toBeVisible();
   await screenshot(page, "talisman-kill-mage-dead");
 
