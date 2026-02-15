@@ -86,7 +86,7 @@ export const SwordIcon = ({ size, className }) => (
 
 export const TalismanIcon = ({ size, className }) => (
   <PNGIcon
-    src="/images/cards/talisman.png"
+    src="/images/cards/talisman_icon.png"
     alt="talisman"
     size={size}
     className={className}
