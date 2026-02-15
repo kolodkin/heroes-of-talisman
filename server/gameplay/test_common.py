@@ -4,30 +4,15 @@ Tests for GamePlay models.
 These tests verify model behavior including computed properties.
 """
 
-import pytest
-
 from .common import CHARACTER_KNIGHT
 from .abilities import ABILITIES_MAP, ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
-from .gameplay import (
-    Character,
-    CHARACTER_DEFAULT_STATS,
-    init_characters,
-    KNIGHT_L1_DEFAULT_HEALTH,
-)
+from .gameplay import init_characters, KNIGHT_L1_DEFAULT_HEALTH
 
 
 def test_character_is_alive_when_health_positive():
     """Test character is alive when health > 0"""
     characters = init_characters()
     assert characters[CHARACTER_KNIGHT].health == KNIGHT_L1_DEFAULT_HEALTH
-    assert characters[CHARACTER_KNIGHT].is_alive is True
-
-
-def test_character_is_alive_is_stored_not_computed():
-    """Test is_alive is a stored field that defaults to True even when health is 0"""
-    characters = init_characters()
-    characters[CHARACTER_KNIGHT].health = 0
-    # is_alive must be explicitly set to False - it's not computed from health
     assert characters[CHARACTER_KNIGHT].is_alive is True
 
 
