@@ -2,7 +2,16 @@ import className from "classnames";
 import { useTranslation } from "react-i18next";
 import styles from "./CharacterCard.module.css";
 import cardStyles from "./Card.module.css";
-import { DiceIcon, HeartIcon, RerollIcon, SkipTurnIcon, NotAliveIcon, ArmorIcon, SwordIcon, TalismanIcon } from "./Icons";
+import {
+  DiceIcon,
+  HeartIcon,
+  RerollIcon,
+  SkipTurnIcon,
+  NotAliveIcon,
+  ArmorIcon,
+  SwordIcon,
+  TalismanIcon,
+} from "./Icons";
 
 const signStr = (num) => (num ? (num >= 0 ? `+${num}` : `${num}`) : "");
 
@@ -80,9 +89,9 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         )}
         {hasReroll && <RerollIcon color="white" fill="purple" />}
         {hasSkipTurn && <SkipTurnIcon color="white" fill="orange" />}
-        {hasArmor && <ArmorIcon />}
-        {hasSword && <SwordIcon />}
-        {hasTalisman && <TalismanIcon />}
+        {hasArmor && <ArmorIcon className={styles["character-icon"]} />}
+        {hasSword && <SwordIcon className={styles["character-icon"]} />}
+        {hasTalisman && <TalismanIcon className={styles["character-icon"]} />}
       </div>
       <div className={className("flex items-center gap-1", styles.stats)}>
         <HeartIcon color="red" />
