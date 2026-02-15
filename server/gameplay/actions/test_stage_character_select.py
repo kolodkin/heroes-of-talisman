@@ -284,7 +284,7 @@ def test_skip_turn_action_disposes_effects():
     game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
 
-    # All characters have skip turn effects
+    # No selectable characters: knight and archer are dead, mage has skip turn
     characters[CHARACTER_KNIGHT].health = 0
     characters[CHARACTER_KNIGHT].is_alive = False
     characters[CHARACTER_ARCHER].health = 0
