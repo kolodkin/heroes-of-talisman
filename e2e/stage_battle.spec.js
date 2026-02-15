@@ -419,7 +419,8 @@ test("battle stage - talisman kills opponent at level 2 instead of level down", 
   await expect(mageCard).toHaveAttribute("data-level", "2");
   await expect(mageCard).toContainText("[0/3]");
 
-  // Verify not-alive overlay is shown on mage
+  // Verify mage is marked as dead via data attribute and overlay
+  await expect(mageCard).toHaveAttribute("data-is-alive", "false");
   await expect(mageCard.locator('[class*="overlay"]')).toBeVisible();
   await screenshot(page, "talisman-kill-mage-dead");
 
