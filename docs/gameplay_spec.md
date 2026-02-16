@@ -91,7 +91,7 @@ Characters can progress through levels, gaining improved stats at higher levels.
 
 ## Lifespan
 
-A character dies only when their health hits 0 while at **level 1**. Characters at level 2 or higher will instead lose a level and have their health restored (see Level Progression above). A dead character can no longer be selected neither as an active player character nor as an opponent.
+A character dies only when their health hits 0 while at **level 1**. Characters at level 2 or higher will instead lose a level and have their health restored (see Level Progression above). **Exception**: If the winning character holds a **Talisman**, the defeated opponent dies regardless of their level. A dead character can no longer be selected neither as an active player character nor as an opponent.
 
 # Abilities & Effects
 
@@ -107,12 +107,23 @@ Players collect cards throughout the game that provide bonuses and effects. Card
 
 ## Card Types
 
-- **Equipment Cards**: Provide persistent bonuses (attack, defense) until battle ends
+- **Equipment Cards**: Provide persistent bonuses (attack, defense) that remain on the character permanently
 - **Instant Cards**: Apply immediate effects (healing, level up) when selected
+- **Persistent Cards**: Provide ongoing passive effects that are never disposed (e.g., talisman)
 
 ## Card Restrictions
 
 Some cards are restricted to specific character types and cannot be used by excluded characters.
+
+## Card List
+
+| Card           | Type       | Effect                                                             | Restrictions |
+| -------------- | ---------- | ------------------------------------------------------------------ | ------------ |
+| `metal_armor`  | Equipment  | +2 defense bonus (persistent)                                      | None         |
+| `sacred_sword` | Equipment  | +3 attack bonus (persistent)                                       | Archer       |
+| `golden_apple` | Instant    | +1 heal (capped at max health)                                     | None         |
+| `magic_ball`   | Instant    | +1 level up, restores health to new max                            | None         |
+| `talisman`     | Persistent | Kills defeated opponent regardless of level (overrides level-down) | None         |
 
 ## Deck Behavior
 
