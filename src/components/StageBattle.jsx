@@ -66,6 +66,67 @@ const BattleParticipant = ({
   );
 };
 
+const getActionButton = ({
+  currentUserNeedsToRoll,
+  currentUserIsOpponent,
+  opponentNeedsRoll,
+  opponentCharacter,
+  activeCharacter,
+  handleOpponentRoll,
+  handleActivePlayerRoll,
+  canUseRerollEffect,
+  handleRerollEffect,
+  showWinner,
+  handleContinue,
+  isDraw,
+  handleReroll,
+  active,
+  t,
+}) => {
+  if (currentUserNeedsToRoll) {
+    const isOpponentRoll = currentUserIsOpponent && opponentNeedsRoll;
+    const userCharacter = isOpponentRoll ? opponentCharacter : activeCharacter;
+    const numDice = userCharacter?.dice || 1;
+    const rollKey = numDice === 1 ? "battle.roll_the_dice" : "battle.roll_the_dice_mult";
+    return {
+      content: t(rollKey),
+      onClick: isOpponentRoll ? handleOpponentRoll : handleActivePlayerRoll,
+      dataAttrs: { "data-roll-button": "" },
+      disabled: false,
+      style: isOpponentRoll ? { pointerEvents: "auto" } : undefined,
+    };
+  }
+  if (canUseRerollEffect) {
+    return {
+      content: (
+        <span style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
+          {t("battle.reroll")} <RerollIcon size={20} color="white" fill="purple" />
+        </span>
+      ),
+      onClick: handleRerollEffect,
+      dataAttrs: { "data-reroll-effect-button": "" },
+      disabled: !active,
+    };
+  }
+  if (showWinner) {
+    return {
+      content: t("battle.continue"),
+      onClick: handleContinue,
+      dataAttrs: { "data-continue-button": "" },
+      disabled: !active,
+    };
+  }
+  if (isDraw) {
+    return {
+      content: t("battle.reroll"),
+      onClick: handleReroll,
+      dataAttrs: { "data-reroll-button": "" },
+      disabled: !active,
+    };
+  }
+  return null;
+};
+
 const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const { t } = useTranslation();
   const [diceStoppedCount, setDiceStoppedCount] = useState(0);
@@ -160,42 +221,23 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const opponentNeedsRoll = !opponentDiceRoll;
   const currentUserNeedsToRoll = (active && activeNeedsRoll) || (currentUserIsOpponent && opponentNeedsRoll);
 
-  // Determine action button
-  let actionButtonContent = null;
-  let actionButtonOnClick = null;
-  let actionButtonDataAttrs = {};
-  let actionButtonDisabled = !active;
-  let actionButtonStyle;
-
-  if (currentUserNeedsToRoll) {
-    const isOpponentRoll = currentUserIsOpponent && opponentNeedsRoll;
-    const userCharacter = isOpponentRoll ? opponentCharacter : activeCharacter;
-    const numDice = userCharacter?.dice || 1;
-    const rollKey = numDice === 1 ? "battle.roll_the_dice" : "battle.roll_the_dice_mult";
-    actionButtonOnClick = isOpponentRoll ? handleOpponentRoll : handleActivePlayerRoll;
-    actionButtonContent = t(rollKey);
-    actionButtonDataAttrs = { "data-roll-button": "" };
-    actionButtonDisabled = false;
-    if (isOpponentRoll) {
-      actionButtonStyle = { pointerEvents: "auto" };
-    }
-  } else if (canUseRerollEffect) {
-    actionButtonOnClick = handleRerollEffect;
-    actionButtonContent = (
-      <span style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
-        {t("battle.reroll")} <RerollIcon size={20} color="white" fill="purple" />
-      </span>
-    );
-    actionButtonDataAttrs = { "data-reroll-effect-button": "" };
-  } else if (showWinner) {
-    actionButtonContent = t("battle.continue");
-    actionButtonOnClick = handleContinue;
-    actionButtonDataAttrs = { "data-continue-button": "" };
-  } else if (isDraw) {
-    actionButtonContent = t("battle.reroll");
-    actionButtonOnClick = handleReroll;
-    actionButtonDataAttrs = { "data-reroll-button": "" };
-  }
+  const actionButton = getActionButton({
+    currentUserNeedsToRoll,
+    currentUserIsOpponent,
+    opponentNeedsRoll,
+    opponentCharacter,
+    activeCharacter,
+    handleOpponentRoll,
+    handleActivePlayerRoll,
+    canUseRerollEffect,
+    handleRerollEffect,
+    showWinner,
+    handleContinue,
+    isDraw,
+    handleReroll,
+    active,
+    t,
+  });
 
   const content = (
     <div className={styles.battleContainer}>
@@ -227,11 +269,11 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   return (
     <SharedAreaContent
       content={content}
-      onActionClick={actionButtonOnClick}
-      actionButtonContent={actionButtonContent}
-      actionButtonDisabled={actionButtonDisabled}
-      actionButtonDataAttrs={actionButtonDataAttrs}
-      actionButtonStyle={actionButtonStyle}
+      onActionClick={actionButton?.onClick}
+      actionButtonContent={actionButton?.content}
+      actionButtonDisabled={actionButton?.disabled}
+      actionButtonDataAttrs={actionButton?.dataAttrs}
+      actionButtonStyle={actionButton?.style}
     />
   );
 };
