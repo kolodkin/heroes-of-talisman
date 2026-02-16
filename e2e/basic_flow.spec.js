@@ -240,27 +240,24 @@ async function testBattleStage(page, page2, gameName) {
   // Verify opponent's character card is visible (knight was selected)
   await expect(opponentBattleRow.getByAltText("knight")).toBeVisible();
 
-  // Initially, roll buttons should be visible instead of dice
-  // Note: The translation key will be either "roll_the_dice" or "roll_the_dices" depending on character's dice value
-  const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
-  const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
-  await expect(activeRollButton).toBeVisible();
-  await expect(opponentRollButton).toBeVisible();
+  // Initially, action button should show "Roll Dice" for active player
+  const rollButton = page.locator("[data-action-button][data-roll-button]");
+  await expect(rollButton).toBeVisible();
 
-  // Active player rolls dice
-  await activeRollButton.click();
+  // Active player rolls dice via action button
+  await rollButton.click();
 
   // Wait for active player dice to be visible
   const activeDice = page.locator('[data-battle-role="active"] [class*="diceContainer"]');
   await expect(activeDice).toBeVisible();
   await screenshot(page, "battle-player-rolled");
 
-  // Opponent (player2) rolls dice from their own page
+  // Opponent (player2) rolls dice from their own page via action button
   // Validate status indicator shows "roll dice" for player2
   await validateStatusIndicator(page2, "roll_dice");
   await screenshot(page2, "player2-roll-dice-status");
 
-  const player2RollButton = page2.locator('[data-battle-role="opponent"] [data-roll-button]');
+  const player2RollButton = page2.locator("[data-action-button][data-roll-button]");
   await player2RollButton.click();
 
   // Wait for opponent dice to be visible

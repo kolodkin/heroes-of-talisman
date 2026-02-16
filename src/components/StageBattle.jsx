@@ -2,11 +2,13 @@
  * Battle Stage
  *
  * Displays the active player and opponent facing each other in battle.
- * Shows character cards and dice/roll buttons for both players.
+ * Shows character cards and dice for both players.
+ * Rolling is done via the main action button, which is enabled for both
+ * the active player and the opponent when they need to roll.
  *
  * Layout:
- * - First section: Active player (gamePlay.active.player) with their active character and dice/roll button
- * - Second section: Opponent player with their character and dice/roll button
+ * - First section: Active player (gamePlay.active.player) with their active character and dice
+ * - Second section: Opponent player with their character and dice
  */
 import React, { useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,7 +17,6 @@ import CharacterCard from "./CharacterCard";
 import Dice from "./Dice";
 import { RerollIcon } from "./Icons";
 import { SharedAreaContent } from "./SharedAreaContent";
-import commonStyles from "./Common.module.css";
 import styles from "./StageBattle.module.css";
 
 const BattleParticipant = ({
@@ -23,8 +24,6 @@ const BattleParticipant = ({
   characterName,
   character,
   diceValues,
-  onRoll,
-  canRoll,
   role,
   score,
   onDiceStop,
@@ -32,10 +31,6 @@ const BattleParticipant = ({
   showScore,
 }) => {
   const { t } = useTranslation();
-
-  // Determine the number of dice based on character's dice value
-  const numDice = character?.dice || 1;
-  const rollKey = numDice === 1 ? "battle.roll_the_dice" : "battle.roll_the_dice_mult";
 
   return (
     <div
@@ -45,7 +40,7 @@ const BattleParticipant = ({
     >
       <h2 className={styles.playerName}>{playerName}</h2>
       <CharacterCard name={characterName} character={character} isSelected={false} size="small" />
-      {diceValues && diceValues.length > 0 ? (
+      {diceValues && diceValues.length > 0 && (
         <>
           <div className={styles.diceGroup}>
             {diceValues.map((value, index) => (
@@ -66,16 +61,6 @@ const BattleParticipant = ({
             </div>
           )}
         </>
-      ) : (
-        <button
-          className={className(commonStyles.gamebtn, commonStyles.submitButton, styles.rollButton)}
-          onClick={onRoll}
-          disabled={!canRoll}
-          style={{ pointerEvents: canRoll ? "auto" : "none" }}
-          data-roll-button
-        >
-          {t(rollKey)}
-        </button>
       )}
     </div>
   );
@@ -169,12 +154,32 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const activeScore = showResults ? (gamePlay.active?.result?.score ?? null) : null;
   const opponentScore = showResults ? (opponent?.result?.score ?? null) : null;
 
+  // Determine if current user needs to roll
+  const currentUserIsOpponent = currentUser === opponent.player;
+  const activeNeedsRoll = !activeDiceRoll;
+  const opponentNeedsRoll = !opponentDiceRoll;
+  const currentUserNeedsToRoll = (active && activeNeedsRoll) || (currentUserIsOpponent && opponentNeedsRoll);
+
   // Determine action button
   let actionButtonContent = null;
   let actionButtonOnClick = null;
   let actionButtonDataAttrs = {};
+  let actionButtonDisabled = !active;
+  let actionButtonStyle;
 
-  if (canUseRerollEffect) {
+  if (currentUserNeedsToRoll) {
+    const isOpponentRoll = currentUserIsOpponent && opponentNeedsRoll;
+    const userCharacter = isOpponentRoll ? opponentCharacter : activeCharacter;
+    const numDice = userCharacter?.dice || 1;
+    const rollKey = numDice === 1 ? "battle.roll_the_dice" : "battle.roll_the_dice_mult";
+    actionButtonOnClick = isOpponentRoll ? handleOpponentRoll : handleActivePlayerRoll;
+    actionButtonContent = t(rollKey);
+    actionButtonDataAttrs = { "data-roll-button": "" };
+    actionButtonDisabled = false;
+    if (isOpponentRoll) {
+      actionButtonStyle = { pointerEvents: "auto" };
+    }
+  } else if (canUseRerollEffect) {
     actionButtonOnClick = handleRerollEffect;
     actionButtonContent = (
       <span style={{ display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
@@ -199,8 +204,6 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         characterName={activeCharacterName}
         character={activeCharacter}
         diceValues={gamePlay.active?.dice_roll}
-        onRoll={handleActivePlayerRoll}
-        canRoll={active}
         role="active"
         score={activeScore}
         onDiceStop={handleDiceStop}
@@ -212,8 +215,6 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         characterName={opponent.character}
         character={opponentCharacter}
         diceValues={opponent.dice_roll}
-        onRoll={handleOpponentRoll}
-        canRoll={currentUser === opponent.player}
         role="opponent"
         score={opponentScore}
         onDiceStop={handleDiceStop}
@@ -228,8 +229,9 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
       content={content}
       onActionClick={actionButtonOnClick}
       actionButtonContent={actionButtonContent}
-      actionButtonDisabled={!active}
+      actionButtonDisabled={actionButtonDisabled}
       actionButtonDataAttrs={actionButtonDataAttrs}
+      actionButtonStyle={actionButtonStyle}
     />
   );
 };
