@@ -4,8 +4,8 @@ const SVGIcon = ({ size, viewBox = "0 0 24 24", dataAttr, children }) => (
   </svg>
 );
 
-const PNGIcon = ({ src, alt, size, dataAttr }) => (
-  <img src={src} alt={alt} {...(size && { width: size, height: size })} {...dataAttr} />
+const PNGIcon = ({ src, alt, size, className, dataAttr }) => (
+  <img src={src} alt={alt} className={className} {...(size && { width: size, height: size })} {...dataAttr} />
 );
 
 export const DiceIcon = ({ size, color, fill }) => (
@@ -64,10 +64,32 @@ export const NotAliveIcon = ({ size, color, fill }) => (
   </SVGIcon>
 );
 
-export const ArmorIcon = ({ size }) => (
-  <PNGIcon src="/images/cards/metal_armor_icon.png" alt="armor" size={size} dataAttr={{ "data-icon-armor": true }} />
+export const ArmorIcon = ({ size, className }) => (
+  <PNGIcon
+    src="/images/cards/metal_armor_icon.png"
+    alt="armor"
+    size={size}
+    className={className}
+    dataAttr={{ "data-icon-armor": true }}
+  />
 );
 
-export const SwordIcon = ({ size }) => (
-  <PNGIcon src="/images/cards/sacred_sword_icon.png" alt="sword" size={size} dataAttr={{ "data-icon-sword": true }} />
+export const SwordIcon = ({ size, className }) => (
+  <PNGIcon
+    src="/images/cards/sacred_sword_icon.png"
+    alt="sword"
+    size={size}
+    className={className}
+    dataAttr={{ "data-icon-sword": true }}
+  />
+);
+
+export const TalismanIcon = ({ size, className }) => (
+  <PNGIcon
+    src="/images/cards/talisman_icon.png"
+    alt="talisman"
+    size={size}
+    className={className}
+    dataAttr={{ "data-icon-talisman": true }}
+  />
 );

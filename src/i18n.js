@@ -82,6 +82,10 @@ const resources = {
           name: "כדור קסם",
           description: "מעלה דרגה ומחזיר בריאות למקסימום",
         },
+        talisman: {
+          name: "קמע",
+          description: "משמיד את כל מי שהדמות העונדת אותו מביסה",
+        },
       },
       card_draw: {
         deck: "חפיסה",
@@ -115,10 +119,6 @@ const resources = {
         continue: "המשך",
         reroll: "גלגל מחדש",
       },
-      // cards: {
-      //   talisman: "קמע",
-      //   talisman_desc: "משמיד (ולא רק מוריד דרגה) את כל מי שהדמות העונדת אותו מביסה (מורידה לה את כל האסימונים).",
-      // },
       errors: {
         game_not_found: "המשחק '{{gamename}}' לא נמצא. בדוק את שם המשחק ונסה שוב.",
         connection_failed: "נכשל בהתחברות למשחק. נסה שוב מאוחר יותר.",

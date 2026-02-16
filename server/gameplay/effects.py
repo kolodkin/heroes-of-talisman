@@ -25,6 +25,7 @@ EFFECT_REROLL_DICE = "reroll_dice"
 EFFECT_SKIP_TURN = "skip_turn"
 EFFECT_DRAW_CARD = "draw_card"
 EFFECT_LEVEL_UP = "level_up"
+EFFECT_TALISMAN = "talisman"
 
 ########################################################
 # Effect apply_to targets
@@ -171,9 +172,22 @@ class LevelUpEffect(Effect):
     level_increase: int = 1
 
 
+class TalismanEffect(Effect):
+    """
+    When the character holding the talisman wins a battle and reduces
+    the opponent's health to zero, the opponent dies regardless of level.
+    Persistent effect - not disposed at battle end.
+    Applied to self (active player's character).
+    """
+
+    name: Literal[EFFECT_TALISMAN] = EFFECT_TALISMAN
+    dispose_actions: list[ActionName] = []
+    apply_to: ApplyToTarget = APPLY_TO_SELF
+
+
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, HealEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, HealEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect],
     Field(discriminator="name"),
 ]
 
@@ -192,3 +206,4 @@ class EffectTotal(StrictModel):
     skip_next_turn: bool = False
     reroll_dice_available: bool = False
     draw_card_count: int = 0
+    has_talisman: bool = False

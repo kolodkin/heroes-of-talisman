@@ -20,30 +20,43 @@ from ..gameplay import (
 )
 
 
-def apply_damage_with_level_check(character: Character, character_type: ChatacterType, damage: int) -> None:
+def apply_damage_with_level_check(
+    character: Character,
+    character_type: ChatacterType,
+    damage: int,
+    winner_has_talisman: bool = False,
+) -> None:
     """
     Apply damage to a character with level-based death mechanic.
 
     If character health drops to 0 or below:
+    - If winner has talisman: Character dies regardless of level
     - At level 2+: Reduce level by 1 and restore health to new level's max_health
     - At level 1: Character dies (health stays at 0)
     """
     character.health = max(0, character.health - damage)
 
     # Check if character "died" (health reached 0)
-    if character.health <= 0 and character.level > 1:
-        # Reduce level by 1
-        new_level = character.level - 1
-        level_stats = CHARACTER_STATS_BY_LEVEL.get(new_level, CHARACTER_STATS_BY_LEVEL[1])
-        char_stats = level_stats[character_type]
+    if character.health <= 0:
+        if winner_has_talisman:
+            # Talisman kills regardless of level
+            character.is_alive = False
+        elif character.level > 1:
+            # Reduce level by 1
+            new_level = character.level - 1
+            level_stats = CHARACTER_STATS_BY_LEVEL.get(new_level, CHARACTER_STATS_BY_LEVEL[1])
+            char_stats = level_stats[character_type]
 
-        # Update character to new level stats
-        character.level = new_level
-        character.max_health = char_stats["max_health"]
-        character.dice = char_stats["dice"]
-        character.attack = char_stats["attack"]
-        # Restore health to new max_health
-        character.health = character.max_health
+            # Update character to new level stats
+            character.level = new_level
+            character.max_health = char_stats["max_health"]
+            character.dice = char_stats["dice"]
+            character.attack = char_stats["attack"]
+            # Restore health to new max_health
+            character.health = character.max_health
+        else:
+            # Level 1, character dies
+            character.is_alive = False
 
 
 class BattleEndAction(Action):
@@ -87,14 +100,16 @@ class BattleEndAction(Action):
             apply_damage_with_level_check(
                 opponent_character,
                 self.game.opponent.character,
-                1
+                1,
+                winner_has_talisman=active_character.effect.has_talisman,
             )
         elif opponent_score > active_score:
             # Opponent wins, active player loses health
             apply_damage_with_level_check(
                 active_character,
                 self.game.active.character,
-                1
+                1,
+                winner_has_talisman=opponent_character.effect.has_talisman,
             )
         # If tied, no one loses health
 

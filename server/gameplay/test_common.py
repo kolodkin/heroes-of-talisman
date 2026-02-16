@@ -4,16 +4,9 @@ Tests for GamePlay models.
 These tests verify model behavior including computed properties.
 """
 
-import pytest
-
 from .common import CHARACTER_KNIGHT
 from .abilities import ABILITIES_MAP, ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
-from .gameplay import (
-    Character,
-    CHARACTER_DEFAULT_STATS,
-    init_characters,
-    KNIGHT_L1_DEFAULT_HEALTH,
-)
+from .gameplay import init_characters, KNIGHT_L1_DEFAULT_HEALTH
 
 
 def test_character_is_alive_when_health_positive():
@@ -21,13 +14,6 @@ def test_character_is_alive_when_health_positive():
     characters = init_characters()
     assert characters[CHARACTER_KNIGHT].health == KNIGHT_L1_DEFAULT_HEALTH
     assert characters[CHARACTER_KNIGHT].is_alive is True
-
-
-def test_character_is_dead_when_health_zero():
-    """Test character is dead when health = 0"""
-    characters = init_characters()
-    characters[CHARACTER_KNIGHT].health = 0
-    assert characters[CHARACTER_KNIGHT].is_alive is False
 
 
 def test_ability_requires_opponent_selection():

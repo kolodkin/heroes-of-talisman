@@ -1,5 +1,4 @@
-FrontEnd - GamePlay
--------------------
+## FrontEnd - GamePlay
 
 A React-based UI engine for visualizing and interacting with game states represented as JSON data structures.
 
@@ -186,7 +185,8 @@ Character cards represent individual characters belonging to players. Each chara
 - `dice`: Number of dice to roll in battle (varies by level)
 - `attack`: Attack bonus value (varies by level)
 - `effects`: List of active effects applied to this character (each effect has `source` ability name)
-- `is_alive`: Computed property (true when health > 0)
+- `cards`: List of card names held by this character (e.g., `["metal_armor", "talisman"]`)
+- `is_alive`: Stored boolean field (defaults to `true`, set to `false` when character dies in battle)
 
 **Level Display:**
 
@@ -213,6 +213,15 @@ Active effects applied to characters should be displayed visually on character c
 - **AttackBonusEffect**: Value added to attack stat, make attack text color blue
 - **AttackNegBonusEffect**: Value subtracted from attack stat, make attack text color red
 - **RerollDiceEffect**: Display reroll icon
+- **DefenseBonusEffect**: Defense value applied (no separate icon, armor icon shown via card)
+
+### Card Icons
+
+Characters that hold cards display small icons in their stats row, based on `character.cards` list:
+
+- **metal_armor**: ArmorIcon (shield image)
+- **sacred_sord**: SwordIcon (sword image)
+- **talisman**: TalismanIcon (dragon medallion image)
 
 ## AbilityCard
 

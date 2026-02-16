@@ -31,8 +31,7 @@
 }
 
 .card-normal .stats svg,
-.card-normal .stats img[data-icon-armor],
-.card-normal .stats img[data-icon-sword] {
+.card-normal .stats .character-icon {
   width: 12px;
   height: 12px;
 }
@@ -58,8 +57,7 @@
 }
 
 .card-small .stats svg,
-.card-small .stats img[data-icon-armor],
-.card-small .stats img[data-icon-sword] {
+.card-small .stats .character-icon {
   width: 10px;
   height: 10px;
 }
@@ -123,8 +121,7 @@
   }
 
   .card-normal .stats svg,
-  .card-normal .stats img[data-icon-armor],
-  .card-normal .stats img[data-icon-sword] {
+  .card-normal .stats .character-icon {
     width: 20px;
     height: 20px;
   }
@@ -151,8 +148,7 @@
   }
 
   .card-small .stats svg,
-  .card-small .stats img[data-icon-armor],
-  .card-small .stats img[data-icon-sword] {
+  .card-small .stats .character-icon {
     width: 12px;
     height: 12px;
   }

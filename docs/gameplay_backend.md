@@ -97,16 +97,19 @@ All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
 
 ## Effect Types
 
-| Effect                 | Description                          | `dispose_actions`                        | `apply_to`          |
-| ---------------------- | ------------------------------------ | ---------------------------------------- | ------------------- |
-| `SkipTurnEffect`       | Character skips next turn            | `['character_select']`                   | `selected_opponent` |
-| `AttackBonusEffect`    | Increases attack by value            | `['battle_end']`                         | `self`              |
-| `AttackNegBonusEffect` | Decreases attack by value            | `['battle_end']`                         | `battle_opponent`   |
-| `RerollDiceEffect`     | Allows dice reroll on loss           | `['battle_end', 'action_reroll_effect']` | `self`              |
-| `DrawCardEffect`       | Draws cards                          | `['battle_end']`                         | `self`              |
-| `DefenseBonusEffect`   | Increases defense by value           | `['battle_end']`                         | `self`              |
-| `HealEffect`           | Heals character instantly            | `['card_select']`                        | `self`              |
-| `LevelUpEffect`        | Levels up character, restores health | `['card_select']`                        | `self`              |
+| Effect                 | Description                                 | `dispose_actions` (default)              | `apply_to`          |
+| ---------------------- | ------------------------------------------- | ---------------------------------------- | ------------------- |
+| `SkipTurnEffect`       | Character skips next turn                   | `['character_select']`                   | `selected_opponent` |
+| `AttackBonusEffect`    | Increases attack by value                   | `['battle_end']`                         | `self`              |
+| `AttackNegBonusEffect` | Decreases attack by value                   | `['battle_end']`                         | `battle_opponent`   |
+| `RerollDiceEffect`     | Allows dice reroll on loss                  | `['battle_end', 'action_reroll_effect']` | `self`              |
+| `DrawCardEffect`       | Draws cards                                 | `['battle_end']`                         | `self`              |
+| `DefenseBonusEffect`   | Increases defense by value                  | `['battle_end']`                         | `self`              |
+| `HealEffect`           | Heals character instantly                   | `['card_select']`                        | `self`              |
+| `LevelUpEffect`        | Levels up character, restores health        | `['card_select']`                        | `self`              |
+| `TalismanEffect`       | Kills defeated opponent regardless of level | `[]` (persistent)                        | `self`              |
+
+**Note:** `dispose_actions` can be overridden per instance. Card-sourced equipment effects (e.g., `metal_armor`, `sacred_sword`) override `dispose_actions=[]` to make them persistent, while ability-sourced effects use the defaults shown above.
 
 # Cards
 
@@ -124,12 +127,15 @@ Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when
 
 ## Available Cards
 
-| Card           | Effects                        | Restrictions |
-| -------------- | ------------------------------ | ------------ |
-| `metal_armor`  | `DefenseBonusEffect(+2)`       | None         |
-| `sacred_sword` | `AttackBonusEffect(+3)`        | Archer       |
-| `golden_apple` | `HealEffect(+1)` (instant)     | None         |
-| `magic_ball`   | `LevelUpEffect(+1)` (instant)  | None         |
+| Card           | Effects                                      | Restrictions |
+| -------------- | -------------------------------------------- | ------------ |
+| `metal_armor`  | `DefenseBonusEffect(+2, dispose_actions=[])` | None         |
+| `sacred_sword` | `AttackBonusEffect(+3, dispose_actions=[])`  | Archer       |
+| `golden_apple` | `HealEffect(+1)` (instant)                   | None         |
+| `magic_ball`   | `LevelUpEffect(+1)` (instant)                | None         |
+| `talisman`     | `TalismanEffect` (persistent)                | None         |
+
+**Note:** Equipment cards (`metal_armor`, `sacred_sword`) override `dispose_actions=[]` making their effects persistent (never disposed). The `talisman` effect is also persistent. Card names are tracked in `character.cards` list.
 
 ## Available Abilities
 
@@ -221,7 +227,8 @@ The battle stage handles dice rolling for both the active player and opponent, f
 - **`RerollAction`**: Resets dice rolls when both players rolled and the result is a draw. Downgrades `ActivePlayer4`/`Opponent4` back to `ActivePlayer2`/`Opponent2` for re-rolling.
 - **`RerollEffectAction`**: Allows the active player to use a `RerollDiceEffect` after losing a battle. Removes the effect and resets dice for re-rolling. Only available in `battle_dice_roll` stage when the loser has a reroll effect.
 - **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1 with level-based death handling:
-  - **Level 2+ character at 0 health**: Reduces level by 1 and restores health to new level's max_health (character survives)
+  - **Winner has talisman and opponent at 0 health**: Opponent dies regardless of level (`is_alive=False`)
+  - **Level 2+ character at 0 health** (no talisman): Reduces level by 1 and restores health to new level's max_health (character survives)
   - **Level 1 character at 0 health**: Character dies (`is_alive=False`)
 
   Also disposes effects with `'battle_end'` in `dispose_actions`, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
