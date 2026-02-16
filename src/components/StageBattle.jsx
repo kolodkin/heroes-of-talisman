@@ -67,9 +67,10 @@ const BattleParticipant = ({
 };
 
 const getActionButton = ({
-  currentUserNeedsToRoll,
-  currentUserIsOpponent,
-  opponentNeedsRoll,
+  currentUser,
+  opponentPlayer,
+  activeDiceRoll,
+  opponentDiceRoll,
   opponentCharacter,
   activeCharacter,
   handleOpponentRoll,
@@ -83,6 +84,11 @@ const getActionButton = ({
   active,
   t,
 }) => {
+  const currentUserIsOpponent = currentUser === opponentPlayer;
+  const activeNeedsRoll = !activeDiceRoll;
+  const opponentNeedsRoll = !opponentDiceRoll;
+  const currentUserNeedsToRoll = (active && activeNeedsRoll) || (currentUserIsOpponent && opponentNeedsRoll);
+
   if (currentUserNeedsToRoll) {
     const isOpponentRoll = currentUserIsOpponent && opponentNeedsRoll;
     const userCharacter = isOpponentRoll ? opponentCharacter : activeCharacter;
@@ -215,16 +221,11 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   const activeScore = showResults ? (gamePlay.active?.result?.score ?? null) : null;
   const opponentScore = showResults ? (opponent?.result?.score ?? null) : null;
 
-  // Determine if current user needs to roll
-  const currentUserIsOpponent = currentUser === opponent.player;
-  const activeNeedsRoll = !activeDiceRoll;
-  const opponentNeedsRoll = !opponentDiceRoll;
-  const currentUserNeedsToRoll = (active && activeNeedsRoll) || (currentUserIsOpponent && opponentNeedsRoll);
-
   const actionButton = getActionButton({
-    currentUserNeedsToRoll,
-    currentUserIsOpponent,
-    opponentNeedsRoll,
+    currentUser,
+    opponentPlayer: opponent.player,
+    activeDiceRoll,
+    opponentDiceRoll,
     opponentCharacter,
     activeCharacter,
     handleOpponentRoll,
