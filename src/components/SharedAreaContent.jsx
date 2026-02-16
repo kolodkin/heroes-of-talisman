@@ -12,6 +12,7 @@ import styles from "./SharedAreaContent.module.css";
  * @param {string|React.ReactNode} props.actionButtonContent - Text or JSX to display on the action button
  * @param {boolean} props.actionButtonDisabled - Whether the action button is disabled
  * @param {Object} props.actionButtonDataAttrs - Custom data attributes for the action button
+ * @param {Object} props.actionButtonStyle - Inline styles for the action button (e.g., pointer-events override)
  */
 export const SharedAreaContent = ({
   title,
@@ -20,6 +21,7 @@ export const SharedAreaContent = ({
   actionButtonContent,
   actionButtonDisabled = false,
   actionButtonDataAttrs = {},
+  actionButtonStyle,
 }) => {
   const handleKeyDown = useCallback(
     (e) => {
@@ -50,6 +52,7 @@ export const SharedAreaContent = ({
             onClick={onActionClick}
             disabled={actionButtonDisabled}
             data-action-button
+            style={actionButtonStyle}
             {...actionButtonDataAttrs}
           >
             {actionButtonContent}

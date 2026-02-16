@@ -181,11 +181,9 @@ test("battle stage - draw with reroll", async ({ page, gameName }) => {
   await rerollButton.click();
   await screenshot(page, "battle-after-reroll");
 
-  // Verify dice rolls are reset - roll buttons should be visible again
-  const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
-  const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
-  await expect(activeRollButton).toBeVisible();
-  await expect(opponentRollButton).toBeVisible();
+  // Verify dice rolls are reset - action button should show "Roll Dice" again
+  const rollButton = page.locator("[data-action-button][data-roll-button]");
+  await expect(rollButton).toBeVisible();
 
   // Verify dice are no longer visible after reroll
   await expect(activeDice.first()).not.toBeVisible();
@@ -242,11 +240,9 @@ test("battle stage - reroll effect after loss", async ({ page, gameName }) => {
   // Verify reroll effect is removed from data-effects attribute
   await expect(activeCharacterCard).not.toHaveAttribute("data-effects", /reroll_dice/);
 
-  // Verify dice rolls are reset - roll buttons should be visible again (similar to regular reroll)
-  const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
-  const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
-  await expect(activeRollButton).toBeVisible();
-  await expect(opponentRollButton).toBeVisible();
+  // Verify dice rolls are reset - action button should show "Roll Dice" again
+  const rollButton = page.locator("[data-action-button][data-roll-button]");
+  await expect(rollButton).toBeVisible();
 
   // Verify dice are no longer visible after reroll
   const activeDice = page.locator('[data-battle-role="active"] [class*="diceContainer"]');
@@ -308,11 +304,9 @@ test("battle stage - draw with attack bonus effect", async ({ page, gameName }) 
   await rerollButton.click();
   await screenshot(page, "battle-after-reroll-attack-bonus");
 
-  // Verify dice rolls are reset - roll buttons should be visible again
-  const activeRollButton = page.locator('[data-battle-role="active"] [data-roll-button]');
-  const opponentRollButton = page.locator('[data-battle-role="opponent"] [data-roll-button]');
-  await expect(activeRollButton).toBeVisible();
-  await expect(opponentRollButton).toBeVisible();
+  // Verify dice rolls are reset - action button should show "Roll Dice" again
+  const rollButton = page.locator("[data-action-button][data-roll-button]");
+  await expect(rollButton).toBeVisible();
 
   // Cleanup
   await page2.close();
