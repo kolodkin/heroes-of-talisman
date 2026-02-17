@@ -10,7 +10,7 @@
  * - Click Select button: invokes 'ability_opponent_select' action, applying ability effects,
  *   confirming selection and transitioning stage to 'opponent_selection'
  */
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import className from "classnames";
 import { useTranslation } from "react-i18next";
 import { notify } from "../utils/notify";
@@ -23,6 +23,26 @@ import Opponent from "./Opponent";
 const StageAbilityOpponentSelection = ({ players, activePlayer, sendAction, active, selectedOpponent = null }) => {
   const { t } = useTranslation();
   const { containerRef, hasScroll } = useScrollAlignment();
+
+  // Filter out active player (whose turn it is)
+  const opponents = useMemo(
+    () => Object.entries(players).filter(([name]) => name !== activePlayer),
+    [players, activePlayer],
+  );
+
+  // Flat list of all alive opponent characters for arrow navigation
+  const availableOpponentCharacters = useMemo(() => {
+    const result = [];
+    for (const [playerName, player] of opponents) {
+      if (!player.characters) continue;
+      for (const [charName, character] of Object.entries(player.characters)) {
+        if (character.is_alive !== false) {
+          result.push({ player: playerName, character: charName });
+        }
+      }
+    }
+    return result;
+  }, [opponents]);
 
   const handleCharacterClick = (playerName, characterName) => {
     if (!active) {
@@ -44,8 +64,34 @@ const StageAbilityOpponentSelection = ({ players, activePlayer, sendAction, acti
     }
   };
 
-  // Filter out active player (whose turn it is)
-  const opponents = Object.entries(players).filter(([name]) => name !== activePlayer);
+  const handleArrowNavigation = useCallback(
+    (direction) => {
+      if (!active || availableOpponentCharacters.length === 0) return;
+
+      if (!selectedOpponent) {
+        const first = availableOpponentCharacters[0];
+        sendAction("ability_opponent_press", { opponent: first.player, character: first.character });
+        return;
+      }
+
+      const currentIndex = availableOpponentCharacters.findIndex(
+        (item) => item.player === selectedOpponent.player && item.character === selectedOpponent.character,
+      );
+      let nextIndex;
+      if (direction === "right") {
+        nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % availableOpponentCharacters.length;
+      } else {
+        nextIndex =
+          currentIndex === -1
+            ? 0
+            : (currentIndex - 1 + availableOpponentCharacters.length) % availableOpponentCharacters.length;
+      }
+
+      const next = availableOpponentCharacters[nextIndex];
+      sendAction("ability_opponent_press", { opponent: next.player, character: next.character });
+    },
+    [active, availableOpponentCharacters, selectedOpponent, sendAction],
+  );
 
   const content = (
     <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
@@ -69,6 +115,7 @@ const StageAbilityOpponentSelection = ({ players, activePlayer, sendAction, acti
       onActionClick={handleSubmit}
       actionButtonContent={t("ability_opponent_selection.submit")}
       actionButtonDisabled={!active}
+      onArrowNavigation={handleArrowNavigation}
     />
   );
 };

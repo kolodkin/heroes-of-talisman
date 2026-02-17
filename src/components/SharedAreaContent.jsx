@@ -13,6 +13,7 @@ import styles from "./SharedAreaContent.module.css";
  * @param {boolean} props.actionButtonDisabled - Whether the action button is disabled
  * @param {Object} props.actionButtonDataAttrs - Custom data attributes for the action button
  * @param {Object} props.actionButtonStyle - Inline styles for the action button (e.g., pointer-events override)
+ * @param {Function} props.onArrowNavigation - Callback for left/right arrow key navigation (receives "left" or "right")
  */
 export const SharedAreaContent = ({
   title,
@@ -22,9 +23,21 @@ export const SharedAreaContent = ({
   actionButtonDisabled = false,
   actionButtonDataAttrs = {},
   actionButtonStyle,
+  onArrowNavigation,
 }) => {
   const handleKeyDown = useCallback(
     (e) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        if (!onArrowNavigation) return;
+
+        const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+        if (!isDesktop) return;
+
+        e.preventDefault();
+        onArrowNavigation(e.key === "ArrowLeft" ? "left" : "right");
+        return;
+      }
+
       if (e.key !== "Enter") return;
       if (actionButtonDisabled || !onActionClick || !actionButtonContent) return;
 
@@ -34,7 +47,7 @@ export const SharedAreaContent = ({
       e.preventDefault();
       onActionClick();
     },
-    [onActionClick, actionButtonDisabled, actionButtonContent],
+    [onActionClick, actionButtonDisabled, actionButtonContent, onArrowNavigation],
   );
 
   useEffect(() => {
