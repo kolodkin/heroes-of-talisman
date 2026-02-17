@@ -88,6 +88,7 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 
 - **StageCharacterSelect** (`character_select` stage): Player selects their character
   - Displays player's characters
+  - Arrow keys cycle through available characters (alive, no skip_turn)
   - Actions: `character_press` (highlight), `character_select` (confirm)
   - Transitions to: `card_draw`
 
@@ -104,18 +105,20 @@ Each game stage has its own dedicated component that renders the appropriate UI 
     - All players see the same opponent selection menu
     - The active player (whose turn it is) is excluded from the opponents list
   - Players can be expanded to see full character details
+  - Arrow keys cycle through all alive opponent characters across all opponents
   - Actions: `opponent_press` (highlight selection), `opponent_select` (confirm selection)
   - Transitions to: `battle`
 
 - **StageBattle** (`battle` stage): Displays the battle between current player and opponent
   - **Layout**: Two vertically aligned sections
-    - **Player section**: Shows current player (`gamePlay.active.player`), their selected character (`gamePlay.active.character`), and dice/roll button
-    - **Opponent section**: Shows opponent player (`gamePlay.opponent.player`), their character (`gamePlay.opponent.character`), and dice/roll button
+    - **Player section**: Shows current player (`gamePlay.active.player`), their selected character (`gamePlay.active.character`), and dice
+    - **Opponent section**: Shows opponent player (`gamePlay.opponent.player`), their character (`gamePlay.opponent.character`), and dice
   - **Dice Roll Flow**:
-    - Initially, dice values are not set; roll buttons displayed instead of dice
+    - Rolling is done via the main **action button** (not inline buttons), which shows "Roll Dice" text
+    - The action button is enabled for the player who needs to roll next
     - Active player clicks roll → `active_player_roll` action → sets `gamePlay.active.dice_roll` (list) → dice shown after re-render
     - Opponent clicks roll → `opponent_roll` action → sets `gamePlay.opponent.dice_roll` (list) → dice shown after re-render
-    - **Note**: Opponent roll button has `pointer-events` enabled (non-active players can interact)
+    - **Note**: Opponent roll button has `pointer-events: auto` override, allowing non-active players to click the action button when it's their turn to roll
     - Number of dice rolled is based on character's `dice` value
   - **Score Display**:
     - After both players roll, scores are calculated: `sum(dice_roll) + (character.attack || 0)`
@@ -187,6 +190,7 @@ Character cards represent individual characters belonging to players. Each chara
 - `effects`: List of active effects applied to this character (each effect has `source` ability name)
 - `cards`: List of card names held by this character (e.g., `["metal_armor", "talisman"]`)
 - `is_alive`: Stored boolean field (defaults to `true`, set to `false` when character dies in battle)
+- `is_available`: Computed boolean field — `true` when character is alive and has no skip_turn effect. Used by frontend to determine selectable characters without recomputing availability logic
 
 **Level Display:**
 
@@ -290,8 +294,12 @@ Displays a face-down deck card for drawing (`src/components/DeckCard.jsx`).
   - Only the active player (`gamePlay.active.player`) can interact with UI elements in SharedArea
   - Non-active players see the SharedArea with `pointer-events: none` to prevent all interactions
   - Stage components also receive `active` prop as defensive coding for programmatic checks
-- **Keyboard Shortcut (Desktop)**:
+- **Keyboard Shortcuts (Desktop)**:
   - Pressing **Enter** triggers the action button in the shared area, equivalent to clicking it
+  - Pressing **Left/Right Arrow** keys navigates between selectable items in selection stages (character select, opponent select, ability opponent select)
+    - If no item is selected, pressing either arrow selects the first available item
+    - Selection wraps around (last item → first, first item → last)
+    - Only cycles through available (alive, no skip_turn) items
   - Only active on desktop viewports (min-width: 1024px) — disabled on mobile/tablet
   - Respects disabled state: does nothing when the action button is disabled or not rendered
 - **Minimum Player Requirement**:
