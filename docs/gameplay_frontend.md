@@ -190,6 +190,7 @@ Character cards represent individual characters belonging to players. Each chara
 - `effects`: List of active effects applied to this character (each effect has `source` ability name)
 - `cards`: List of card names held by this character (e.g., `["metal_armor", "talisman"]`)
 - `is_alive`: Stored boolean field (defaults to `true`, set to `false` when character dies in battle)
+- `is_available`: Computed boolean field — `true` when character is alive and has no skip_turn effect. Used by frontend to determine selectable characters without recomputing availability logic
 
 **Level Display:**
 

@@ -26,25 +26,14 @@ const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacte
   const { t } = useTranslation();
   const { containerRef, hasScroll } = useScrollAlignment();
 
-  // Check if any character is available (alive and no skip_turn effect)
-  const hasAvailableCharacter = useMemo(() => {
-    return Object.values(characters).some((char) => {
-      const isAlive = char.is_alive !== false;
-      const hasSkipTurn = char.effects?.some((effect) => effect.name === "skip_turn") || false;
-      return isAlive && !hasSkipTurn;
-    });
-  }, [characters]);
-
-  // List of available (alive, no skip_turn) character names for arrow navigation
+  // List of available character names (computed by backend: alive and no skip_turn)
   const availableCharacters = useMemo(() => {
     return Object.entries(characters)
-      .filter(([, char]) => {
-        const isAlive = char.is_alive !== false;
-        const hasSkipTurn = char.effects?.some((effect) => effect.name === "skip_turn") || false;
-        return isAlive && !hasSkipTurn;
-      })
+      .filter(([, char]) => char.is_available)
       .map(([name]) => name);
   }, [characters]);
+
+  const hasAvailableCharacter = availableCharacters.length > 0;
 
   const handleCharacterClick = (name) => {
     if (!active) {

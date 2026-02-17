@@ -20,13 +20,9 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
   const nameStr = t(`characterNames.${name}`);
 
   const cardClass = size === "normal" ? styles["card-normal"] : styles["card-small"];
-  const isAlive = character.is_alive !== false; // Default to true if not specified
-
-  // Check if character has skip_turn effect
+  const isAlive = character.is_alive !== false;
   const hasSkipTurn = character.effects?.some((effect) => effect.name === "skip_turn") || false;
-
-  // Character is selectable only if alive AND doesn't have skip_turn
-  const isSelectable = isAlive && !hasSkipTurn;
+  const isSelectable = character.is_available !== false;
 
   // Calculate total attack with effects
   const baseAttack = character.attack || 0;

@@ -139,8 +139,14 @@ class Character(StrictModel):
 
         return total
 
+    @computed_field
+    @property
+    def is_available(self) -> bool:
+        """Character is available for selection if alive and not skipping turn"""
+        return self.is_alive and not self.effect.skip_next_turn
+
     def db_model_dump(self) -> dict:
-        return self.model_dump(exclude={"effect"})
+        return self.model_dump(exclude={"effect", "is_available"})
 
 
 class CharacterSelectMeta(StrictModel):

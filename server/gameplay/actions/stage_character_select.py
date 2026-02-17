@@ -137,10 +137,9 @@ class SkipTurnAction(Action):
         player = self.game.players[self.user]
 
         # Validate that no character is available
-        # A character is unavailable if dead or has skip_turn effect
         available_characters = [
             char_name for char_name, char in player.characters.items()
-            if char.is_alive and not char.effect.skip_next_turn
+            if char.is_available
         ]
 
         if available_characters:
