@@ -42,7 +42,7 @@ This frontend engine provides a complete visualization system for the game, feat
   - Components use the `useTranslation` hook to access translations
   - Translation keys use dot notation (e.g., `t('errors.connection_failed')`)
   - Interpolation supported for dynamic values (e.g., `t('errors.game_not_found', { gamename })`)
-- **Direction Support**: RTL handled via `t('direction')`
+- **Direction Support**: Layout direction is determined by the i18n `direction` translation key (e.g., `t('direction')`), which is language-specific (`"rtl"` for Hebrew, `"ltr"` for English). Defaults to `"ltr"` when not specified.
 
 ## RTL/LTR Layout
 
@@ -297,6 +297,7 @@ Displays a face-down deck card for drawing (`src/components/DeckCard.jsx`).
 - **Keyboard Shortcuts (Desktop)**:
   - Pressing **Enter** triggers the action button in the shared area, equivalent to clicking it
   - Pressing **Left/Right Arrow** keys navigates between selectable items in selection stages (character select, opponent select, ability opponent select)
+    - **RTL-aware**: Arrow direction is flipped based on the i18n `direction` key. In RTL, ArrowLeft moves to the next item and ArrowRight moves to the previous item (opposite of LTR)
     - If no item is selected, pressing either arrow selects the first available item
     - Selection wraps around (last item → first, first item → last)
     - Only cycles through available (alive, no skip_turn) items
