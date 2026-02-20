@@ -141,5 +141,5 @@ The game progresses through distinct stages during each player's turn. Upon comp
 3. **Ability Selection** (`ability_selection`) - Player selects which ability to use from the character's available abilities
 4. **Ability Opponent Selection** (`ability_opponent_selection`) - _(Only for effects requiring target selection, e.g., SkipTurnEffect)_ Player selects an opponent character to apply the ability to
 5. **Opponent Selection** (`opponent_selection`) - Player selects an opponent and one of the opponent's characters for battle
-6. **Battle Dice Roll** (`battle_dice_roll`) - Both players roll dice for combat
-7. **Battle End** (`battle_end`) - Combat results are calculated and applied
+6. **Battle Dice Roll** (`battle_dice_roll`) - Both players roll dice for combat. Battle score = `sum(dice_roll) + attack + attack_bonus + attack_neg_bonus - opponent_defense_bonus`
+7. **Battle End** (`battle_end`) - Combat results (damage) are applied to the loser

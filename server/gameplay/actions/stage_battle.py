@@ -48,8 +48,8 @@ def calculate_winner(game: GamePlay) -> tuple[int, int]:
     active_total_attack = active_character.attack + active_character.effect.attack_bonus + active_character.effect.attack_neg_bonus
     opponent_total_attack = opponent_character.attack + opponent_character.effect.attack_bonus + opponent_character.effect.attack_neg_bonus
 
-    active_score = sum(game.active.dice_roll) + active_total_attack
-    opponent_score = sum(game.opponent.dice_roll) + opponent_total_attack
+    active_score = sum(game.active.dice_roll) + active_total_attack - opponent_character.effect.defense_bonus
+    opponent_score = sum(game.opponent.dice_roll) + opponent_total_attack - active_character.effect.defense_bonus
 
     return active_score, opponent_score
 

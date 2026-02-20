@@ -224,9 +224,12 @@ The battle stage handles dice rolling for both the active player and opponent, f
 
 - **`ActivePlayerRollAction`**: Rolls dice for the active player based on their character's dice value and sets `active.dice_roll` to a list of rolled values. Validates that the player is active and the stage is `battle_dice_roll`.
 - **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle_dice_roll`. Note: This action can be invoked by the opponent player (not the active player), as the opponent needs to roll their own dice.
+
+  When both players have rolled, scores are calculated using the [battle score formula](/docs/gameplay_spec.md#turn-stages) and stored in `active.result.score` / `opponent.result.score`.
+
 - **`RerollAction`**: Resets dice rolls when both players rolled and the result is a draw. Downgrades `ActivePlayer4`/`Opponent4` back to `ActivePlayer2`/`Opponent2` for re-rolling.
 - **`RerollEffectAction`**: Allows the active player to use a `RerollDiceEffect` after losing a battle. Removes the effect and resets dice for re-rolling. Only available in `battle_dice_roll` stage when the loser has a reroll effect.
-- **`BattleEndAction`**: Ends the battle after both players have rolled. Calculates scores (`sum(dice_roll) + attack`), reduces the loser's health by 1 with level-based death handling:
+- **`BattleEndAction`**: Ends the battle after both players have rolled. Uses the pre-calculated scores to determine the winner, reduces the loser's health by 1 with level-based death handling:
   - **Winner has talisman and opponent at 0 health**: Opponent dies regardless of level (`is_alive=False`)
   - **Level 2+ character at 0 health** (no talisman): Reduces level by 1 and restores health to new level's max_health (character survives)
   - **Level 1 character at 0 health**: Character dies (`is_alive=False`)

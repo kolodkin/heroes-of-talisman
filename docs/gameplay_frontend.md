@@ -121,7 +121,7 @@ Each game stage has its own dedicated component that renders the appropriate UI 
     - **Note**: Opponent roll button has `pointer-events: auto` override, allowing non-active players to click the action button when it's their turn to roll
     - Number of dice rolled is based on character's `dice` value
   - **Score Display**:
-    - After both players roll, scores are calculated: `sum(dice_roll) + (character.attack || 0)`
+    - After both players roll, scores are displayed from `active.result.score` / `opponent.result.score` (calculated by backend)
     - Score displayed next to dice for each participant
   - **Winner Effect**:
     - Winner (higher score) gets golden badge with pulsing animation

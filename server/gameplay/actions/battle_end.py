@@ -87,12 +87,9 @@ class BattleEndAction(Action):
         active_character = self.active_character
         opponent_character = self.opponent_character
 
-        # Calculate scores (including effects)
-        active_total_attack = active_character.attack + active_character.effect.attack_bonus + active_character.effect.attack_neg_bonus
-        opponent_total_attack = opponent_character.attack + opponent_character.effect.attack_bonus + opponent_character.effect.attack_neg_bonus
-
-        active_score = sum(self.game.active.dice_roll) + active_total_attack - opponent_character.effect.defense_bonus
-        opponent_score = sum(self.game.opponent.dice_roll) + opponent_total_attack - active_character.effect.defense_bonus
+        # Use scores already calculated by calculate_winner in the dice roll stage
+        active_score = self.game.active.result.score
+        opponent_score = self.game.opponent.result.score
 
         # Determine loser and reduce health by 1
         if active_score > opponent_score:

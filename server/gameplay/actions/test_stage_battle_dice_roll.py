@@ -27,6 +27,7 @@ from ..abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FRE
 from ..effects import (
     AttackBonusEffect,
     AttackNegBonusEffect,
+    DefenseBonusEffect,
     SkipTurnEffect,
     RerollDiceEffect,
 )
@@ -48,6 +49,7 @@ from ..gameplay import (
     Opponent4,
     init_characters,
 )
+from ..cards import CARD_METAL_ARMOR
 from ..presets import get_debug_preset, PRESET_EFFECT_REROLL
 
 
@@ -501,6 +503,60 @@ def test_set_winner_if_both_rolled_does_nothing_when_not_both_rolled():
     # Should remain unchanged (ActivePlayer3/Opponent2 don't have winner)
     assert isinstance(game.active, ActivePlayer3)
     assert isinstance(game.opponent, Opponent2)
+
+
+def test_calculate_winner_with_defense_bonus():
+    """Test that defense bonus reduces opponent's score"""
+    characters = init_characters()
+    # Give knight a +2 defense bonus (metal armor)
+    characters[CHARACTER_KNIGHT].effects = [
+        DefenseBonusEffect(source=CARD_METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
+    ]
+
+    game = GamePlay(
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=CHARACTER_KNIGHT, dice_roll=[1]),
+        opponent=Opponent3(player="player2", character=CHARACTER_MAGE, dice_roll=[6]),
+        players={
+            "player1": Player(name="player1", characters=characters),
+            "player2": Player(name="player2", characters=init_characters()),
+        },
+    )
+
+    active_score, opponent_score = calculate_winner(game)
+
+    # Knight: dice=[1] + attack=1 - mage_defense(0) = 2
+    # Mage: dice=[6] + attack=0 - knight_defense(2) = 4
+    assert active_score == 2
+    assert opponent_score == 4
+
+
+def test_set_winner_with_defense_bonus():
+    """Test that set_winner_if_both_rolled correctly uses defense bonus in scores"""
+    characters = init_characters()
+    characters[CHARACTER_KNIGHT].effects = [
+        DefenseBonusEffect(source=CARD_METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
+    ]
+
+    game = GamePlay(
+        stage=STAGE_BATTLE_DICE_ROLL,
+        active=ActivePlayer3(player="player1", character=CHARACTER_KNIGHT, dice_roll=[1]),
+        opponent=Opponent3(player="player2", character=CHARACTER_MAGE, dice_roll=[6]),
+        players={
+            "player1": Player(name="player1", characters=characters),
+            "player2": Player(name="player2", characters=init_characters()),
+        },
+    )
+
+    set_winner_if_both_rolled(game)
+
+    # Knight score=2, Mage score=4 → mage wins
+    assert isinstance(game.active, ActivePlayer4)
+    assert isinstance(game.opponent, Opponent4)
+    assert game.active.result.score == 2
+    assert game.opponent.result.score == 4
+    assert game.active.result.winner is False
+    assert game.opponent.result.winner is True
 
 
 # ============================================================================
