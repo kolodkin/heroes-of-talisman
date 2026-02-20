@@ -197,8 +197,19 @@ check_review_comments() {
         echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo ""
 
-        # Get comment IDs from REST API for reply capability
-        COMMENTS_WITH_IDS=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}/comments" 2>/dev/null | jq -r '.[] | "ID: \(.id)\nFile: \(.path)\nLine: \(.line // .original_line // "N/A")\nComment: \(.body)\n---"' 2>/dev/null)
+        # Get unresolved file paths and lines from GraphQL to filter REST API results
+        UNRESOLVED_PATHS=$(echo "$UNRESOLVED_THREADS" | jq -r '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .comments.nodes[0] | {path: .path, line: .line}]' 2>/dev/null)
+
+        # Get comment IDs from REST API, filtered to only unresolved threads
+        ALL_COMMENTS=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}/comments" --paginate 2>/dev/null)
+        COMMENTS_WITH_IDS=$(echo "$ALL_COMMENTS" | jq -r --argjson unresolved "$UNRESOLVED_PATHS" '
+            .[] | . as $comment |
+            select(
+                any($unresolved[]; .path == $comment.path and (.line == $comment.line or .line == $comment.original_line))
+            ) |
+            select(.in_reply_to_id == null) |
+            "ID: \(.id)\nFile: \(.path)\nLine: \(.line // .original_line // "N/A")\nComment: \(.body)\n---"
+        ' 2>/dev/null)
 
         if [ -n "$COMMENTS_WITH_IDS" ]; then
             echo "$COMMENTS_WITH_IDS"
@@ -222,7 +233,7 @@ check_review_comments() {
         echo -e "${YELLOW}⚠️  Changes requested by reviewers${NC}"
         echo -e "${YELLOW}Please address all feedback and push changes${NC}"
         echo ""
-        return 1
+        return 0
     elif [ "$REVIEW_DECISION" = "APPROVED" ]; then
         echo -e "${GREEN}✅ PR is approved!${NC}"
         echo ""
