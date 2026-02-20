@@ -66,7 +66,7 @@ export const SharedAreaContent = ({
     <div className={styles.container}>
       {/* Action button (positioned at end: right in LTR, left in RTL) */}
       <div className={styles.actionButtonContainer}>
-        {onActionClick && actionButtonContent && (
+        {onActionClick && actionButtonContent && !actionButtonDisabled && (
           <button
             className={styles.actionButton}
             onClick={onActionClick}

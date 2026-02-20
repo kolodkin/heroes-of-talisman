@@ -42,6 +42,7 @@ cp dist/*.whl deploy/
 echo "Copying alembic files to deploy folder..."
 rm -rf deploy/alembic
 cp -r alembic deploy/
+find deploy/alembic -type d -name __pycache__ -exec rm -rf {} +
 cp alembic.ini deploy/
 
 # Clean up any existing dist and www directories

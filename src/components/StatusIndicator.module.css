@@ -3,9 +3,9 @@
   top: 0.25rem;
   /* Position at start: left in LTR, right in RTL */
   inset-inline-start: 0.25rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 0.5rem;
-  font-size: 0.5rem;
+  font-size: 0.75rem;
   font-weight: 600;
   z-index: 10;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);

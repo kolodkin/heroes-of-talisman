@@ -127,6 +127,8 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
         className={className(styles["shared-area"], {
           [styles["shared-area-disabled"]]: gamePlay.active?.player !== username,
           [styles["shared-area-battle"]]: gamePlay.stage === BATTLE_DICE_ROLL || gamePlay.stage === BATTLE_END,
+          [styles["shared-area-actionable"]]:
+            statusIndicator.status === "your_turn" || statusIndicator.status === "roll_dice",
         })}
         data-shared-area-active={gamePlay.active?.player === username}
       >

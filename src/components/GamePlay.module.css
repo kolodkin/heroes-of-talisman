@@ -61,6 +61,10 @@
   gap: 1rem;
 }
 
+.shared-area-actionable {
+  background-color: var(--color-bg-active);
+}
+
 .shared-area-disabled {
   pointer-events: auto; /* Allow scrolling on container */
 }
