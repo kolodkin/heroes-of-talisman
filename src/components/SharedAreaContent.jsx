@@ -1,5 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 
+import { useTranslation } from "react-i18next";
+
 import styles from "./SharedAreaContent.module.css";
 
 /**
@@ -25,6 +27,8 @@ export const SharedAreaContent = ({
   actionButtonStyle,
   onArrowNavigation,
 }) => {
+  const { t } = useTranslation();
+
   const handleKeyDown = useCallback(
     (e) => {
       if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -34,7 +38,10 @@ export const SharedAreaContent = ({
         if (!isDesktop) return;
 
         e.preventDefault();
-        onArrowNavigation(e.key === "ArrowLeft" ? "left" : "right");
+        const isRtl = t("direction") === "rtl";
+        const isLeftKey = e.key === "ArrowLeft";
+        const direction = isRtl ? (isLeftKey ? "right" : "left") : isLeftKey ? "left" : "right";
+        onArrowNavigation(direction);
         return;
       }
 
@@ -47,7 +54,7 @@ export const SharedAreaContent = ({
       e.preventDefault();
       onActionClick();
     },
-    [onActionClick, actionButtonDisabled, actionButtonContent, onArrowNavigation],
+    [onActionClick, actionButtonDisabled, actionButtonContent, onArrowNavigation, t],
   );
 
   useEffect(() => {
