@@ -81,5 +81,5 @@ fi
 
 # if claude command is available, run the MCP setup
 if command -v claude >/dev/null 2>&1; then
-  uv run .ai/claude_mcp_setup.py | bash | true
+  uv run contrib/claude_mcp_setup.py
 fi
