@@ -1,7 +1,15 @@
 import { createGameViaAPI } from "./api_helpers.js";
 import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame, dismissConnectionToast } from "./test_helpers.js";
 
-test("players menu minimized by default on desktop with expand/minimize and collapse", async ({ page, gameName }) => {
+test("players menu minimized by default on desktop with expand minimize and collapse", async ({
+  page,
+  gameName,
+}, testInfo) => {
+  // Skip on mobile - desktop-only test
+  if (testInfo.project.name === "mobile-landscape") {
+    test.skip();
+    return;
+  }
   // Setup: Create game via API
   const createdGame = await createGameViaAPI(gameName);
 

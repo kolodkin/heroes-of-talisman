@@ -65,7 +65,7 @@ export async function createPresetGameViaAPI(gameName, preset, stage = null) {
  * @returns {Promise<void>}
  */
 export async function deleteGameViaAPI(gameName) {
-  const response = await fetch(`${API_URL}/games/${gameName}`, {
+  const response = await fetch(`${API_URL}/games/${encodeURIComponent(gameName)}`, {
     method: "DELETE",
   });
 
