@@ -1,5 +1,12 @@
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, joinGameViaUrl, waitForStage } from "./test_helpers.js";
+import {
+  test,
+  expect,
+  screenshot,
+  joinGameViaUrl,
+  waitForStage,
+  expandPlayersMenuIfCollapsed,
+} from "./test_helpers.js";
 
 /**
  * Tests for battle stage functionality using presets.
@@ -327,6 +334,7 @@ test("battle stage - level 2 knight loses and drops to level 1", async ({ page, 
   await expect(page.locator('[data-game-stage="battle_end"]')).toBeVisible();
 
   // Expand players to see knight's stats before level down
+  await expandPlayersMenuIfCollapsed(page);
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -392,6 +400,7 @@ test("battle stage - talisman kills opponent at level 2 instead of level down", 
   await waitForStage(page, "character_select");
 
   // Expand players to see character stats after battle end
+  await expandPlayersMenuIfCollapsed(page);
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 

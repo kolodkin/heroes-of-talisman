@@ -156,12 +156,16 @@ Each game stage has its own dedicated component that renders the appropriate UI 
 - The status and characters for a single player
 - Shows player's characters with stats and any status effects
 - Highlights if it's the player's turn or if the player is disconnected
-- **Minimizable**: Each player section can be collapsed using +/- toggle button
-  - When expanded: Shows full character cards with all details
-  - When minimized: Shows only character names and levels in a compact list
+- **Three-state menu** (`playersMenuState`):
+  - **Collapsed**: Entire players container hidden. A small expand arrow button appears as overlay in the shared area, below StatusIndicator. Default on mobile landscape.
+  - **Minimized**: Header + compact player list (names and levels). Default on desktop.
+  - **Expanded**: Header + full character cards with all details.
+- **Header buttons** (when not collapsed): Collapse arrow (`<` in LTR / `>` in RTL) on the start side, expand/minimize toggle (`+`/`−`) on the end side.
+- **Expand overlay button** (when collapsed): Arrow button (`>` in LTR / `<` in RTL) positioned in the shared area. Clicking it restores the menu to minimized state.
 
 **Data Attributes:**
 
+- `data-players-menu-state`: Current menu state on the game-play container - values: `"collapsed"`, `"minimized"`, `"expanded"`
 - `data-player`: Player name identifier (used for selecting player cards in tests)
 - `data-status`: Connection status - values: `"connected"`, `"disconnected"`
 

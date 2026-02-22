@@ -18,7 +18,7 @@ test("ability_selection stage - knight (BATTLE_HOWL) skips to opponent_selection
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in ability_selection stage
   const sharedArea = page.locator('[data-shared-area-active="true"]');
@@ -55,7 +55,7 @@ test("ability_selection stage - archer (BOUNCING_ARROW) skips to opponent_select
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in ability_selection stage
   const sharedArea = page.locator('[data-shared-area-active="true"]');
@@ -91,7 +91,7 @@ test("ability_selection stage - mage (FREEZE) goes to ability_opponent_selection
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in ability_selection stage
   const sharedArea = page.locator('[data-shared-area-active="true"]');

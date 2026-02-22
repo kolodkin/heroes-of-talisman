@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import className from "classnames";
 import styles from "./GamePlay.module.css";
@@ -50,9 +50,26 @@ const PlayersMinified = ({ player }) => {
   );
 };
 
+const MOBILE_QUERY = "(max-height: 500px) and (orientation: landscape)";
+
 const GamePlay = ({ username, gamePlay, sendAction }) => {
   const { t } = useTranslation();
-  const [isPlayersMinimized, setIsPlayersMinimized] = useState(true);
+  const isRtl = t("direction") === "rtl";
+
+  // Three states: "collapsed" | "minimized" | "expanded"
+  const [playersMenuState, setPlayersMenuState] = useState(() => {
+    return window.matchMedia(MOBILE_QUERY).matches ? "collapsed" : "minimized";
+  });
+
+  // Listen for viewport changes to update default state
+  useEffect(() => {
+    const mql = window.matchMedia(MOBILE_QUERY);
+    const handler = (e) => {
+      setPlayersMenuState(e.matches ? "collapsed" : "minimized");
+    };
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
 
   if (!gamePlay || !gamePlay.players) {
     return null;
@@ -68,9 +85,11 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
   // Check total player count (regardless of connection status)
   const hasMinimumPlayers = playersArray.length >= 2;
 
-  const togglePlayersMinimized = () => {
-    setIsPlayersMinimized((prev) => !prev);
+  const collapseMenu = () => setPlayersMenuState("collapsed");
+  const toggleExpandMinimize = () => {
+    setPlayersMenuState((prev) => (prev === "expanded" ? "minimized" : "expanded"));
   };
+  const expandFromCollapsed = () => setPlayersMenuState("minimized");
 
   // Determine status indicator for SharedArea overlay
   const getStatusIndicator = () => {
@@ -93,35 +112,48 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
   const statusIndicator = getStatusIndicator();
 
   return (
-    <div className={styles["game-play"]} data-game-stage={gamePlay.stage}>
+    <div className={styles["game-play"]} data-game-stage={gamePlay.stage} data-players-menu-state={playersMenuState}>
       <div className={styles["portrait-overlay"]}>
         <div className={styles["portrait-overlay-content"]}>
           <span className={styles["rotate-icon"]}>📱</span>
           <span>{t("mobile.rotate_to_play")}</span>
         </div>
       </div>
-      <div className={styles["players-container"]}>
-        <div className={styles["players-header"]}>
-          <span className={styles["players-title"]}>{t("players_menu.title")}</span>
-          <button
-            className={styles["toggle-button"]}
-            onClick={togglePlayersMinimized}
-            aria-label={isPlayersMinimized ? "Expand all players" : "Minimize all players"}
-          >
-            {isPlayersMinimized ? "+" : "−"}
-          </button>
-        </div>
-        {playersArray.map((player) => {
-          const playerDom = isPlayersMinimized ? <PlayersMinified player={player} /> : <PlayersCards player={player} />;
+      {playersMenuState !== "collapsed" && (
+        <div className={styles["players-container"]}>
+          <div className={styles["players-header"]}>
+            <span className={styles["players-title"]}>{t("players_menu.title")}</span>
+            <div className={styles["header-buttons"]}>
+              <button
+                className={styles["toggle-button"]}
+                onClick={toggleExpandMinimize}
+                aria-label={playersMenuState === "minimized" ? "Expand all players" : "Minimize all players"}
+              >
+                {playersMenuState === "minimized" ? "+" : "−"}
+              </button>
+              <button
+                className={styles["toggle-button"]}
+                onClick={collapseMenu}
+                aria-label="Collapse players menu"
+                data-collapse-button
+              >
+                {isRtl ? "<" : ">"}
+              </button>
+            </div>
+          </div>
+          {playersArray.map((player) => {
+            const playerDom =
+              playersMenuState === "minimized" ? <PlayersMinified player={player} /> : <PlayersCards player={player} />;
 
-          return (
-            <Player key={player.name} player={player} className={styles.player} showDisconnected={true}>
-              <div className={styles["player-name"]}>{player.name}</div>
-              {playerDom}
-            </Player>
-          );
-        })}
-      </div>
+            return (
+              <Player key={player.name} player={player} className={styles.player} showDisconnected={true}>
+                <div className={styles["player-name"]}>{player.name}</div>
+                {playerDom}
+              </Player>
+            );
+          })}
+        </div>
+      )}
 
       <div
         className={className(styles["shared-area"], {
@@ -140,6 +172,16 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
           </div>
         )}
         <StatusIndicator status={statusIndicator.status} playerName={statusIndicator.playerName} />
+        {playersMenuState === "collapsed" && (
+          <button
+            className={styles["expand-overlay-button"]}
+            onClick={expandFromCollapsed}
+            aria-label="Expand players menu"
+            data-expand-button
+          >
+            {isRtl ? ">" : "<"}
+          </button>
+        )}
         <div className={styles["shared-area-content"]}>
           <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
           {(() => {

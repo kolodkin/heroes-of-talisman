@@ -1,5 +1,13 @@
 import { createGameViaAPI } from "./api_helpers.js";
-import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame } from "./test_helpers.js";
+import {
+  test,
+  expect,
+  TIMEOUT,
+  screenshot,
+  setupHomePage,
+  joinGame,
+  expandPlayersMenuIfCollapsed,
+} from "./test_helpers.js";
 
 test("disconnected player overlay in players menu", async ({ page, gameName }) => {
   // Setup: Create game via API
@@ -8,6 +16,9 @@ test("disconnected player overlay in players menu", async ({ page, gameName }) =
   // Player 1 joins
   await setupHomePage(page);
   await joinGame(page, "player1", gameName);
+
+  // If menu is collapsed (mobile landscape), expand it first
+  await expandPlayersMenuIfCollapsed(page);
 
   // Wait for player1 to appear in players menu
   await page.waitForSelector('[data-player="player1"]', { timeout: TIMEOUT });

@@ -1,5 +1,12 @@
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, joinGameViaUrl, waitForStage } from "./test_helpers.js";
+import {
+  test,
+  expect,
+  screenshot,
+  joinGameViaUrl,
+  waitForStage,
+  expandPlayersMenuIfCollapsed,
+} from "./test_helpers.js";
 
 /**
  * Helper to verify character is not clickable (not alive)
@@ -131,7 +138,7 @@ test("character_select stage - skip_turn effect removed after character selectio
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // We should be at ability_selection stage
   await waitForStage(page, "ability_selection");
@@ -140,7 +147,8 @@ test("character_select stage - skip_turn effect removed after character selectio
   await expect(freezeAbility).toBeVisible();
 
   // Verify knight no longer has skip_turn effect (effect was disposed after character selection)
-  // The data-effects attribute should not contain skip_turn
+  // Expand players menu if collapsed (mobile)
+  await expandPlayersMenuIfCollapsed(page);
   const knightCard = page.locator('[data-character="knight"]').last();
   await expect(knightCard).not.toHaveAttribute("data-effects", /skip_turn/);
 

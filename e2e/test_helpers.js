@@ -146,6 +146,19 @@ export async function waitForGameUpdate(page, timeout = TIMEOUT) {
 }
 
 /**
+ * Expand the players menu if it is currently collapsed (e.g., on mobile landscape).
+ * Uses the data-players-menu-state attribute to check the current state.
+ * @param {Page} page - Playwright page object
+ */
+export async function expandPlayersMenuIfCollapsed(page) {
+  const gamePlay = page.locator('[data-players-menu-state="collapsed"]');
+  if (await gamePlay.isVisible().catch(() => false)) {
+    const expandButton = page.locator("[data-expand-button]");
+    await expandButton.click();
+  }
+}
+
+/**
  * Validate card hover effects (translateY and box-shadow)
  * @param {Locator} cardLocator - Playwright locator for the card element
  */

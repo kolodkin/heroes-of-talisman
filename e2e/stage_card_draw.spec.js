@@ -1,5 +1,12 @@
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, joinGameViaUrl, waitForStage } from "./test_helpers.js";
+import {
+  test,
+  expect,
+  screenshot,
+  joinGameViaUrl,
+  waitForStage,
+  expandPlayersMenuIfCollapsed,
+} from "./test_helpers.js";
 
 /**
  * Tests for card draw stage functionality using presets.
@@ -20,7 +27,7 @@ test("card_draw stage - knight draws metal_armor successfully", async ({ page, g
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
@@ -45,6 +52,7 @@ test("card_draw stage - knight draws metal_armor successfully", async ({ page, g
   await waitForStage(page, "ability_selection");
 
   // Expand players to see character cards with armor icon
+  await expandPlayersMenuIfCollapsed(page);
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -76,7 +84,7 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
@@ -101,6 +109,7 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
   await waitForStage(page, "ability_selection");
 
   // Expand players to see character cards
+  await expandPlayersMenuIfCollapsed(page);
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -136,7 +145,7 @@ test("card_draw stage - knight draws sacred_sword successfully", async ({ page, 
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
@@ -161,6 +170,7 @@ test("card_draw stage - knight draws sacred_sword successfully", async ({ page, 
   await waitForStage(page, "ability_selection");
 
   // Expand players to see character cards with sword icon
+  await expandPlayersMenuIfCollapsed(page);
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -192,12 +202,13 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
 
   // Expand players to see knight's health before healing
+  await expandPlayersMenuIfCollapsed(page);
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -253,12 +264,13 @@ test("card_draw stage - knight draws magic_ball and levels up", async ({ page, g
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
 
   // Expand players to see knight's stats before level up
+  await expandPlayersMenuIfCollapsed(page);
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -312,12 +324,13 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
 
   // Expand players to see knight's health before card
+  await expandPlayersMenuIfCollapsed(page);
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -370,12 +383,13 @@ test("card_draw stage - knight at max level draws magic_ball (no effect)", async
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
 
   // Expand players to see knight's stats before card
+  await expandPlayersMenuIfCollapsed(page);
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 
@@ -427,7 +441,7 @@ test("card_draw stage - knight draws talisman", async ({ page, gameName }) => {
 
   // Player2 joins
   const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-player]");
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
@@ -452,6 +466,7 @@ test("card_draw stage - knight draws talisman", async ({ page, gameName }) => {
   await waitForStage(page, "ability_selection");
 
   // Expand players to see character cards with talisman icon
+  await expandPlayersMenuIfCollapsed(page);
   const expandButton = page.getByRole("button", { name: "Expand all players" });
   await expandButton.click();
 

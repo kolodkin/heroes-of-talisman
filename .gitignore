@@ -228,3 +228,11 @@ deploy/requirements.txt
 deploy/*.whl
 deploy/alembic
 deploy/alembic.ini
+
+# images
+*.png
+*.jpg
+*.jpeg
+!public/images/**/*.png
+!public/images/**/*.jpg
+!public/images/**/*.jpeg

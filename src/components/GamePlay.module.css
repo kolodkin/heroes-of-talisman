@@ -99,6 +99,11 @@
   margin-bottom: 0.25rem;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 0.25rem;
+}
+
 .toggle-button {
   background: #444;
   border: 1px solid #666;
@@ -116,6 +121,31 @@
 }
 
 .toggle-button:hover {
+  background-color: #555;
+}
+
+.expand-overlay-button {
+  position: absolute;
+  inset-inline-start: 0.25rem;
+  top: 2.5rem;
+  z-index: 10;
+  pointer-events: auto;
+  background: #444;
+  border: 1px solid #666;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.expand-overlay-button:hover {
   background-color: #555;
 }
 
@@ -232,6 +262,14 @@
   }
 
   .toggle-button {
+    width: 28px;
+    height: 28px;
+    font-size: 1.2rem;
+  }
+
+  .expand-overlay-button {
+    inset-inline-start: 0.5rem;
+    top: 3.75rem;
     width: 28px;
     height: 28px;
     font-size: 1.2rem;

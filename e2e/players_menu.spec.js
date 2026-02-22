@@ -1,7 +1,7 @@
 import { createGameViaAPI } from "./api_helpers.js";
 import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame, dismissConnectionToast } from "./test_helpers.js";
 
-test("players menu minified by default with global toggle", async ({ page, gameName }) => {
+test("players menu minimized by default on desktop with expand/minimize and collapse", async ({ page, gameName }) => {
   // Setup: Create game via API
   const createdGame = await createGameViaAPI(gameName);
 
@@ -17,16 +17,18 @@ test("players menu minified by default with global toggle", async ({ page, gameN
   const playerDiv = page.locator('[data-player="player"]');
   await expect(playerDiv).toBeVisible();
 
-  // Find the global toggle button in the players header
+  // Find the header buttons
   const playersHeader = page.locator('[class*="players-header"]');
-  const toggleButton = playersHeader.getByRole("button", { name: /minimize|expand/i });
-  await expect(toggleButton).toBeVisible();
+  const expandMinimizeButton = playersHeader.getByRole("button", { name: /minimize|expand/i });
+  const collapseButton = playersHeader.getByRole("button", { name: /collapse/i });
+  await expect(expandMinimizeButton).toBeVisible();
+  await expect(collapseButton).toBeVisible();
 
-  // Verify initial state - player menu is MINIFIED by default (toggle shows "+")
-  await expect(toggleButton).toHaveText("+");
+  // Verify initial state - player menu is MINIMIZED by default on desktop (toggle shows "+")
+  await expect(expandMinimizeButton).toHaveText("+");
   await screenshot(page, "player-minimized-by-default");
 
-  // Character cards (images) should not be visible in minified state
+  // Character cards (images) should not be visible in minimized state
   await expect(playerDiv.getByAltText("knight")).not.toBeVisible();
   await expect(playerDiv.getByAltText("archer")).not.toBeVisible();
   await expect(playerDiv.getByAltText("mage")).not.toBeVisible();
@@ -40,11 +42,11 @@ test("players menu minified by default with global toggle", async ({ page, gameN
   // Dismiss any lingering connection toast before clicking
   await dismissConnectionToast(page);
 
-  // Click toggle button to expand all players
-  await toggleButton.click();
+  // Click expand/minimize button to expand all players
+  await expandMinimizeButton.click();
 
   // Verify expanded state
-  await expect(toggleButton).toHaveText("−");
+  await expect(expandMinimizeButton).toHaveText("−");
   await expect(playerDiv.getByAltText("knight")).toBeVisible();
   await expect(playerDiv.getByAltText("archer")).toBeVisible();
   await expect(playerDiv.getByAltText("mage")).toBeVisible();
@@ -67,11 +69,11 @@ test("players menu minified by default with global toggle", async ({ page, gameN
   await expect(playerDiv.getByAltText("knight")).toBeVisible();
 
   // Click toggle to minimize ALL players globally
-  await toggleButton.click();
+  await expandMinimizeButton.click();
   await screenshot(page, "all-players-minimized");
 
   // Verify BOTH players are now minimized
-  await expect(toggleButton).toHaveText("+");
+  await expect(expandMinimizeButton).toHaveText("+");
   await expect(playerDiv.getByAltText("knight")).not.toBeVisible();
   await expect(player2Div.getByAltText("knight")).not.toBeVisible();
 
@@ -80,14 +82,77 @@ test("players menu minified by default with global toggle", async ({ page, gameN
   await expect(player2Div.getByText(/אביר/)).toBeVisible();
 
   // Click toggle again to expand ALL players
-  await toggleButton.click();
+  await expandMinimizeButton.click();
   await screenshot(page, "all-players-expanded");
 
   // Verify BOTH players are now expanded
-  await expect(toggleButton).toHaveText("−");
+  await expect(expandMinimizeButton).toHaveText("−");
   await expect(playerDiv.getByAltText("knight")).toBeVisible();
   await expect(player2Div.getByAltText("knight")).toBeVisible();
 
+  // Test collapse: click the collapse arrow button
+  await collapseButton.click();
+
+  // Players container should be hidden
+  await expect(page.locator('[class*="players-container"]')).not.toBeVisible();
+
+  // Expand overlay button should appear in the shared area
+  const expandOverlay = page.locator("[data-expand-button]");
+  await expect(expandOverlay).toBeVisible();
+  await screenshot(page, "players-collapsed");
+
+  // Click expand overlay to restore menu
+  await expandOverlay.click();
+
+  // Players container should be visible again in minimized state
+  await expect(page.locator('[class*="players-container"]')).toBeVisible();
+  await expect(expandOverlay).not.toBeVisible();
+  await screenshot(page, "players-restored-from-collapse");
+
   // Clean up
   await page2.close();
+});
+
+test("players menu collapsed by default on mobile landscape", async ({ page, gameName, browserName }, testInfo) => {
+  // Skip this test for non-mobile projects
+  if (testInfo.project.name !== "mobile-landscape") {
+    test.skip();
+    return;
+  }
+
+  // Setup: Create game via API
+  const createdGame = await createGameViaAPI(gameName);
+
+  // Navigate to home and join game
+  await setupHomePage(page);
+  await page.waitForSelector(`button:has-text("${gameName}")`, { timeout: TIMEOUT });
+  await joinGame(page, "player", gameName);
+
+  // On mobile landscape, players menu should be collapsed by default
+  await expect(page.locator('[data-players-menu-state="collapsed"]')).toBeVisible();
+  await expect(page.locator('[class*="players-container"]')).not.toBeVisible();
+
+  // Expand overlay button should be visible
+  const expandOverlay = page.locator("[data-expand-button]");
+  await expect(expandOverlay).toBeVisible();
+  await screenshot(page, "mobile-collapsed-default");
+
+  // Click expand to show the menu
+  await expandOverlay.click();
+
+  // Players container should now be visible
+  await expect(page.locator('[class*="players-container"]')).toBeVisible();
+  await expect(expandOverlay).not.toBeVisible();
+
+  const playerDiv = page.locator('[data-player="player"]');
+  await expect(playerDiv).toBeVisible();
+  await screenshot(page, "mobile-menu-expanded");
+
+  // Collapse it again via the collapse button
+  const collapseButton = page.locator("[data-collapse-button]");
+  await collapseButton.click();
+
+  await expect(page.locator('[class*="players-container"]')).not.toBeVisible();
+  await expect(expandOverlay).toBeVisible();
+  await screenshot(page, "mobile-collapsed-again");
 });

@@ -9,6 +9,7 @@ import {
   waitForStage,
   dismissConnectionToast,
   validateCardHoverEffect,
+  expandPlayersMenuIfCollapsed,
 } from "./test_helpers.js";
 
 async function cleanupTestGame(page, gameName) {
@@ -45,6 +46,9 @@ async function validatePlayerCharacters(page, playerName) {
 
   // Dismiss any toasts that might be overlaying the expand button
   await dismissConnectionToast(page);
+
+  // If menu is collapsed (mobile), expand it first
+  await expandPlayersMenuIfCollapsed(page);
 
   // Expand player cards if minimized (click + button to show full cards with images)
   const expandButton = page.getByRole("button", { name: "Expand all players" });
