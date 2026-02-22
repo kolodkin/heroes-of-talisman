@@ -10,7 +10,7 @@ export const TIMEOUT = 1000;
 export const test = base.extend({
   gameName: async ({}, use) => {
     const testInfo = base.info();
-    const gameName = `test ${testInfo.title}`;
+    const gameName = `test ${testInfo.project.name} ${testInfo.title}`;
 
     // Provide the game name to the test
     await use(gameName);

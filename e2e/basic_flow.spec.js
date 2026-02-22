@@ -39,6 +39,9 @@ async function validateStatusIndicator(page, expectedStatus, expectedPlayerName 
 }
 
 async function validatePlayerCharacters(page, playerName) {
+  // If menu is collapsed (mobile), expand it first
+  await expandPlayersMenuIfCollapsed(page);
+
   const playerDiv = page.locator(`[data-player="${playerName}"]`);
 
   // Validate player div is visible
@@ -46,9 +49,6 @@ async function validatePlayerCharacters(page, playerName) {
 
   // Dismiss any toasts that might be overlaying the expand button
   await dismissConnectionToast(page);
-
-  // If menu is collapsed (mobile), expand it first
-  await expandPlayersMenuIfCollapsed(page);
 
   // Expand player cards if minimized (click + button to show full cards with images)
   const expandButton = page.getByRole("button", { name: "Expand all players" });
@@ -97,8 +97,8 @@ async function testCharacterSelection(page, page2) {
   await expect(page2SharedArea).toBeVisible();
 
   // Verify SharedArea children have pointer-events: none (container has auto for scrolling)
-  const page2SharedAreaButton = page2SharedArea.locator("[data-action-button]");
-  await expect(page2SharedAreaButton).toHaveCSS("pointer-events", "none");
+  const page2StageTitle = page2SharedArea.locator("h2");
+  await expect(page2StageTitle).toHaveCSS("pointer-events", "none");
 
   // Player1 selects knight character (the one near the בחר button)
   // Click the knight that's a sibling/near the select button (in shared area, not player area)
@@ -210,8 +210,8 @@ async function testOpponentSelection(page, page2) {
   await expect(page2SharedArea).toBeVisible();
 
   // Verify SharedArea children have pointer-events: none (container has auto for scrolling)
-  const page2SharedAreaButton = page2SharedArea.locator("[data-action-button]");
-  await expect(page2SharedAreaButton).toHaveCSS("pointer-events", "none");
+  const page2StageTitle = page2SharedArea.locator("h2");
+  await expect(page2StageTitle).toHaveCSS("pointer-events", "none");
 
   // Click on opponent's knight character (minimized view) using data attribute
   await opponentDiv.locator('[data-character="knight"]').click();
@@ -315,10 +315,15 @@ test("basic game flow", async ({ page, gameName }) => {
   await setupHomePage(page2);
   await joinGame(page2, "player2", gameName);
 
-  // Wait for player2's div to be visible
-  await page2.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
+  // Wait for player2's game to load
+  await page2.waitForSelector("[data-game-stage]", { timeout: TIMEOUT });
 
-  // Wait a moment for page1 to receive player2 join notification
+  // Expand players menu if collapsed (mobile) on both pages
+  await expandPlayersMenuIfCollapsed(page2);
+  await expandPlayersMenuIfCollapsed(page);
+
+  // Wait for player2's div to be visible in both pages
+  await page2.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
   await page.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
 
   // Dismiss any remaining toasts before screenshots
