@@ -1,8 +1,8 @@
-# Refactor Plan: Simplify to String Literals on Character
+# Refactor Plan: Simplify to String Literals + Hardcoded Logic
 
 ## Overview
 
-Radically simplify by storing only **string literal names** on Character instead of full Effect/Ability/Card objects. Effect values are looked up from `ABILITIES_MAP` / `CARDS_MAP` at computation time. Each Action declares what it disposes as string literal lists, and disposal logic is written **once** in the base Action class.
+Radically simplify by storing only **string literal names** on Character. Drop all Effect subclasses, Ability class, and Card class. Effect values are **hardcoded** in `EffectTotal` computation and action logic. Each Action declares what it disposes as immutable tuples, and disposal logic is written **once** in the base Action class.
 
 ## Current Architecture
 
@@ -26,7 +26,7 @@ Character
   ├── active_abilities: list[AbilityName]# applied abilities (string names)
   ├── cards: list[CardName]              # applied persistent cards (string names)
   ├── effects: list[EffectName]          # only SkipTurnEffect (string name)
-  └── effect: EffectTotal (computed)     # aggregated by looking up ABILITIES_MAP/CARDS_MAP
+  └── effect: EffectTotal (computed)     # hardcoded per ability/card name
 ```
 
 - When ability is used → append ability **name string** to `character.active_abilities`
@@ -34,11 +34,82 @@ Character
 - When persistent card is selected → append card **name string** to `character.cards`
 - Instant cards (golden_apple, magic_ball) → applied immediately, not stored
 - No more deep-copying of Effect objects
-- Disposal: each Action declares `dispose_abilities`, `dispose_cards`, `dispose_effects` as string tuples; base Action class handles removal
+- Disposal: each Action declares `dispose_abilities`, `dispose_cards`, `dispose_effects` as tuples; base Action class handles removal
 
 ## Detailed Changes
 
-### 1. `Character` model — `server/gameplay/gameplay.py`
+### 1. `effects.py` — Gut to constants only
+
+Remove all 9 Effect subclasses, `EffectUnion`, base `Effect` class, `model_validator`, `dispose_actions`, `source`, `apply_to`. Keep only:
+
+```python
+# server/gameplay/effects.py
+
+########################################################
+# Effect name constants
+########################################################
+EFFECT_SKIP_TURN = "skip_turn"
+EFFECT_NAMES = [EFFECT_SKIP_TURN]
+EffectName = Literal[*EFFECT_NAMES]
+```
+
+### 2. `abilities.py` — Constants + minimal metadata
+
+Remove `Ability` class and `ABILITIES_MAP` with Effect objects. Replace with:
+
+```python
+# server/gameplay/abilities.py
+
+########################################################
+# Ability names
+########################################################
+ABILITY_BATTLE_HOWL = "battle_howl"
+ABILITY_BOUNCING_ARROW = "bouncing_arrow"
+ABILITY_FREEZE = "freeze"
+ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE]
+AbilityName = Literal[*ABILITIES_NAMES]
+
+########################################################
+# Ability metadata
+########################################################
+# Abilities that apply effects to self when selected
+SELF_TARGETED_ABILITIES = (ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW)
+
+# Abilities that require opponent selection stage
+OPPONENT_TARGETED_ABILITIES = (ABILITY_FREEZE,)
+```
+
+### 3. `cards.py` — Constants + minimal metadata
+
+Remove `Card` class and `CARDS_MAP` with Effect objects. Replace with:
+
+```python
+# server/gameplay/cards.py
+
+########################################################
+# Card names
+########################################################
+CARD_METAL_ARMOR = "metal_armor"
+CARD_SACRED_SWORD = "sacred_sord"
+CARD_GOLDEN_APPLE = "golden_apple"
+CARD_MAGIC_BALL = "magic_ball"
+CARD_TALISMAN = "talisman"
+CARD_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL, CARD_TALISMAN]
+CardName = Literal[*CARD_NAMES]
+
+########################################################
+# Card metadata
+########################################################
+# Cards that cannot be used by certain characters
+CARD_RESTRICTED_CHARACTERS: dict[str, tuple[str, ...]] = {
+    CARD_SACRED_SWORD: ("archer",),
+}
+
+# Instant cards — applied immediately, not stored on character
+INSTANT_CARDS = (CARD_GOLDEN_APPLE, CARD_MAGIC_BALL)
+```
+
+### 4. `Character` model — `server/gameplay/gameplay.py`
 
 ```python
 class Character(StrictModel):
@@ -57,29 +128,19 @@ class Character(StrictModel):
     @property
     def effect(self) -> EffectTotal:
         total = EffectTotal()
-        # From active abilities — lookup from ABILITIES_MAP
-        for ability_name in self.active_abilities:
-            ability = ABILITIES_MAP[ability_name]
-            for eff in ability.effects:
-                if isinstance(eff, AttackBonusEffect):
-                    total.attack_bonus += eff.attack_bonus
-                elif isinstance(eff, AttackNegBonusEffect):
-                    total.attack_neg_bonus += eff.attack_neg_bonus
-                elif isinstance(eff, RerollDiceEffect):
-                    total.reroll_dice_available = True
-                elif isinstance(eff, DrawCardEffect):
-                    total.draw_card_count += eff.draw_count
-        # From cards — lookup from CARDS_MAP
-        for card_name in self.cards:
-            card = CARDS_MAP[card_name]
-            for eff in card.effects:
-                if isinstance(eff, DefenseBonusEffect):
-                    total.defense_bonus += eff.defense_bonus
-                elif isinstance(eff, AttackBonusEffect):
-                    total.attack_bonus += eff.attack_bonus
-                elif isinstance(eff, TalismanEffect):
-                    total.has_talisman = True
-        # From effects (only SkipTurnEffect)
+        # Abilities — hardcoded values
+        if ABILITY_BATTLE_HOWL in self.active_abilities:
+            total.attack_bonus += 2
+        if ABILITY_BOUNCING_ARROW in self.active_abilities:
+            total.reroll_dice_available = True
+        # Cards — hardcoded values
+        if CARD_METAL_ARMOR in self.cards:
+            total.defense_bonus += 2
+        if CARD_SACRED_SWORD in self.cards:
+            total.attack_bonus += 3
+        if CARD_TALISMAN in self.cards:
+            total.has_talisman = True
+        # Effects
         if EFFECT_SKIP_TURN in self.effects:
             total.skip_next_turn = True
         return total
@@ -112,7 +173,7 @@ CHARACTER_STATS_BY_LEVEL = {
 }
 ```
 
-### 2. `GamePlay` model — `server/gameplay/gameplay.py`
+### 5. `GamePlay` model — `server/gameplay/gameplay.py`
 
 Simplify `ability` field from Ability object to string name:
 
@@ -125,7 +186,7 @@ class GamePlay(StrictModel):
     # (remove Ability from stage_meta union — it was unused)
 ```
 
-### 3. Base `Action` class — `server/gameplay/actions/action.py`
+### 6. Base `Action` class — `server/gameplay/actions/action.py`
 
 Add disposal declaration and generic disposal method:
 
@@ -155,7 +216,7 @@ class Action(ABC):
             ]
 ```
 
-### 4. Action dispose declarations
+### 7. Action dispose declarations
 
 Each action specifies what it disposes:
 
@@ -168,99 +229,79 @@ Each action specifies what it disposes:
 
 Note: Persistent cards (metal_armor, sacred_sword, talisman) have empty dispose lists everywhere — they're never disposed.
 
-### 5. `AbilitySelectAction` — `server/gameplay/actions/stage_ability_selection.py`
+### 8. `AbilitySelectAction` — `server/gameplay/actions/stage_ability_selection.py`
 
-Massively simplified — just append ability name string:
+Hardcoded routing — no Ability class lookups:
 
 ```python
 def _run(self, ability: AbilityName) -> GamePlay:
     # ... validation unchanged ...
 
-    # Store ability name in GamePlay (was: ability_obj)
+    # Store ability name in GamePlay
     self.game.ability = ability
 
-    # Apply self-targeted abilities to active character
-    ability_obj = ABILITIES_MAP[ability]
-    has_self_effects = any(e.apply_to == APPLY_TO_SELF for e in ability_obj.effects)
-    if has_self_effects:
+    # Apply self-targeted abilities
+    if ability in SELF_TARGETED_ABILITIES:
         character.active_abilities.append(ability)
 
-    # ... transition logic unchanged ...
-    if ability_obj.requires_opponent_selection:
+    # Route to correct stage
+    if ability in OPPONENT_TARGETED_ABILITIES:
         self.game.stage = STAGE_ABILITY_OPPONENT_SELECTION
     else:
         self.game.stage = STAGE_OPPONENT_SELECTION
 ```
 
-### 6. `AbilityOpponentSelectAction` — `server/gameplay/actions/stage_ability_opponent_selection.py`
+### 9. `AbilityOpponentSelectAction` — `server/gameplay/actions/stage_ability_opponent_selection.py`
 
-SkipTurnEffect exception — append effect name string to target:
+Hardcoded — FREEZE adds skip_turn to target:
 
 ```python
 def _run(self) -> GamePlay:
     # ... validation unchanged ...
 
     # Apply ability effects to target character
-    ability_obj = ABILITIES_MAP[self.game.ability]
-    for effect in ability_obj.effects:
-        if isinstance(effect, SkipTurnEffect):
-            target_character.effects.append(EFFECT_SKIP_TURN)
-        # Future non-skip-turn selected_opponent effects:
-        # would append to target_character.active_abilities
+    if self.game.ability == ABILITY_FREEZE:
+        target_character.effects.append(EFFECT_SKIP_TURN)
 ```
 
-### 7. `CardSelectAction` — `server/gameplay/actions/stage_card_draw.py`
+### 10. `CardSelectAction` — `server/gameplay/actions/stage_card_draw.py`
 
-Simplified — instant effects applied immediately, persistent cards stored as name:
+Hardcoded instant card effects, persistent cards stored as name:
 
 ```python
 def _run(self) -> GamePlay:
     # ... validation unchanged ...
 
+    is_restricted = drawn_card_name in CARD_RESTRICTED_CHARACTERS and \
+        character_type in CARD_RESTRICTED_CHARACTERS[drawn_card_name]
+
     if not is_restricted:
-        card_obj = CARDS_MAP[drawn_card_name]
-        is_instant = False
-
-        for effect in card_obj.effects:
-            if isinstance(effect, HealEffect):
-                character.health = min(character.max_health, character.health + effect.heal_amount)
-                is_instant = True
-            elif isinstance(effect, LevelUpEffect):
-                # ... level up logic unchanged ...
-                is_instant = True
-
-        # Store persistent/equipment cards
-        if not is_instant:
+        if drawn_card_name == CARD_GOLDEN_APPLE:
+            character.health = min(character.max_health, character.health + 1)
+        elif drawn_card_name == CARD_MAGIC_BALL:
+            # ... level up logic unchanged ...
+            pass
+        else:
+            # Persistent/equipment card
             character.cards.append(drawn_card_name)
 
     # ... transition unchanged ...
 ```
 
-### 8. `OpponentSelectAction` — `server/gameplay/actions/stage_opponent_selection.py`
+### 11. `OpponentSelectAction` — `server/gameplay/actions/stage_opponent_selection.py`
 
-Card/ability effects applied to opponent via name strings:
+No card/ability effects currently apply to battle_opponent, so this simplifies significantly. The BATTLE_HOWL applies to self (already in active_abilities). No current ability or card has `apply_to=BATTLE_OPPONENT`, so the opponent-effect application logic can be removed or kept as a no-op placeholder:
 
 ```python
 def _run(self) -> GamePlay:
     # ... validation unchanged ...
 
-    # Apply card's battle_opponent effects
-    if self.game.card:
-        card_obj = CARDS_MAP.get(self.game.card)
-        if card_obj:
-            has_opponent_effects = any(e.apply_to == APPLY_TO_BATTLE_OPPONENT for e in card_obj.effects)
-            if has_opponent_effects:
-                opponent_character.cards.append(self.game.card)
-
-    # Apply ability's battle_opponent effects
-    if self.game.ability:
-        ability_obj = ABILITIES_MAP[self.game.ability]
-        has_opponent_effects = any(e.apply_to == APPLY_TO_BATTLE_OPPONENT for e in ability_obj.effects)
-        if has_opponent_effects:
-            opponent_character.active_abilities.append(self.game.ability)
+    # Currently no abilities/cards apply effects to battle opponent
+    # (BATTLE_HOWL applies to self, FREEZE targets selected_opponent)
+    # Future: add hardcoded opponent-effect logic here if needed
 ```
 
-### 9. `BattleEndAction` — `server/gameplay/actions/battle_end.py`
+### 12. `BattleEndAction` — `server/gameplay/actions/battle_end.py`
 
 Uses generic disposal:
 
@@ -279,7 +320,7 @@ class BattleEndAction(Action):
         return self.game
 ```
 
-### 10. `RerollEffectAction` — `server/gameplay/actions/stage_battle.py`
+### 13. `RerollEffectAction` — `server/gameplay/actions/stage_battle.py`
 
 ```python
 class RerollEffectAction(Action):
@@ -294,7 +335,7 @@ class RerollEffectAction(Action):
         return validate_and_reset_reroll(self.game, self.user)
 ```
 
-### 11. `CharacterSelectAction` / `SkipTurnAction` — `server/gameplay/actions/stage_character_select.py`
+### 14. `CharacterSelectAction` / `SkipTurnAction` — `server/gameplay/actions/stage_character_select.py`
 
 ```python
 class CharacterSelectAction(Action):
@@ -323,15 +364,7 @@ class SkipTurnAction(Action):
         return self.game
 ```
 
-### 12. `Ability` / `Card` models — `server/gameplay/abilities.py`, `server/gameplay/cards.py`
-
-**Ability and Card class definitions stay as-is** — they're still used as lookup templates in `ABILITIES_MAP` / `CARDS_MAP`. They just no longer get stored on Character.
-
-The `Effect` classes also stay as definitions inside ABILITIES_MAP/CARDS_MAP — they're used for value lookup (attack_bonus=2, defense_bonus=2, etc.) and for EffectTotal computation.
-
-Remove `dispose_actions` and `source` from Effect classes — no longer needed since disposal is handled by Action declarations, and effects aren't stored as objects on Character.
-
-### 13. Frontend — `src/components/CharacterCard.jsx`
+### 15. Frontend — `src/components/CharacterCard.jsx`
 
 ```javascript
 // Card presence — use character.cards (string names, same field name as before)
@@ -354,7 +387,7 @@ const attackBonus = character.effect?.attack_bonus || 0;
 const hasReroll = character.effect?.reroll_dice_available || false;
 ```
 
-### 14. Presets — `server/gameplay/presets.py`
+### 16. Presets — `server/gameplay/presets.py`
 
 Update all presets to use string names:
 
@@ -385,7 +418,7 @@ character.effects = [DefenseBonusEffect(source=CARD_METAL_ARMOR, defense_bonus=2
 character.cards = [CARD_METAL_ARMOR]
 ```
 
-### 15. Tests
+### 17. Tests
 
 All tests that set/assert `character.effects` with Effect objects → use string names:
 
@@ -398,43 +431,46 @@ All tests that set/assert `character.effects` with Effect objects → use string
 | `test_stage_card_draw.py` | Assert `CARD_METAL_ARMOR in character.cards` instead of `isinstance(effects[0], DefenseBonusEffect)` |
 | `test_stage_opponent_selection.py` | String names for card/ability assertions |
 | `test_stage_ability_opponent_selection.py` | Assert `EFFECT_SKIP_TURN in target.effects` |
+| `test_effect_source_validation.py` | **Delete entirely** — source validation no longer exists |
 
-## What Gets Removed / Simplified
+## What Gets Deleted
 
-- **`Effect.dispose_actions`** — removed (disposal logic moved to Action declarations)
-- **`Effect.source`** — removed (no longer stored on Character, source is implicit from ABILITIES_MAP/CARDS_MAP)
-- **`Effect.apply_to`** — stays on Effect class (still needed for application logic in actions)
-- **`character.cards`** — kept as field name, now stores `list[CardName]` (string names) instead of being derived from effects
+- **All 9 Effect subclasses** (`AttackBonusEffect`, `DefenseBonusEffect`, `RerollDiceEffect`, `SkipTurnEffect`, `HealEffect`, `LevelUpEffect`, `DrawCardEffect`, `AttackNegBonusEffect`, `TalismanEffect`)
+- **Base `Effect` class** with `source`, `dispose_actions`, `apply_to`, `model_validator`
+- **`EffectUnion` discriminated union**
+- **`Ability` class** + `ABILITIES_MAP` (replaced by constants + tuples)
+- **`Card` class** + `CARDS_MAP` (replaced by constants + tuples)
+- **`EFFECTS_SOURCE_ABILITY_MAP`** + **`EFFECTS_SOURCE_CARD_MAP`** (source validation gone)
+- **`test_effect_source_validation.py`** (entire file)
 - **Deep copying of Effect objects** — eliminated entirely
-- **`EffectUnion` discriminated union on Character** — no longer needed for Character storage
-- **`Effect.model_validator` for source validation** — removed (source field removed)
+- **`effects.py`** shrinks from ~190 lines to ~10 lines (just constants)
+- **`abilities.py`** shrinks from ~80 lines to ~20 lines (constants + metadata tuples)
+- **`cards.py`** shrinks from ~95 lines to ~25 lines (constants + metadata dict + tuple)
 
 ## What Stays Unchanged
 
-- **`Ability` class** — stays as lookup definition in `ABILITIES_MAP`
-- **`Card` class** — stays as lookup definition in `CARDS_MAP`
-- **`Effect` subclasses** — stay as definitions inside ability/card effects lists (for value lookup)
-- **`EffectTotal` class** — fields unchanged
+- **`EffectTotal` class** — fields unchanged (just computed differently)
 - **`is_available` computed property** — unchanged
 - **Battle score calculation** — unchanged (reads from `character.effect`)
-- **Instant card effects** (heal, level up) — still applied immediately
+- **Instant card effects** (heal, level up) — still applied immediately (now hardcoded per card name)
 
 ## Key Files to Modify
 
 **Backend:**
-1. `server/gameplay/gameplay.py` — Character model (string lists), EffectTotal computation, CHARACTER_STATS_BY_LEVEL, GamePlay.ability type
-2. `server/gameplay/effects.py` — remove `dispose_actions`, `source` from Effect classes
-3. `server/gameplay/abilities.py` — no structural change (just remove source validation dependency)
-4. `server/gameplay/cards.py` — no structural change
-5. `server/gameplay/actions/action.py` — add dispose declarations + `dispose_character()` method
-6. `server/gameplay/actions/stage_ability_selection.py` — store ability name string
-7. `server/gameplay/actions/stage_ability_opponent_selection.py` — store effect name string
-8. `server/gameplay/actions/stage_card_draw.py` — store card name string
-9. `server/gameplay/actions/stage_opponent_selection.py` — store card/ability name strings
+1. `server/gameplay/effects.py` — gut to constants only
+2. `server/gameplay/abilities.py` — gut to constants + metadata tuples
+3. `server/gameplay/cards.py` — gut to constants + metadata dict/tuple
+4. `server/gameplay/gameplay.py` — Character model (string lists), hardcoded EffectTotal, CHARACTER_STATS_BY_LEVEL, GamePlay.ability type
+5. `server/gameplay/actions/action.py` — add dispose tuples + `dispose_character()` method
+6. `server/gameplay/actions/stage_ability_selection.py` — hardcoded routing
+7. `server/gameplay/actions/stage_ability_opponent_selection.py` — hardcoded FREEZE logic
+8. `server/gameplay/actions/stage_card_draw.py` — hardcoded instant cards
+9. `server/gameplay/actions/stage_opponent_selection.py` — simplify (no current opponent effects)
 10. `server/gameplay/actions/battle_end.py` — use `dispose_character()`
 11. `server/gameplay/actions/stage_battle.py` — use `dispose_character()`
 12. `server/gameplay/actions/stage_character_select.py` — use `dispose_character()`
 13. `server/gameplay/presets.py` — string names everywhere
+14. `server/gameplay/test_effect_source_validation.py` — delete
 
 **Frontend:**
-14. `src/components/CharacterCard.jsx` — `cards`, string-based checks
+15. `src/components/CharacterCard.jsx` — `cards`, string-based checks
