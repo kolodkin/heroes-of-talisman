@@ -24,18 +24,17 @@ Character
 Character
   ├── abilities: list[AbilityName]       # innate abilities (string names)
   ├── active_abilities: list[AbilityName]# applied abilities (string names)
-  ├── active_cards: list[CardName]       # applied persistent cards (string names)
+  ├── cards: list[CardName]              # applied persistent cards (string names)
   ├── effects: list[EffectName]          # only SkipTurnEffect (string name)
-  ├── effect: EffectTotal (computed)     # aggregated by looking up ABILITIES_MAP/CARDS_MAP
-  └── card_names: list[str] (computed)   # derived from active_cards for frontend
+  └── effect: EffectTotal (computed)     # aggregated by looking up ABILITIES_MAP/CARDS_MAP
 ```
 
 - When ability is used → append ability **name string** to `character.active_abilities`
 - Exception: FREEZE → append `"skip_turn"` to target `character.effects`
-- When persistent card is selected → append card **name string** to `character.active_cards`
+- When persistent card is selected → append card **name string** to `character.cards`
 - Instant cards (golden_apple, magic_ball) → applied immediately, not stored
 - No more deep-copying of Effect objects
-- Disposal: each Action declares `dispose_abilities`, `dispose_cards`, `dispose_effects` as string lists; base Action class handles removal
+- Disposal: each Action declares `dispose_abilities`, `dispose_cards`, `dispose_effects` as string tuples; base Action class handles removal
 
 ## Detailed Changes
 
@@ -51,7 +50,7 @@ class Character(StrictModel):
     is_alive: bool = True
     abilities: list[AbilityName] = Field(default_factory=list)         # innate (string names)
     active_abilities: list[AbilityName] = Field(default_factory=list)  # applied (string names)
-    active_cards: list[CardName] = Field(default_factory=list)         # persistent cards (string names)
+    cards: list[CardName] = Field(default_factory=list)                # persistent cards (string names)
     effects: list[str] = Field(default_factory=list)                   # only SkipTurnEffect
 
     @computed_field
@@ -70,8 +69,8 @@ class Character(StrictModel):
                     total.reroll_dice_available = True
                 elif isinstance(eff, DrawCardEffect):
                     total.draw_card_count += eff.draw_count
-        # From active cards — lookup from CARDS_MAP
-        for card_name in self.active_cards:
+        # From cards — lookup from CARDS_MAP
+        for card_name in self.cards:
             card = CARDS_MAP[card_name]
             for eff in card.effects:
                 if isinstance(eff, DefenseBonusEffect):
@@ -89,12 +88,6 @@ class Character(StrictModel):
     @property
     def is_available(self) -> bool:
         return self.is_alive and not self.effect.skip_next_turn
-
-    @computed_field
-    @property
-    def card_names(self) -> list[str]:
-        """Card names for frontend display (replaces old cards field)"""
-        return list(self.active_cards)
 ```
 
 Update `CHARACTER_STATS_BY_LEVEL` — abilities as string names:
@@ -138,10 +131,10 @@ Add disposal declaration and generic disposal method:
 
 ```python
 class Action(ABC):
-    # Each action declares what it disposes (override in subclasses)
-    dispose_abilities: list[AbilityName] = []
-    dispose_cards: list[CardName] = []
-    dispose_effects: list[str] = []
+    # Each action declares what it disposes (override in subclasses, tuples for immutability)
+    dispose_abilities: tuple[AbilityName, ...] = ()
+    dispose_cards: tuple[CardName, ...] = ()
+    dispose_effects: tuple[str, ...] = ()
 
     def dispose_character(self, character: Character) -> None:
         """Generic disposal — written once, used by all actions."""
@@ -151,8 +144,8 @@ class Action(ABC):
                 if a not in self.dispose_abilities
             ]
         if self.dispose_cards:
-            character.active_cards = [
-                c for c in character.active_cards
+            character.cards = [
+                c for c in character.cards
                 if c not in self.dispose_cards
             ]
         if self.dispose_effects:
@@ -168,10 +161,10 @@ Each action specifies what it disposes:
 
 | Action | dispose_abilities | dispose_cards | dispose_effects |
 | ------ | ----------------- | ------------- | --------------- |
-| `BattleEndAction` | `[BATTLE_HOWL, BOUNCING_ARROW]` | `[]` | `[]` |
-| `RerollEffectAction` | `[BOUNCING_ARROW]` | `[]` | `[]` |
-| `CharacterSelectAction` | `[]` | `[]` | `[EFFECT_SKIP_TURN]` |
-| `SkipTurnAction` | `[]` | `[]` | `[EFFECT_SKIP_TURN]` |
+| `BattleEndAction` | `(BATTLE_HOWL, BOUNCING_ARROW)` | `()` | `()` |
+| `RerollEffectAction` | `(BOUNCING_ARROW,)` | `()` | `()` |
+| `CharacterSelectAction` | `()` | `()` | `(EFFECT_SKIP_TURN,)` |
+| `SkipTurnAction` | `()` | `()` | `(EFFECT_SKIP_TURN,)` |
 
 Note: Persistent cards (metal_armor, sacred_sword, talisman) have empty dispose lists everywhere — they're never disposed.
 
@@ -238,7 +231,7 @@ def _run(self) -> GamePlay:
 
         # Store persistent/equipment cards
         if not is_instant:
-            character.active_cards.append(drawn_card_name)
+            character.cards.append(drawn_card_name)
 
     # ... transition unchanged ...
 ```
@@ -257,7 +250,7 @@ def _run(self) -> GamePlay:
         if card_obj:
             has_opponent_effects = any(e.apply_to == APPLY_TO_BATTLE_OPPONENT for e in card_obj.effects)
             if has_opponent_effects:
-                opponent_character.active_cards.append(self.game.card)
+                opponent_character.cards.append(self.game.card)
 
     # Apply ability's battle_opponent effects
     if self.game.ability:
@@ -273,7 +266,7 @@ Uses generic disposal:
 
 ```python
 class BattleEndAction(Action):
-    dispose_abilities = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW]
+    dispose_abilities = (ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW)
 
     def _run(self) -> GamePlay:
         # ... battle logic unchanged ...
@@ -290,7 +283,7 @@ class BattleEndAction(Action):
 
 ```python
 class RerollEffectAction(Action):
-    dispose_abilities = [ABILITY_BOUNCING_ARROW]
+    dispose_abilities = (ABILITY_BOUNCING_ARROW,)
 
     def _run(self) -> GamePlay:
         # ... validation unchanged ...
@@ -305,7 +298,7 @@ class RerollEffectAction(Action):
 
 ```python
 class CharacterSelectAction(Action):
-    dispose_effects = [EFFECT_SKIP_TURN]
+    dispose_effects = (EFFECT_SKIP_TURN,)
 
     def _run(self, character: str) -> GamePlay:
         # ... validation unchanged ...
@@ -317,7 +310,7 @@ class CharacterSelectAction(Action):
         # ... transition unchanged ...
 
 class SkipTurnAction(Action):
-    dispose_effects = [EFFECT_SKIP_TURN]
+    dispose_effects = (EFFECT_SKIP_TURN,)
 
     def _run(self) -> GamePlay:
         # ... validation unchanged ...
@@ -341,10 +334,10 @@ Remove `dispose_actions` and `source` from Effect classes — no longer needed s
 ### 13. Frontend — `src/components/CharacterCard.jsx`
 
 ```javascript
-// Card presence — use active_cards (already string names)
-const hasArmor = character.active_cards?.includes("metal_armor") || false;
-const hasSword = character.active_cards?.includes("sacred_sord") || false;
-const hasTalisman = character.active_cards?.includes("talisman") || false;
+// Card presence — use character.cards (string names, same field name as before)
+const hasArmor = character.cards?.includes("metal_armor") || false;
+const hasSword = character.cards?.includes("sacred_sord") || false;
+const hasTalisman = character.cards?.includes("talisman") || false;
 
 // SkipTurn — check effects (string names)
 const hasSkipTurn = character.effects?.includes("skip_turn") || false;
@@ -352,7 +345,7 @@ const hasSkipTurn = character.effects?.includes("skip_turn") || false;
 // Effect names for data attribute — combine all sources
 const effectNames = [
     ...(character.active_abilities || []),
-    ...(character.active_cards || []),
+    ...(character.cards || []),
     ...(character.effects || []),
 ].join(",");
 
@@ -389,7 +382,7 @@ character.cards = ["metal_armor"]
 character.effects = [DefenseBonusEffect(source=CARD_METAL_ARMOR, defense_bonus=2)]
 
 # After:
-character.active_cards = [CARD_METAL_ARMOR]
+character.cards = [CARD_METAL_ARMOR]
 ```
 
 ### 15. Tests
@@ -402,7 +395,7 @@ All tests that set/assert `character.effects` with Effect objects → use string
 | `test_stage_battle_dice_roll.py` | Same pattern — string names for abilities, assert EffectTotal values via `character.effect` |
 | `test_stage_ability_selection.py` | Assert `ABILITY_BATTLE_HOWL in character.active_abilities` instead of `isinstance(effects[0], RerollDiceEffect)` |
 | `test_stage_character_select.py` | `effects = [EFFECT_SKIP_TURN]` instead of `SkipTurnEffect(...)` |
-| `test_stage_card_draw.py` | Assert `CARD_METAL_ARMOR in character.active_cards` instead of `isinstance(effects[0], DefenseBonusEffect)` |
+| `test_stage_card_draw.py` | Assert `CARD_METAL_ARMOR in character.cards` instead of `isinstance(effects[0], DefenseBonusEffect)` |
 | `test_stage_opponent_selection.py` | String names for card/ability assertions |
 | `test_stage_ability_opponent_selection.py` | Assert `EFFECT_SKIP_TURN in target.effects` |
 
@@ -411,7 +404,7 @@ All tests that set/assert `character.effects` with Effect objects → use string
 - **`Effect.dispose_actions`** — removed (disposal logic moved to Action declarations)
 - **`Effect.source`** — removed (no longer stored on Character, source is implicit from ABILITIES_MAP/CARDS_MAP)
 - **`Effect.apply_to`** — stays on Effect class (still needed for application logic in actions)
-- **`character.cards: list[str]`** — replaced by `active_cards`
+- **`character.cards`** — kept as field name, now stores `list[CardName]` (string names) instead of being derived from effects
 - **Deep copying of Effect objects** — eliminated entirely
 - **`EffectUnion` discriminated union on Character** — no longer needed for Character storage
 - **`Effect.model_validator` for source validation** — removed (source field removed)
@@ -444,4 +437,4 @@ All tests that set/assert `character.effects` with Effect objects → use string
 13. `server/gameplay/presets.py` — string names everywhere
 
 **Frontend:**
-14. `src/components/CharacterCard.jsx` — `active_cards`, string-based checks
+14. `src/components/CharacterCard.jsx` — `cards`, string-based checks
