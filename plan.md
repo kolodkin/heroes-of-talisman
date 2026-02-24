@@ -198,7 +198,7 @@ class Action(ABC):
     dispose_effects: tuple[str, ...] = ()
 
     def dispose_character(self, character: Character) -> None:
-        """Generic disposal — written once, used by all actions."""
+        """Remove disposed abilities/cards/effects from a single character."""
         if self.dispose_abilities:
             character.active_abilities = [
                 a for a in character.active_abilities
@@ -214,6 +214,13 @@ class Action(ABC):
                 e for e in character.effects
                 if e not in self.dispose_effects
             ]
+
+    def dispose_player_characters(self, player: Player) -> None:
+        """Dispose matching abilities/cards/effects from ALL of a player's characters.
+        Used by CharacterSelectAction/SkipTurnAction to clear effects like skip_turn
+        at the start of a new turn."""
+        for character in player.characters.values():
+            self.dispose_character(character)
 ```
 
 ### 7. Action dispose declarations
@@ -266,24 +273,31 @@ def _run(self) -> GamePlay:
 
 ### 10. `CardSelectAction` — `server/gameplay/actions/stage_card_draw.py`
 
-Hardcoded instant card effects, persistent cards stored as name:
+Hardcoded instant card effects, persistent cards stored as name. Card restriction check extracted into a helper:
 
 ```python
+def _is_card_restricted(card_name: CardName, character_type: str) -> bool:
+    """Check if a card cannot be used by this character type.
+    Some cards are restricted to certain characters (e.g., sacred_sword cannot be used by archer)."""
+    return card_name in CARD_RESTRICTED_CHARACTERS and \
+        character_type in CARD_RESTRICTED_CHARACTERS[card_name]
+
+def _apply_card(self, card_name: CardName, character: Character) -> None:
+    """Apply card effects to character. Instant cards (heal, level up) are applied
+    immediately. Persistent cards (armor, sword, talisman) are stored on character."""
+    if card_name == CARD_GOLDEN_APPLE:
+        character.health = min(character.max_health, character.health + 1)
+    elif card_name == CARD_MAGIC_BALL:
+        # ... level up logic ...
+        pass
+    else:
+        character.cards.append(card_name)
+
 def _run(self) -> GamePlay:
     # ... validation unchanged ...
 
-    is_restricted = drawn_card_name in CARD_RESTRICTED_CHARACTERS and \
-        character_type in CARD_RESTRICTED_CHARACTERS[drawn_card_name]
-
-    if not is_restricted:
-        if drawn_card_name == CARD_GOLDEN_APPLE:
-            character.health = min(character.max_health, character.health + 1)
-        elif drawn_card_name == CARD_MAGIC_BALL:
-            # ... level up logic unchanged ...
-            pass
-        else:
-            # Persistent/equipment card
-            character.cards.append(drawn_card_name)
+    if not _is_card_restricted(drawn_card_name, character_type):
+        self._apply_card(drawn_card_name, character)
 
     # ... transition unchanged ...
 ```
@@ -344,9 +358,7 @@ class CharacterSelectAction(Action):
     def _run(self, character: str) -> GamePlay:
         # ... validation unchanged ...
 
-        # Dispose skip_turn from all active player's characters
-        for char in player.characters.values():
-            self.dispose_character(char)
+        self.dispose_player_characters(player)
 
         # ... transition unchanged ...
 
@@ -356,9 +368,7 @@ class SkipTurnAction(Action):
     def _run(self) -> GamePlay:
         # ... validation unchanged ...
 
-        # Dispose skip_turn from all active player's characters
-        for char in player.characters.values():
-            self.dispose_character(char)
+        self.dispose_player_characters(player)
 
         rotate_to_next_player(self.game)
         return self.game
