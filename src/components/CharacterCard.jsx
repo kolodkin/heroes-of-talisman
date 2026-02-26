@@ -35,8 +35,16 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
   const hasSword = character.cards?.includes("sacred_sord") || false;
   const hasTalisman = character.cards?.includes("talisman") || false;
 
-  // Get all effect names for data attribute
-  const effectNames = character.effects?.join(",") || "";
+  // Build effect names for data attribute from EffectTotal computed field
+  const allEffectNames = [
+    ...(character.effects || []),
+    ...(character.effect?.attack_bonus ? ["attack_bonus"] : []),
+    ...(character.effect?.attack_neg_bonus ? ["attack_neg_bonus"] : []),
+    ...(character.effect?.defense_bonus ? ["defense_bonus"] : []),
+    ...(character.effect?.reroll_dice_available ? ["reroll_dice"] : []),
+    ...(character.effect?.has_talisman ? ["talisman"] : []),
+  ];
+  const effectNames = allEffectNames.join(",");
 
   const handleClick = () => {
     if (!isSelectable) {
