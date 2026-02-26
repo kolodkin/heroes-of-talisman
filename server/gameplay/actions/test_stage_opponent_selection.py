@@ -15,8 +15,7 @@ from ..common import (
     CHARACTER_ARCHER,
     CHARACTER_MAGE,
 )
-from ..abilities import Ability, ABILITY_BATTLE_HOWL, ABILITIES_MAP
-from ..effects import AttackNegBonusEffect, EFFECT_ATTACK_NEG_BONUS
+from ..abilities import ABILITY_BATTLE_HOWL, ABILITIES_MAP
 from ..gameplay import (
     STAGE_OPPONENT_SELECTION,
     STAGE_BATTLE_DICE_ROLL,

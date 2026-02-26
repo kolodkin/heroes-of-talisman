@@ -11,7 +11,6 @@ from .stage_card_draw import CardDrawAction, CardSelectAction
 from .battle_end import BattleEndAction
 from ..common import GameException, ReportedException, CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
 from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_TALISMAN, CARDS_MAP
-from ..effects import DefenseBonusEffect, AttackBonusEffect, TalismanEffect
 from ..gameplay import (
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
@@ -103,14 +102,11 @@ def test_card_select_action_applies_effects():
     assert updated_game.card == CARD_METAL_ARMOR
     assert updated_game.stage_meta is not None  # Auto-selected ability
 
-    # Check character has defense effect
+    # Check character has defense effect via active_cards
     player = updated_game.players["player1"]
     knight = player.characters[CHARACTER_KNIGHT]
-    assert len(knight.effects) == 1
-    assert isinstance(knight.effects[0], DefenseBonusEffect)
-    assert knight.effects[0].defense_bonus == 2
-    assert knight.effects[0].source == CARD_METAL_ARMOR
-    assert knight.effects[0].dispose_actions == []  # Persistent effect
+    assert CARD_METAL_ARMOR in knight.active_cards
+    assert knight.effect.defense_bonus == 2
 
     # Check card added to character's card list
     assert CARD_METAL_ARMOR in knight.cards
@@ -171,12 +167,11 @@ def test_metal_armor_defense_reduces_opponent_score():
     # Get preset with knight having metal_armor and losing battle
     game = get_debug_preset(PRESET_BATTLE_METAL_ARMOR, player1_name="player1", player2_name="player2")
 
-    # Knight should have defense effect before battle ends
+    # Knight should have defense effect via active_cards before battle ends
     player1 = game.players["player1"]
     knight = player1.characters[CHARACTER_KNIGHT]
-    assert len(knight.effects) == 1
-    assert isinstance(knight.effects[0], DefenseBonusEffect)
-    assert knight.effects[0].defense_bonus == 2
+    assert CARD_METAL_ARMOR in knight.active_cards
+    assert knight.effect.defense_bonus == 2
 
     # Knight's initial health
     knight_health_before = knight.health
@@ -189,10 +184,9 @@ def test_metal_armor_defense_reduces_opponent_score():
     knight_after = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
     assert knight_after.health == knight_health_before - 1
 
-    # Defense effect should still be present (persistent, not disposed)
-    assert len(knight_after.effects) == 1
-    assert isinstance(knight_after.effects[0], DefenseBonusEffect)
-    assert knight_after.effects[0].defense_bonus == 2
+    # Defense effect should still be present (persistent card, not disposed)
+    assert CARD_METAL_ARMOR in knight_after.active_cards
+    assert knight_after.effect.defense_bonus == 2
 
 
 def test_sacred_sword_applies_attack_bonus():
@@ -212,14 +206,11 @@ def test_sacred_sword_applies_attack_bonus():
     assert updated_game.stage == STAGE_ABILITY_SELECTION
     assert updated_game.card == CARD_SACRED_SWORD
 
-    # Check character has attack bonus effect
+    # Check character has attack bonus via active_cards
     player = updated_game.players["player1"]
     knight = player.characters[CHARACTER_KNIGHT]
-    assert len(knight.effects) == 1
-    assert isinstance(knight.effects[0], AttackBonusEffect)
-    assert knight.effects[0].attack_bonus == 3
-    assert knight.effects[0].source == CARD_SACRED_SWORD
-    assert knight.effects[0].dispose_actions == []
+    assert CARD_SACRED_SWORD in knight.active_cards
+    assert knight.effect.attack_bonus == 3
 
     # Check card added to character's card list
     assert CARD_SACRED_SWORD in knight.cards
@@ -245,7 +236,7 @@ def test_sacred_sword_rejected_by_archer():
     # Verify archer doesn't have the effect (restricted character)
     player = updated_game.players["player1"]
     archer = player.characters[CHARACTER_ARCHER]
-    assert len(archer.effects) == 0
+    assert len(archer.active_cards) == 0
 
     # Card should NOT be added to character's card list (restricted character)
     assert CARD_SACRED_SWORD not in archer.cards
@@ -268,12 +259,11 @@ def test_sacred_sword_works_for_mage():
     assert updated_game.stage == STAGE_ABILITY_SELECTION
     assert updated_game.card == CARD_SACRED_SWORD
 
-    # Check mage has attack bonus effect
+    # Check mage has attack bonus via active_cards
     player = updated_game.players["player1"]
     mage = player.characters[CHARACTER_MAGE]
-    assert len(mage.effects) == 1
-    assert isinstance(mage.effects[0], AttackBonusEffect)
-    assert mage.effects[0].attack_bonus == 3
+    assert CARD_SACRED_SWORD in mage.active_cards
+    assert mage.effect.attack_bonus == 3
 
 
 def test_sacred_sword_archer_restriction_from_preset():
@@ -294,8 +284,8 @@ def test_sacred_sword_archer_restriction_from_preset():
     player = updated_game.players["player1"]
     archer = player.characters[CHARACTER_ARCHER]
 
-    # Archer should not have the effect
-    assert len(archer.effects) == 0
+    # Archer should not have the card in active_cards
+    assert len(archer.active_cards) == 0
 
     # Card should not be added to archer's card list
     assert CARD_SACRED_SWORD not in archer.cards
@@ -361,7 +351,7 @@ def test_magic_ball_no_effect_at_max_level():
 
 
 def test_talisman_card_applies_effect():
-    """Test talisman card applies TalismanEffect as persistent effect"""
+    """Test talisman card applies TalismanEffect as persistent card"""
     game = get_debug_preset(PRESET_CARD_DRAW_KNIGHT_TALISMAN)
 
     action = CardSelectAction("player1", game)
@@ -371,12 +361,9 @@ def test_talisman_card_applies_effect():
     assert updated_game.stage == STAGE_ABILITY_SELECTION
     assert updated_game.card == CARD_TALISMAN
 
-    # Check character has talisman effect
+    # Check character has talisman via active_cards
     knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
-    assert len(knight.effects) == 1
-    assert isinstance(knight.effects[0], TalismanEffect)
-    assert knight.effects[0].source == CARD_TALISMAN
-    assert knight.effects[0].dispose_actions == []  # Persistent effect
+    assert CARD_TALISMAN in knight.active_cards
 
     # Check card added to character's card list
     assert CARD_TALISMAN in knight.cards

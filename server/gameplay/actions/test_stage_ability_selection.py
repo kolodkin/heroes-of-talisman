@@ -17,7 +17,6 @@ from ..common import (
     CHARACTER_ARCHER,
     CHARACTER_MAGE,
 )
-from ..effects import EFFECT_REROLL_DICE
 from ..abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
 from ..gameplay import (
     STAGE_ABILITY_SELECTION,
@@ -25,7 +24,6 @@ from ..gameplay import (
     STAGE_OPPONENT_SELECTION,
     STAGE_CHARACTER_SELECT,
 )
-from ..effects import RerollDiceEffect
 from ..gameplay import (
     GamePlay,
     Player,
@@ -220,7 +218,7 @@ def test_ability_select_action_archer():
 
 
 def test_ability_select_action_archer_applies_reroll_effect():
-    """Test confirming ABILITY_BOUNCING_ARROW applies RerollDiceEffect to active player's character"""
+    """Test confirming ABILITY_BOUNCING_ARROW adds bouncing_arrow to active_abilities"""
     characters = init_characters()
     game = GamePlay(
         stage=STAGE_ABILITY_SELECTION,
@@ -228,17 +226,16 @@ def test_ability_select_action_archer_applies_reroll_effect():
         players={"player1": Player(name="player1", characters=characters)},
     )
 
-    # Verify archer has no effects before
-    assert len(game.players["player1"].characters[CHARACTER_ARCHER].effects) == 0
+    # Verify archer has no active abilities before
+    assert len(game.players["player1"].characters[CHARACTER_ARCHER].active_abilities) == 0
 
     action = AbilitySelectAction("player1", game)
     updated_game = action.run(ability=ABILITY_BOUNCING_ARROW)
 
-    # Verify RerollDiceEffect was applied to the active player's archer
+    # Verify bouncing_arrow was added to active_abilities
     archer = updated_game.players["player1"].characters[CHARACTER_ARCHER]
-    assert len(archer.effects) == 1
-    assert isinstance(archer.effects[0], RerollDiceEffect)
-    assert archer.effects[0].name == EFFECT_REROLL_DICE
+    assert len(archer.active_abilities) == 1
+    assert archer.active_abilities[0] == ABILITY_BOUNCING_ARROW
     # Verify the effect is available in effect totals
     assert archer.effect.reroll_dice_available is True
 

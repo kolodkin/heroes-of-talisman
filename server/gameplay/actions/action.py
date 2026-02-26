@@ -121,6 +121,25 @@ class Action(ABC):
             stages_str = ", ".join(self.action_stages)
             raise GameException(f"Cannot perform action in stage '{self.stage}'. Valid stages: {stages_str}")
 
+    @staticmethod
+    def dispose_character(
+        character: Character,
+        clear_abilities: bool = False,
+        clear_effects: bool = False,
+    ) -> None:
+        """
+        Dispose effects from a character by clearing named lists.
+
+        Args:
+            character: The character to dispose effects from.
+            clear_abilities: If True, clear all active_abilities.
+            clear_effects: If True, clear all effects (e.g., skip_turn).
+        """
+        if clear_abilities:
+            character.active_abilities = []
+        if clear_effects:
+            character.effects = []
+
     def run(self, *args, **kwargs) -> GamePlay:
         """Execute the action with automatic stage validation."""
         self.assert_stage()

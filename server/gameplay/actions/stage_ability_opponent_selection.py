@@ -99,9 +99,9 @@ class AbilityOpponentSelectAction(Action):
                 f"Opponent character {selected_opponent.character} is dead and can't be targeted"
             )
 
-        # Apply ability effects to target character
+        # Apply ability effects to target character as string names
         for effect in self.game.ability.effects:
-            target_character.effects.append(effect)
+            target_character.effects.append(effect.name)
 
         # Store the ability opponent
         self.game.ability_opponent = selected_opponent

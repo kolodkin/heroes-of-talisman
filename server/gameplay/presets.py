@@ -2,15 +2,7 @@ from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
 from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
-from .effects import (
-    AttackBonusEffect,
-    AttackNegBonusEffect,
-    DefenseBonusEffect,
-    SkipTurnEffect,
-    RerollDiceEffect,
-    DrawCardEffect,
-    TalismanEffect,
-)
+from .effects import EFFECT_SKIP_TURN
 from .gameplay import (
     StageName,
     STAGE_ABILITY_SELECTION,
@@ -261,18 +253,12 @@ def get_debug_preset(
     elif preset == "battle_with_effects":
         # Battle dice roll stage with effects
         # Player 1: knight with attack_bonus (+2 from BATTLE_HOWL) and reroll_dice (from BOUNCING_ARROW)
-        # Player 2: mage with attack_neg_bonus (-2 from BATTLE_HOWL) and skip_turn (from FREEZE)
+        # Player 2: mage with skip_turn (from FREEZE)
         characters_p1 = init_characters()
-        characters_p1[CHARACTER_KNIGHT].effects = [
-            AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2),
-            RerollDiceEffect(source=ABILITY_BOUNCING_ARROW),
-        ]
+        characters_p1[CHARACTER_KNIGHT].active_abilities = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW]
 
         characters_p2 = init_characters()
-        characters_p2[CHARACTER_MAGE].effects = [
-            AttackNegBonusEffect(source=ABILITY_BATTLE_HOWL, attack_neg_bonus=-2),
-            SkipTurnEffect(source=ABILITY_FREEZE),
-        ]
+        characters_p2[CHARACTER_MAGE].effects = [EFFECT_SKIP_TURN]
 
         ret = GamePlay(
             stage=STAGE_BATTLE_DICE_ROLL,
@@ -290,9 +276,7 @@ def get_debug_preset(
         # Result: archer loses (2 < 5), archer can use Bouncing Arrow to reroll
         # Stage stays BATTLE_DICE_ROLL because loser has reroll effect available
         characters_p1 = init_characters()
-        characters_p1[CHARACTER_ARCHER].effects = [
-            RerollDiceEffect(source=ABILITY_BOUNCING_ARROW),
-        ]
+        characters_p1[CHARACTER_ARCHER].active_abilities = [ABILITY_BOUNCING_ARROW]
 
         characters_p2 = init_characters()
 
@@ -315,9 +299,7 @@ def get_debug_preset(
         # Player 2: knight with no effects -> dice=[6] + attack=1 = 7
         # Result: Draw (7 == 7)
         characters_p1 = init_characters()
-        characters_p1[CHARACTER_KNIGHT].effects = [
-            AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2),
-        ]
+        characters_p1[CHARACTER_KNIGHT].active_abilities = [ABILITY_BATTLE_HOWL]
 
         characters_p2 = init_characters()
 
@@ -340,9 +322,7 @@ def get_debug_preset(
         # Player 2: no effects
         # Stage: CHARACTER_SELECT
         characters_p1 = init_characters()
-        characters_p1[CHARACTER_KNIGHT].effects = [
-            SkipTurnEffect(source=ABILITY_FREEZE),
-        ]
+        characters_p1[CHARACTER_KNIGHT].effects = [EFFECT_SKIP_TURN]
 
         characters_p2 = init_characters()
 
@@ -365,9 +345,7 @@ def get_debug_preset(
         characters_p1[CHARACTER_KNIGHT].is_alive = False
         characters_p1[CHARACTER_ARCHER].health = 0
         characters_p1[CHARACTER_ARCHER].is_alive = False
-        characters_p1[CHARACTER_MAGE].effects = [
-            SkipTurnEffect(source=ABILITY_FREEZE),
-        ]
+        characters_p1[CHARACTER_MAGE].effects = [EFFECT_SKIP_TURN]
 
         characters_p2 = init_characters()
 
@@ -387,9 +365,7 @@ def get_debug_preset(
         from .cards import CARD_METAL_ARMOR
 
         characters_p1 = init_characters()
-        characters_p1[CHARACTER_KNIGHT].effects = [
-            DefenseBonusEffect(source=CARD_METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
-        ]
+        characters_p1[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR]
 
         characters_p2 = init_characters()
 
@@ -414,9 +390,7 @@ def get_debug_preset(
         from .cards import CARD_SACRED_SWORD
 
         characters_p1 = init_characters()
-        characters_p1[CHARACTER_KNIGHT].effects = [
-            AttackBonusEffect(source=CARD_SACRED_SWORD, attack_bonus=3, dispose_actions=[]),
-        ]
+        characters_p1[CHARACTER_KNIGHT].active_cards = [CARD_SACRED_SWORD]
 
         characters_p2 = init_characters()
 
@@ -573,9 +547,7 @@ def get_debug_preset(
         from .cards import CARD_TALISMAN
 
         characters_p1 = init_characters(level=2)
-        characters_p1[CHARACTER_KNIGHT].effects = [
-            TalismanEffect(source=CARD_TALISMAN),
-        ]
+        characters_p1[CHARACTER_KNIGHT].active_cards = [CARD_TALISMAN]
         characters_p1[CHARACTER_KNIGHT].cards = [CARD_TALISMAN]
 
         characters_p2 = init_characters(level=2)

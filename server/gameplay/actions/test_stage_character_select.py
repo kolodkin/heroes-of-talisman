@@ -15,8 +15,7 @@ from ..common import (
     CHARACTER_ARCHER,
     CHARACTER_MAGE,
 )
-from ..abilities import ABILITY_FREEZE, ABILITY_BATTLE_HOWL
-from ..effects import SkipTurnEffect
+from ..effects import EFFECT_SKIP_TURN
 from ..gameplay import (
     STAGE_CHARACTER_SELECT,
     STAGE_CARD_DRAW,
@@ -166,14 +165,14 @@ def test_character_select_action_dead_character():
 
 
 def test_character_select_action_removes_skip_turn_effects():
-    """Test that character selection removes all SkipTurnEffects from active player's characters"""
+    """Test that character selection removes all skip_turn effects from active player's characters"""
     game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
 
-    # Add SkipTurnEffect to knight (can't be selected this turn)
-    characters[CHARACTER_KNIGHT].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
-    # Add SkipTurnEffect to archer too
-    characters[CHARACTER_ARCHER].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
+    # Add skip_turn effect to knight (can't be selected this turn)
+    characters[CHARACTER_KNIGHT].effects = [EFFECT_SKIP_TURN]
+    # Add skip_turn effect to archer too
+    characters[CHARACTER_ARCHER].effects = [EFFECT_SKIP_TURN]
 
     game.players["player1"] = Player(name="player1", characters=characters)
 
@@ -189,13 +188,12 @@ def test_character_select_action_removes_skip_turn_effects():
 
 
 def test_character_select_action_removes_all_skip_turn_effects():
-    """Test that all SkipTurnEffects are removed (not just the first one)"""
+    """Test that all skip_turn effects are removed (not just the first one)"""
     game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
 
-    # Add two SkipTurnEffects to knight
-    characters[CHARACTER_KNIGHT].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
-    characters[CHARACTER_KNIGHT].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
+    # Add two skip_turn effects to knight
+    characters[CHARACTER_KNIGHT].effects = [EFFECT_SKIP_TURN, EFFECT_SKIP_TURN]
 
     game.players["player1"] = Player(name="player1", characters=characters)
 
@@ -289,7 +287,7 @@ def test_skip_turn_action_disposes_effects():
     characters[CHARACTER_KNIGHT].is_alive = False
     characters[CHARACTER_ARCHER].health = 0
     characters[CHARACTER_ARCHER].is_alive = False
-    characters[CHARACTER_MAGE].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
+    characters[CHARACTER_MAGE].effects = [EFFECT_SKIP_TURN]
 
     game.players["player1"] = Player(name="player1", characters=characters)
     game.players["player2"] = Player(name="player2", characters=init_characters())
@@ -314,7 +312,7 @@ def test_skip_turn_action_circular_rotation():
     characters_p2[CHARACTER_KNIGHT].is_alive = False
     characters_p2[CHARACTER_ARCHER].health = 0
     characters_p2[CHARACTER_ARCHER].is_alive = False
-    characters_p2[CHARACTER_MAGE].effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
+    characters_p2[CHARACTER_MAGE].effects = [EFFECT_SKIP_TURN]
 
     game.players["player1"] = Player(name="player1", characters=characters_p1)
     game.players["player2"] = Player(name="player2", characters=characters_p2)

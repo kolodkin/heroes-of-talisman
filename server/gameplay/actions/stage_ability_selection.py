@@ -7,7 +7,6 @@ This module implements actions for the ability selection stage:
   (if ability requires opponent selection) or opponent_selection stage
 """
 
-import copy
 from .action import Action
 from ..common import GameException, ReportedException
 from ..effects import APPLY_TO_SELF
@@ -96,12 +95,10 @@ class AbilitySelectAction(Action):
 
         self.game.ability = ability_obj
 
-        # Apply "self" effects to the active player's character
-        for effect in ability_obj.effects:
-            if effect.apply_to == APPLY_TO_SELF:
-                # Deep copy the effect to avoid modifying the original ability definition
-                effect_copy = copy.deepcopy(effect)
-                character.effects.append(effect_copy)
+        # Apply self-target effects by adding ability name to active_abilities
+        has_self_effects = any(e.apply_to == APPLY_TO_SELF for e in ability_obj.effects)
+        if has_self_effects:
+            character.active_abilities.append(ability)
 
         # Clear stage_meta after selection
         self.game.stage_meta = None

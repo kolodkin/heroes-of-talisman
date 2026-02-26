@@ -6,8 +6,6 @@ This module implements actions for the opponent selection stage:
 - OpponentSelectAction: Confirms opponent selection, applies card and ability effects to opponent, and transitions to battle stage
 """
 
-import copy
-
 from .action import Action
 from ..cards import CARDS_MAP
 from ..common import GameException, ReportedException
@@ -108,17 +106,13 @@ class OpponentSelectAction(Action):
             if card_obj:
                 for effect in card_obj.effects:
                     if effect.apply_to == APPLY_TO_BATTLE_OPPONENT:
-                        # Deep copy the effect to avoid modifying the original card definition
-                        effect_copy = copy.deepcopy(effect)
-                        opponent_character.effects.append(effect_copy)
+                        opponent_character.effects.append(effect.name)
 
         # Apply "battle_opponent" effects from ability to the opponent's character
         if self.game.ability:
             for effect in self.game.ability.effects:
                 if effect.apply_to == APPLY_TO_BATTLE_OPPONENT:
-                    # Deep copy the effect to avoid modifying the original ability definition
-                    effect_copy = copy.deepcopy(effect)
-                    opponent_character.effects.append(effect_copy)
+                    opponent_character.effects.append(effect.name)
 
         # Transition to battle dice roll stage
         self.game.stage = STAGE_BATTLE_DICE_ROLL

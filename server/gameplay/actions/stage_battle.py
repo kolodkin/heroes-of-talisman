@@ -11,7 +11,7 @@ This module implements actions for the battle stage:
 import random
 from .action import Action
 from ..common import GameException, ReportedException
-from ..effects import RerollDiceEffect
+from ..abilities import ABILITY_BOUNCING_ARROW
 from ..gameplay import (
     STAGE_BATTLE_DICE_ROLL,
     STAGE_BATTLE_END,
@@ -291,11 +291,9 @@ class RerollEffectAction(Action):
         if not active_character.effect.reroll_dice_available:
             raise GameException("No reroll effect available")
 
-        # Remove all RerollDiceEffects from the character
-        active_character.effects = [
-            effect for effect in active_character.effects
-            if not isinstance(effect, RerollDiceEffect)
-        ]
+        # Remove bouncing_arrow from active_abilities (consumes the reroll)
+        if ABILITY_BOUNCING_ARROW in active_character.active_abilities:
+            active_character.active_abilities.remove(ABILITY_BOUNCING_ARROW)
 
         # Use shared validation and reset logic
         return validate_and_reset_reroll(self.game, self.user)

@@ -1,18 +1,10 @@
 from __future__ import annotations
 
-from typing import Literal, Annotated, Union, Self
+from typing import Literal, Annotated, Union
 
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from .common import StrictModel
-from .actions_names import (
-    ActionName,
-    # Action name constants for dispose_actions
-    ACTION_CHARACTER_SELECT,
-    ACTION_CARD_SELECT,
-    ACTION_BATTLE_END,
-    ACTION_REROLL_EFFECT,
-)
 
 ########################################################
 # Effect names
@@ -41,31 +33,13 @@ ApplyToTarget = Literal[*APPLY_TO_TARGETS]
 class Effect(StrictModel):
     """
     Base class for all effects.
-    Each effect specifies when it should be disposed via dispose_actions field.
-    Each effect specifies who receives the effect via apply_to field.
+    Effect definitions are stored in ABILITIES_MAP and CARDS_MAP.
+    Characters store only string names (active_abilities, active_cards, effects),
+    not Effect objects.
     """
 
     name: Literal["effect"] = "effect"  # Discriminator field for polymorphic serialization
-    source: str  # AbilityName - using str to avoid circular import
-    dispose_actions: list[ActionName]  # Action names when this effect should be disposed
     apply_to: ApplyToTarget  # Who receives this effect
-
-    @model_validator(mode="after")
-    def validate_source(self) -> Self:
-        """Validate that source is valid for this effect type"""
-        from .abilities import EFFECTS_SOURCE_ABILITY_MAP
-        from .cards import EFFECTS_SOURCE_CARD_MAP
-
-        ability_sources = EFFECTS_SOURCE_ABILITY_MAP.get(self.name, set())
-        card_sources = EFFECTS_SOURCE_CARD_MAP.get(self.name, set())
-        valid_sources = ability_sources | card_sources
-
-        if self.source not in valid_sources and len(valid_sources) > 0:
-            raise ValueError(
-                f"Invalid source '{self.source}' for {self.__class__.__name__}. "
-                f"Valid sources: {valid_sources}"
-            )
-        return self
 
 
 class SkipTurnEffect(Effect):
@@ -76,7 +50,6 @@ class SkipTurnEffect(Effect):
     """
 
     name: Literal[EFFECT_SKIP_TURN] = EFFECT_SKIP_TURN
-    dispose_actions: list[ActionName] = [ACTION_CHARACTER_SELECT]
     apply_to: ApplyToTarget = APPLY_TO_SELECTED_OPPONENT
     skip_next_turn: bool = True
 
@@ -84,12 +57,10 @@ class SkipTurnEffect(Effect):
 class AttackBonusEffect(Effect):
     """
     Character's attack is increased by the value of the effect.
-    Disposed at battle end.
     Applied to self (active player's character).
     """
 
     name: Literal[EFFECT_ATTACK_BONUS] = EFFECT_ATTACK_BONUS
-    dispose_actions: list[ActionName] = [ACTION_BATTLE_END]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     attack_bonus: int
 
@@ -97,12 +68,10 @@ class AttackBonusEffect(Effect):
 class DefenseBonusEffect(Effect):
     """
     Character's defense is increased, reducing opponent's battle score.
-    Disposed at battle end.
     Applied to self (active player's character).
     """
 
     name: Literal[EFFECT_DEFENSE_BONUS] = EFFECT_DEFENSE_BONUS
-    dispose_actions: list[ActionName] = [ACTION_BATTLE_END]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     defense_bonus: int
 
@@ -110,12 +79,10 @@ class DefenseBonusEffect(Effect):
 class RerollDiceEffect(Effect):
     """
     Character's dice are rerolled if lost the battle.
-    Disposed at battle end or when the reroll effect action is used.
     Applied to self (active player's character).
     """
 
     name: Literal[EFFECT_REROLL_DICE] = EFFECT_REROLL_DICE
-    dispose_actions: list[ActionName] = [ACTION_BATTLE_END, ACTION_REROLL_EFFECT]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     reroll_dice: bool = True
 
@@ -123,12 +90,10 @@ class RerollDiceEffect(Effect):
 class AttackNegBonusEffect(Effect):
     """
     Character's attack is decreased by the value of the effect.
-    Disposed at battle end.
     Applied to battle opponent (no separate selection required).
     """
 
     name: Literal[EFFECT_ATTACK_NEG_BONUS] = EFFECT_ATTACK_NEG_BONUS
-    dispose_actions: list[ActionName] = [ACTION_BATTLE_END]
     apply_to: ApplyToTarget = APPLY_TO_BATTLE_OPPONENT
     attack_neg_bonus: int
 
@@ -136,12 +101,10 @@ class AttackNegBonusEffect(Effect):
 class DrawCardEffect(Effect):
     """
     Character draws cards at the start of battle.
-    Disposed at battle end.
     Applied to self (active player's character).
     """
 
     name: Literal[EFFECT_DRAW_CARD] = EFFECT_DRAW_CARD
-    dispose_actions: list[ActionName] = [ACTION_BATTLE_END]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     draw_count: int = 1
 
@@ -149,12 +112,10 @@ class DrawCardEffect(Effect):
 class HealEffect(Effect):
     """
     Character is healed by the specified amount (capped at max_health).
-    Disposed at card selection (instant effect).
     Applied to self (active player's character).
     """
 
     name: Literal[EFFECT_HEAL] = EFFECT_HEAL
-    dispose_actions: list[ActionName] = [ACTION_CARD_SELECT]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     heal_amount: int
 
@@ -162,12 +123,10 @@ class HealEffect(Effect):
 class LevelUpEffect(Effect):
     """
     Character's level is increased by 1 and health is restored to max.
-    Disposed at card selection (instant effect).
     Applied to self (active player's character).
     """
 
     name: Literal[EFFECT_LEVEL_UP] = EFFECT_LEVEL_UP
-    dispose_actions: list[ActionName] = [ACTION_CARD_SELECT]
     apply_to: ApplyToTarget = APPLY_TO_SELF
     level_increase: int = 1
 
@@ -181,7 +140,6 @@ class TalismanEffect(Effect):
     """
 
     name: Literal[EFFECT_TALISMAN] = EFFECT_TALISMAN
-    dispose_actions: list[ActionName] = []
     apply_to: ApplyToTarget = APPLY_TO_SELF
 
 

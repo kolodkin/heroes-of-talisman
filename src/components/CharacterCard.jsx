@@ -21,7 +21,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
 
   const cardClass = size === "normal" ? styles["card-normal"] : styles["card-small"];
   const isAlive = character.is_alive !== false;
-  const hasSkipTurn = character.effects?.some((effect) => effect.name === "skip_turn") || false;
+  const hasSkipTurn = character.effects?.includes("skip_turn") || false;
   const isSelectable = character.is_available !== false;
 
   // Calculate total attack with effects
@@ -36,7 +36,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
   const hasTalisman = character.cards?.includes("talisman") || false;
 
   // Get all effect names for data attribute
-  const effectNames = character.effects?.map((effect) => effect.name).join(",") || "";
+  const effectNames = character.effects?.join(",") || "";
 
   const handleClick = () => {
     if (!isSelectable) {
