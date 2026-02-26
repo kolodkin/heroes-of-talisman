@@ -201,8 +201,8 @@ check_review_comments() {
         echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo ""
 
-        # Display each unresolved thread with ALL comments (including follow-ups)
-        # Shows the root comment ID for replying, and the last non-agent comment as the actionable item
+        # Display each unresolved thread that needs a response.
+        # Shows ALL reviewer comments after the last [Agent] reply (not just the last one).
         echo "$UNRESOLVED_THREADS" | jq -r '
             .data.repository.pullRequest.reviewThreads.nodes[] |
             select(.isResolved == false) |
@@ -211,14 +211,16 @@ check_review_comments() {
             ($comments[0].databaseId // "N/A") as $root_id |
             ($comments[0].path // "N/A") as $path |
             ($comments[0].line // "N/A") as $line |
-            # Find the last non-agent comment (the one that needs a response)
-            # Agent comments start with "[Agent]"
-            ([$comments[] | select(.body | startswith("[Agent]") | not)] | last) as $last_reviewer_comment |
-            # Get the last comment overall to check if thread needs response
-            ($comments | last) as $last_comment |
             # Only show threads where the last comment is NOT from agent (needs response)
-            select($last_comment.body | startswith("[Agent]") | not) |
-            "ID: \($last_comment.databaseId // $root_id)\nFile: \($path)\nLine: \($line)\nComment: \($last_comment.body)\n---"
+            select(($comments | last).body | startswith("[Agent]") | not) |
+            # Find index of last agent comment (-1 if none)
+            ([ range($comments | length) | select($comments[.].body | startswith("[Agent]")) ] | if length > 0 then last else -1 end) as $last_agent_idx |
+            # Collect all non-agent comments after the last agent comment
+            [ range($last_agent_idx + 1; $comments | length) | $comments[.] | select(.body | startswith("[Agent]") | not) ] as $pending |
+            # Format: header with file/line, then each pending comment
+            "File: \($path)\nLine: \($line)\nReply-To-ID: \($root_id)",
+            ($pending[] | "  > \(.body)"),
+            "---"
         ' 2>/dev/null
 
         # Count threads that actually need response (last comment is not from agent)
