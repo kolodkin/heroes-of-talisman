@@ -10,7 +10,7 @@ This module implements actions for the ability selection stage:
 from .action import Action
 from ..common import GameException, ReportedException
 from ..effects import APPLY_TO_SELF
-from ..abilities import AbilityName
+from ..abilities import AbilityName, ABILITIES_MAP, get_ability_effects
 from ..gameplay import STAGE_ABILITY_SELECTION, STAGE_ABILITY_OPPONENT_SELECTION, STAGE_OPPONENT_SELECTION
 from ..gameplay import GamePlay, AbilitySelectMeta
 
@@ -88,15 +88,12 @@ class AbilitySelectAction(Action):
         if ability not in available_abilities:
             raise ReportedException(f"Ability {ability} not available for this character")
 
-        # Store selected ability in GamePlay.ability
-        ability_obj = next((a for a in character.abilities if a.name == ability), None)
-        if not ability_obj:
-            raise GameException(f"Ability {ability} not found in character abilities")
-
-        self.game.ability = ability_obj
+        # Store selected ability name in GamePlay.ability
+        self.game.ability = ability
 
         # Apply self-target effects by adding ability name to active_abilities
-        has_self_effects = any(e.apply_to == APPLY_TO_SELF for e in ability_obj.effects)
+        effects = get_ability_effects(ability)
+        has_self_effects = any(e.apply_to == APPLY_TO_SELF for e in effects)
         if has_self_effects:
             character.active_abilities.append(ability)
 
@@ -104,7 +101,8 @@ class AbilitySelectAction(Action):
         self.game.stage_meta = None
 
         # Transition to ability_opponent_selection if ability requires it, otherwise skip to opponent_selection
-        if ability_obj.requires_opponent_selection:
+        ability_obj = ABILITIES_MAP.get(ability)
+        if ability_obj and ability_obj.requires_opponent_selection:
             self.game.stage = STAGE_ABILITY_OPPONENT_SELECTION
         else:
             self.game.stage = STAGE_OPPONENT_SELECTION

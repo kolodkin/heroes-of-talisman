@@ -8,6 +8,7 @@ This module implements actions for the ability opponent selection stage:
 
 from .action import Action
 from ..common import GameException, ReportedException
+from ..abilities import get_ability_effects
 from ..gameplay import STAGE_ABILITY_OPPONENT_SELECTION, STAGE_OPPONENT_SELECTION, GamePlay, Opponent2
 
 
@@ -100,7 +101,7 @@ class AbilityOpponentSelectAction(Action):
             )
 
         # Apply ability effects to target character as string names
-        for effect in self.game.ability.effects:
+        for effect in get_ability_effects(self.game.ability):
             target_character.effects.append(effect.name)
 
         # Store the ability opponent

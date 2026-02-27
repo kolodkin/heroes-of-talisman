@@ -53,3 +53,9 @@ ABILITIES_MAP: dict[AbilityName, Ability] = {
         ],
     ),
 }
+
+
+def get_ability_effects(ability_name: AbilityName) -> list[EffectUnion]:
+    """Look up effects for an ability by name from ABILITIES_MAP"""
+    ability = ABILITIES_MAP.get(ability_name)
+    return ability.effects if ability else []

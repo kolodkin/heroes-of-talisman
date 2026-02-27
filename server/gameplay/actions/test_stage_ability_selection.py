@@ -145,7 +145,7 @@ def test_ability_select_action_valid():
     # ABILITY_BATTLE_HOWL applies to battle opponent, so skip ability_opponent_selection
     assert updated_game.stage == STAGE_OPPONENT_SELECTION
     assert updated_game.ability is not None
-    assert updated_game.ability.name == ABILITY_BATTLE_HOWL
+    assert updated_game.ability == ABILITY_BATTLE_HOWL
     assert updated_game.stage_meta is None
 
 
@@ -213,7 +213,7 @@ def test_ability_select_action_archer():
     # ABILITY_BOUNCING_ARROW applies to self, so skip ability_opponent_selection
     assert updated_game.stage == STAGE_OPPONENT_SELECTION
     assert updated_game.ability is not None
-    assert updated_game.ability.name == ABILITY_BOUNCING_ARROW
+    assert updated_game.ability == ABILITY_BOUNCING_ARROW
     assert updated_game.stage_meta is None
 
 
@@ -255,5 +255,5 @@ def test_ability_select_action_mage():
     # ABILITY_FREEZE requires opponent selection (SkipTurnEffect), so go to ability_opponent_selection
     assert updated_game.stage == STAGE_ABILITY_OPPONENT_SELECTION
     assert updated_game.ability is not None
-    assert updated_game.ability.name == ABILITY_FREEZE
+    assert updated_game.ability == ABILITY_FREEZE
     assert updated_game.stage_meta is None

@@ -245,7 +245,7 @@ class GamePlay(StrictModel):
     players: dict[str, Player] = Field(default_factory=dict)
     active: Optional[ActivePlayer] = None  # The active player and its selections
     card: Optional[str] = None  # Turn-scoped, cleared by rotate_to_next_player
-    ability: Optional[Ability] = None  # Turn-scoped, cleared by rotate_to_next_player
+    ability: Optional[AbilityName] = None  # Turn-scoped, cleared by rotate_to_next_player
     ability_opponent: Optional[Opponent2] = None  # Turn-scoped, cleared by rotate_to_next_player
     opponent: Optional[Opponent] = None  # Turn-scoped, cleared by rotate_to_next_player
     stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | Opponent2] = None  # Within-stage, cleared after each press/select
