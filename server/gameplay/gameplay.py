@@ -244,11 +244,11 @@ class GamePlay(StrictModel):
     deck: Deck[str] = Field(default_factory=lambda: Deck(card_counts=DEFAULT_CARD_COUNTS, cards=[]))
     players: dict[str, Player] = Field(default_factory=dict)
     active: Optional[ActivePlayer] = None  # The active player and its selections
-    card: Optional[str] = None  # Selected card from card_draw stage
-    ability: Optional[Ability] = None  # Selected ability
-    ability_opponent: Optional[Opponent2] = None  # Selected ability opponent
-    opponent: Optional[Opponent] = None  # Selected opponent for battle
-    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | Opponent2] = None  # Temporary stage-specific metadata
+    card: Optional[str] = None  # Turn-scoped, cleared by rotate_to_next_player
+    ability: Optional[Ability] = None  # Turn-scoped, cleared by rotate_to_next_player
+    ability_opponent: Optional[Opponent2] = None  # Turn-scoped, cleared by rotate_to_next_player
+    opponent: Optional[Opponent] = None  # Turn-scoped, cleared by rotate_to_next_player
+    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | Opponent2] = None  # Within-stage, cleared after each press/select
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""
