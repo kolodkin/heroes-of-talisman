@@ -110,9 +110,9 @@ class BattleEndAction(Action):
             )
         # If tied, no one loses health
 
-        # Dispose ability effects from both characters at battle end
-        self.dispose_character(active_character, clear_abilities=True)
-        self.dispose_character(opponent_character, clear_abilities=True)
+        # Clear active abilities from both characters at battle end
+        active_character.active_abilities = []
+        opponent_character.active_abilities = []
 
         # Rotate to next player's turn
         rotate_to_next_player(self.game)

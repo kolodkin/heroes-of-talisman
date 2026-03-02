@@ -90,9 +90,9 @@ class CharacterSelectAction(Action):
         if not player.characters[character].is_alive:
             raise ReportedException(f"Character {character} is dead and can't be selected")
 
-        # Dispose skip_turn effects from active player's characters
+        # Clear effects (e.g., skip_turn) from active player's characters
         for char in player.characters.values():
-            self.dispose_character(char, clear_effects=True)
+            char.effects = []
 
         # Update active player with selected character
         self.game.active = ActivePlayer2(player=self.user, character=character)
@@ -143,9 +143,9 @@ class SkipTurnAction(Action):
                 "Cannot skip turn: available characters exist"
             )
 
-        # Dispose skip_turn effects from active player's characters
+        # Clear effects (e.g., skip_turn) from active player's characters
         for char in player.characters.values():
-            self.dispose_character(char, clear_effects=True)
+            char.effects = []
 
         # Rotate to next player's turn
         rotate_to_next_player(self.game)
