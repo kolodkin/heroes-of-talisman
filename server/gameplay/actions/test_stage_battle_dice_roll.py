@@ -43,6 +43,7 @@ from ..gameplay import (
     init_characters,
 )
 from ..cards import CARD_METAL_ARMOR
+from ..effects import EFFECT_SKIP_TURN
 from ..presets import get_debug_preset, PRESET_EFFECT_REROLL
 
 
@@ -698,8 +699,6 @@ def test_reroll_effect_action():
     - Preserves effects (skip_turn) and active_cards
     - Resets game state for reroll
     """
-    from ..effects import EFFECT_SKIP_TURN
-
     # Use the effect_reroll preset which has archer with bouncing_arrow
     game = get_debug_preset(PRESET_EFFECT_REROLL)
 
