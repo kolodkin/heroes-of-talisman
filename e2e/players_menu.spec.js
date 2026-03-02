@@ -51,7 +51,8 @@ test("players menu minimized by default on desktop with expand minimize and coll
   await dismissConnectionToast(page);
 
   // Click expand/minimize button to expand all players
-  await expandMinimizeButton.click();
+  // Use force:true to bypass potential Toastify container overlay
+  await expandMinimizeButton.click({ force: true });
 
   // Verify expanded state
   await expect(expandMinimizeButton).toHaveText("−");
