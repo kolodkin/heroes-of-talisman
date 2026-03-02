@@ -9,8 +9,8 @@ This module implements actions for the ability selection stage:
 
 from .action import Action
 from ..common import GameException, ReportedException
-from ..effects import APPLY_TO_SELF
-from ..abilities import AbilityName, ABILITIES_MAP, get_ability_effects
+from ..effects import APPLY_TO_SELF, APPLY_TO_SELECTED_OPPONENT
+from ..abilities import AbilityName, get_ability_effects
 from ..gameplay import STAGE_ABILITY_SELECTION, STAGE_ABILITY_OPPONENT_SELECTION, STAGE_OPPONENT_SELECTION
 from ..gameplay import GamePlay, AbilitySelectMeta
 
@@ -100,9 +100,9 @@ class AbilitySelectAction(Action):
         # Clear stage_meta after selection
         self.game.stage_meta = None
 
-        # Transition to ability_opponent_selection if ability requires it, otherwise skip to opponent_selection
-        ability_obj = ABILITIES_MAP.get(ability)
-        if ability_obj and ability_obj.requires_opponent_selection:
+        # Transition to ability_opponent_selection if any effect targets a selected opponent
+        has_opponent_selection = any(e.apply_to == APPLY_TO_SELECTED_OPPONENT for e in effects)
+        if has_opponent_selection:
             self.game.stage = STAGE_ABILITY_OPPONENT_SELECTION
         else:
             self.game.stage = STAGE_OPPONENT_SELECTION

@@ -10,7 +10,6 @@ from .effects import (
     AttackBonusEffect,
     RerollDiceEffect,
     SkipTurnEffect,
-    APPLY_TO_SELECTED_OPPONENT,
 )
 
 ########################################################
@@ -26,11 +25,6 @@ AbilityName = Literal[*ABILITIES_NAMES]
 class Ability(StrictModel):
     name: str
     effects: list[EffectUnion] = Field(default_factory=list)  # effects that are applied when the ability is used
-
-    @property
-    def requires_opponent_selection(self) -> bool:
-        """Check if any effect requires opponent selection (via ability_opponent_selection stage)"""
-        return any(effect.apply_to == APPLY_TO_SELECTED_OPPONENT for effect in self.effects)
 
 
 ABILITIES_MAP: dict[AbilityName, Ability] = {

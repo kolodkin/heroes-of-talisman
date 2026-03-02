@@ -94,7 +94,7 @@ The `effect` computed property aggregates these into an `EffectTotal` with hardc
 
 - **Self-targeted abilities** (`apply_to = "self"`): Applied to active character's `active_abilities` when selected
 - **Opponent-targeted abilities** (`apply_to = "selected_opponent"`): Require `ability_opponent_selection` stage for target selection
-- Determined by `Ability.requires_opponent_selection` property, which checks if any effect has `apply_to == APPLY_TO_SELECTED_OPPONENT`
+- Determined by checking `apply_to == APPLY_TO_SELECTED_OPPONENT` on the ability's effects
 
 ## Available Abilities
 
@@ -182,7 +182,7 @@ The card draw stage allows players to draw a card from the deck and add it to th
 The ability selection stage allows players to choose which ability to use from their selected character's available abilities.
 
 - **`AbilityPressAction`**: Sets `stage_meta['selected']` to the ability name pressed by the active player. Validates that the player is active, the stage is `ability_selection`, and the ability is available for the selected character.
-- **`AbilitySelectAction`**: Confirms the ability selection by storing the selected ability name in `GamePlay.ability`. Self-targeted abilities (`apply_to = "self"`) are appended to `character.active_abilities`. Transitions to `ability_opponent_selection` if the ability has `requires_opponent_selection` (e.g., `FREEZE`), otherwise transitions directly to `opponent_selection`. Clears `stage_meta` after confirmation. Validates that the ability is available for the character.
+- **`AbilitySelectAction`**: Confirms the ability selection by storing the selected ability name in `GamePlay.ability`. Self-targeted abilities (`apply_to = "self"`) are appended to `character.active_abilities`. Transitions to `ability_opponent_selection` if any effect has `apply_to = "selected_opponent"` (e.g., `FREEZE`), otherwise transitions directly to `opponent_selection`. Clears `stage_meta` after confirmation. Validates that the ability is available for the character.
 
 **Actions:**
 
