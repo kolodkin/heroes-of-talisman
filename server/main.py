@@ -298,10 +298,7 @@ async def from_database(session: AsyncSession, redis_meta: RedisMeta) -> GameEng
     return GameEngine(redis_meta.gamename, redis_meta.username, game_model)
 
 
-async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta):
-    pubsub = redis_client.pubsub()
-    await pubsub.subscribe(redis_meta.channel)
-    logger.info(f"User '{redis_meta.username}' subscribed to channel '{redis_meta.channel}'")
+async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta, pubsub):
     async for message in pubsub.listen():
         if message["type"] == "message":
             data = json.loads(message["data"])
@@ -373,9 +370,16 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
             return
 
     logger.info(f"Connection to game {gamename} established for user {username}")
+
+    # Subscribe to Redis BEFORE starting loops to prevent race condition:
+    # actions_loop could process 'connect' and publish before game_update_loop subscribes
+    pubsub = redis_client.pubsub()
+    await pubsub.subscribe(redis_meta.channel)
+    logger.info(f"User '{username}' subscribed to channel '{redis_meta.channel}'")
+
     try:
         await asyncio.gather(
-            game_update_loop(websocket, redis_meta),
+            game_update_loop(websocket, redis_meta, pubsub),
             actions_loop(websocket, redis_meta),
         )
     except WebSocketDisconnect:
