@@ -59,13 +59,14 @@ from .effects import (
     TalismanEffect,
 )
 
-from .cards import CardName, CARDS_MAP, CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL
+from .cards import CardName, CARDS_MAP, CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL, CARD_DEVILS_FORK
 
 DEFAULT_CARD_COUNTS: dict[CardName, int] = {
     CARD_METAL_ARMOR: 5,
     CARD_SACRED_SWORD: 5,
     CARD_GOLDEN_APPLE: 5,
     CARD_MAGIC_BALL: 5,
+    CARD_DEVILS_FORK: 5,
 }
 
 ########################################################

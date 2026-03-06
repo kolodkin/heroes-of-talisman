@@ -54,6 +54,8 @@ PRESET_MAGE_NOT_ALIVE = "mage_not_alive"
 PRESET_OPPONENT_SELECTION = "opponent_selection_preset"
 PRESET_SINGLE_PLAYER = "single_player"
 PRESET_BATTLE_TALISMAN_KILL = "battle_talisman_kill"
+PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK = "card_draw_knight_devils_fork"
+PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK_MIN_LEVEL = "card_draw_knight_devils_fork_min_level"
 PRESET_CARD_DRAW_KNIGHT_TALISMAN = "card_draw_knight_talisman"
 DebugPresetsType = Literal[
     "default",
@@ -76,6 +78,8 @@ DebugPresetsType = Literal[
     "card_draw_golden_apple_max_health",
     "card_draw_knight_magic_ball",
     "card_draw_knight_magic_ball_max_level",
+    "card_draw_knight_devils_fork",
+    "card_draw_knight_devils_fork_min_level",
     "card_draw_knight_talisman",
     "effect_attack_bonus",
     "effect_reroll",
@@ -564,6 +568,43 @@ def get_debug_preset(
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "card_draw_knight_devils_fork":
+        # Knight L2 with damaged health draws devils_fork (loses 1 level)
+        # Knight L2: health=2 (damaged), max_health=3, dice=1, attack=3
+        # After level down: level=1, max_health=2, dice=1, attack=1
+        # Health = max(2, 2) = 2 (current health preserved since it equals new max)
+        from .cards import CARD_DEVILS_FORK
+
+        characters_p1 = init_characters(level=2)
+        characters_p1[CHARACTER_KNIGHT].health = 2  # Damaged knight
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=CARD_DEVILS_FORK),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "card_draw_knight_devils_fork_min_level":
+        # Knight L1 draws devils_fork (no effect, already at min level)
+        # Knight L1: health=1 (damaged), max_health=2, dice=1, attack=1
+        # After: no change
+        from .cards import CARD_DEVILS_FORK
+
+        characters_p1 = init_characters()
+        characters_p1[CHARACTER_KNIGHT].health = 1  # Damaged to verify health is NOT changed
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=CARD_DEVILS_FORK),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
     elif preset == "card_draw_knight_talisman":

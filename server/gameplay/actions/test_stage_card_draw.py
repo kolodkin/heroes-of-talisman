@@ -10,7 +10,7 @@ import pytest
 from .stage_card_draw import CardDrawAction, CardSelectAction
 from .battle_end import BattleEndAction
 from ..common import GameException, ReportedException, CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_TALISMAN, CARDS_MAP
+from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_DEVILS_FORK, CARD_TALISMAN, CARDS_MAP
 from ..gameplay import (
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
@@ -28,6 +28,8 @@ from ..presets import (
     PRESET_CARD_DRAW_ARCHER_SACRED_SWORD,
     PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE,
     PRESET_CARD_DRAW_GOLDEN_APPLE_MAX_HEALTH,
+    PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK,
+    PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK_MIN_LEVEL,
     PRESET_CARD_DRAW_KNIGHT_MAGIC_BALL_MAX_LEVEL,
     PRESET_CARD_DRAW_KNIGHT_TALISMAN,
 )
@@ -370,3 +372,78 @@ def test_talisman_card_applies_effect():
 
     # Check effect aggregation
     assert knight.effect.has_talisman is True
+
+
+def test_devils_fork_reduces_level():
+    """Test devils_fork reduces knight level from 2 to 1, health = max(current, new_max)"""
+    game = get_debug_preset(PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK)
+
+    # Verify preset: knight at level 2 with 2 health (damaged)
+    knight_before = game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight_before.level == 2
+    assert knight_before.health == 2
+    assert knight_before.max_health == 3
+    assert knight_before.dice == 1
+    assert knight_before.attack == 3
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Check knight leveled down to 1
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight.level == 1
+    assert knight.max_health == 2
+    assert knight.dice == 1
+    assert knight.attack == 1
+    # Health = max(2, 2) = 2 (current health preserved)
+    assert knight.health == 2
+    assert CARD_DEVILS_FORK in knight.cards
+
+
+def test_devils_fork_no_effect_at_min_level():
+    """Test devils_fork has no effect when knight is already at level 1"""
+    game = get_debug_preset(PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK_MIN_LEVEL)
+
+    # Verify preset: knight at level 1 with 1 health (damaged)
+    knight_before = game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight_before.level == 1
+    assert knight_before.health == 1
+    assert knight_before.max_health == 2
+    assert knight_before.dice == 1
+    assert knight_before.attack == 1
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Verify no stats changed
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight.level == 1
+    assert knight.health == 1  # Health NOT changed
+    assert knight.max_health == 2
+    assert knight.dice == 1
+    assert knight.attack == 1
+
+
+def test_devils_fork_health_preserved_when_above_new_max():
+    """Test devils_fork preserves health when current > new level max_health"""
+    # Knight L2: max_health=3, set health=3 (full)
+    # After level down to L1: max_health=2, health = max(3, 2) = 3
+    characters = init_characters(level=2)
+    knight = characters[CHARACTER_KNIGHT]
+    knight.health = 3  # Full health at L2
+
+    game = GamePlay(
+        stage=STAGE_CARD_DRAW,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        stage_meta=CardDrawMeta(drawn_card=CARD_DEVILS_FORK),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    knight_after = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight_after.level == 1
+    assert knight_after.max_health == 2
+    # Health is max(3, 2) = 3 (current health exceeds new max, preserved)
+    assert knight_after.health == 3

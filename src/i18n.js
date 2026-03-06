@@ -82,6 +82,10 @@ const resources = {
           name: "כדור קסם",
           description: "מעלה דרגה ומחזיר בריאות למקסימום",
         },
+        devils_fork: {
+          name: "קלשון השטן",
+          description: "מוריד דרגה לדמות הנבחרת",
+        },
         talisman: {
           name: "קמע",
           description: "משמיד את כל מי שהדמות העונדת אותו מביסה",

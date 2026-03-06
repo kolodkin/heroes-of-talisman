@@ -8,7 +8,7 @@ This module implements actions for the card draw stage:
 
 from .action import Action
 from ..common import GameException, ReportedException
-from ..effects import HealEffect, LevelUpEffect
+from ..effects import HealEffect, LevelDownEffect, LevelUpEffect
 from ..cards import CardName, CARDS_MAP
 from ..gameplay import STAGE_CARD_DRAW, STAGE_ABILITY_SELECTION, CHARACTER_STATS_BY_LEVEL, MAX_LEVEL
 from ..gameplay import GamePlay, CardDrawMeta, AbilitySelectMeta
@@ -99,6 +99,19 @@ class CardSelectAction(Action):
                         character.max_health,
                         character.health + effect.heal_amount
                     )
+                elif isinstance(effect, LevelDownEffect):
+                    # No effect if already at level 1
+                    if character.level > 1:
+                        new_level = character.level - effect.level_decrease
+                        level_stats = CHARACTER_STATS_BY_LEVEL[new_level]
+                        char_stats = level_stats[character_type]
+                        # Update character stats
+                        character.level = new_level
+                        character.max_health = char_stats["max_health"]
+                        character.dice = char_stats["dice"]
+                        character.attack = char_stats["attack"]
+                        # Health becomes max(current_health, new_level_max_health)
+                        character.health = max(character.health, character.max_health)
                 elif isinstance(effect, LevelUpEffect):
                     # No effect if already at max level
                     if character.level < MAX_LEVEL:
