@@ -9,7 +9,8 @@ import pytest
 
 from .stage_ability_opponent_selection import AbilityOpponentPressAction, AbilityOpponentSelectAction
 from ..common import GameException, ReportedException, CHARACTER_KNIGHT, CHARACTER_MAGE
-from ..abilities import ABILITY_BATTLE_HOWL, ABILITY_FREEZE, ABILITIES_MAP
+from ..abilities import ABILITY_BATTLE_HOWL, ABILITY_FREEZE
+from ..effects import EFFECT_SKIP_TURN
 from ..gameplay import (
     STAGE_ABILITY_OPPONENT_SELECTION,
     STAGE_OPPONENT_SELECTION,
@@ -27,7 +28,7 @@ def test_ability_opponent_press_action_valid():
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
-        ability=ABILITIES_MAP[ABILITY_BATTLE_HOWL],
+        ability=ABILITY_BATTLE_HOWL,
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -50,7 +51,7 @@ def test_ability_opponent_press_action_not_active_player():
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
-        ability=ABILITIES_MAP[ABILITY_BATTLE_HOWL],
+        ability=ABILITY_BATTLE_HOWL,
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -69,7 +70,7 @@ def test_ability_opponent_press_action_wrong_stage():
     game = GamePlay(
         stage=STAGE_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
-        ability=ABILITIES_MAP[ABILITY_BATTLE_HOWL],
+        ability=ABILITY_BATTLE_HOWL,
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -88,7 +89,7 @@ def test_ability_opponent_press_action_invalid_opponent():
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
-        ability=ABILITIES_MAP[ABILITY_BATTLE_HOWL],
+        ability=ABILITY_BATTLE_HOWL,
         players={"player1": Player(name="player1", characters=characters)},
     )
 
@@ -104,7 +105,7 @@ def test_ability_opponent_press_action_self_as_opponent():
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
-        ability=ABILITIES_MAP[ABILITY_BATTLE_HOWL],
+        ability=ABILITY_BATTLE_HOWL,
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -126,7 +127,7 @@ def test_ability_opponent_press_action_dead_character():
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_MAGE),
-        ability=ABILITIES_MAP[ABILITY_FREEZE],
+        ability=ABILITY_FREEZE,
         players={
             "player1": Player(name="player1", characters=init_characters()),
             "player2": Player(name="player2", characters=characters),
@@ -146,7 +147,7 @@ def test_ability_opponent_select_action_valid():
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
-        ability=ABILITIES_MAP[ABILITY_BATTLE_HOWL],
+        ability=ABILITY_FREEZE,
         stage_meta=Opponent2(player="player2", character=CHARACTER_KNIGHT),
         players={
             "player1": Player(name="player1", characters=characters1),
@@ -166,10 +167,10 @@ def test_ability_opponent_select_action_valid():
     assert updated_game.ability_opponent.player == "player2"
     assert updated_game.ability_opponent.character == CHARACTER_KNIGHT
 
-    # Check effects were applied to target character
+    # Check effects were applied to target character as string names
     target_character = updated_game.players["player2"].characters[CHARACTER_KNIGHT]
     assert len(target_character.effects) > 0
-    assert target_character.effects[0].source == ABILITY_BATTLE_HOWL
+    assert target_character.effects[0] == EFFECT_SKIP_TURN
 
 
 def test_ability_opponent_select_action_not_active_player():
@@ -178,7 +179,7 @@ def test_ability_opponent_select_action_not_active_player():
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
-        ability=ABILITIES_MAP[ABILITY_BATTLE_HOWL],
+        ability=ABILITY_BATTLE_HOWL,
         stage_meta=Opponent2(player="player2", character=CHARACTER_KNIGHT),
         players={
             "player1": Player(name="player1", characters=characters),
@@ -198,7 +199,7 @@ def test_ability_opponent_select_action_wrong_stage():
     game = GamePlay(
         stage=STAGE_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
-        ability=ABILITIES_MAP[ABILITY_BATTLE_HOWL],
+        ability=ABILITY_BATTLE_HOWL,
         stage_meta=Opponent2(player="player2", character=CHARACTER_KNIGHT),
         players={
             "player1": Player(name="player1", characters=characters),
@@ -218,7 +219,7 @@ def test_ability_opponent_select_action_no_target_selected():
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
-        ability=ABILITIES_MAP[ABILITY_BATTLE_HOWL],
+        ability=ABILITY_BATTLE_HOWL,
         players={
             "player1": Player(name="player1", characters=characters),
             "player2": Player(name="player2", characters=characters),
@@ -242,7 +243,7 @@ def test_ability_opponent_select_action_dead_character():
     game = GamePlay(
         stage=STAGE_ABILITY_OPPONENT_SELECTION,
         active=ActivePlayer2(player="player1", character=CHARACTER_MAGE),
-        ability=ABILITIES_MAP[ABILITY_FREEZE],
+        ability=ABILITY_FREEZE,
         stage_meta=Opponent2(player="player2", character=CHARACTER_KNIGHT),
         players={
             "player1": Player(name="player1", characters=characters1),

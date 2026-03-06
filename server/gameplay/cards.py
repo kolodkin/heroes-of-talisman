@@ -6,18 +6,16 @@ from pydantic import Field
 
 from .common import StrictModel
 from .effects import (
-    # Effect name constants for EFFECTS_SOURCE_CARD_MAP
-    EFFECT_DEFENSE_BONUS,
-    EFFECT_ATTACK_BONUS,
-    EFFECT_HEAL,
-    EFFECT_LEVEL_UP,
-    EFFECT_TALISMAN,
-    # Apply to constants
-    APPLY_TO_SELF,
+    EffectUnion,
+    DefenseBonusEffect,
+    AttackBonusEffect,
+    HealEffect,
+    LevelUpEffect,
+    TalismanEffect,
 )
 
 ########################################################
-# Card names - defined before imports from effects to avoid circular dependency
+# Card names
 ########################################################
 CARD_METAL_ARMOR = "metal_armor"
 CARD_SACRED_SWORD = "sacred_sord"
@@ -26,29 +24,6 @@ CARD_MAGIC_BALL = "magic_ball"
 CARD_TALISMAN = "talisman"
 CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL, CARD_TALISMAN]
 CardName = Literal[*CARDS_NAMES]
-
-########################################################
-# Effect-to-Source mapping
-########################################################
-# Defines which cards can create which effects
-# This is used for validation to ensure effects have valid source cards
-EFFECTS_SOURCE_CARD_MAP: dict[str, set[str]] = {
-    EFFECT_DEFENSE_BONUS: {CARD_METAL_ARMOR},
-    EFFECT_ATTACK_BONUS: {CARD_SACRED_SWORD},
-    EFFECT_HEAL: {CARD_GOLDEN_APPLE},
-    EFFECT_LEVEL_UP: {CARD_MAGIC_BALL},
-    EFFECT_TALISMAN: {CARD_TALISMAN},
-}
-
-# Import Effect classes after defining constants to avoid circular import
-from .effects import (
-    EffectUnion,
-    DefenseBonusEffect,
-    AttackBonusEffect,
-    HealEffect,
-    LevelUpEffect,
-    TalismanEffect,
-)
 
 
 class Card(StrictModel):
@@ -61,32 +36,32 @@ CARDS_MAP: dict[CardName, Card] = {
     CARD_METAL_ARMOR: Card(
         name=CARD_METAL_ARMOR,
         effects=[
-            DefenseBonusEffect(source=CARD_METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
+            DefenseBonusEffect(defense_bonus=2),
         ],
     ),
     CARD_SACRED_SWORD: Card(
         name=CARD_SACRED_SWORD,
         effects=[
-            AttackBonusEffect(source=CARD_SACRED_SWORD, attack_bonus=3, dispose_actions=[]),
+            AttackBonusEffect(attack_bonus=3),
         ],
         restricted_characters=["archer"],
     ),
     CARD_GOLDEN_APPLE: Card(
         name=CARD_GOLDEN_APPLE,
         effects=[
-            HealEffect(source=CARD_GOLDEN_APPLE, heal_amount=1),
+            HealEffect(heal_amount=1),
         ],
     ),
     CARD_MAGIC_BALL: Card(
         name=CARD_MAGIC_BALL,
         effects=[
-            LevelUpEffect(source=CARD_MAGIC_BALL),
+            LevelUpEffect(),
         ],
     ),
     CARD_TALISMAN: Card(
         name=CARD_TALISMAN,
         effects=[
-            TalismanEffect(source=CARD_TALISMAN),
+            TalismanEffect(),
         ],
     ),
 }

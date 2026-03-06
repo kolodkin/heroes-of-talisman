@@ -15,8 +15,7 @@ from ..common import (
     CHARACTER_ARCHER,
     CHARACTER_MAGE,
 )
-from ..abilities import Ability, ABILITY_BATTLE_HOWL, ABILITIES_MAP
-from ..effects import AttackNegBonusEffect, EFFECT_ATTACK_NEG_BONUS
+from ..abilities import ABILITY_BATTLE_HOWL
 from ..gameplay import (
     STAGE_OPPONENT_SELECTION,
     STAGE_BATTLE_DICE_ROLL,
@@ -229,7 +228,7 @@ def test_opponent_select_action_with_self_effect_ability():
 
     # Set ability to ABILITY_BATTLE_HOWL (has AttackBonusEffect with apply_to='self')
     # Note: Self effects are applied in AbilitySelectAction, not here
-    game.ability = ABILITIES_MAP[ABILITY_BATTLE_HOWL]
+    game.ability = ABILITY_BATTLE_HOWL
 
     # Set stage_meta with selected opponent
     game.stage_meta = Opponent2(player="player2", character=CHARACTER_MAGE)

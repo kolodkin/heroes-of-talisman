@@ -7,11 +7,10 @@ This module implements actions for the ability selection stage:
   (if ability requires opponent selection) or opponent_selection stage
 """
 
-import copy
 from .action import Action
 from ..common import GameException, ReportedException
-from ..effects import APPLY_TO_SELF
-from ..abilities import AbilityName
+from ..effects import APPLY_TO_SELF, APPLY_TO_SELECTED_OPPONENT
+from ..abilities import AbilityName, get_ability_effects
 from ..gameplay import STAGE_ABILITY_SELECTION, STAGE_ABILITY_OPPONENT_SELECTION, STAGE_OPPONENT_SELECTION
 from ..gameplay import GamePlay, AbilitySelectMeta
 
@@ -89,25 +88,21 @@ class AbilitySelectAction(Action):
         if ability not in available_abilities:
             raise ReportedException(f"Ability {ability} not available for this character")
 
-        # Store selected ability in GamePlay.ability
-        ability_obj = next((a for a in character.abilities if a.name == ability), None)
-        if not ability_obj:
-            raise GameException(f"Ability {ability} not found in character abilities")
+        # Store selected ability name in GamePlay.ability
+        self.game.ability = ability
 
-        self.game.ability = ability_obj
-
-        # Apply "self" effects to the active player's character
-        for effect in ability_obj.effects:
-            if effect.apply_to == APPLY_TO_SELF:
-                # Deep copy the effect to avoid modifying the original ability definition
-                effect_copy = copy.deepcopy(effect)
-                character.effects.append(effect_copy)
+        # Apply self-target effects by adding ability name to active_abilities
+        effects = get_ability_effects(ability)
+        has_self_effects = any(e.apply_to == APPLY_TO_SELF for e in effects)
+        if has_self_effects:
+            character.active_abilities.append(ability)
 
         # Clear stage_meta after selection
         self.game.stage_meta = None
 
-        # Transition to ability_opponent_selection if ability requires it, otherwise skip to opponent_selection
-        if ability_obj.requires_opponent_selection:
+        # Transition to ability_opponent_selection if any effect targets a selected opponent
+        has_opponent_selection = any(e.apply_to == APPLY_TO_SELECTED_OPPONENT for e in effects)
+        if has_opponent_selection:
             self.game.stage = STAGE_ABILITY_OPPONENT_SELECTION
         else:
             self.game.stage = STAGE_OPPONENT_SELECTION

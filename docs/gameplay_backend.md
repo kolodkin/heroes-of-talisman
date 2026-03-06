@@ -78,48 +78,35 @@ To implement a new action, subclass `Action` and implement the `run` method. Use
 
 # Abilities & Effects
 
-Each character has one or more abilities that can be used during their turn. When an ability is selected, it triggers one or more effects.
+Each character has one or more abilities that can be used during their turn. Abilities and cards are stored as **string literal names** on the character. Effect values are hardcoded in `EffectTotal` computation.
 
-## Effect Base Class
+## Character State
 
-All effects inherit from `Effect` base class (`server/gameplay/models.py`) with:
+Characters hold three lists of string names:
 
-- `name`: Discriminator field for polymorphic serialization
-- `source`: The ability that created this effect
-- `dispose_actions`: List of action names when this effect should be disposed
-- `apply_to`: Target type (`'self'`, `'battle_opponent'`, or `'selected_opponent'`)
+- **`active_abilities`**: Applied ability names (e.g., `["battle_howl"]`)
+- **`cards`**: Persistent card names (e.g., `["metal_armor", "talisman"]`)
+- **`effects`**: Transient effect names (e.g., `["skip_turn"]`)
 
-## Effect Application Types
+The `effect` computed property aggregates these into an `EffectTotal` with hardcoded values per ability/card name.
 
-- **Self** (`apply_to='self'`): Applied to active player's character in `AbilitySelectAction`
-- **Battle Opponent** (`apply_to='battle_opponent'`): Applied to battle opponent in `OpponentSelectAction`
-- **Selected Opponent** (`apply_to='selected_opponent'`): Requires `ability_opponent_selection` stage, applied in `AbilityOpponentSelectAction`
+## Ability Metadata
 
-## Effect Types
+- **Self-targeted abilities** (`apply_to = "self"`): Applied to active character's `active_abilities` when selected
+- **Opponent-targeted abilities** (`apply_to = "selected_opponent"`): Require `ability_opponent_selection` stage for target selection
+- Determined by checking `apply_to == APPLY_TO_SELECTED_OPPONENT` on the ability's effects
 
-| Effect                 | Description                                 | `dispose_actions` (default)              | `apply_to`          |
-| ---------------------- | ------------------------------------------- | ---------------------------------------- | ------------------- |
-| `SkipTurnEffect`       | Character skips next turn                   | `['character_select']`                   | `selected_opponent` |
-| `AttackBonusEffect`    | Increases attack by value                   | `['battle_end']`                         | `self`              |
-| `AttackNegBonusEffect` | Decreases attack by value                   | `['battle_end']`                         | `battle_opponent`   |
-| `RerollDiceEffect`     | Allows dice reroll on loss                  | `['battle_end', 'action_reroll_effect']` | `self`              |
-| `DrawCardEffect`       | Draws cards                                 | `['battle_end']`                         | `self`              |
-| `DefenseBonusEffect`   | Increases defense by value                  | `['battle_end']`                         | `self`              |
-| `HealEffect`           | Heals character instantly                   | `['card_select']`                        | `self`              |
-| `LevelUpEffect`        | Levels up character, restores health        | `['card_select']`                        | `self`              |
-| `TalismanEffect`       | Kills defeated opponent regardless of level | `[]` (persistent)                        | `self`              |
+## Available Abilities
 
-**Note:** `dispose_actions` can be overridden per instance. Card-sourced equipment effects (e.g., `metal_armor`, `sacred_sword`) override `dispose_actions=[]` to make them persistent, while ability-sourced effects use the defaults shown above.
+| Ability          | Effect                | `apply_to`          | When Applied                | When Cleared             |
+| ---------------- | --------------------- | ------------------- | --------------------------- | ------------------------ |
+| `BATTLE_HOWL`    | `AttackBonusEffect(+2)` | `self`            | `AbilitySelectAction`       | `BattleEndAction`        |
+| `BOUNCING_ARROW` | `RerollDiceEffect`    | `self`              | `AbilitySelectAction`       | `BattleEndAction`        |
+| `FREEZE`         | `SkipTurnEffect`      | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction` |
 
 # Cards
 
 Cards provide bonuses and effects to characters. Cards are drawn from a shared deck during the `card_draw` stage.
-
-## Card Model
-
-- `name`: Unique card identifier
-- `effects`: List of effects applied when card is selected
-- `restricted_characters`: Characters that cannot use this card
 
 ## Deck Model
 
@@ -127,23 +114,31 @@ Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when
 
 ## Available Cards
 
-| Card           | Effects                                      | Restrictions |
-| -------------- | -------------------------------------------- | ------------ |
-| `metal_armor`  | `DefenseBonusEffect(+2, dispose_actions=[])` | None         |
-| `sacred_sword` | `AttackBonusEffect(+3, dispose_actions=[])`  | Archer       |
-| `golden_apple` | `HealEffect(+1)` (instant)                   | None         |
-| `magic_ball`   | `LevelUpEffect(+1)` (instant)                | None         |
-| `talisman`     | `TalismanEffect` (persistent)                | None         |
+| Card           | Effect                           | Type       | Restrictions |
+| -------------- | -------------------------------- | ---------- | ------------ |
+| `metal_armor`  | `defense_bonus += 2`            | Persistent | None         |
+| `sacred_sword` | `attack_bonus += 3`             | Persistent | Archer       |
+| `golden_apple` | `health += 1` (capped at max)   | Instant    | None         |
+| `magic_ball`   | Level up (+1 level, heal to max) | Instant    | None         |
+| `talisman`     | `has_talisman = True`           | Persistent | None         |
 
-**Note:** Equipment cards (`metal_armor`, `sacred_sword`) override `dispose_actions=[]` making their effects persistent (never disposed). The `talisman` effect is also persistent. Card names are tracked in `character.cards` list.
+**Instant cards** are applied immediately and not stored. **Persistent cards** are stored in `character.cards`.
 
-## Available Abilities
+## Card Restrictions
 
-| Character | Ability          | Effect                                       |
-| --------- | ---------------- | -------------------------------------------- |
-| Knight L1 | `BATTLE_HOWL`    | `AttackBonusEffect(attack_bonus=2)`          |
-| Archer L1 | `BOUNCING_ARROW` | `RerollDiceEffect`                           |
-| Mage L1   | `FREEZE`         | `SkipTurnEffect` (requires target selection) |
+Some cards have `CARD_RESTRICTED_CHARACTERS` that lists characters who cannot use them. Restricted cards are skipped when drawn by excluded characters.
+
+# Action Cleanup
+
+Actions clean up abilities and effects from characters inline when they're no longer relevant. Each action clears the specific list directly:
+
+| Action                  | What is cleared                                      |
+| ----------------------- | ---------------------------------------------------- |
+| `BattleEndAction`       | `active_abilities = []` on both active and opponent  |
+| `CharacterSelectAction` | `effects = []` on all active player's characters     |
+| `SkipTurnAction`        | `effects = []` on all active player's characters     |
+
+**Note:** Persistent cards (`metal_armor`, `sacred_sword`, `talisman`) are never disposed.
 
 # Stages
 
@@ -152,25 +147,25 @@ Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when
 The character selection stage allows players to choose which character will act during their turn. Dead characters (`is_alive=False`) and characters with `SkipTurnEffect` cannot be selected. The `Character.is_available` computed field encapsulates this check (`is_alive and not skip_turn`).
 
 - **`CharacterPressAction`**: Sets `stage_meta['selected']` to the character name pressed by the active player. Validates that the player is active, the stage is `character_select`, the character exists for this player, and the character is alive (`is_alive=True`).
-- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name, **disposes all effects with `dispose_action='character_select'`** from the active player's characters (e.g., all SkipTurnEffects), and transitioning the game stage from `character_select` to `ability_selection`. Validates that the selected character is alive. **Auto-selects ability**: If the selected character has only one ability, `stage_meta.selected` is automatically set to that ability's name for the ability selection stage; otherwise `stage_meta` is cleared.
-- **`SkipTurnAction`**: Skips the current player's turn when no character is available for selection (all characters are either dead or have `SkipTurnEffect`). **Disposes all effects with `dispose_action='character_select'`** from the active player's characters, rotates to the next player (circular rotation), and stays in `character_select` stage for the next player's turn.
+- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name, **clears `effects`** from all active player's characters, and transitioning the game stage from `character_select` to `ability_selection`. Validates that the selected character is alive. **Auto-selects ability**: If the selected character has only one ability, `stage_meta.selected` is automatically set to that ability's name for the ability selection stage; otherwise `stage_meta` is cleared.
+- **`SkipTurnAction`**: Skips the current player's turn when no character is available for selection (all characters are either dead or have `skip_turn` effect). **Clears `effects`** from all active player's characters, rotates to the next player (circular rotation), and stays in `character_select` stage for the next player's turn.
 
 **Actions:**
 
 - [x] `character_press` – highlight selected character (`CharacterPressAction`)
-- [x] `character_select` – confirm character selection, dispose character_select effects, and transition to card_draw (`CharacterSelectAction`)
-- [x] `skip_turn` – skip turn when no character available, dispose character_select effects, and rotate to next player (`SkipTurnAction`)
+- [x] `character_select` – confirm character selection, dispose skip_turn effects, and transition to card_draw (`CharacterSelectAction`)
+- [x] `skip_turn` – skip turn when no character available, dispose skip_turn effects, and rotate to next player (`SkipTurnAction`)
 
 ## Stage: Card Draw
 
 The card draw stage allows players to draw a card from the deck and add it to their character.
 
 - **`CardDrawAction`**: Draws a random card from the deck and stores it in `stage_meta.drawn_card`. The deck auto-resets when empty.
-- **`CardSelectAction`**: Confirms the card selection by applying instant effects and adding persistent effects to the character. Instant effects are applied immediately:
-  - **`HealEffect`**: Heals character (capped at max_health)
-  - **`LevelUpEffect`**: Increases character level, updates stats to new level, and restores health to new max_health
+- **`CardSelectAction`**: Confirms the card selection via `_apply_card()`. Instant cards are applied immediately:
+  - **`golden_apple`**: Heals character by 1 (capped at max_health)
+  - **`magic_ball`**: Increases character level, updates stats to new level, and restores health to new max_health
 
-  Cards are tracked in `character.cards`. Transitions to `ability_selection` stage.
+  Persistent cards are stored in `character.cards`. Card restrictions are checked via `_is_card_restricted()`. Transitions to `ability_selection` stage.
 
 **Card Restrictions:**
 
@@ -187,7 +182,7 @@ The card draw stage allows players to draw a card from the deck and add it to th
 The ability selection stage allows players to choose which ability to use from their selected character's available abilities.
 
 - **`AbilityPressAction`**: Sets `stage_meta['selected']` to the ability name pressed by the active player. Validates that the player is active, the stage is `ability_selection`, and the ability is available for the selected character.
-- **`AbilitySelectAction`**: Confirms the ability selection by storing the selected ability object in `GamePlay.ability`. Transitions to `ability_opponent_selection` if the ability has effects requiring target selection (e.g., `SkipTurnEffect`), otherwise transitions directly to `opponent_selection`. Clears `stage_meta` after confirmation. Validates that the ability is available for the character.
+- **`AbilitySelectAction`**: Confirms the ability selection by storing the selected ability name in `GamePlay.ability`. Self-targeted abilities (`apply_to = "self"`) are appended to `character.active_abilities`. Transitions to `ability_opponent_selection` if any effect has `apply_to = "selected_opponent"` (e.g., `FREEZE`), otherwise transitions directly to `opponent_selection`. Clears `stage_meta` after confirmation. Validates that the ability is available for the character.
 
 **Actions:**
 
@@ -199,7 +194,7 @@ The ability selection stage allows players to choose which ability to use from t
 The ability opponent selection stage allows players to choose which opponent character to apply the selected ability's effects to. **This stage is only used for abilities with effects that require target selection (e.g., `SkipTurnEffect`).** Other abilities skip this stage entirely.
 
 - **`AbilityOpponentPressAction`**: Sets `stage_meta` to an `Opponent2` object with the selected opponent player name and character. Validates that the player is active, the stage is `ability_opponent_selection`, the opponent exists, is not the current player, has the selected character, and the character is alive (`is_alive=True`).
-- **`AbilityOpponentSelectAction`**: Confirms the ability target selection by reading from `stage_meta`, applying the ability's effects to the target character, storing the target in `GamePlay.ability_opponent`, clearing `stage_meta`, and transitioning the game stage from `ability_opponent_selection` to `opponent_selection`. Validates that the opponent character is still alive.
+- **`AbilityOpponentSelectAction`**: Confirms the ability target selection by reading from `stage_meta`, applying the ability's effects to the target character (e.g., `FREEZE` appends `skip_turn` to target's `effects`), storing the target in `GamePlay.ability_opponent`, clearing `stage_meta`, and transitioning the game stage from `ability_opponent_selection` to `opponent_selection`. Validates that the opponent character is still alive.
 
 **Actions:**
 
@@ -228,20 +223,20 @@ The battle stage handles dice rolling for both the active player and opponent, f
   When both players have rolled, scores are calculated using the [battle score formula](/docs/gameplay_spec.md#turn-stages) and stored in `active.result.score` / `opponent.result.score`.
 
 - **`RerollAction`**: Resets dice rolls when both players rolled and the result is a draw. Downgrades `ActivePlayer4`/`Opponent4` back to `ActivePlayer2`/`Opponent2` for re-rolling.
-- **`RerollEffectAction`**: Allows the active player to use a `RerollDiceEffect` after losing a battle. Removes the effect and resets dice for re-rolling. Only available in `battle_dice_roll` stage when the loser has a reroll effect.
+- **`RerollEffectAction`**: Allows the active player to use a reroll ability (`BOUNCING_ARROW`) after losing a battle. Clears `active_abilities` on the active character and resets dice for re-rolling. Only available in `battle_dice_roll` stage when the loser has `reroll_dice_available`.
 - **`BattleEndAction`**: Ends the battle after both players have rolled. Uses the pre-calculated scores to determine the winner, reduces the loser's health by 1 with level-based death handling:
   - **Winner has talisman and opponent at 0 health**: Opponent dies regardless of level (`is_alive=False`)
   - **Level 2+ character at 0 health** (no talisman): Reduces level by 1 and restores health to new level's max_health (character survives)
   - **Level 1 character at 0 health**: Character dies (`is_alive=False`)
 
-  Also disposes effects with `'battle_end'` in `dispose_actions`, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
+  Also clears `active_abilities` from both active and opponent characters, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
 
 **Stage Transition Logic:**
 
 When both players have rolled, the game calculates the winner and determines the next stage:
 
 - **Draw**: Stay in `battle_dice_roll` stage (players can reroll via `RerollAction`)
-- **Winner with loser having reroll effect**: Stay in `battle_dice_roll` stage (loser can use `RerollEffectAction`)
+- **Winner with loser having `reroll_dice_available`**: Stay in `battle_dice_roll` stage (loser can use `RerollEffectAction`)
 - **Winner with no reroll available**: Transition to `battle_end` stage
 
 **Actions:**
@@ -249,5 +244,5 @@ When both players have rolled, the game calculates the winner and determines the
 - [x] `active_player_roll` – roll dice for active player, sets `active.dice_roll` list (`ActivePlayerRollAction`)
 - [x] `opponent_roll` – roll dice for opponent, sets `opponent.dice_roll` list (`OpponentRollAction`)
 - [x] `action_reroll` – reset dice rolls on draw (`RerollAction`)
-- [x] `action_reroll_effect` – use reroll effect after losing, mark effect as used (`RerollEffectAction`)
-- [x] `battle_end` – end battle, reduce loser's health, dispose battle effects, transition to next turn (`BattleEndAction`)
+- [x] `action_reroll_effect` – use reroll ability after losing, dispose BOUNCING_ARROW (`RerollEffectAction`)
+- [x] `battle_end` – end battle, reduce loser's health, dispose battle abilities, transition to next turn (`BattleEndAction`)

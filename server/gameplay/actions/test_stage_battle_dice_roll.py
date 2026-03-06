@@ -24,13 +24,6 @@ from ..common import (
     CHARACTER_MAGE,
 )
 from ..abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
-from ..effects import (
-    AttackBonusEffect,
-    AttackNegBonusEffect,
-    DefenseBonusEffect,
-    SkipTurnEffect,
-    RerollDiceEffect,
-)
 from ..gameplay import (
     STAGE_BATTLE_DICE_ROLL,
     STAGE_BATTLE_END,
@@ -50,6 +43,7 @@ from ..gameplay import (
     init_characters,
 )
 from ..cards import CARD_METAL_ARMOR
+from ..effects import EFFECT_SKIP_TURN
 from ..presets import get_debug_preset, PRESET_EFFECT_REROLL
 
 
@@ -509,9 +503,7 @@ def test_calculate_winner_with_defense_bonus():
     """Test that defense bonus reduces opponent's score"""
     characters = init_characters()
     # Give knight a +2 defense bonus (metal armor)
-    characters[CHARACTER_KNIGHT].effects = [
-        DefenseBonusEffect(source=CARD_METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
-    ]
+    characters[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR]
 
     game = GamePlay(
         stage=STAGE_BATTLE_DICE_ROLL,
@@ -534,9 +526,7 @@ def test_calculate_winner_with_defense_bonus():
 def test_set_winner_with_defense_bonus():
     """Test that set_winner_if_both_rolled correctly uses defense bonus in scores"""
     characters = init_characters()
-    characters[CHARACTER_KNIGHT].effects = [
-        DefenseBonusEffect(source=CARD_METAL_ARMOR, defense_bonus=2, dispose_actions=[]),
-    ]
+    characters[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR]
 
     game = GamePlay(
         stage=STAGE_BATTLE_DICE_ROLL,
@@ -704,25 +694,23 @@ def test_debug_set_battle_dice_rolls_invalid_dice_count():
 def test_reroll_effect_action():
     """
     Test RerollEffectAction behavior:
-    - Removes all RerollDiceEffects from the character
-    - Preserves non-RerollDiceEffect effects
+    - Removes bouncing_arrow from active_abilities (consumes reroll)
+    - Preserves other active_abilities
+    - Preserves effects (skip_turn) and active_cards
     - Resets game state for reroll
     """
-    # Use the effect_reroll preset which has archer with RerollDiceEffect
+    # Use the effect_reroll preset which has archer with bouncing_arrow
     game = get_debug_preset(PRESET_EFFECT_REROLL)
 
-    # Add additional effects to test comprehensive behavior:
-    # - Second RerollDiceEffect (to test all are removed)
-    # - AttackBonusEffect and SkipTurnEffect (to test other effects are preserved)
+    # Add additional abilities/effects to test comprehensive behavior
     active_character = game.players[game.active.player].characters[game.active.character]
-    active_character.effects.append(RerollDiceEffect(source=ABILITY_BOUNCING_ARROW))
-    active_character.effects.append(AttackBonusEffect(source=ABILITY_BATTLE_HOWL, attack_bonus=2))
-    active_character.effects.append(SkipTurnEffect(source=ABILITY_FREEZE))
+    active_character.active_abilities.append(ABILITY_BATTLE_HOWL)
+    active_character.effects.append(EFFECT_SKIP_TURN)
 
-    # Verify initial state: 4 effects total (1 original + 3 added)
-    assert len(active_character.effects) == 4
-    reroll_effects_count = sum(1 for eff in active_character.effects if isinstance(eff, RerollDiceEffect))
-    assert reroll_effects_count == 2
+    # Verify initial state
+    assert ABILITY_BOUNCING_ARROW in active_character.active_abilities
+    assert ABILITY_BATTLE_HOWL in active_character.active_abilities
+    assert len(active_character.active_abilities) == 2
     assert active_character.effect.reroll_dice_available
 
     # Verify preset created game state as ActivePlayer4/Opponent4 (both rolled, winner calculated)
@@ -738,20 +726,17 @@ def test_reroll_effect_action():
     action = RerollEffectAction("player1", game)
     updated_game = action.run()
 
-    # Verify all RerollDiceEffects are removed, other effects preserved
+    # Verify bouncing_arrow was removed, battle_howl preserved
     active_character_after = updated_game.players[updated_game.active.player].characters[updated_game.active.character]
-    assert len(active_character_after.effects) == 2  # Only AttackBonusEffect and SkipTurnEffect
-
-    # Verify no RerollDiceEffects remain
-    reroll_effects_after = [eff for eff in active_character_after.effects if isinstance(eff, RerollDiceEffect)]
-    assert len(reroll_effects_after) == 0
+    assert ABILITY_BOUNCING_ARROW not in active_character_after.active_abilities
+    assert ABILITY_BATTLE_HOWL in active_character_after.active_abilities
+    assert len(active_character_after.active_abilities) == 1
 
     # Verify reroll is no longer available
     assert active_character_after.effect.reroll_dice_available is False
 
-    # Verify other effects are preserved
-    assert any(isinstance(eff, AttackBonusEffect) for eff in active_character_after.effects)
-    assert any(isinstance(eff, SkipTurnEffect) for eff in active_character_after.effects)
+    # Verify effects (skip_turn) are preserved
+    assert EFFECT_SKIP_TURN in active_character_after.effects
 
     # Verify the game state was reset (reroll happened)
     assert isinstance(updated_game.active, ActivePlayer2)

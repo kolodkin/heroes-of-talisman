@@ -11,7 +11,6 @@ from .action import Action, rotate_to_next_player
 from ..common import (
     GameException,
     ReportedException,
-    ACTION_CHARACTER_SELECT,
 )
 from ..gameplay import (
     STAGE_CARD_DRAW,
@@ -65,8 +64,8 @@ class CharacterSelectAction(Action):
     """
     Action invoked when the Select button is pressed to confirm character choice.
 
-    Populates selected_character in game metadata, disposes effects with
-    'character_select' in dispose_actions, and transitions the game stage to 'card_draw'.
+    Populates selected_character in game metadata, clears skip_turn effects,
+    and transitions the game stage to 'card_draw'.
     """
 
     @property
@@ -91,12 +90,9 @@ class CharacterSelectAction(Action):
         if not player.characters[character].is_alive:
             raise ReportedException(f"Character {character} is dead and can't be selected")
 
-        # Dispose effects with 'character_select' in dispose_actions from active player's characters
+        # Clear effects (e.g., skip_turn) from active player's characters
         for char in player.characters.values():
-            char.effects = [
-                effect for effect in char.effects
-                if ACTION_CHARACTER_SELECT not in effect.dispose_actions
-            ]
+            char.effects = []
 
         # Update active player with selected character
         self.game.active = ActivePlayer2(player=self.user, character=character)
@@ -117,8 +113,8 @@ class SkipTurnAction(Action):
     This happens when all characters are either dead (health=0) or have
     a skip_turn effect. The turn is skipped and passes to the next player.
 
-    Disposes effects with 'character_select' in dispose_actions and
-    transitions to the next player's character_select stage.
+    Clears skip_turn effects and transitions to the next player's
+    character_select stage.
     """
 
     @property
@@ -147,12 +143,9 @@ class SkipTurnAction(Action):
                 "Cannot skip turn: available characters exist"
             )
 
-        # Dispose effects with 'character_select' in dispose_actions from active player's characters
+        # Clear effects (e.g., skip_turn) from active player's characters
         for char in player.characters.values():
-            char.effects = [
-                effect for effect in char.effects
-                if ACTION_CHARACTER_SELECT not in effect.dispose_actions
-            ]
+            char.effects = []
 
         # Rotate to next player's turn
         rotate_to_next_player(self.game)

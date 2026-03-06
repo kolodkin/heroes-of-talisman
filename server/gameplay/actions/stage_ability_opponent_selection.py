@@ -8,6 +8,7 @@ This module implements actions for the ability opponent selection stage:
 
 from .action import Action
 from ..common import GameException, ReportedException
+from ..abilities import get_ability_effects
 from ..gameplay import STAGE_ABILITY_OPPONENT_SELECTION, STAGE_OPPONENT_SELECTION, GamePlay, Opponent2
 
 
@@ -99,9 +100,9 @@ class AbilityOpponentSelectAction(Action):
                 f"Opponent character {selected_opponent.character} is dead and can't be targeted"
             )
 
-        # Apply ability effects to target character
-        for effect in self.game.ability.effects:
-            target_character.effects.append(effect)
+        # Apply ability effects to target character as string names
+        for effect in get_ability_effects(self.game.ability):
+            target_character.effects.append(effect.name)
 
         # Store the ability opponent
         self.game.ability_opponent = selected_opponent

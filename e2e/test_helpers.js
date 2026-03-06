@@ -78,9 +78,12 @@ export async function dismissConnectionToast(page) {
       await closeButton.click({ force: true, timeout: 1000 }).catch(() => {});
     }
     // Wait for toast to be fully removed from DOM (not just hidden)
-    // Using "detached" ensures the Toastify container no longer intercepts pointer events
     await toastLocator.waitFor({ state: "detached", timeout: 3000 }).catch(() => {});
   }
+
+  // Wait for the Toastify container itself to disappear so it no longer intercepts pointer events
+  const container = page.locator(".Toastify__toast-container");
+  await container.waitFor({ state: "detached", timeout: 3000 }).catch(() => {});
 }
 
 /**

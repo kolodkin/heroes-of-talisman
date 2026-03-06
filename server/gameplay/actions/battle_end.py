@@ -7,7 +7,7 @@ At level 1, dropping to 0 health means the character dies.
 """
 
 from .action import Action, rotate_to_next_player
-from ..common import GameException, ReportedException, ACTION_BATTLE_END, ChatacterType
+from ..common import GameException, ReportedException, ChatacterType
 from ..gameplay import (
     STAGE_BATTLE_END,
     GamePlay,
@@ -110,19 +110,9 @@ class BattleEndAction(Action):
             )
         # If tied, no one loses health
 
-        # Dispose effects with 'battle_end' in their dispose_actions list
-        def should_keep_effect(effect):
-            """Returns True if effect should be kept after battle"""
-            return ACTION_BATTLE_END not in effect.dispose_actions
-
-        active_character.effects = [
-            effect for effect in active_character.effects
-            if should_keep_effect(effect)
-        ]
-        opponent_character.effects = [
-            effect for effect in opponent_character.effects
-            if should_keep_effect(effect)
-        ]
+        # Clear active abilities from both characters at battle end
+        active_character.active_abilities = []
+        opponent_character.active_abilities = []
 
         # Rotate to next player's turn
         rotate_to_next_player(self.game)

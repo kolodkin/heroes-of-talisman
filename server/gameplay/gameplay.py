@@ -49,20 +49,17 @@ from .abilities import (
     ABILITY_FREEZE,
 )
 from .effects import (
-    EffectUnion,
     EffectTotal,
+    EFFECT_SKIP_TURN,
     AttackBonusEffect,
     AttackNegBonusEffect,
     DefenseBonusEffect,
-    HealEffect,
-    LevelUpEffect,
-    SkipTurnEffect,
     RerollDiceEffect,
     DrawCardEffect,
     TalismanEffect,
 )
 
-from .cards import CardName, CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL
+from .cards import CardName, CARDS_MAP, CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL
 
 DEFAULT_CARD_COUNTS: dict[CardName, int] = {
     CARD_METAL_ARMOR: 5,
@@ -108,34 +105,47 @@ class Character(StrictModel):
     attack: int
     is_alive: bool = True
     abilities: list[Ability] = Field(default_factory=list)
-    effects: list[EffectUnion] = Field(default_factory=list)
+    active_abilities: list[str] = Field(default_factory=list)
+    active_cards: list[str] = Field(default_factory=list)
+    effects: list[str] = Field(default_factory=list)
     cards: list[str] = Field(default_factory=list)
 
     @computed_field
     @property
     def effect(self) -> EffectTotal:
-        """Aggregate all active effects into a single EffectTotal"""
+        """Aggregate all active effects by looking up definitions from ABILITIES_MAP and CARDS_MAP"""
         total = EffectTotal()
 
-        for eff in self.effects:
-            if isinstance(eff, AttackBonusEffect):
-                total.attack_bonus += eff.attack_bonus
-            elif isinstance(eff, AttackNegBonusEffect):
-                total.attack_neg_bonus += eff.attack_neg_bonus
-            elif isinstance(eff, DefenseBonusEffect):
-                total.defense_bonus += eff.defense_bonus
-            elif isinstance(eff, SkipTurnEffect):
-                total.skip_next_turn = total.skip_next_turn or eff.skip_next_turn
-            elif isinstance(eff, RerollDiceEffect):
-                total.reroll_dice_available = True
-            elif isinstance(eff, DrawCardEffect):
-                total.draw_card_count += eff.draw_count
-            elif isinstance(eff, HealEffect):
-                total.heal_amount += eff.heal_amount
-            elif isinstance(eff, LevelUpEffect):
-                total.level_up_amount += eff.level_increase
-            elif isinstance(eff, TalismanEffect):
-                total.has_talisman = True
+        # Aggregate effects from active abilities
+        for ability_name in self.active_abilities:
+            ability = ABILITIES_MAP.get(ability_name)
+            if ability:
+                for eff in ability.effects:
+                    if isinstance(eff, AttackBonusEffect):
+                        total.attack_bonus += eff.attack_bonus
+                    elif isinstance(eff, AttackNegBonusEffect):
+                        total.attack_neg_bonus += eff.attack_neg_bonus
+                    elif isinstance(eff, RerollDiceEffect):
+                        total.reroll_dice_available = True
+                    elif isinstance(eff, DrawCardEffect):
+                        total.draw_card_count += eff.draw_count
+
+        # Aggregate effects from active cards
+        for card_name in self.active_cards:
+            card = CARDS_MAP.get(card_name)
+            if card:
+                for eff in card.effects:
+                    if isinstance(eff, AttackBonusEffect):
+                        total.attack_bonus += eff.attack_bonus
+                    elif isinstance(eff, DefenseBonusEffect):
+                        total.defense_bonus += eff.defense_bonus
+                    elif isinstance(eff, TalismanEffect):
+                        total.has_talisman = True
+
+        # Aggregate string effects
+        for eff_name in self.effects:
+            if eff_name == EFFECT_SKIP_TURN:
+                total.skip_next_turn = True
 
         return total
 
@@ -234,11 +244,11 @@ class GamePlay(StrictModel):
     deck: Deck[str] = Field(default_factory=lambda: Deck(card_counts=DEFAULT_CARD_COUNTS, cards=[]))
     players: dict[str, Player] = Field(default_factory=dict)
     active: Optional[ActivePlayer] = None  # The active player and its selections
-    card: Optional[str] = None  # Selected card from card_draw stage
-    ability: Optional[Ability] = None  # Selected ability
-    ability_opponent: Optional[Opponent2] = None  # Selected ability opponent
-    opponent: Optional[Opponent] = None  # Selected opponent for battle
-    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | Opponent2] = None  # Temporary stage-specific metadata
+    card: Optional[str] = None  # Turn-scoped, cleared by rotate_to_next_player
+    ability: Optional[AbilityName] = None  # Turn-scoped, cleared by rotate_to_next_player
+    ability_opponent: Optional[Opponent2] = None  # Turn-scoped, cleared by rotate_to_next_player
+    opponent: Optional[Opponent] = None  # Turn-scoped, cleared by rotate_to_next_player
+    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | Opponent2] = None  # Within-stage, cleared after each press/select
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""

@@ -166,7 +166,7 @@ check_review_comments() {
     REVIEW_DECISION=$(echo "$REVIEW_DATA" | jq -r '.reviewDecision')
     echo -e "${BLUE}Review Status: ${NC}$REVIEW_DECISION"
 
-    # Get unresolved review threads using GraphQL API
+    # Get unresolved review threads using GraphQL API (fetch ALL comments per thread)
     UNRESOLVED_THREADS=$(gh api graphql -f query='
     query($owner: String!, $repo: String!, $number: Int!) {
       repository(owner: $owner, name: $repo) {
@@ -174,11 +174,15 @@ check_review_comments() {
           reviewThreads(first: 100) {
             nodes {
               isResolved
-              comments(first: 1) {
+              comments(first: 100) {
                 nodes {
+                  databaseId
                   path
                   body
                   line
+                  author {
+                    login
+                  }
                 }
               }
             }
@@ -197,25 +201,38 @@ check_review_comments() {
         echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo ""
 
-        # Get unresolved file paths and lines from GraphQL to filter REST API results
-        UNRESOLVED_PATHS=$(echo "$UNRESOLVED_THREADS" | jq -r '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .comments.nodes[0] | {path: .path, line: .line}]' 2>/dev/null)
+        # Display each unresolved thread that needs a response.
+        # Shows ALL reviewer comments after the last [Agent] reply (not just the last one).
+        echo "$UNRESOLVED_THREADS" | jq -r '
+            .data.repository.pullRequest.reviewThreads.nodes[] |
+            select(.isResolved == false) |
+            .comments.nodes as $comments |
+            # Root comment info (for file/line context and reply ID)
+            ($comments[0].databaseId // "N/A") as $root_id |
+            ($comments[0].path // "N/A") as $path |
+            ($comments[0].line // "N/A") as $line |
+            # Only show threads where the last comment is NOT from agent (needs response)
+            select(($comments | last).body | startswith("[Agent]") | not) |
+            # Find index of last agent comment (-1 if none)
+            ([ range($comments | length) | select($comments[.].body | startswith("[Agent]")) ] | if length > 0 then last else -1 end) as $last_agent_idx |
+            # Collect all non-agent comments after the last agent comment
+            [ range($last_agent_idx + 1; $comments | length) | $comments[.] | select(.body | startswith("[Agent]") | not) ] as $pending |
+            # Format: header with file/line, then each pending comment
+            "File: \($path)\nLine: \($line)\nReply-To-ID: \($root_id)",
+            ($pending[] | "  > \(.body)"),
+            "---"
+        ' 2>/dev/null
 
-        # Get comment IDs from REST API, filtered to only unresolved threads
-        ALL_COMMENTS=$(gh api "repos/${REPO}/pulls/${PR_NUMBER}/comments" --paginate 2>/dev/null)
-        COMMENTS_WITH_IDS=$(echo "$ALL_COMMENTS" | jq -r --argjson unresolved "$UNRESOLVED_PATHS" '
-            .[] | . as $comment |
-            select(
-                any($unresolved[]; .path == $comment.path and (.line == $comment.line or .line == $comment.original_line))
-            ) |
-            select(.in_reply_to_id == null) |
-            "ID: \(.id)\nFile: \(.path)\nLine: \(.line // .original_line // "N/A")\nComment: \(.body)\n---"
-        ' 2>/dev/null)
+        # Count threads that actually need response (last comment is not from agent)
+        NEEDS_RESPONSE=$(echo "$UNRESOLVED_THREADS" | jq -r '
+            [.data.repository.pullRequest.reviewThreads.nodes[] |
+            select(.isResolved == false) |
+            .comments.nodes | last |
+            select(.body | startswith("[Agent]") | not)] | length
+        ' 2>/dev/null || echo "0")
 
-        if [ -n "$COMMENTS_WITH_IDS" ]; then
-            echo "$COMMENTS_WITH_IDS"
-        else
-            # Fallback to GraphQL output without IDs
-            echo "$UNRESOLVED_THREADS" | jq -r '.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false) | .comments.nodes[0] | "File: \(.path)\nLine: \(.line // "N/A")\nComment: \(.body)\n---"' 2>/dev/null
+        if [ "$NEEDS_RESPONSE" = "0" ]; then
+            echo -e "${GREEN}✅ All unresolved threads have been responded to (awaiting reviewer resolution)${NC}"
         fi
 
         echo ""
