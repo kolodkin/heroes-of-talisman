@@ -28,6 +28,7 @@ CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE
 CardName = Literal[*CARDS_NAMES]
 
 
+
 class Card(StrictModel):
     name: str
     effects: list[EffectUnion] = Field(default_factory=list)

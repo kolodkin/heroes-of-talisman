@@ -16,6 +16,7 @@ import {
  * - Restricted card handling (archer + sacred_sword)
  * - Healing cards (golden_apple)
  * - Level up cards (magic_ball)
+ * - Darkness rise instant effect (skip_turn on level 2+ characters)
  */
 
 test("card_draw stage - knight draws metal_armor successfully", async ({ page, gameName }) => {
@@ -480,6 +481,124 @@ test("card_draw stage - knight draws talisman", async ({ page, gameName }) => {
 
   // Screenshot with expanded player menu showing talisman icon
   await screenshot(page, "card-selected-knight-with-talisman");
+
+  // Minimize players after check
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
+
+  // Cleanup
+  await page2.close();
+});
+
+test("card_draw stage - darkness_rise with all level 1 (no effect)", async ({ page, gameName }) => {
+  // Create preset game at card_draw stage with darkness_rise card, all characters level 1
+  await createPresetGameViaAPI(gameName, "card_draw_darkness_rise_all_level_1");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
+
+  // Player2 joins
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+
+  // Verify we're in card_draw stage
+  await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
+
+  // Verify darkness_rise card is visible
+  const sharedArea = page.locator('[data-shared-area-active="true"]');
+  const darknessRiseCard = sharedArea.locator('[data-card="darkness_rise"]');
+  await expect(darknessRiseCard).toBeVisible();
+
+  // Verify card details are displayed in Hebrew
+  await expect(darknessRiseCard).toContainText("עליית חושך"); // Darkness Rise
+  await expect(darknessRiseCard).toContainText("מדלגות על התור"); // skip turn
+  await screenshot(page, "card-draw-darkness-rise-all-level-1");
+
+  // Confirm card selection
+  const selectButton = page.getByRole("button", { name: "שלוף" });
+  await expect(selectButton).toBeVisible();
+  await expect(selectButton).toBeEnabled();
+  await selectButton.click();
+
+  // Should transition to ability_selection stage
+  await waitForStage(page, "ability_selection");
+
+  // Expand players to verify no skip_turn effects applied (all level 1)
+  await expandPlayersMenuIfCollapsed(page);
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  await expandButton.click();
+
+  // Verify no character has skip_turn effect (all are level 1)
+  const player1Div = page.locator('[data-player="player1"]');
+  const player2Div = page.locator('[data-player="player2"]');
+
+  for (const playerDiv of [player1Div, player2Div]) {
+    for (const charName of ["knight", "archer", "mage"]) {
+      const charCard = playerDiv.locator(`[data-player-cards] [data-character="${charName}"]`);
+      await expect(charCard.locator("[data-icon-skip-turn-overlay]")).not.toBeVisible();
+    }
+  }
+
+  await screenshot(page, "darkness-rise-no-skip-turn-level-1");
+
+  // Minimize players after check
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
+
+  // Cleanup
+  await page2.close();
+});
+
+test("card_draw stage - darkness_rise applies skip_turn to level 2+ characters", async ({ page, gameName }) => {
+  // Create preset game with mixed levels: player1 has level 2 characters, player2 has level 1
+  await createPresetGameViaAPI(gameName, "card_draw_darkness_rise_mixed_levels");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
+
+  // Player2 joins
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+
+  // Verify we're in card_draw stage
+  await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
+
+  // Verify darkness_rise card is visible
+  const sharedArea = page.locator('[data-shared-area-active="true"]');
+  const darknessRiseCard = sharedArea.locator('[data-card="darkness_rise"]');
+  await expect(darknessRiseCard).toBeVisible();
+  await screenshot(page, "card-draw-darkness-rise-mixed-levels");
+
+  // Confirm card selection
+  const selectButton = page.getByRole("button", { name: "שלוף" });
+  await expect(selectButton).toBeVisible();
+  await expect(selectButton).toBeEnabled();
+  await selectButton.click();
+
+  // Should transition to ability_selection stage
+  await waitForStage(page, "ability_selection");
+
+  // Expand players to verify skip_turn effects
+  await expandPlayersMenuIfCollapsed(page);
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  await expandButton.click();
+
+  // Player1's characters (level 2) should have skip_turn effect
+  const player1Div = page.locator('[data-player="player1"]');
+  for (const charName of ["knight", "archer", "mage"]) {
+    const charCard = player1Div.locator(`[data-player-cards] [data-character="${charName}"]`);
+    await expect(charCard).toHaveAttribute("data-effects", /skip_turn/);
+    await expect(charCard.locator("[data-icon-skip-turn-overlay]")).toBeVisible();
+  }
+
+  // Player2's characters (level 1) should NOT have skip_turn effect
+  const player2Div = page.locator('[data-player="player2"]');
+  for (const charName of ["knight", "archer", "mage"]) {
+    const charCard = player2Div.locator(`[data-player-cards] [data-character="${charName}"]`);
+    await expect(charCard.locator("[data-icon-skip-turn-overlay]")).not.toBeVisible();
+  }
+
+  await screenshot(page, "darkness-rise-skip-turn-mixed-levels");
 
   // Minimize players after check
   const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
