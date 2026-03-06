@@ -86,6 +86,10 @@ const resources = {
           name: "קמע",
           description: "משמיד את כל מי שהדמות העונדת אותו מביסה",
         },
+        darkness_rise: {
+          name: "עליית חושך",
+          description: "כל הדמויות מעל דרגה 1 מדלגות על התור הבא",
+        },
       },
       card_draw: {
         deck: "חפיסה",

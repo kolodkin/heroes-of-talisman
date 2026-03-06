@@ -10,7 +10,8 @@ import pytest
 from .stage_card_draw import CardDrawAction, CardSelectAction
 from .battle_end import BattleEndAction
 from ..common import GameException, ReportedException, CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_TALISMAN, CARDS_MAP
+from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_TALISMAN, CARD_DARKNESS_RISE, CARDS_MAP
+from ..effects import EFFECT_SKIP_TURN
 from ..gameplay import (
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
@@ -30,6 +31,8 @@ from ..presets import (
     PRESET_CARD_DRAW_GOLDEN_APPLE_MAX_HEALTH,
     PRESET_CARD_DRAW_KNIGHT_MAGIC_BALL_MAX_LEVEL,
     PRESET_CARD_DRAW_KNIGHT_TALISMAN,
+    PRESET_CARD_DRAW_DARKNESS_RISE_ALL_LEVEL_1,
+    PRESET_CARD_DRAW_DARKNESS_RISE_MIXED_LEVELS,
 )
 
 
@@ -370,3 +373,79 @@ def test_talisman_card_applies_effect():
 
     # Check effect aggregation
     assert knight.effect.has_talisman is True
+
+
+def test_darkness_rise_no_effect_at_level_1():
+    """Test darkness_rise has no effect when all characters are level 1"""
+    game = get_debug_preset(PRESET_CARD_DRAW_DARKNESS_RISE_ALL_LEVEL_1)
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # No character should have skip_turn effect
+    for player in updated_game.players.values():
+        for char in player.characters.values():
+            assert len(char.effects) == 0
+            assert char.effect.skip_next_turn is False
+
+
+def test_darkness_rise_affects_level_2_characters():
+    """Test darkness_rise applies skip_turn to all characters above level 1"""
+    game = get_debug_preset(PRESET_CARD_DRAW_DARKNESS_RISE_MIXED_LEVELS)
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Player1 characters are level 2 - all should have skip_turn
+    for char in updated_game.players["player1"].characters.values():
+        assert len(char.effects) == 1
+        assert char.effects[0] == EFFECT_SKIP_TURN
+        assert char.effect.skip_next_turn is True
+
+    # Player2 characters are level 1 - none should have skip_turn
+    for char in updated_game.players["player2"].characters.values():
+        assert len(char.effects) == 0
+        assert char.effect.skip_next_turn is False
+
+
+def test_darkness_rise_skips_dead_characters():
+    """Test darkness_rise does not affect dead characters above level 1"""
+    game = get_debug_preset(PRESET_CARD_DRAW_DARKNESS_RISE_MIXED_LEVELS)
+
+    # Kill one of player1's level 2 characters
+    game.players["player1"].characters[CHARACTER_KNIGHT].health = 0
+    game.players["player1"].characters[CHARACTER_KNIGHT].is_alive = False
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Dead knight should NOT have skip_turn effect
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert len(knight.effects) == 0
+
+    # Living level 2 characters should have skip_turn
+    archer = updated_game.players["player1"].characters[CHARACTER_ARCHER]
+    assert len(archer.effects) == 1
+    assert archer.effects[0] == EFFECT_SKIP_TURN
+
+
+def test_darkness_rise_card_added_to_character():
+    """Test darkness_rise card is added to the active character's cards list"""
+    game = get_debug_preset(PRESET_CARD_DRAW_DARKNESS_RISE_ALL_LEVEL_1)
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert CARD_DARKNESS_RISE in knight.cards
+
+
+def test_darkness_rise_transitions_to_ability_selection():
+    """Test darkness_rise card transitions to ability_selection stage"""
+    game = get_debug_preset(PRESET_CARD_DRAW_DARKNESS_RISE_ALL_LEVEL_1)
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    assert updated_game.stage == STAGE_ABILITY_SELECTION
+    assert updated_game.card == CARD_DARKNESS_RISE
