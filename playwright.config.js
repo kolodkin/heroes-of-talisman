@@ -39,6 +39,8 @@ export default defineConfig({
   globalTeardown: "./e2e/global-teardown.js",
   /* Run tests in files in parallel */
   fullyParallel: true,
+  /* Use all available CPUs in CI since tests are I/O-bound */
+  workers: process.env.CI_MODE ? "100%" : undefined,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI_MODE,
   /* Retry on CI only */

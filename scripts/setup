@@ -37,16 +37,19 @@ fi
 # Install dependencies
 uv sync
 
-# Install python pre-commit hooks
-uv run pre-commit install
-uv run pre-commit run --files "$0" # installs pre-commit hooks
-
 # install client dependencies
 npm install
 npx playwright install --with-deps chromium
 
-# Install npm git hooks for frontend
-npx simple-git-hooks
+# Skip git hooks setup in CI - saves ~15s on pre-commit env installation
+if [ -z "$CI" ]; then
+  # Install python pre-commit hooks
+  uv run pre-commit install
+  uv run pre-commit run --files "$0" # installs pre-commit hooks
+
+  # Install npm git hooks for frontend
+  npx simple-git-hooks
+fi
 
 # Run database migrations
 # Wait for postgres to be up
