@@ -55,6 +55,8 @@ PRESET_OPPONENT_SELECTION = "opponent_selection_preset"
 PRESET_SINGLE_PLAYER = "single_player"
 PRESET_BATTLE_TALISMAN_KILL = "battle_talisman_kill"
 PRESET_CARD_DRAW_KNIGHT_TALISMAN = "card_draw_knight_talisman"
+PRESET_CARD_DRAW_DARKNESS_RISE_ALL_LEVEL_1 = "card_draw_darkness_rise_all_level_1"
+PRESET_CARD_DRAW_DARKNESS_RISE_MIXED_LEVELS = "card_draw_darkness_rise_mixed_levels"
 DebugPresetsType = Literal[
     "default",
     "ability_selection_knight",
@@ -77,6 +79,8 @@ DebugPresetsType = Literal[
     "card_draw_knight_magic_ball",
     "card_draw_knight_magic_ball_max_level",
     "card_draw_knight_talisman",
+    "card_draw_darkness_rise_all_level_1",
+    "card_draw_darkness_rise_mixed_levels",
     "effect_attack_bonus",
     "effect_reroll",
     "effect_skip_turn",
@@ -576,6 +580,33 @@ def get_debug_preset(
             stage_meta=CardDrawMeta(drawn_card=CARD_TALISMAN),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "card_draw_darkness_rise_all_level_1":
+        # Knight draws darkness_rise, all characters are level 1 (no one affected)
+        from .cards import CARD_DARKNESS_RISE
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=CARD_DARKNESS_RISE),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "card_draw_darkness_rise_mixed_levels":
+        # Knight draws darkness_rise, player1 has level 2 characters (affected),
+        # player2 has level 1 characters (not affected)
+        from .cards import CARD_DARKNESS_RISE
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=CARD_DARKNESS_RISE),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=2)),
                 p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
