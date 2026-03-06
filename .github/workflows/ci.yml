@@ -195,3 +195,9 @@ jobs:
       - name: Check for consecutive duplicate screenshots
         if: ${{ !cancelled() }}
         run: npm run e2e:check-dup
+
+      - name: Delete blob report artifacts
+        if: always()
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: blob-report-*
