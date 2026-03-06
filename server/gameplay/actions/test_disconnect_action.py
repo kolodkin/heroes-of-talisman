@@ -5,8 +5,11 @@ These tests verify player disconnection behavior including handling
 existing players, nonexistent players, and already disconnected players.
 """
 
+import pytest
+
 from .connection import DisconnectAction
 from ..common import (
+    GameException,
     CHARACTER_KNIGHT,
     CHARACTER_ARCHER,
     CHARACTER_MAGE,
@@ -37,12 +40,12 @@ def test_disconnect_action_existing_player():
 
 
 def test_disconnect_action_nonexistent_player():
-    """Test disconnecting a player who is not in the game is a no-op"""
+    """Test disconnecting a player who is not in the game"""
     game = GamePlay()
     action = DisconnectAction("nonexistent_player", game)
 
-    updated_game = action.run()
-    assert "nonexistent_player" not in updated_game.players
+    with pytest.raises(GameException, match="Player not in game"):
+        action.run()
 
 
 def test_disconnect_action_already_disconnected():

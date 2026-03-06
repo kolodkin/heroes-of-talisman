@@ -141,9 +141,7 @@ export async function deleteGamesByPrefix(prefix) {
  * @returns {Promise<void>}
  */
 export async function sendDebugActionViaWS(gameName, username, action, data) {
-  // Use __debug__ username so closing this WS doesn't trigger DisconnectAction for the real player
-  const debugUsername = "__debug__";
-  const wsUrl = `${WS_URL}/${encodeURIComponent(gameName)}/${encodeURIComponent(debugUsername)}`;
+  const wsUrl = `${WS_URL}/${encodeURIComponent(gameName)}/${encodeURIComponent(username)}`;
 
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(wsUrl);
