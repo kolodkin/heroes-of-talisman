@@ -535,7 +535,7 @@ test("card_draw stage - darkness_rise with all level 1 (no effect)", async ({ pa
   for (const playerDiv of [player1Div, player2Div]) {
     for (const charName of ["knight", "archer", "mage"]) {
       const charCard = playerDiv.locator(`[data-player-cards] [data-character="${charName}"]`);
-      await expect(charCard.locator("[data-icon-skip-turn]")).not.toBeVisible();
+      await expect(charCard.locator("[data-icon-skip-turn]")).toHaveCount(0);
     }
   }
 
@@ -588,14 +588,14 @@ test("card_draw stage - darkness_rise applies skip_turn to level 2+ characters",
   for (const charName of ["knight", "archer", "mage"]) {
     const charCard = player1Div.locator(`[data-player-cards] [data-character="${charName}"]`);
     await expect(charCard).toHaveAttribute("data-effects", /skip_turn/);
-    await expect(charCard.locator("[data-icon-skip-turn]")).toBeVisible();
+    await expect(charCard.locator("[data-icon-skip-turn]").first()).toBeVisible();
   }
 
   // Player2's characters (level 1) should NOT have skip_turn effect
   const player2Div = page.locator('[data-player="player2"]');
   for (const charName of ["knight", "archer", "mage"]) {
     const charCard = player2Div.locator(`[data-player-cards] [data-character="${charName}"]`);
-    await expect(charCard.locator("[data-icon-skip-turn]")).not.toBeVisible();
+    await expect(charCard.locator("[data-icon-skip-turn]")).toHaveCount(0);
   }
 
   await screenshot(page, "darkness-rise-skip-turn-mixed-levels");
