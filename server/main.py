@@ -307,13 +307,17 @@ async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta, pubsub):
                 logger.info(f"User '{redis_meta.username}' received game_update event from action '{event_action}'")
                 async with AsyncSessionLocal() as session:
                     game_engine = await from_database(session, redis_meta)
-                    await websocket.send_json(
-                        {
-                            "event": "game_update",
-                            "event_action": event_action,
-                            "game": game_engine.model_dump(),
-                        }
-                    )
+                    try:
+                        await websocket.send_json(
+                            {
+                                "event": "game_update",
+                                "event_action": event_action,
+                                "game": game_engine.model_dump(),
+                            }
+                        )
+                    except (WebSocketDisconnect, RuntimeError) as e:
+                        logger.debug(f"WebSocket closed during game_update send for user '{redis_meta.username}': {e}")
+                        return
             else:
                 logger.warning(f"Unknown event: {data}")
 
@@ -337,7 +341,11 @@ async def actions_loop(websocket: WebSocket, redis_meta: RedisMeta):
                 success = True
             except Exception as e:
                 logger.warning(f"Error processing action. action: {action}", exc_info=e)
-                await websocket.send_json({"error": str(e), "class": e.__class__.__name__})
+                try:
+                    await websocket.send_json({"error": str(e), "class": e.__class__.__name__})
+                except (WebSocketDisconnect, RuntimeError) as send_err:
+                    logger.debug(f"WebSocket closed during error send for user '{redis_meta.username}': {send_err}")
+                    return
 
             if not success:
                 continue
