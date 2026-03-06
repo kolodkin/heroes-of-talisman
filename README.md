@@ -1,6 +1,6 @@
 # heroes-of-talisman
 
-A turn-based fantasy card game - a digital version of my oldest son's amazing made-up game.
+A turn-based fantasy card game - a digital version of my oldest son's amazing made-up game!
 
 Players take turns selecting characters (Knight, Archer, Mage), using abilities, and battling opponents with dice rolls. Collect cards for bonuses, level up your characters, and be the last one standing!
 
