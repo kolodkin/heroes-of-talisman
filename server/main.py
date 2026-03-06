@@ -218,6 +218,34 @@ async def reset_game(gamename: str, session: AsyncSession = Depends(get_db)):
     return {"message": "Game reset successfully"}
 
 
+@router.post("/{gamename}/debug_action")
+async def debug_action(gamename: str, payload: dict, session: AsyncSession = Depends(get_db)):
+    """Execute a debug action on a game via HTTP (no WebSocket needed)."""
+    redis_meta = RedisMeta(gamename, username="__debug__")
+
+    result = await session.execute(select(GameTable).where(GameTable.name == redis_meta.gamename).with_for_update())
+    game_db = result.scalar_one_or_none()
+
+    if game_db is None:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Game not found")
+
+    game_model = GamePlay.model_validate(game_db.data)
+    game_engine = GameEngine(redis_meta.gamename, redis_meta.username, game_model)
+
+    action_name = payload.pop("action", None)
+    if not action_name:
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Missing 'action' field")
+
+    game_engine.run_action(action_name, **payload)
+
+    game_db.data = game_engine.game.db_model_dump()
+    await session.commit()
+
+    await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update", event_action=action_name)))
+
+    return {"message": "Action executed successfully"}
+
+
 @app.post("/check-game-name")
 async def check_game_name(game: Game, session: AsyncSession = Depends(get_db)):
     result = await session.execute(select(GameTable).where(GameTable.name == game.name))

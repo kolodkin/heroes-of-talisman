@@ -1,6 +1,5 @@
 const BACKEND_URL = `http://localhost:${process.env.APP_PORT ?? "8000"}`;
 const API_URL = `${BACKEND_URL}/api`;
-const WS_URL = `${BACKEND_URL.replace(/^http/, "ws")}/ws`;
 
 /**
  * Create a game via the server API
@@ -133,44 +132,22 @@ export async function deleteGamesByPrefix(prefix) {
 }
 
 /**
- * Send a debug action via WebSocket
+ * Send a debug action via HTTP API
  * @param {string} gameName - Name of the game
- * @param {string} username - Username to send the action as
+ * @param {string} username - Username (unused, kept for backwards compatibility)
  * @param {string} action - Action name (e.g., "debug_set_battle_dice_rolls")
  * @param {object} data - Action data
  * @returns {Promise<void>}
  */
 export async function sendDebugActionViaWS(gameName, username, action, data) {
-  const wsUrl = `${WS_URL}/${encodeURIComponent(gameName)}/${encodeURIComponent(username)}`;
-
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {
-      const actionPayload = {
-        username,
-        action,
-        ...data,
-      };
-      ws.send(JSON.stringify(actionPayload));
-
-      // Wait a bit for the action to be processed
-      setTimeout(() => {
-        ws.close();
-        resolve();
-      }, 100);
-    };
-
-    ws.onerror = (error) => {
-      reject(new Error(`WebSocket error: ${error}`));
-    };
-
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.error) {
-        ws.close();
-        reject(new Error(`Action error: ${message.error}`));
-      }
-    };
+  const response = await fetch(`${API_URL}/games/${encodeURIComponent(gameName)}/debug_action`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action, ...data }),
   });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Debug action error: ${error.detail || response.statusText}`);
+  }
 }
