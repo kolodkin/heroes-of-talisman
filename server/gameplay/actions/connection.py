@@ -66,5 +66,7 @@ class DisconnectAction(Action):
         return None  # Can disconnect at any time
 
     def _run(self) -> GamePlay:
+        if self.user not in self.players:
+            return self.game
         self.player.status = STATUS_DISCONNECTED
         return self.game
