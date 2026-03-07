@@ -404,7 +404,8 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
 
         logger.info(f"Client '{username}' disconnected from game '{gamename}'")
     finally:
-        # Perform any cleanup actions here
+        await pubsub.unsubscribe(redis_meta.channel)
+        await pubsub.close()
         logger.info(f"Connection to game '{gamename}' closed for user '{username}'")
 
 

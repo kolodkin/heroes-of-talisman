@@ -574,7 +574,7 @@ def get_debug_preset(
         # Knight L2 with damaged health draws devils_fork (loses 1 level)
         # Knight L2: health=2 (damaged), max_health=3, dice=1, attack=3
         # After level down: level=1, max_health=2, dice=1, attack=1
-        # Health = max(2, 2) = 2 (current health preserved since it equals new max)
+        # Health = min(2, 2) = 2 (capped at new max_health)
         from .cards import CARD_DEVILS_FORK
 
         characters_p1 = init_characters(level=2)

@@ -135,7 +135,7 @@ class LevelUpEffect(Effect):
 class LevelDownEffect(Effect):
     """
     Character's level is decreased by 1.
-    Health becomes max(current_health, new_level_max_health).
+    Health is capped at the new level's max_health.
     No effect if already at level 1.
     Applied to self (active player's character).
     """

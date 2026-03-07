@@ -102,7 +102,7 @@ class CardSelectAction(Action):
                 elif isinstance(effect, LevelDownEffect):
                     # No effect if already at level 1
                     if character.level > 1:
-                        new_level = character.level - effect.level_decrease
+                        new_level = max(1, character.level - effect.level_decrease)
                         level_stats = CHARACTER_STATS_BY_LEVEL[new_level]
                         char_stats = level_stats[character_type]
                         # Update character stats
@@ -110,13 +110,13 @@ class CardSelectAction(Action):
                         character.max_health = char_stats["max_health"]
                         character.dice = char_stats["dice"]
                         character.attack = char_stats["attack"]
-                        # Health becomes max(current_health, new_level_max_health)
-                        character.health = max(character.health, character.max_health)
+                        # Cap health at new max_health
+                        character.health = min(character.health, character.max_health)
                 elif isinstance(effect, LevelUpEffect):
                     # No effect if already at max level
                     if character.level < MAX_LEVEL:
                         # Increase character level
-                        new_level = character.level + effect.level_increase
+                        new_level = min(MAX_LEVEL, character.level + effect.level_increase)
                         level_stats = CHARACTER_STATS_BY_LEVEL[new_level]
                         char_stats = level_stats[character_type]
                         # Update character stats

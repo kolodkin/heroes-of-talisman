@@ -375,7 +375,7 @@ def test_talisman_card_applies_effect():
 
 
 def test_devils_fork_reduces_level():
-    """Test devils_fork reduces knight level from 2 to 1, health = max(current, new_max)"""
+    """Test devils_fork reduces knight level from 2 to 1, health = min(current, new_max)"""
     game = get_debug_preset(PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK)
 
     # Verify preset: knight at level 2 with 2 health (damaged)
@@ -395,7 +395,7 @@ def test_devils_fork_reduces_level():
     assert knight.max_health == 2
     assert knight.dice == 1
     assert knight.attack == 1
-    # Health = max(2, 2) = 2 (current health preserved)
+    # Health = min(2, 2) = 2 (capped at new max)
     assert knight.health == 2
     assert CARD_DEVILS_FORK in knight.cards
 
@@ -424,10 +424,10 @@ def test_devils_fork_no_effect_at_min_level():
     assert knight.attack == 1
 
 
-def test_devils_fork_health_preserved_when_above_new_max():
-    """Test devils_fork preserves health when current > new level max_health"""
+def test_devils_fork_health_capped_at_new_max():
+    """Test devils_fork caps health at new level's max_health"""
     # Knight L2: max_health=3, set health=3 (full)
-    # After level down to L1: max_health=2, health = max(3, 2) = 3
+    # After level down to L1: max_health=2, health = min(3, 2) = 2
     characters = init_characters(level=2)
     knight = characters[CHARACTER_KNIGHT]
     knight.health = 3  # Full health at L2
@@ -445,5 +445,5 @@ def test_devils_fork_health_preserved_when_above_new_max():
     knight_after = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
     assert knight_after.level == 1
     assert knight_after.max_health == 2
-    # Health is max(3, 2) = 3 (current health exceeds new max, preserved)
-    assert knight_after.health == 3
+    # Health is min(3, 2) = 2 (capped at new max_health)
+    assert knight_after.health == 2
