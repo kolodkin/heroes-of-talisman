@@ -82,13 +82,13 @@ const resources = {
           name: "כדור קסם",
           description: "מעלה דרגה ומחזיר בריאות למקסימום",
         },
+        devils_fork: {
+          name: "קלשון השטן",
+          description: "מוריד דרגה לדמות הנבחרת",
+        },
         talisman: {
           name: "קמע",
           description: "משמיד את כל מי שהדמות העונדת אותו מביסה",
-        },
-        darkness_rise: {
-          name: "עליית חושך",
-          description: "כל הדמויות מעל דרגה 1 מדלגות על התור הבא",
         },
       },
       card_draw: {

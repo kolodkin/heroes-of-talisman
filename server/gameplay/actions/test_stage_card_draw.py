@@ -10,8 +10,7 @@ import pytest
 from .stage_card_draw import CardDrawAction, CardSelectAction
 from .battle_end import BattleEndAction
 from ..common import GameException, ReportedException, CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_TALISMAN, CARD_DARKNESS_RISE, CARDS_MAP
-from ..effects import EFFECT_SKIP_TURN
+from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_DEVILS_FORK, CARD_TALISMAN, CARDS_MAP
 from ..gameplay import (
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
@@ -29,10 +28,10 @@ from ..presets import (
     PRESET_CARD_DRAW_ARCHER_SACRED_SWORD,
     PRESET_CARD_DRAW_KNIGHT_GOLDEN_APPLE,
     PRESET_CARD_DRAW_GOLDEN_APPLE_MAX_HEALTH,
+    PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK,
+    PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK_MIN_LEVEL,
     PRESET_CARD_DRAW_KNIGHT_MAGIC_BALL_MAX_LEVEL,
     PRESET_CARD_DRAW_KNIGHT_TALISMAN,
-    PRESET_CARD_DRAW_DARKNESS_RISE_ALL_LEVEL_1,
-    PRESET_CARD_DRAW_DARKNESS_RISE_MIXED_LEVELS,
 )
 
 
@@ -375,77 +374,76 @@ def test_talisman_card_applies_effect():
     assert knight.effect.has_talisman is True
 
 
-def test_darkness_rise_no_effect_at_level_1():
-    """Test darkness_rise has no effect when all characters are level 1"""
-    game = get_debug_preset(PRESET_CARD_DRAW_DARKNESS_RISE_ALL_LEVEL_1)
+def test_devils_fork_reduces_level():
+    """Test devils_fork reduces knight level from 2 to 1, health = max(current, new_max)"""
+    game = get_debug_preset(PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK)
+
+    # Verify preset: knight at level 2 with 2 health (damaged)
+    knight_before = game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight_before.level == 2
+    assert knight_before.health == 2
+    assert knight_before.max_health == 3
+    assert knight_before.dice == 1
+    assert knight_before.attack == 3
 
     action = CardSelectAction("player1", game)
     updated_game = action.run()
 
-    # No character should have skip_turn effect
-    for player in updated_game.players.values():
-        for char in player.characters.values():
-            assert len(char.effects) == 0
-            assert char.effect.skip_next_turn is False
-
-
-def test_darkness_rise_affects_level_2_characters():
-    """Test darkness_rise applies skip_turn to all characters above level 1"""
-    game = get_debug_preset(PRESET_CARD_DRAW_DARKNESS_RISE_MIXED_LEVELS)
-
-    action = CardSelectAction("player1", game)
-    updated_game = action.run()
-
-    # Player1 characters are level 2 - all should have skip_turn
-    for char in updated_game.players["player1"].characters.values():
-        assert len(char.effects) == 1
-        assert char.effects[0] == EFFECT_SKIP_TURN
-        assert char.effect.skip_next_turn is True
-
-    # Player2 characters are level 1 - none should have skip_turn
-    for char in updated_game.players["player2"].characters.values():
-        assert len(char.effects) == 0
-        assert char.effect.skip_next_turn is False
-
-
-def test_darkness_rise_skips_dead_characters():
-    """Test darkness_rise does not affect dead characters above level 1"""
-    game = get_debug_preset(PRESET_CARD_DRAW_DARKNESS_RISE_MIXED_LEVELS)
-
-    # Kill one of player1's level 2 characters
-    game.players["player1"].characters[CHARACTER_KNIGHT].health = 0
-    game.players["player1"].characters[CHARACTER_KNIGHT].is_alive = False
-
-    action = CardSelectAction("player1", game)
-    updated_game = action.run()
-
-    # Dead knight should NOT have skip_turn effect
+    # Check knight leveled down to 1
     knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
-    assert len(knight.effects) == 0
+    assert knight.level == 1
+    assert knight.max_health == 2
+    assert knight.dice == 1
+    assert knight.attack == 1
+    # Health = max(2, 2) = 2 (current health preserved)
+    assert knight.health == 2
+    assert CARD_DEVILS_FORK in knight.cards
 
-    # Living level 2 characters should have skip_turn
-    archer = updated_game.players["player1"].characters[CHARACTER_ARCHER]
-    assert len(archer.effects) == 1
-    assert archer.effects[0] == EFFECT_SKIP_TURN
 
+def test_devils_fork_no_effect_at_min_level():
+    """Test devils_fork has no effect when knight is already at level 1"""
+    game = get_debug_preset(PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK_MIN_LEVEL)
 
-def test_darkness_rise_card_added_to_character():
-    """Test darkness_rise card is added to the active character's cards list"""
-    game = get_debug_preset(PRESET_CARD_DRAW_DARKNESS_RISE_ALL_LEVEL_1)
+    # Verify preset: knight at level 1 with 1 health (damaged)
+    knight_before = game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight_before.level == 1
+    assert knight_before.health == 1
+    assert knight_before.max_health == 2
+    assert knight_before.dice == 1
+    assert knight_before.attack == 1
 
     action = CardSelectAction("player1", game)
     updated_game = action.run()
 
+    # Verify no stats changed
     knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
-    assert CARD_DARKNESS_RISE in knight.cards
+    assert knight.level == 1
+    assert knight.health == 1  # Health NOT changed
+    assert knight.max_health == 2
+    assert knight.dice == 1
+    assert knight.attack == 1
 
 
-def test_darkness_rise_transitions_to_ability_selection():
-    """Test darkness_rise card transitions to ability_selection stage"""
-    game = get_debug_preset(PRESET_CARD_DRAW_DARKNESS_RISE_ALL_LEVEL_1)
+def test_devils_fork_health_preserved_when_above_new_max():
+    """Test devils_fork preserves health when current > new level max_health"""
+    # Knight L2: max_health=3, set health=3 (full)
+    # After level down to L1: max_health=2, health = max(3, 2) = 3
+    characters = init_characters(level=2)
+    knight = characters[CHARACTER_KNIGHT]
+    knight.health = 3  # Full health at L2
+
+    game = GamePlay(
+        stage=STAGE_CARD_DRAW,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        stage_meta=CardDrawMeta(drawn_card=CARD_DEVILS_FORK),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
 
     action = CardSelectAction("player1", game)
     updated_game = action.run()
 
-    assert updated_game.stage == STAGE_ABILITY_SELECTION
-    assert updated_game.card == CARD_DARKNESS_RISE
+    knight_after = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight_after.level == 1
+    assert knight_after.max_health == 2
+    # Health is max(3, 2) = 3 (current health exceeds new max, preserved)
+    assert knight_after.health == 3

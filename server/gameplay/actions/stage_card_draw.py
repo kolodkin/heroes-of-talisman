@@ -8,7 +8,7 @@ This module implements actions for the card draw stage:
 
 from .action import Action
 from ..common import GameException, ReportedException
-from ..effects import HealEffect, LevelUpEffect, DarknessRiseEffect, EFFECT_SKIP_TURN
+from ..effects import HealEffect, LevelDownEffect, LevelUpEffect
 from ..cards import CardName, CARDS_MAP
 from ..gameplay import STAGE_CARD_DRAW, STAGE_ABILITY_SELECTION, CHARACTER_STATS_BY_LEVEL, MAX_LEVEL
 from ..gameplay import GamePlay, CardDrawMeta, AbilitySelectMeta
@@ -99,6 +99,19 @@ class CardSelectAction(Action):
                         character.max_health,
                         character.health + effect.heal_amount
                     )
+                elif isinstance(effect, LevelDownEffect):
+                    # No effect if already at level 1
+                    if character.level > 1:
+                        new_level = character.level - effect.level_decrease
+                        level_stats = CHARACTER_STATS_BY_LEVEL[new_level]
+                        char_stats = level_stats[character_type]
+                        # Update character stats
+                        character.level = new_level
+                        character.max_health = char_stats["max_health"]
+                        character.dice = char_stats["dice"]
+                        character.attack = char_stats["attack"]
+                        # Health becomes max(current_health, new_level_max_health)
+                        character.health = max(character.health, character.max_health)
                 elif isinstance(effect, LevelUpEffect):
                     # No effect if already at max level
                     if character.level < MAX_LEVEL:
@@ -113,12 +126,6 @@ class CardSelectAction(Action):
                         character.attack = char_stats["attack"]
                         # Restore health to new max_health
                         character.health = character.max_health
-                elif isinstance(effect, DarknessRiseEffect):
-                    # Apply skip_turn to all characters above level 1 across ALL players
-                    for player_obj in self.game.players.values():
-                        for char in player_obj.characters.values():
-                            if char.level > 1 and char.is_alive:
-                                char.effects.append(EFFECT_SKIP_TURN)
                 else:
                     # Persistent card effect - add card name to active_cards
                     character.active_cards.append(drawn_card_name)
