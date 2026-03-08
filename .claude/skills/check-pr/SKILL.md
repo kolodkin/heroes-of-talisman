@@ -23,6 +23,16 @@ This script will automatically:
 4. Poll workflow status every 10 seconds until complete
 5. Report SUCCESS or FAILURE with full logs
 
+### Comments-Only Mode
+
+To check only PR review comments without polling CI:
+
+```bash
+.claude/skills/check-pr/run-workflow-check.sh --comments-only
+```
+
+This skips CI polling and only checks for unresolved PR review comments.
+
 ## On Failure
 
 1. **Get logs from failed runs:**
