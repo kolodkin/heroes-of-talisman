@@ -163,11 +163,13 @@ The character selection stage allows players to choose which character will act 
 The card draw stage allows players to draw a card from the deck and add it to their character.
 
 - **`CardDrawAction`**: Draws a random card from the deck and stores it in `stage_meta.drawn_card`. The deck auto-resets when empty.
-- **`CardSelectAction`**: Confirms the card selection via `_apply_card()`. Instant cards are applied immediately:
+- **`CardSelectAction`**: Confirms the card selection. Instant cards are applied immediately:
   - **`golden_apple`**: Heals character by 1 (capped at max_health)
-  - **`magic_ball`**: Increases character level, updates stats to new level, and restores health to new max_health
+  - **`magic_ball`**: Level up, updates stats, restores health to new max
+  - **`devils_fork`**: Level down, no effect at level 1
+  - **`darkness_rise`**: Applies skip_turn to all alive characters above level 1 (all players)
 
-  Persistent cards are stored in `character.cards`. Card restrictions are checked via `_is_card_restricted()`. Transitions to `ability_selection` stage.
+  Persistent cards are stored in `character.cards`. Restricted characters skip the card. Transitions to `ability_selection` stage.
 
 **Card Restrictions:**
 
