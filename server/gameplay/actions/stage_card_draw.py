@@ -8,7 +8,7 @@ This module implements actions for the card draw stage:
 
 from .action import Action
 from ..common import GameException, ReportedException
-from ..effects import HealEffect, LevelDownEffect, LevelUpEffect
+from ..effects import HealEffect, LevelDownEffect, LevelUpEffect, DarknessRiseEffect, EFFECT_SKIP_TURN
 from ..cards import CardName, CARDS_MAP
 from ..gameplay import STAGE_CARD_DRAW, STAGE_ABILITY_SELECTION, CHARACTER_STATS_BY_LEVEL, MAX_LEVEL
 from ..gameplay import GamePlay, CardDrawMeta, AbilitySelectMeta
@@ -126,6 +126,12 @@ class CardSelectAction(Action):
                         character.attack = char_stats["attack"]
                         # Restore health to new max_health
                         character.health = character.max_health
+                elif isinstance(effect, DarknessRiseEffect):
+                    # Apply skip_turn to all characters above level 1 across ALL players
+                    for player_obj in self.game.players.values():
+                        for char in player_obj.characters.values():
+                            if char.level > 1 and char.is_alive:
+                                char.effects.append(EFFECT_SKIP_TURN)
                 else:
                     # Persistent card effect - add card name to active_cards
                     character.active_cards.append(drawn_card_name)

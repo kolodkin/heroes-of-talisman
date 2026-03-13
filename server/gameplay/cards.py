@@ -13,6 +13,7 @@ from .effects import (
     LevelDownEffect,
     LevelUpEffect,
     TalismanEffect,
+    DarknessRiseEffect,
 )
 
 ########################################################
@@ -23,8 +24,9 @@ CARD_SACRED_SWORD = "sacred_sord"
 CARD_GOLDEN_APPLE = "golden_apple"
 CARD_MAGIC_BALL = "magic_ball"
 CARD_DEVILS_FORK = "devils_fork"
+CARD_DARKNESS_RISE = "darkness_rise"
 CARD_TALISMAN = "talisman"
-CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL, CARD_DEVILS_FORK, CARD_TALISMAN]
+CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL, CARD_DEVILS_FORK, CARD_DARKNESS_RISE, CARD_TALISMAN]
 CardName = Literal[*CARDS_NAMES]
 
 
@@ -65,6 +67,12 @@ CARDS_MAP: dict[CardName, Card] = {
         name=CARD_DEVILS_FORK,
         effects=[
             LevelDownEffect(),
+        ],
+    ),
+    CARD_DARKNESS_RISE: Card(
+        name=CARD_DARKNESS_RISE,
+        effects=[
+            DarknessRiseEffect(),
         ],
     ),
     CARD_TALISMAN: Card(

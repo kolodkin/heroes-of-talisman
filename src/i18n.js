@@ -86,6 +86,10 @@ const resources = {
           name: "קלשון השטן",
           description: "מוריד דרגה לדמות הנבחרת",
         },
+        darkness_rise: {
+          name: "עליית חושך",
+          description: "מדלג על תור לכל הדמויות מעל דרגה 1",
+        },
         talisman: {
           name: "קמע",
           description: "משמיד את כל מי שהדמות העונדת אותו מביסה",

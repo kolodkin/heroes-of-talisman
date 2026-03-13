@@ -117,13 +117,15 @@ Some cards are restricted to specific character types and cannot be used by excl
 
 ## Card List
 
-| Card           | Type       | Effect                                                             | Restrictions |
-| -------------- | ---------- | ------------------------------------------------------------------ | ------------ |
-| `metal_armor`  | Equipment  | +2 defense bonus (persistent)                                      | None         |
-| `sacred_sword` | Equipment  | +3 attack bonus (persistent)                                       | Archer       |
-| `golden_apple` | Instant    | +1 heal (capped at max health)                                     | None         |
-| `magic_ball`   | Instant    | +1 level up, restores health to new max                            | None         |
-| `talisman`     | Persistent | Kills defeated opponent regardless of level (overrides level-down) | None         |
+| Card            | Type       | Effect                                                             | Restrictions |
+| --------------- | ---------- | ------------------------------------------------------------------ | ------------ |
+| `metal_armor`   | Equipment  | +2 defense bonus (persistent)                                      | None         |
+| `sacred_sword`  | Equipment  | +3 attack bonus (persistent)                                       | Archer       |
+| `golden_apple`  | Instant    | +1 heal (capped at max health)                                     | None         |
+| `magic_ball`    | Instant    | +1 level up, restores health to new max                            | None         |
+| `devils_fork`   | Instant    | -1 level down, no effect at level 1                                | None         |
+| `darkness_rise` | Instant    | Skip turn for all alive characters above level 1 (all players)     | None         |
+| `talisman`      | Persistent | Kills defeated opponent regardless of level (overrides level-down) | None         |
 
 ## Deck Behavior
 

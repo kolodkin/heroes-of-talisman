@@ -98,11 +98,11 @@ The `effect` computed property aggregates these into an `EffectTotal` with hardc
 
 ## Available Abilities
 
-| Ability          | Effect                | `apply_to`          | When Applied                | When Cleared             |
-| ---------------- | --------------------- | ------------------- | --------------------------- | ------------------------ |
-| `BATTLE_HOWL`    | `AttackBonusEffect(+2)` | `self`            | `AbilitySelectAction`       | `BattleEndAction`        |
-| `BOUNCING_ARROW` | `RerollDiceEffect`    | `self`              | `AbilitySelectAction`       | `BattleEndAction`        |
-| `FREEZE`         | `SkipTurnEffect`      | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction` |
+| Ability          | Effect                  | `apply_to`          | When Applied                  | When Cleared                               |
+| ---------------- | ----------------------- | ------------------- | ----------------------------- | ------------------------------------------ |
+| `BATTLE_HOWL`    | `AttackBonusEffect(+2)` | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `BOUNCING_ARROW` | `RerollDiceEffect`      | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `FREEZE`         | `SkipTurnEffect`        | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction` |
 
 # Cards
 
@@ -114,13 +114,15 @@ Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when
 
 ## Available Cards
 
-| Card           | Effect                           | Type       | Restrictions |
-| -------------- | -------------------------------- | ---------- | ------------ |
-| `metal_armor`  | `defense_bonus += 2`            | Persistent | None         |
-| `sacred_sword` | `attack_bonus += 3`             | Persistent | Archer       |
-| `golden_apple` | `health += 1` (capped at max)   | Instant    | None         |
-| `magic_ball`   | Level up (+1 level, heal to max) | Instant    | None         |
-| `talisman`     | `has_talisman = True`           | Persistent | None         |
+| Card            | Effect                                 | Type       | Restrictions |
+| --------------- | -------------------------------------- | ---------- | ------------ |
+| `metal_armor`   | `defense_bonus += 2`                   | Persistent | None         |
+| `sacred_sword`  | `attack_bonus += 3`                    | Persistent | Archer       |
+| `golden_apple`  | `health += 1` (capped at max)          | Instant    | None         |
+| `magic_ball`    | Level up (+1 level, heal to max)       | Instant    | None         |
+| `devils_fork`   | Level down (-1 level), no effect at L1 | Instant    | None         |
+| `darkness_rise` | Skip turn for all alive chars above L1 | Instant    | None         |
+| `talisman`      | `has_talisman = True`                  | Persistent | None         |
 
 **Instant cards** are applied immediately and not stored. **Persistent cards** are stored in `character.cards`.
 
@@ -132,11 +134,11 @@ Some cards have `CARD_RESTRICTED_CHARACTERS` that lists characters who cannot us
 
 Actions clean up abilities and effects from characters inline when they're no longer relevant. Each action clears the specific list directly:
 
-| Action                  | What is cleared                                      |
-| ----------------------- | ---------------------------------------------------- |
-| `BattleEndAction`       | `active_abilities = []` on both active and opponent  |
-| `CharacterSelectAction` | `effects = []` on all active player's characters     |
-| `SkipTurnAction`        | `effects = []` on all active player's characters     |
+| Action                  | What is cleared                                     |
+| ----------------------- | --------------------------------------------------- |
+| `BattleEndAction`       | `active_abilities = []` on both active and opponent |
+| `CharacterSelectAction` | `effects = []` on all active player's characters    |
+| `SkipTurnAction`        | `effects = []` on all active player's characters    |
 
 **Note:** Persistent cards (`metal_armor`, `sacred_sword`, `talisman`) are never disposed.
 
