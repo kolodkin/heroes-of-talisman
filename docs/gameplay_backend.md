@@ -78,25 +78,7 @@ To implement a new action, subclass `Action` and implement the `run` method. Use
 
 # Abilities & Effects
 
-Each character has one or more abilities that can be used during their turn. Abilities and cards are stored as **string literal names** on the character. Effect values are hardcoded in `EffectTotal` computation.
-
-## Character State
-
-Characters hold three lists of string names:
-
-- **`active_abilities`**: Applied ability names (e.g., `["battle_howl"]`)
-- **`cards`**: Persistent card names (e.g., `["metal_armor", "talisman"]`)
-- **`effects`**: Transient effect names (e.g., `["skip_turn"]`)
-
-The `effect` computed property aggregates these into an `EffectTotal` with hardcoded values per ability/card name.
-
-## Ability Metadata
-
-- **Self-targeted abilities** (`apply_to = "self"`): Applied to active character's `active_abilities` when selected
-- **Opponent-targeted abilities** (`apply_to = "selected_opponent"`): Require `ability_opponent_selection` stage for target selection
-- Determined by checking `apply_to == APPLY_TO_SELECTED_OPPONENT` on the ability's effects
-
-## Available Abilities
+Abilities and cards are stored as **string literal names** on the character (`active_abilities`, `cards`, `effects`). The `effect` computed property aggregates these into an `EffectTotal` with hardcoded values per name. Self-targeted abilities (`apply_to = "self"`) are applied directly; opponent-targeted (`apply_to = "selected_opponent"`) require `ability_opponent_selection` stage.
 
 | Ability          | Effect                  | `apply_to`          | When Applied                  | When Cleared                               |
 | ---------------- | ----------------------- | ------------------- | ----------------------------- | ------------------------------------------ |
@@ -106,13 +88,7 @@ The `effect` computed property aggregates these into an `EffectTotal` with hardc
 
 # Cards
 
-Cards provide bonuses and effects to characters. Cards are drawn from a shared deck during the `card_draw` stage.
-
-## Deck Model
-
-Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when empty.
-
-## Available Cards
+Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when empty. Instant cards are applied immediately. Persistent cards are stored in `character.cards`. Restricted characters skip the card.
 
 | Card            | Effect                                 | Type       | Restrictions |
 | --------------- | -------------------------------------- | ---------- | ------------ |
@@ -123,12 +99,6 @@ Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when
 | `devils_fork`   | Level down (-1 level), no effect at L1 | Instant    | None         |
 | `darkness_rise` | Skip turn for all alive chars above L1 | Instant    | None         |
 | `talisman`      | `has_talisman = True`                  | Persistent | None         |
-
-**Instant cards** are applied immediately and not stored. **Persistent cards** are stored in `character.cards`.
-
-## Card Restrictions
-
-Some cards have `CARD_RESTRICTED_CHARACTERS` that lists characters who cannot use them. Restricted cards are skipped when drawn by excluded characters.
 
 # Action Cleanup
 

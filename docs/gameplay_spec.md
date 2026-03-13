@@ -95,27 +95,13 @@ A character dies only when their health hits 0 while at **level 1**. Characters 
 
 # Abilities & Effects
 
-Each character has one or more abilities that can be used during their turn. When an ability is selected, it triggers one or more effects that modify gameplay (e.g., reduce attack, skip turn, reroll dice).
+Each character has abilities that trigger effects (attack bonus, skip turn, reroll dice) targeting self, battle opponent, or a selected opponent. Effects persist until disposed by specific game actions.
 
-Effects are applied to different targets depending on their type: the active player's character, the battle opponent, or a selected opponent. Effects persist until disposed by specific game actions (e.g., battle end, character select).
-
-See [Backend GamePlay - Abilities & Effects](/docs/gameplay_backend.md#abilities--effects) for detailed implementation.
+See [Backend GamePlay - Abilities & Effects](/docs/gameplay_backend.md#abilities--effects) for the abilities table and implementation details.
 
 # Cards
 
-Players collect cards throughout the game that provide bonuses and effects. Cards are drawn from a shared deck after character selection.
-
-## Card Types
-
-- **Equipment Cards**: Provide persistent bonuses (attack, defense) that remain on the character permanently
-- **Instant Cards**: Apply immediate effects (healing, level up) when selected
-- **Persistent Cards**: Provide ongoing passive effects that are never disposed (e.g., talisman)
-
-## Card Restrictions
-
-Some cards are restricted to specific character types and cannot be used by excluded characters.
-
-## Card List
+Cards are drawn from a shared deck (auto-reset when empty) after character selection. Restricted characters cannot use certain cards.
 
 | Card            | Type       | Effect                                                             | Restrictions |
 | --------------- | ---------- | ------------------------------------------------------------------ | ------------ |
@@ -127,10 +113,7 @@ Some cards are restricted to specific character types and cannot be used by excl
 | `darkness_rise` | Instant    | Skip turn for all alive characters above level 1 (all players)     | None         |
 | `talisman`      | Persistent | Kills defeated opponent regardless of level (overrides level-down) | None         |
 
-## Deck Behavior
-
-- Shared deck with auto-reset when empty
-- Cards drawn randomly from available pool
+**Types:** Equipment = persistent stat bonus, Instant = applied immediately then discarded, Persistent = ongoing passive effect.
 
 # Game Stages
 
