@@ -112,6 +112,7 @@ Cards are drawn from a shared deck (auto-reset when empty) after character selec
 | `devils_fork`   | Instant    | -1 level down, no effect at level 1                                | None         |
 | `darkness_rise` | Instant    | Skip turn for all alive characters above level 1 (all players)     | None         |
 | `talisman`      | Persistent | Kills defeated opponent regardless of level (overrides level-down) | None         |
+| `fog`           | Instant    | Skip turn for all alive characters of players whose ALL alive characters are level 3+ | None |
 
 **Types:** Equipment = persistent stat bonus, Instant = applied immediately then discarded, Persistent = ongoing passive effect.
 

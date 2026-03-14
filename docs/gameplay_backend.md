@@ -99,6 +99,7 @@ Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when
 | `devils_fork`   | Level down (-1 level), no effect at L1 | Instant    | None         |
 | `darkness_rise` | Skip turn for all alive chars above L1 | Instant    | None         |
 | `talisman`      | `has_talisman = True`                  | Persistent | None         |
+| `fog`           | Skip turn for all alive chars of players where ALL alive chars are level 3+ | Instant | None |
 
 # Action Cleanup
 
