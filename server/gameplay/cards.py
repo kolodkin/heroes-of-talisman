@@ -14,6 +14,7 @@ from .effects import (
     LevelUpEffect,
     TalismanEffect,
     DarknessRiseEffect,
+    FogEffect,
 )
 
 ########################################################
@@ -26,7 +27,8 @@ CARD_MAGIC_BALL = "magic_ball"
 CARD_DEVILS_FORK = "devils_fork"
 CARD_DARKNESS_RISE = "darkness_rise"
 CARD_TALISMAN = "talisman"
-CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL, CARD_DEVILS_FORK, CARD_DARKNESS_RISE, CARD_TALISMAN]
+CARD_FOG = "fog"
+CARDS_NAMES: list[str] = [CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_MAGIC_BALL, CARD_DEVILS_FORK, CARD_DARKNESS_RISE, CARD_TALISMAN, CARD_FOG]
 CardName = Literal[*CARDS_NAMES]
 
 
@@ -79,6 +81,12 @@ CARDS_MAP: dict[CardName, Card] = {
         name=CARD_TALISMAN,
         effects=[
             TalismanEffect(),
+        ],
+    ),
+    CARD_FOG: Card(
+        name=CARD_FOG,
+        effects=[
+            FogEffect(),
         ],
     ),
 }
