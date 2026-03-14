@@ -700,6 +700,11 @@ test("card_draw stage - knight draws fog card with mixed levels (skip_turn appli
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
 
+  // Expand players to see character levels before drawing
+  await expandPlayersMenuIfCollapsed(page);
+  const expandButton = page.getByRole("button", { name: "Expand all players" });
+  await expandButton.click();
+
   // Verify fog card is visible
   const sharedArea = page.locator('[data-shared-area-active="true"]');
   const fogCard = sharedArea.locator('[data-card="fog"]');
@@ -721,7 +726,6 @@ test("card_draw stage - knight draws fog card with mixed levels (skip_turn appli
   await waitForStage(page, "ability_selection");
 
   // Expand players to verify skip_turn WAS applied to all player1's alive chars
-  await expandPlayersMenuIfCollapsed(page);
   const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
   await expandButtonAfter.click();
 
