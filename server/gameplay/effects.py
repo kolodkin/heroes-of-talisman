@@ -20,6 +20,7 @@ EFFECT_LEVEL_UP = "level_up"
 EFFECT_LEVEL_DOWN = "level_down"
 EFFECT_TALISMAN = "talisman"
 EFFECT_DARKNESS_RISE = "darkness_rise"
+EFFECT_FOG = "fog"
 
 ########################################################
 # Effect apply_to targets
@@ -169,9 +170,21 @@ class DarknessRiseEffect(Effect):
     apply_to: ApplyToTarget = APPLY_TO_SELF
 
 
+class FogEffect(Effect):
+    """
+    For each player whose ALL alive characters are level 3 or above,
+    apply skip_turn to all of that player's alive characters.
+    Instant effect - processed at card selection and not persisted.
+    Applied to self (but actual processing targets all players' characters).
+    """
+
+    name: Literal[EFFECT_FOG] = EFFECT_FOG
+    apply_to: ApplyToTarget = APPLY_TO_SELF
+
+
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, HealEffect, LevelDownEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect, DarknessRiseEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, HealEffect, LevelDownEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect, DarknessRiseEffect, FogEffect],
     Field(discriminator="name"),
 ]
 

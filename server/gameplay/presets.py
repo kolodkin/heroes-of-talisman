@@ -57,6 +57,8 @@ PRESET_BATTLE_TALISMAN_KILL = "battle_talisman_kill"
 PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK = "card_draw_knight_devils_fork"
 PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK_MIN_LEVEL = "card_draw_knight_devils_fork_min_level"
 PRESET_CARD_DRAW_KNIGHT_TALISMAN = "card_draw_knight_talisman"
+PRESET_CARD_DRAW_FOG_ALL_HIGH_LEVEL = "card_draw_fog_all_high_level"
+PRESET_CARD_DRAW_FOG_MIXED_LEVEL = "card_draw_fog_mixed_level"
 DebugPresetsType = Literal[
     "default",
     "ability_selection_knight",
@@ -81,6 +83,8 @@ DebugPresetsType = Literal[
     "card_draw_knight_devils_fork",
     "card_draw_knight_devils_fork_min_level",
     "card_draw_knight_talisman",
+    "card_draw_fog_all_high_level",
+    "card_draw_fog_mixed_level",
     "effect_attack_bonus",
     "effect_reroll",
     "effect_skip_turn",
@@ -618,6 +622,44 @@ def get_debug_preset(
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "card_draw_fog_all_high_level":
+        # Knight draws fog card when ALL of player1's alive characters are level 3+
+        # player1: all characters at level 3 → fog applies skip_turn to all
+        # player2: all characters at level 1 → fog does NOT apply
+        from .cards import CARD_FOG
+
+        characters_p1 = init_characters(level=3)
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=CARD_FOG),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "card_draw_fog_mixed_level":
+        # Knight draws fog card when player1 has mixed character levels
+        # player1: knight at level 3, others at level 1 → fog does NOT apply (not ALL are level 3+)
+        # player2: all characters at level 1 → fog does NOT apply
+        from .cards import CARD_FOG
+
+        characters_p1 = init_characters()
+        characters_p1[CHARACTER_KNIGHT].level = 3
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=STAGE_CARD_DRAW,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            stage_meta=CardDrawMeta(drawn_card=CARD_FOG),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
             },
         )
     else:

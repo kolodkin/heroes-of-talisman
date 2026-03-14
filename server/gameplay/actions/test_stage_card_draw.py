@@ -10,7 +10,7 @@ import pytest
 from .stage_card_draw import CardDrawAction, CardSelectAction
 from .battle_end import BattleEndAction
 from ..common import GameException, ReportedException, CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_DEVILS_FORK, CARD_TALISMAN, CARDS_MAP
+from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_DEVILS_FORK, CARD_TALISMAN, CARD_FOG, CARDS_MAP
 from ..gameplay import (
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
@@ -22,6 +22,7 @@ from ..gameplay import (
     init_characters,
 )
 from ..gameplay import MAX_LEVEL
+from ..effects import EFFECT_SKIP_TURN
 from ..presets import (
     get_debug_preset,
     PRESET_BATTLE_METAL_ARMOR,
@@ -32,6 +33,8 @@ from ..presets import (
     PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK_MIN_LEVEL,
     PRESET_CARD_DRAW_KNIGHT_MAGIC_BALL_MAX_LEVEL,
     PRESET_CARD_DRAW_KNIGHT_TALISMAN,
+    PRESET_CARD_DRAW_FOG_ALL_HIGH_LEVEL,
+    PRESET_CARD_DRAW_FOG_MIXED_LEVEL,
 )
 
 
@@ -447,3 +450,75 @@ def test_devils_fork_health_preserved_when_above_new_max():
     assert knight_after.max_health == 2
     # Health is max(3, 2) = 3 (current health exceeds new max, preserved)
     assert knight_after.health == 3
+
+
+def test_fog_applies_skip_turn_when_all_chars_high_level():
+    """Test fog applies skip_turn to all alive chars of a player when ALL alive chars are level 3+"""
+    game = get_debug_preset(PRESET_CARD_DRAW_FOG_ALL_HIGH_LEVEL)
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    p1_chars = updated_game.players["player1"].characters
+    # All player1 characters should have skip_turn (all at level 3)
+    for char in p1_chars.values():
+        assert EFFECT_SKIP_TURN in char.effects
+
+    p2_chars = updated_game.players["player2"].characters
+    # player2 characters at level 1 should NOT have skip_turn
+    for char in p2_chars.values():
+        assert EFFECT_SKIP_TURN not in char.effects
+
+
+def test_fog_no_skip_turn_when_mixed_levels():
+    """Test fog does NOT apply skip_turn when player has characters below level 3"""
+    game = get_debug_preset(PRESET_CARD_DRAW_FOG_MIXED_LEVEL)
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    p1_chars = updated_game.players["player1"].characters
+    # player1 has mixed levels (knight=3, others=1), fog should NOT apply
+    for char in p1_chars.values():
+        assert EFFECT_SKIP_TURN not in char.effects
+
+
+def test_fog_skips_dead_characters_in_condition_check():
+    """Test fog checks only alive characters when deciding whether to apply"""
+    # player1: knight dead, archer L3, mage L3 → all ALIVE chars are level 3+ → fog applies
+    characters_p1 = init_characters(level=3)
+    characters_p1[CHARACTER_KNIGHT].health = 0
+    characters_p1[CHARACTER_KNIGHT].is_alive = False
+
+    characters_p2 = init_characters()
+
+    game = GamePlay(
+        stage=STAGE_CARD_DRAW,
+        active=ActivePlayer2(player="player1", character=CHARACTER_ARCHER),
+        stage_meta=CardDrawMeta(drawn_card=CARD_FOG),
+        players={
+            "player1": Player(name="player1", characters=characters_p1),
+            "player2": Player(name="player2", characters=characters_p2),
+        },
+    )
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    p1_chars = updated_game.players["player1"].characters
+    # Alive characters (archer, mage) should have skip_turn
+    assert EFFECT_SKIP_TURN in p1_chars[CHARACTER_ARCHER].effects
+    assert EFFECT_SKIP_TURN in p1_chars[CHARACTER_MAGE].effects
+    # Dead knight should not have skip_turn
+    assert EFFECT_SKIP_TURN not in p1_chars[CHARACTER_KNIGHT].effects
+
+
+def test_fog_card_added_to_character_cards():
+    """Test fog card is added to character's card history"""
+    game = get_debug_preset(PRESET_CARD_DRAW_FOG_ALL_HIGH_LEVEL)
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert CARD_FOG in knight.cards
