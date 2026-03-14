@@ -452,40 +452,45 @@ def test_devils_fork_health_preserved_when_above_new_max():
     assert knight_after.health == 3
 
 
-def test_fog_applies_skip_turn_when_all_chars_high_level():
-    """Test fog applies skip_turn to all alive chars of a player when ALL alive chars are level 3+"""
+def test_fog_no_skip_turn_when_all_chars_high_level():
+    """Test fog does NOT apply skip_turn when ALL active player's alive chars are level 3+ (they resist fog)"""
     game = get_debug_preset(PRESET_CARD_DRAW_FOG_ALL_HIGH_LEVEL)
 
     action = CardSelectAction("player1", game)
     updated_game = action.run()
 
     p1_chars = updated_game.players["player1"].characters
-    # All player1 characters should have skip_turn (all at level 3)
+    # All player1 characters at level 3 → fog does NOT apply (player resists fog)
     for char in p1_chars.values():
-        assert EFFECT_SKIP_TURN in char.effects
+        assert EFFECT_SKIP_TURN not in char.effects
 
     p2_chars = updated_game.players["player2"].characters
-    # player2 characters at level 1 should NOT have skip_turn
+    # player2 is not affected (only active player is checked)
     for char in p2_chars.values():
         assert EFFECT_SKIP_TURN not in char.effects
 
 
-def test_fog_no_skip_turn_when_mixed_levels():
-    """Test fog does NOT apply skip_turn when player has characters below level 3"""
+def test_fog_applies_skip_turn_when_mixed_levels():
+    """Test fog applies skip_turn to active player's alive chars when not ALL chars are level 3+"""
     game = get_debug_preset(PRESET_CARD_DRAW_FOG_MIXED_LEVEL)
 
     action = CardSelectAction("player1", game)
     updated_game = action.run()
 
     p1_chars = updated_game.players["player1"].characters
-    # player1 has mixed levels (knight=3, others=1), fog should NOT apply
+    # player1 has mixed levels (knight=3, others=1) → fog applies skip_turn to all alive chars
     for char in p1_chars.values():
+        assert EFFECT_SKIP_TURN in char.effects
+
+    p2_chars = updated_game.players["player2"].characters
+    # player2 is not affected (only active player is checked)
+    for char in p2_chars.values():
         assert EFFECT_SKIP_TURN not in char.effects
 
 
-def test_fog_skips_dead_characters_in_condition_check():
-    """Test fog checks only alive characters when deciding whether to apply"""
-    # player1: knight dead, archer L3, mage L3 → all ALIVE chars are level 3+ → fog applies
+def test_fog_dead_chars_excluded_all_alive_high_level():
+    """Test fog checks only alive chars: dead knight + alive archer/mage all L3+ → no skip_turn"""
+    # player1: knight dead, archer L3, mage L3 → all ALIVE chars are level 3+ → fog does NOT apply
     characters_p1 = init_characters(level=3)
     characters_p1[CHARACTER_KNIGHT].health = 0
     characters_p1[CHARACTER_KNIGHT].is_alive = False
@@ -506,16 +511,15 @@ def test_fog_skips_dead_characters_in_condition_check():
     updated_game = action.run()
 
     p1_chars = updated_game.players["player1"].characters
-    # Alive characters (archer, mage) should have skip_turn
-    assert EFFECT_SKIP_TURN in p1_chars[CHARACTER_ARCHER].effects
-    assert EFFECT_SKIP_TURN in p1_chars[CHARACTER_MAGE].effects
-    # Dead knight should not have skip_turn
+    # All alive chars (archer, mage) are level 3+ → fog does NOT apply
+    assert EFFECT_SKIP_TURN not in p1_chars[CHARACTER_ARCHER].effects
+    assert EFFECT_SKIP_TURN not in p1_chars[CHARACTER_MAGE].effects
     assert EFFECT_SKIP_TURN not in p1_chars[CHARACTER_KNIGHT].effects
 
 
 def test_fog_card_added_to_character_cards():
     """Test fog card is added to character's card history"""
-    game = get_debug_preset(PRESET_CARD_DRAW_FOG_ALL_HIGH_LEVEL)
+    game = get_debug_preset(PRESET_CARD_DRAW_FOG_MIXED_LEVEL)
 
     action = CardSelectAction("player1", game)
     updated_game = action.run()

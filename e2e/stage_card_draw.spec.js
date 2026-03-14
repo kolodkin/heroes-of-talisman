@@ -616,9 +616,11 @@ test("card_draw stage - knight at min level draws devils_fork (no effect)", asyn
   await page2.close();
 });
 
-test("card_draw stage - knight draws fog card when all chars are level 3+ (skip_turn applied)", async ({ page, gameName }) => {
-  // Create preset: player1 all chars at level 3, player2 all chars at level 1
-  // Fog should apply skip_turn to all of player1's characters
+test("card_draw stage - knight draws fog card when all chars are level 3+ (no skip_turn, player resists fog)", async ({
+  page,
+  gameName,
+}) => {
+  // Create preset: player1 all chars at level 3 → player resists fog, NO skip_turn applied
   await createPresetGameViaAPI(gameName, "card_draw_fog_all_high_level");
 
   // Player1 joins
@@ -666,26 +668,16 @@ test("card_draw stage - knight draws fog card when all chars are level 3+ (skip_
   await expect(selectButton).toBeEnabled();
   await selectButton.click();
 
-  // Should transition to ability_selection stage
+  // Should transition to ability_selection stage (no skip_turn, player resists fog)
   await waitForStage(page, "ability_selection");
 
-  // Expand players to verify skip_turn was applied to player1's characters
+  // Expand players to verify NO skip_turn was applied (all chars level 3+ resist fog)
   const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
   await expandButtonAfter.click();
 
-  // All player1 characters should have skip_turn effect
-  await expect(knightCard).toHaveAttribute("data-effects", /skip_turn/);
-  await expect(archerCard).toHaveAttribute("data-effects", /skip_turn/);
-  await expect(mageCard).toHaveAttribute("data-effects", /skip_turn/);
-
-  // Player2 characters (level 1) should NOT have skip_turn
-  const player2Div = page.locator('[data-player="player2"]');
-  const knight2Card = player2Div.locator('[data-player-cards] [data-character="knight"]');
-  const archer2Card = player2Div.locator('[data-player-cards] [data-character="archer"]');
-  const mage2Card = player2Div.locator('[data-player-cards] [data-character="mage"]');
-  await expect(knight2Card).not.toHaveAttribute("data-effects", /skip_turn/);
-  await expect(archer2Card).not.toHaveAttribute("data-effects", /skip_turn/);
-  await expect(mage2Card).not.toHaveAttribute("data-effects", /skip_turn/);
+  await expect(knightCard).not.toHaveAttribute("data-effects", /skip_turn/);
+  await expect(archerCard).not.toHaveAttribute("data-effects", /skip_turn/);
+  await expect(mageCard).not.toHaveAttribute("data-effects", /skip_turn/);
 
   await screenshot(page, "fog-all-high-level-after");
 
@@ -693,8 +685,9 @@ test("card_draw stage - knight draws fog card when all chars are level 3+ (skip_
   await page2.close();
 });
 
-test("card_draw stage - knight draws fog card with mixed levels (no skip_turn applied)", async ({ page, gameName }) => {
-  // Create preset: player1 has knight at level 3, others at level 1 → fog does NOT apply
+test("card_draw stage - knight draws fog card with mixed levels (skip_turn applied)", async ({ page, gameName }) => {
+  // Create preset: player1 has knight at level 3, others at level 1
+  // Not ALL chars are level 3+ → fog applies skip_turn to all alive chars
   await createPresetGameViaAPI(gameName, "card_draw_fog_mixed_level");
 
   // Player1 joins
@@ -714,6 +707,10 @@ test("card_draw stage - knight draws fog card with mixed levels (no skip_turn ap
 
   await screenshot(page, "fog-mixed-level-before");
 
+  // Minimize players before card selection so we can expand again after
+  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
+  await minimizeButton.click();
+
   // Confirm card selection
   const selectButton = page.getByRole("button", { name: "שלוף" });
   await expect(selectButton).toBeVisible();
@@ -723,19 +720,23 @@ test("card_draw stage - knight draws fog card with mixed levels (no skip_turn ap
   // Should transition to ability_selection stage
   await waitForStage(page, "ability_selection");
 
-  // Expand players to verify NO skip_turn was applied
+  // Expand players to verify skip_turn WAS applied to all player1's alive chars
   await expandPlayersMenuIfCollapsed(page);
   const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
   await expandButtonAfter.click();
 
-  // None of player1's characters should have skip_turn (mixed levels)
   const player1Div = page.locator('[data-player="player1"]');
   const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
   const archerCard = player1Div.locator('[data-player-cards] [data-character="archer"]');
   const mageCard = player1Div.locator('[data-player-cards] [data-character="mage"]');
-  await expect(knightCard).not.toHaveAttribute("data-effects", /skip_turn/);
-  await expect(archerCard).not.toHaveAttribute("data-effects", /skip_turn/);
-  await expect(mageCard).not.toHaveAttribute("data-effects", /skip_turn/);
+  await expect(knightCard).toHaveAttribute("data-effects", /skip_turn/);
+  await expect(archerCard).toHaveAttribute("data-effects", /skip_turn/);
+  await expect(mageCard).toHaveAttribute("data-effects", /skip_turn/);
+
+  // Player2 is not affected (only active player is checked)
+  const player2Div = page.locator('[data-player="player2"]');
+  const knight2Card = player2Div.locator('[data-player-cards] [data-character="knight"]');
+  await expect(knight2Card).not.toHaveAttribute("data-effects", /skip_turn/);
 
   await screenshot(page, "fog-mixed-level-after");
 

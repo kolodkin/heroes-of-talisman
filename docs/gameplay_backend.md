@@ -90,16 +90,16 @@ Abilities and cards are stored as **string literal names** on the character (`ac
 
 Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when empty. Instant cards are applied immediately. Persistent cards are stored in `character.cards`. Restricted characters skip the card.
 
-| Card            | Effect                                 | Type       | Restrictions |
-| --------------- | -------------------------------------- | ---------- | ------------ |
-| `metal_armor`   | `defense_bonus += 2`                   | Persistent | None         |
-| `sacred_sword`  | `attack_bonus += 3`                    | Persistent | Archer       |
-| `golden_apple`  | `health += 1` (capped at max)          | Instant    | None         |
-| `magic_ball`    | Level up (+1 level, heal to max)       | Instant    | None         |
-| `devils_fork`   | Level down (-1 level), no effect at L1 | Instant    | None         |
-| `darkness_rise` | Skip turn for all alive chars above L1 | Instant    | None         |
-| `talisman`      | `has_talisman = True`                  | Persistent | None         |
-| `fog`           | Skip turn for all alive chars of players where ALL alive chars are level 3+ | Instant | None |
+| Card            | Effect                                                                                | Type       | Restrictions |
+| --------------- | ------------------------------------------------------------------------------------- | ---------- | ------------ |
+| `metal_armor`   | `defense_bonus += 2`                                                                  | Persistent | None         |
+| `sacred_sword`  | `attack_bonus += 3`                                                                   | Persistent | Archer       |
+| `golden_apple`  | `health += 1` (capped at max)                                                         | Instant    | None         |
+| `magic_ball`    | Level up (+1 level, heal to max)                                                      | Instant    | None         |
+| `devils_fork`   | Level down (-1 level), no effect at L1                                                | Instant    | None         |
+| `darkness_rise` | Skip turn for all alive chars above L1                                                | Instant    | None         |
+| `talisman`      | `has_talisman = True`                                                                 | Persistent | None         |
+| `fog`           | Skip active player's turn unless ALL their alive chars are level 3+ (they resist fog) | Instant    | None         |
 
 # Action Cleanup
 

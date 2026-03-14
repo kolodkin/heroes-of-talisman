@@ -172,10 +172,11 @@ class DarknessRiseEffect(Effect):
 
 class FogEffect(Effect):
     """
-    For each player whose ALL alive characters are level 3 or above,
-    apply skip_turn to all of that player's alive characters.
+    Skip the active player's turn unless ALL their alive characters are level 3+.
+    Players with all alive characters at level 3+ resist the fog (no effect).
+    Players with any alive character below level 3 lose their turn (skip_turn applied to all alive chars).
     Instant effect - processed at card selection and not persisted.
-    Applied to self (but actual processing targets all players' characters).
+    Only affects the active player (card drawer).
     """
 
     name: Literal[EFFECT_FOG] = EFFECT_FOG

@@ -133,13 +133,13 @@ class CardSelectAction(Action):
                             if char.level > 1 and char.is_alive:
                                 char.effects.append(EFFECT_SKIP_TURN)
                 elif isinstance(effect, FogEffect):
-                    # Apply skip_turn to all alive characters of players
-                    # whose ALL alive characters are level 3 or above
-                    for player_obj in self.game.players.values():
-                        alive_chars = [char for char in player_obj.characters.values() if char.is_alive]
-                        if alive_chars and all(char.level >= 3 for char in alive_chars):
-                            for char in alive_chars:
-                                char.effects.append(EFFECT_SKIP_TURN)
+                    # Skip the active player's turn unless ALL their alive characters are level 3+
+                    # (high-level players resist the fog; lower-level players lose their turn)
+                    active_player_obj = self.game.players[self.user]
+                    alive_chars = [char for char in active_player_obj.characters.values() if char.is_alive]
+                    if alive_chars and not all(char.level >= 3 for char in alive_chars):
+                        for char in alive_chars:
+                            char.effects.append(EFFECT_SKIP_TURN)
                 else:
                     # Persistent card effect - add card name to active_cards
                     character.active_cards.append(drawn_card_name)

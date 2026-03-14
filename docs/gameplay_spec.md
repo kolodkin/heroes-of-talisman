@@ -103,16 +103,16 @@ See [Backend GamePlay - Abilities & Effects](/docs/gameplay_backend.md#abilities
 
 Cards are drawn from a shared deck (auto-reset when empty) after character selection. Restricted characters cannot use certain cards.
 
-| Card            | Type       | Effect                                                             | Restrictions |
-| --------------- | ---------- | ------------------------------------------------------------------ | ------------ |
-| `metal_armor`   | Equipment  | +2 defense bonus (persistent)                                      | None         |
-| `sacred_sword`  | Equipment  | +3 attack bonus (persistent)                                       | Archer       |
-| `golden_apple`  | Instant    | +1 heal (capped at max health)                                     | None         |
-| `magic_ball`    | Instant    | +1 level up, restores health to new max                            | None         |
-| `devils_fork`   | Instant    | -1 level down, no effect at level 1                                | None         |
-| `darkness_rise` | Instant    | Skip turn for all alive characters above level 1 (all players)     | None         |
-| `talisman`      | Persistent | Kills defeated opponent regardless of level (overrides level-down) | None         |
-| `fog`           | Instant    | Skip turn for all alive characters of players whose ALL alive characters are level 3+ | None |
+| Card            | Type       | Effect                                                                                                           | Restrictions |
+| --------------- | ---------- | ---------------------------------------------------------------------------------------------------------------- | ------------ |
+| `metal_armor`   | Equipment  | +2 defense bonus (persistent)                                                                                    | None         |
+| `sacred_sword`  | Equipment  | +3 attack bonus (persistent)                                                                                     | Archer       |
+| `golden_apple`  | Instant    | +1 heal (capped at max health)                                                                                   | None         |
+| `magic_ball`    | Instant    | +1 level up, restores health to new max                                                                          | None         |
+| `devils_fork`   | Instant    | -1 level down, no effect at level 1                                                                              | None         |
+| `darkness_rise` | Instant    | Skip turn for all alive characters above level 1 (all players)                                                   | None         |
+| `talisman`      | Persistent | Kills defeated opponent regardless of level (overrides level-down)                                               | None         |
+| `fog`           | Instant    | Skip the active player's turn unless ALL their alive characters are level 3+ (high-level players resist the fog) | None         |
 
 **Types:** Equipment = persistent stat bonus, Instant = applied immediately then discarded, Persistent = ongoing passive effect.
 

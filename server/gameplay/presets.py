@@ -626,8 +626,8 @@ def get_debug_preset(
         )
     elif preset == "card_draw_fog_all_high_level":
         # Knight draws fog card when ALL of player1's alive characters are level 3+
-        # player1: all characters at level 3 → fog applies skip_turn to all
-        # player2: all characters at level 1 → fog does NOT apply
+        # player1: all characters at level 3 → fog does NOT apply (player resists fog)
+        # player2: all characters at level 1 → not affected (only active player is checked)
         from .cards import CARD_FOG
 
         characters_p1 = init_characters(level=3)
@@ -644,8 +644,8 @@ def get_debug_preset(
         )
     elif preset == "card_draw_fog_mixed_level":
         # Knight draws fog card when player1 has mixed character levels
-        # player1: knight at level 3, others at level 1 → fog does NOT apply (not ALL are level 3+)
-        # player2: all characters at level 1 → fog does NOT apply
+        # player1: knight at level 3, others at level 1 → fog APPLIES skip_turn (not ALL are level 3+)
+        # player2: not affected (only active player is checked)
         from .cards import CARD_FOG
 
         characters_p1 = init_characters()
