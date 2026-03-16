@@ -1,7 +1,7 @@
 from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
+from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE, ABILITY_DISARM
 from .effects import EFFECT_SKIP_TURN
 from .gameplay import (
     StageName,
@@ -27,6 +27,7 @@ from .gameplay import (
 )
 
 PRESET_ABILITY_SELECTION_KNIGHT = "ability_selection_knight"
+PRESET_ABILITY_SELECTION_KNIGHT_L2 = "ability_selection_knight_l2"
 PRESET_ABILITY_SELECTION_ARCHER = "ability_selection_archer"
 PRESET_ABILITY_SELECTION_MAGE = "ability_selection_mage"
 PRESET_EFFECT_REROLL = "effect_reroll"
@@ -62,6 +63,7 @@ PRESET_CARD_DRAW_FOG_MIXED_LEVEL = "card_draw_fog_mixed_level"
 DebugPresetsType = Literal[
     "default",
     "ability_selection_knight",
+    "ability_selection_knight_l2",
     "ability_selection_archer",
     "ability_selection_mage",
     "archer_not_alive",
@@ -144,6 +146,17 @@ def get_debug_preset(
             stage_meta=AbilitySelectMeta(selected=ABILITY_BATTLE_HOWL),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_selection_knight_l2":
+        # Ability selection stage - player1 has selected knight at level 2
+        # Knight L2 has BATTLE_HOWL and DISARM - two abilities, no auto-select
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=2)),
                 p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
