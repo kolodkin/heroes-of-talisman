@@ -6,8 +6,9 @@ This module implements actions for the card draw stage:
 - CardSelectAction: Applies the drawn card's effects and transitions to ability_selection
 """
 
-from .action import Action
+from .action import Action, rotate_to_next_player
 from ..common import GameException, ReportedException
+from ..abilities import ABILITY_DISARM
 from ..effects import HealEffect, LevelDownEffect, LevelUpEffect, DarknessRiseEffect, FogEffect, EFFECT_SKIP_TURN
 from ..cards import CardName, CARDS_MAP
 from ..gameplay import STAGE_CARD_DRAW, STAGE_ABILITY_SELECTION, CHARACTER_STATS_BY_LEVEL, MAX_LEVEL
@@ -150,6 +151,11 @@ class CardSelectAction(Action):
 
         # Clear stage_meta after selection
         self.game.stage_meta = None
+
+        # If disarm was used this turn, this is the second card draw - end the turn
+        if self.game.ability == ABILITY_DISARM:
+            rotate_to_next_player(self.game)
+            return self.game
 
         # Transition to ability_selection stage
         self.game.stage = STAGE_ABILITY_SELECTION

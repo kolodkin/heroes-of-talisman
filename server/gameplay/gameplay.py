@@ -47,6 +47,7 @@ from .abilities import (
     ABILITY_BATTLE_HOWL,
     ABILITY_BOUNCING_ARROW,
     ABILITY_FREEZE,
+    ABILITY_DISARM,
 )
 from .effects import (
     EffectTotal,
@@ -178,7 +179,7 @@ class CardDrawMeta(StrictModel):
 class AbilitySelectMeta(StrictModel):
     """Stage metadata for ability selection stage"""
 
-    selected: str  # Currently highlighted ability
+    selected: Optional[str] = None  # Currently highlighted ability (None = no ability selected)
 
 
 class ActivePlayer1(StrictModel):
@@ -295,6 +296,7 @@ KNIGHT_L2_DEFAULT_HEALTH = 3
 KNIGHT_L2_MAX_HEALTH = 3
 KNIGHT_L2_DICE = 1
 KNIGHT_L2_ATTACK = 3
+KNIGHT_L2_ABILITY = ABILITY_DISARM
 
 # Knight Level 3
 KNIGHT_L3_DEFAULT_HEALTH = 4
@@ -388,7 +390,7 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": KNIGHT_L2_MAX_HEALTH,
             "dice": KNIGHT_L2_DICE,
             "attack": KNIGHT_L2_ATTACK,
-            "abilities": [ABILITIES_MAP[KNIGHT_L1_ABILITY]],
+            "abilities": [ABILITIES_MAP[KNIGHT_L1_ABILITY], ABILITIES_MAP[KNIGHT_L2_ABILITY]],
         },
         "archer": {
             "health": ARCHER_L2_DEFAULT_HEALTH,

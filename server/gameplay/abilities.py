@@ -8,6 +8,7 @@ from .common import StrictModel
 from .effects import (
     EffectUnion,
     AttackBonusEffect,
+    DrawCardEffect,
     RerollDiceEffect,
     SkipTurnEffect,
 )
@@ -18,7 +19,8 @@ from .effects import (
 ABILITY_BATTLE_HOWL = "battle_howl"
 ABILITY_BOUNCING_ARROW = "bouncing_arrow"
 ABILITY_FREEZE = "freeze"
-ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE]
+ABILITY_DISARM = "disarm"
+ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE, ABILITY_DISARM]
 AbilityName = Literal[*ABILITIES_NAMES]
 
 
@@ -44,6 +46,12 @@ ABILITIES_MAP: dict[AbilityName, Ability] = {
         name=ABILITY_FREEZE,
         effects=[
             SkipTurnEffect(),
+        ],
+    ),
+    ABILITY_DISARM: Ability(
+        name=ABILITY_DISARM,
+        effects=[
+            DrawCardEffect(),
         ],
     ),
 }

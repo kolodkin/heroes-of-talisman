@@ -17,11 +17,12 @@ from ..common import (
     CHARACTER_ARCHER,
     CHARACTER_MAGE,
 )
-from ..abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE
+from ..abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE, ABILITY_DISARM
 from ..gameplay import (
     STAGE_ABILITY_SELECTION,
     STAGE_ABILITY_OPPONENT_SELECTION,
     STAGE_OPPONENT_SELECTION,
+    STAGE_CARD_DRAW,
     STAGE_CHARACTER_SELECT,
 )
 from ..gameplay import (
@@ -257,3 +258,137 @@ def test_ability_select_action_mage():
     assert updated_game.ability is not None
     assert updated_game.ability == ABILITY_FREEZE
     assert updated_game.stage_meta is None
+
+
+def test_ability_press_knight_l2_disarm():
+    """Test pressing disarm ability for Knight L2 highlights it in stage_meta"""
+    characters = init_characters(level=2)
+    game = GamePlay(
+        stage=STAGE_ABILITY_SELECTION,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = AbilityPressAction("player1", game)
+    updated_game = action.run(ability=ABILITY_DISARM)
+
+    assert updated_game.stage_meta is not None
+    assert updated_game.stage_meta.selected == ABILITY_DISARM
+    assert updated_game.stage == STAGE_ABILITY_SELECTION
+
+
+def test_ability_press_no_ability_clears_selection():
+    """Test pressing no ability (None) clears the current selection in stage_meta"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=STAGE_ABILITY_SELECTION,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    # First select an ability
+    action = AbilityPressAction("player1", game)
+    game_with_selection = action.run(ability=ABILITY_BATTLE_HOWL)
+    assert game_with_selection.stage_meta.selected == ABILITY_BATTLE_HOWL
+
+    # Then clear selection with None
+    action2 = AbilityPressAction("player1", game_with_selection)
+    updated_game = action2.run(ability=None)
+
+    assert updated_game.stage_meta is not None
+    assert updated_game.stage_meta.selected is None
+    assert updated_game.stage == STAGE_ABILITY_SELECTION
+
+
+def test_ability_select_disarm_routes_to_card_draw():
+    """Test selecting disarm ability transitions to card_draw stage"""
+    characters = init_characters(level=2)
+    game = GamePlay(
+        stage=STAGE_ABILITY_SELECTION,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = AbilitySelectAction("player1", game)
+    updated_game = action.run(ability=ABILITY_DISARM)
+
+    assert updated_game.stage == STAGE_CARD_DRAW
+    assert updated_game.ability == ABILITY_DISARM
+    assert updated_game.stage_meta is None
+
+
+def test_ability_select_disarm_adds_to_active_abilities():
+    """Test selecting disarm adds it to active_abilities (DrawCardEffect applies to self)"""
+    characters = init_characters(level=2)
+    game = GamePlay(
+        stage=STAGE_ABILITY_SELECTION,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = AbilitySelectAction("player1", game)
+    updated_game = action.run(ability=ABILITY_DISARM)
+
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert ABILITY_DISARM in knight.active_abilities
+
+
+def test_ability_select_no_ability_routes_to_opponent_selection():
+    """Test selecting no ability (None) routes directly to opponent_selection"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=STAGE_ABILITY_SELECTION,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = AbilitySelectAction("player1", game)
+    updated_game = action.run(ability=None)
+
+    assert updated_game.stage == STAGE_OPPONENT_SELECTION
+    assert updated_game.ability is None
+    assert updated_game.stage_meta is None
+
+
+def test_ability_select_no_ability_does_not_add_to_active_abilities():
+    """Test selecting no ability does not modify the character's active abilities"""
+    characters = init_characters()
+    game = GamePlay(
+        stage=STAGE_ABILITY_SELECTION,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    knight_before = len(game.players["player1"].characters[CHARACTER_KNIGHT].active_abilities)
+
+    action = AbilitySelectAction("player1", game)
+    updated_game = action.run(ability=None)
+
+    knight_after = len(updated_game.players["player1"].characters[CHARACTER_KNIGHT].active_abilities)
+    assert knight_after == knight_before
+
+
+def test_ability_press_disarm_not_available_for_knight_l1():
+    """Test that disarm is not available for Knight at level 1 (only L2+)"""
+    characters = init_characters(level=1)
+    game = GamePlay(
+        stage=STAGE_ABILITY_SELECTION,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = AbilityPressAction("player1", game)
+
+    with pytest.raises(ReportedException, match="not available for this character"):
+        action.run(ability=ABILITY_DISARM)
+
+
+def test_knight_l2_has_both_abilities():
+    """Test that Knight Level 2 has both battle_howl and disarm abilities"""
+    characters = init_characters(level=2)
+    knight = characters[CHARACTER_KNIGHT]
+
+    ability_names = [a.name for a in knight.abilities]
+    assert ABILITY_BATTLE_HOWL in ability_names
+    assert ABILITY_DISARM in ability_names
+    assert len(knight.abilities) == 2
