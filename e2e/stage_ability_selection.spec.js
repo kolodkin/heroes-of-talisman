@@ -1,5 +1,5 @@
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, joinGameViaUrl, waitForStage } from "./test_helpers.js";
+import { test, expect, screenshot, joinGameViaUrl, waitForStage, TIMEOUT } from "./test_helpers.js";
 
 /**
  * Tests for ability selection stage transitions.
@@ -201,7 +201,7 @@ test("ability_selection stage - disarm full flow: draw second card then turn end
   await selectButton.click();
 
   // Wait for second card_draw stage
-  await waitForStage(page, "card_draw", 5000);
+  await waitForStage(page, "card_draw", 10 * TIMEOUT);
   await screenshot(page, "disarm-second-card-draw-stage");
 
   // First click: draw a card from the deck
@@ -211,7 +211,7 @@ test("ability_selection stage - disarm full flow: draw second card then turn end
   await drawButton.click();
 
   // Wait for card to appear
-  await page.waitForSelector("[data-card]", { timeout: 3000 });
+  await page.waitForSelector("[data-card]", { timeout: 10 * TIMEOUT });
   await screenshot(page, "disarm-second-card-revealed");
 
   // Second click: confirm card selection → ends the turn
@@ -219,7 +219,7 @@ test("ability_selection stage - disarm full flow: draw second card then turn end
   await drawButton.click();
 
   // Turn ends: should go to character_select (player2's turn)
-  await waitForStage(page2, "character_select", 5000);
+  await waitForStage(page2, "character_select", 10 * TIMEOUT);
   await screenshot(page2, "disarm-turn-ended-player2-turn");
 
   // Cleanup
