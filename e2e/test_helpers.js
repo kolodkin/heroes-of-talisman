@@ -78,15 +78,11 @@ export async function dismissConnectionToast(page) {
       await closeButton.click({ force: true, timeout: 1000 }).catch(() => {});
     }
     // Wait for toast to be fully removed from DOM (not just hidden)
-    await toastLocator.waitFor({ state: "detached", timeout: 3000 }).catch(() => {});
+    await toastLocator.waitFor({ state: "detached", timeout: 5000 }).catch(() => {});
   }
 
-  // Wait for all toast elements to be gone - the container div stays in DOM but becomes inert
-  // when empty. Waiting for individual toasts to detach is more reliable than waiting for
-  // the container to detach (Toastify keeps the container element alive).
-  await page
-    .waitForFunction(() => document.querySelectorAll(".Toastify__toast").length === 0, { timeout: 5000 })
-    .catch(() => {});
+  // The container div stays in DOM but is inert when no toasts are present.
+  // We already waited for the individual toast element to detach above.
 }
 
 /**
