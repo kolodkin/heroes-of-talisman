@@ -446,11 +446,15 @@ main() {
     get_branch
     check_pr_exists
 
-    if [ "${1:-}" = "--links" ] || [ "${2:-}" = "--links" ]; then
-        SHOW_TEST_LINKS=1
-    fi
+    local comments_only=0
+    for arg in "$@"; do
+        case "$arg" in
+            --links) SHOW_TEST_LINKS=1 ;;
+            --comments-only) comments_only=1 ;;
+        esac
+    done
 
-    if [ "${1:-}" = "--comments-only" ]; then
+    if [ "$comments_only" = "1" ]; then
         check_review_comments
     else
         poll_checks
