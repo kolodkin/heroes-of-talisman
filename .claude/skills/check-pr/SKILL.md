@@ -33,6 +33,22 @@ To check only PR review comments without polling CI:
 
 This skips CI polling and only checks for unresolved PR review comments.
 
+### Test Links Mode
+
+To include direct per-test links from the artifact view page:
+
+```bash
+.claude/skills/check-pr/run-workflow-check.sh --links
+```
+
+This fetches `results.json` from GitHub Pages after CI completes and prints
+`#?testId=` deep links for every test, grouped by spec file.
+Failed tests are highlighted at the top.
+
+> **Note:** GitHub Pages deployment takes a few minutes after CI finishes,
+> so the script retries up to 5 times (30s total). Only use this flag when
+> you need to inspect specific test results.
+
 ## On Failure
 
 1. **Get logs from failed runs:**

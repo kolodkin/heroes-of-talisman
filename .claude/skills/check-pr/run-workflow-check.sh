@@ -269,6 +269,74 @@ check_review_comments() {
     fi
 }
 
+# Helper: Print per-test direct links from results.json
+print_test_links() {
+    local artifacts_url="$1"
+    local results_url="${artifacts_url}/results.json"
+
+    # Fetch results.json (retry up to 5x with 6s delay — pages deployment takes a moment)
+    local results_json=""
+    for i in 1 2 3 4 5; do
+        results_json=$(curl -sf "$results_url" 2>/dev/null) && break
+        [ "$i" -lt 5 ] && sleep 6
+    done
+
+    if [ -z "$results_json" ]; then
+        return
+    fi
+
+    # Extract all tests: id, title, projectName, status, file
+    local all_tests
+    all_tests=$(echo "$results_json" | jq -r '
+        [.. | objects | select(.testId? and .results?) | {
+            id: .testId,
+            title: .title,
+            project: (.projectName // ""),
+            status: (.results[0].status // "unknown"),
+            file: (.location.file // "")
+        }] | unique_by(.id)
+        | sort_by(.file, .title, .project)
+        | .[]
+        | "\(.status)\t\(.file)\t\(.title)\t\(.project)\t\(.id)"
+    ' 2>/dev/null)
+
+    if [ -z "$all_tests" ]; then
+        return
+    fi
+
+    # --- Failed tests ---
+    local failed
+    failed=$(echo "$all_tests" | grep $'^unexpected\t\|^failed\t' || true)
+
+    if [ -n "$failed" ]; then
+        echo ""
+        echo -e "${RED}🔗 Failed tests:${NC}"
+        while IFS=$'\t' read -r status file title project id; do
+            echo -e "  ${RED}${file} › ${title} [${project}]${NC}"
+            echo -e "  ${artifacts_url}/#?testId=${id}"
+        done <<< "$failed"
+    fi
+
+    # --- All tests by spec file ---
+    echo ""
+    echo -e "${BLUE}🔗 Test links by spec file:${NC}"
+    local current_file=""
+    while IFS=$'\t' read -r status file title project id; do
+        local short_file="${file##e2e/}"
+        if [ "$short_file" != "$current_file" ]; then
+            current_file="$short_file"
+            echo ""
+            echo -e "  ${BLUE}${short_file}${NC}"
+        fi
+        local icon="✅"
+        [[ "$status" == "unexpected" || "$status" == "failed" ]] && icon="❌"
+        [[ "$status" == "skipped" ]] && icon="⏭️"
+        echo -e "    ${icon} [${project}] ${title}"
+        echo -e "       ${artifacts_url}/#?testId=${id}"
+    done <<< "$all_tests"
+    echo ""
+}
+
 # Helper: Print artifacts link
 print_artifacts_link() {
     local run_id="$1"
@@ -286,6 +354,9 @@ print_artifacts_link() {
 
     echo ""
     echo -e "${BLUE}📸 View artifacts: ${NC}$artifacts_url"
+    if [ "${SHOW_TEST_LINKS:-}" = "1" ]; then
+        print_test_links "$artifacts_url"
+    fi
 }
 
 # Step 6: Poll PR checks using gh pr checks --watch
@@ -374,6 +445,10 @@ main() {
     detect_repo
     get_branch
     check_pr_exists
+
+    if [ "${1:-}" = "--links" ] || [ "${2:-}" = "--links" ]; then
+        SHOW_TEST_LINKS=1
+    fi
 
     if [ "${1:-}" = "--comments-only" ]; then
         check_review_comments
