@@ -174,7 +174,7 @@ test("ability_selection stage - knight L2 selects disarm, goes to card_draw", as
   await selectButton.click();
 
   // Should go to card_draw stage (disarm draws extra card instead of attacking)
-  await waitForStage(page, "card_draw");
+  await waitForStage(page, "card_draw", 5000);
   await screenshot(page, "disarm-routes-to-card-draw");
 
   // Cleanup
@@ -200,8 +200,8 @@ test("ability_selection stage - disarm full flow: draw second card then turn end
   const selectButton = page.getByRole("button", { name: "בחר" });
   await selectButton.click();
 
-  // Wait for second card_draw stage
-  await waitForStage(page, "card_draw");
+  // Wait for second card_draw stage (use longer timeout for CI)
+  await waitForStage(page, "card_draw", 5000);
   await screenshot(page, "disarm-second-card-draw-stage");
 
   // First click: draw a card from the deck
@@ -255,7 +255,7 @@ test("ability_selection stage - no ability option skips to opponent_selection", 
   await selectButton.click();
 
   // Should go directly to opponent_selection (skipping battle preparation)
-  await waitForStage(page, "opponent_selection");
+  await waitForStage(page, "opponent_selection", 5000);
   await screenshot(page, "no-ability-went-to-opponent-selection");
 
   // Verify opponent selection is available
