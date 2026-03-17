@@ -9,11 +9,34 @@ You are a PROACTIVE GitHub Actions assistant. After EVERY git push, you MUST aut
 
 ## Run the Check Script
 
-Execute the automated workflow checker script:
+The script accepts optional args that can be passed via the skill invocation
+(e.g. `/check-pr links`, `/check-pr comments`, `/check-pr links comments`).
+
+Map skill args to script flags:
+
+| Skill arg  | Script flag       | Effect                                                         |
+| ---------- | ----------------- | -------------------------------------------------------------- |
+| `links`    | `--links`         | Print direct `#?testId=` links per test (waits for Pages ~30s) |
+| `comments` | `--comments-only` | Skip CI polling, only check PR review comments                 |
 
 ```bash
+# Default — poll CI, report result
 .claude/skills/check-pr/run-workflow-check.sh
+
+# With per-test deep links
+.claude/skills/check-pr/run-workflow-check.sh --links
+
+# Comments only
+.claude/skills/check-pr/run-workflow-check.sh --comments-only
+
+# Comments + links (can combine)
+.claude/skills/check-pr/run-workflow-check.sh --comments-only --links
 ```
+
+**When user passes args**, translate them:
+
+- `links` → append `--links`
+- `comments` → append `--comments-only`
 
 This script will automatically:
 
@@ -22,32 +45,6 @@ This script will automatically:
 3. Get current branch
 4. Poll workflow status every 10 seconds until complete
 5. Report SUCCESS or FAILURE with full logs
-
-### Comments-Only Mode
-
-To check only PR review comments without polling CI:
-
-```bash
-.claude/skills/check-pr/run-workflow-check.sh --comments-only
-```
-
-This skips CI polling and only checks for unresolved PR review comments.
-
-### Test Links Mode
-
-To include direct per-test links from the artifact view page:
-
-```bash
-.claude/skills/check-pr/run-workflow-check.sh --links
-```
-
-This fetches `results.json` from GitHub Pages after CI completes and prints
-`#?testId=` deep links for every test, grouped by spec file.
-Failed tests are highlighted at the top.
-
-> **Note:** GitHub Pages deployment takes a few minutes after CI finishes,
-> so the script retries up to 5 times (30s total). Only use this flag when
-> you need to inspect specific test results.
 
 ## On Failure
 
