@@ -49,7 +49,7 @@ export const RerollIcon = ({ size, color, fill }) => (
   </SVGIcon>
 );
 
-export const SkipTurnIcon = ({ size, variant }) => (
+export const SkipTurnIcon = ({ size = 24, variant }) => (
   <PNGIcon
     src="/images/skip.png"
     alt="skip turn"
