@@ -1,5 +1,5 @@
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, joinGameViaUrl, waitForStage, TIMEOUT } from "./test_helpers.js";
+import { test, expect, screenshot, joinGameViaUrl, waitForStage } from "./test_helpers.js";
 
 /**
  * Tests for ability selection stage transitions.
@@ -174,7 +174,7 @@ test("ability_selection stage - knight L2 selects disarm, goes to card_draw", as
   await selectButton.click();
 
   // Should go to card_draw stage (disarm draws extra card instead of attacking)
-  await waitForStage(page, "card_draw", 30 * TIMEOUT);
+  await waitForStage(page, "card_draw", 5000);
   await screenshot(page, "disarm-routes-to-card-draw");
 
   // Cleanup
@@ -200,8 +200,8 @@ test("ability_selection stage - disarm full flow: draw second card then turn end
   const selectButton = page.getByRole("button", { name: "בחר" });
   await selectButton.click();
 
-  // Wait for second card_draw stage (use longer timeout for CI)
-  await waitForStage(page, "card_draw", 30 * TIMEOUT);
+  // Wait for second card_draw stage
+  await waitForStage(page, "card_draw", 5000);
   await screenshot(page, "disarm-second-card-draw-stage");
 
   // First click: draw a card from the deck
@@ -211,7 +211,7 @@ test("ability_selection stage - disarm full flow: draw second card then turn end
   await drawButton.click();
 
   // Wait for card to appear
-  await page.waitForSelector("[data-card]", { timeout: 30 * TIMEOUT });
+  await page.waitForSelector("[data-card]", { timeout: 3000 });
   await screenshot(page, "disarm-second-card-revealed");
 
   // Second click: confirm card selection → ends the turn
@@ -219,8 +219,7 @@ test("ability_selection stage - disarm full flow: draw second card then turn end
   await drawButton.click();
 
   // Turn ends: should go to character_select (player2's turn)
-  // Use longer timeout since CI can be slower for cross-player transitions
-  await waitForStage(page2, "character_select", 30 * TIMEOUT);
+  await waitForStage(page2, "character_select", 5000);
   await screenshot(page2, "disarm-turn-ended-player2-turn");
 
   // Cleanup
@@ -255,7 +254,7 @@ test("ability_selection stage - no ability option skips to opponent_selection", 
   await selectButton.click();
 
   // Should go directly to opponent_selection (skipping battle preparation)
-  await waitForStage(page, "opponent_selection", 30 * TIMEOUT);
+  await waitForStage(page, "opponent_selection", 5000);
   await screenshot(page, "no-ability-went-to-opponent-selection");
 
   // Verify opponent selection is available
