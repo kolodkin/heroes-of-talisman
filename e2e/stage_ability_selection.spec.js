@@ -204,17 +204,23 @@ test("ability_selection stage - disarm full flow: draw second card then turn end
   await waitForStage(page, "card_draw");
   await screenshot(page, "disarm-second-card-draw-stage");
 
-  // Click draw to reveal card
+  // First click: draw a card from the deck
   const drawButton = page.getByRole("button", { name: "שלוף" });
+  await expect(drawButton).toBeVisible();
+  await expect(drawButton).toBeEnabled();
   await drawButton.click();
 
-  // Card appears, click draw again to select it
-  await page.waitForSelector("[data-card]", { timeout: 2000 });
+  // Wait for card to appear
+  await page.waitForSelector("[data-card]", { timeout: 3000 });
   await screenshot(page, "disarm-second-card-revealed");
+
+  // Second click: confirm card selection → ends the turn
+  await expect(drawButton).toBeEnabled();
   await drawButton.click();
 
   // Turn ends: should go to character_select (player2's turn)
-  await waitForStage(page2, "character_select");
+  // Use longer timeout since CI can be slower for cross-player transitions
+  await waitForStage(page2, "character_select", 5000);
   await screenshot(page2, "disarm-turn-ended-player2-turn");
 
   // Cleanup
