@@ -49,13 +49,12 @@ export const RerollIcon = ({ size, color, fill }) => (
   </SVGIcon>
 );
 
-export const SkipTurnIcon = ({ size = 24, variant }) => (
-  <PNGIcon
-    src="/images/skip.png"
-    alt="skip turn"
-    size={size}
-    dataAttr={{ [`data-icon-skip-turn${variant ? `-${variant}` : ""}`]: true }}
-  />
+export const SkipTurnIcon = ({ size, color, fill, variant }) => (
+  <SVGIcon size={size} dataAttr={{ [`data-icon-skip-turn${variant ? `-${variant}` : ""}`]: true }}>
+    <circle cx="12" cy="12" r="10" fill={fill} stroke={color} strokeWidth="2" />
+    <path d="M8 8 L16 12 L8 16 Z" fill={color} stroke="none" />
+    <rect x="16" y="8" width="2" height="8" fill={color} />
+  </SVGIcon>
 );
 
 export const NotAliveIcon = ({ size, color, fill }) => (

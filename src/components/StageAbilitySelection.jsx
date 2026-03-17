@@ -19,7 +19,8 @@ import { useScrollAlignment } from "../hooks/useScrollAlignment";
 import { SharedAreaContent } from "./SharedAreaContent";
 
 import commonStyles from "./Common.module.css";
-import styles from "./StageAbilitySelection.module.css";
+import cardStyles from "./Card.module.css";
+import gamePlayCardStyles from "./GamePlayCard.module.css";
 import AbilityCard from "./AbilityCard";
 
 const NO_ABILITY = "no_ability";
@@ -75,11 +76,19 @@ const StageAbilitySelection = ({ abilities, sendAction, active, selectedAbility 
           />
         ))}
         <div
-          className={className(styles.noAbilityCard, { [styles.noAbilitySelected]: effectiveSelected === NO_ABILITY })}
+          className={className(
+            { [cardStyles.selected]: effectiveSelected === NO_ABILITY },
+            cardStyles.card,
+            gamePlayCardStyles.card,
+            gamePlayCardStyles["card-normal"],
+          )}
           onClick={handleNoAbilityClick}
           data-ability={NO_ABILITY}
         >
-          <p className={styles.noAbilityName}>{t("ability_selection.no_ability")}</p>
+          <img src="/images/skip.png" alt={t("ability_selection.no_ability")} className={gamePlayCardStyles.image} />
+          <div className={gamePlayCardStyles.content}>
+            <p className={gamePlayCardStyles.name}>{t("ability_selection.no_ability")}</p>
+          </div>
         </div>
       </div>
     </div>

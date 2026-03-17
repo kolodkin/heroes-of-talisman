@@ -92,7 +92,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
           </span>
         )}
         {hasReroll && <RerollIcon color="white" fill="purple" />}
-        {hasSkipTurn && <SkipTurnIcon variant="badge" />}
+        {hasSkipTurn && <SkipTurnIcon color="white" fill="orange" variant="badge" />}
         {hasArmor && <ArmorIcon className={styles["character-icon"]} />}
         {hasSword && <SwordIcon className={styles["character-icon"]} />}
         {hasTalisman && <TalismanIcon className={styles["character-icon"]} />}
@@ -109,7 +109,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
         </div>
       ) : hasSkipTurn ? (
         <div className={styles.overlay}>
-          <SkipTurnIcon size={size === "normal" ? 64 : 32} variant="overlay" />
+          <SkipTurnIcon size={size === "normal" ? 64 : 32} color="white" fill="orange" variant="overlay" />
         </div>
       ) : null}
     </div>
