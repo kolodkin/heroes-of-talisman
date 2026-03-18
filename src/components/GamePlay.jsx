@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import className from "classnames";
 import styles from "./GamePlay.module.css";
@@ -55,6 +55,30 @@ const MOBILE_QUERY = "(max-height: 500px) and (orientation: landscape)";
 const GamePlay = ({ username, gamePlay, sendAction }) => {
   const { t } = useTranslation();
   const isRtl = t("direction") === "rtl";
+
+  const [displayedGamePlay, setDisplayedGamePlay] = useState(gamePlay);
+  const [overlayPhase, setOverlayPhase] = useState(null); // null | "covering" | "revealing"
+  const prevStageRef = useRef(gamePlay.stage);
+
+  useEffect(() => {
+    if (gamePlay.stage !== prevStageRef.current) {
+      prevStageRef.current = gamePlay.stage;
+      setOverlayPhase("covering");
+      const swapTimer = setTimeout(() => {
+        setDisplayedGamePlay(gamePlay);
+        setOverlayPhase("revealing");
+      }, 350);
+      const doneTimer = setTimeout(() => {
+        setOverlayPhase(null);
+      }, 700);
+      return () => {
+        clearTimeout(swapTimer);
+        clearTimeout(doneTimer);
+      };
+    } else {
+      setDisplayedGamePlay(gamePlay);
+    }
+  }, [gamePlay]);
 
   // Three states: "collapsed" | "minimized" | "expanded"
   const [playersMenuState, setPlayersMenuState] = useState(() => {
@@ -182,72 +206,75 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
             {isRtl ? ">" : "<"}
           </button>
         )}
+        {overlayPhase && (
+          <div className={`${styles["stage-transition-overlay"]} ${styles[`stage-transition-overlay-${overlayPhase}`]}`} />
+        )}
         <div className={styles["shared-area-content"]}>
-          <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
+          <h2 className={styles["stage-title"]}>{t(`stageInstructions.${displayedGamePlay.stage}`)}</h2>
           {(() => {
-            const activePlayer = gamePlay.players[gamePlay.active?.player];
-            const isActivePlayer = gamePlay.active?.player === username;
+            const activePlayer = displayedGamePlay.players[displayedGamePlay.active?.player];
+            const isActivePlayer = displayedGamePlay.active?.player === username;
 
-            switch (gamePlay.stage) {
+            switch (displayedGamePlay.stage) {
               case CHARACTER_SELECT:
                 return (
                   <StageCharacterSelect
                     characters={activePlayer?.characters || {}}
                     sendAction={sendAction}
                     active={isActivePlayer}
-                    selectedCharacter={gamePlay.stage_meta?.selected}
+                    selectedCharacter={displayedGamePlay.stage_meta?.selected}
                   />
                 );
               case CARD_DRAW:
                 return (
                   <StageCardDraw
-                    drawnCard={gamePlay.stage_meta?.drawn_card}
+                    drawnCard={displayedGamePlay.stage_meta?.drawn_card}
                     sendAction={sendAction}
                     active={isActivePlayer}
                   />
                 );
               case ABILITY_SELECTION:
-                const selectedCharacter = activePlayer?.characters?.[gamePlay.active?.character];
+                const selectedCharacter = activePlayer?.characters?.[displayedGamePlay.active?.character];
                 return (
                   <StageAbilitySelection
                     abilities={selectedCharacter?.abilities || []}
                     sendAction={sendAction}
                     active={isActivePlayer}
-                    selectedAbility={gamePlay.stage_meta?.selected}
+                    selectedAbility={displayedGamePlay.stage_meta?.selected}
                   />
                 );
               case ABILITY_OPPONENT_SELECTION:
                 return (
                   <StageAbilityOpponentSelection
-                    players={gamePlay.players}
-                    activePlayer={gamePlay.active?.player}
+                    players={displayedGamePlay.players}
+                    activePlayer={displayedGamePlay.active?.player}
                     sendAction={sendAction}
                     active={isActivePlayer}
-                    selectedOpponent={gamePlay.stage_meta}
+                    selectedOpponent={displayedGamePlay.stage_meta}
                   />
                 );
               case OPPONENT_SELECTION:
                 return (
                   <StageOpponentSelection
-                    players={gamePlay.players}
-                    activePlayer={gamePlay.active?.player}
+                    players={displayedGamePlay.players}
+                    activePlayer={displayedGamePlay.active?.player}
                     sendAction={sendAction}
                     active={isActivePlayer}
-                    selectedOpponent={gamePlay.stage_meta}
+                    selectedOpponent={displayedGamePlay.stage_meta}
                   />
                 );
               case BATTLE_DICE_ROLL:
               case BATTLE_END:
                 return (
                   <StageBattle
-                    gamePlay={gamePlay}
+                    gamePlay={displayedGamePlay}
                     sendAction={sendAction}
                     active={isActivePlayer}
                     currentUser={username}
                   />
                 );
               default:
-                return <div>Stage: {gamePlay.stage}</div>;
+                return <div>Stage: {displayedGamePlay.stage}</div>;
             }
           })()}
         </div>
