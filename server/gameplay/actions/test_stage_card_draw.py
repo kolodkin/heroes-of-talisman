@@ -10,6 +10,7 @@ import pytest
 from .stage_card_draw import CardDrawAction, CardSelectAction
 from .battle_end import BattleEndAction
 from ..common import GameException, ReportedException, CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
+from ..abilities import ABILITY_DISARM
 from ..cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD, CARD_GOLDEN_APPLE, CARD_DEVILS_FORK, CARD_TALISMAN, CARD_FOG, CARDS_MAP
 from ..gameplay import (
     STAGE_CARD_DRAW,
@@ -526,3 +527,80 @@ def test_fog_card_added_to_character_cards():
 
     knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
     assert CARD_FOG in knight.cards
+
+
+def test_card_select_after_disarm_rotates_to_next_player():
+    """Test that drawing a card after disarm ends the turn (rotates to next player)"""
+    characters_p1 = init_characters(level=2)
+    characters_p2 = init_characters()
+
+    game = GamePlay(
+        stage=STAGE_CARD_DRAW,
+        ability=ABILITY_DISARM,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        stage_meta=CardDrawMeta(drawn_card=CARD_METAL_ARMOR),
+        players={
+            "player1": Player(name="player1", characters=characters_p1),
+            "player2": Player(name="player2", characters=characters_p2),
+        },
+    )
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Turn should end - rotate to player2 and go to character_select
+    assert updated_game.stage == STAGE_CHARACTER_SELECT
+    assert updated_game.active is not None
+    assert updated_game.active.player == "player2"
+    assert updated_game.ability is None
+
+
+def test_card_select_after_disarm_still_applies_card_effect():
+    """Test that the second card draw after disarm still applies the card effects"""
+    characters_p1 = init_characters(level=2)
+    characters_p1[CHARACTER_KNIGHT].health = 2  # Below max to verify healing
+
+    characters_p2 = init_characters()
+
+    game = GamePlay(
+        stage=STAGE_CARD_DRAW,
+        ability=ABILITY_DISARM,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        stage_meta=CardDrawMeta(drawn_card=CARD_GOLDEN_APPLE),
+        players={
+            "player1": Player(name="player1", characters=characters_p1),
+            "player2": Player(name="player2", characters=characters_p2),
+        },
+    )
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    # Card effect applied (golden_apple heals +1)
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight.health == 3  # Was 2, healed to 3
+
+    # Turn ended
+    assert updated_game.stage == STAGE_CHARACTER_SELECT
+
+
+def test_card_select_without_disarm_goes_to_ability_selection():
+    """Test normal card select (no disarm) still goes to ability_selection"""
+    characters_p1 = init_characters(level=2)
+    characters_p2 = init_characters()
+
+    game = GamePlay(
+        stage=STAGE_CARD_DRAW,
+        ability=None,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        stage_meta=CardDrawMeta(drawn_card=CARD_METAL_ARMOR),
+        players={
+            "player1": Player(name="player1", characters=characters_p1),
+            "player2": Player(name="player2", characters=characters_p2),
+        },
+    )
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    assert updated_game.stage == STAGE_ABILITY_SELECTION

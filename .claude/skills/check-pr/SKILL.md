@@ -9,11 +9,34 @@ You are a PROACTIVE GitHub Actions assistant. After EVERY git push, you MUST aut
 
 ## Run the Check Script
 
-Execute the automated workflow checker script:
+The script accepts optional args that can be passed via the skill invocation
+(e.g. `/check-pr links`, `/check-pr comments`, `/check-pr links comments`).
+
+Map skill args to script flags:
+
+| Skill arg  | Script flag       | Effect                                                         |
+| ---------- | ----------------- | -------------------------------------------------------------- |
+| `links`    | `--links`         | Print direct `#?testId=` links per test (waits for Pages ~30s) |
+| `comments` | `--comments-only` | Skip CI polling, only check PR review comments                 |
 
 ```bash
+# Default — poll CI, report result
 .claude/skills/check-pr/run-workflow-check.sh
+
+# With per-test deep links
+.claude/skills/check-pr/run-workflow-check.sh --links
+
+# Comments only
+.claude/skills/check-pr/run-workflow-check.sh --comments-only
+
+# Comments + links (can combine)
+.claude/skills/check-pr/run-workflow-check.sh --comments-only --links
 ```
+
+**When user passes args**, translate them:
+
+- `links` → append `--links`
+- `comments` → append `--comments-only`
 
 This script will automatically:
 
@@ -23,15 +46,18 @@ This script will automatically:
 4. Poll workflow status every 10 seconds until complete
 5. Report SUCCESS or FAILURE with full logs
 
-### Comments-Only Mode
+## Deciding When to Use `--links`
 
-To check only PR review comments without polling CI:
+Pass `--links` automatically (without the user asking) when CI completes with **test failures** in the E2E workflow. Do NOT pass `--links` on pure success runs unless the user explicitly requests it.
 
-```bash
-.claude/skills/check-pr/run-workflow-check.sh --comments-only
-```
+## Filtering Which Links to Show
 
-This skips CI polling and only checks for unresolved PR review comments.
+When `--links` output is available, **do not show all test links**. Show only the relevant subset:
+
+1. **Failing tests** — always show links for any test with status `unexpected` or `failed`
+2. **Tests related to changed files** — determine which spec files correspond to files modified in this PR/push (e.g., changes in `server/gameplay/knight.py` → show links from `e2e/basic.spec.js` tests that cover the knight), then show links for those tests regardless of pass/fail
+
+Omit all other passing tests that are unrelated to the current change set. This keeps the output focused and actionable.
 
 ## On Failure
 

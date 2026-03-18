@@ -64,6 +64,14 @@ const resources = {
           name: "הקפאה",
           description: "מונע מדמות לבחירתך להשתתף בסיבוב הבא",
         },
+        disarm: {
+          name: "פריקת נשק",
+          description: "במקום לתקוף, שלוף קלף נוסף",
+        },
+        no_ability: {
+          name: "ללא יכולת",
+          description: "דלג על בחירת יכולת",
+        },
       },
       cards: {
         metal_armor: {
@@ -115,6 +123,7 @@ const resources = {
       ability_selection: {
         submit: "בחר",
         select_ability: "בחר יכולת בבקשה",
+        no_ability: "ללא יכולת",
       },
       ability_opponent_selection: {
         submit: "בחר",
