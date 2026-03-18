@@ -46,12 +46,15 @@ from .abilities import (
     AbilityName,
     ABILITY_BATTLE_HOWL,
     ABILITY_BOUNCING_ARROW,
+    ABILITY_BOUNCING_ARROW_L2,
     ABILITY_FREEZE,
     ABILITY_DISARM,
 )
 from .effects import (
     EffectTotal,
     EFFECT_SKIP_TURN,
+    EFFECT_NO_DAMAGE_ON_WIN,
+    EFFECT_REROLL_DICE,
     AttackBonusEffect,
     AttackNegBonusEffect,
     DefenseBonusEffect,
@@ -151,6 +154,10 @@ class Character(StrictModel):
         for eff_name in self.effects:
             if eff_name == EFFECT_SKIP_TURN:
                 total.skip_next_turn = True
+            elif eff_name == EFFECT_NO_DAMAGE_ON_WIN:
+                total.no_damage_on_win = True
+            elif eff_name == EFFECT_REROLL_DICE:
+                total.reroll_dice_available = True
 
         return total
 
@@ -322,6 +329,7 @@ ARCHER_L2_DEFAULT_HEALTH = 4
 ARCHER_L2_MAX_HEALTH = 4
 ARCHER_L2_DICE = 1
 ARCHER_L2_ATTACK = 2
+ARCHER_L2_ABILITY = ABILITY_BOUNCING_ARROW_L2
 
 # Archer Level 3
 ARCHER_L3_DEFAULT_HEALTH = 5
@@ -397,7 +405,7 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": ARCHER_L2_MAX_HEALTH,
             "dice": ARCHER_L2_DICE,
             "attack": ARCHER_L2_ATTACK,
-            "abilities": [ABILITIES_MAP[ARCHER_L1_ABILITY]],
+            "abilities": [ABILITIES_MAP[ARCHER_L1_ABILITY], ABILITIES_MAP[ARCHER_L2_ABILITY]],
         },
         "mage": {
             "health": MAGE_L2_DEFAULT_HEALTH,

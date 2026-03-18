@@ -11,7 +11,8 @@ This module implements actions for the battle stage:
 import random
 from .action import Action
 from ..common import GameException, ReportedException
-from ..abilities import ABILITY_BOUNCING_ARROW
+from ..abilities import ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2
+from ..effects import EFFECT_NO_DAMAGE_ON_WIN, EFFECT_REROLL_DICE
 from ..gameplay import (
     STAGE_BATTLE_DICE_ROLL,
     STAGE_BATTLE_END,
@@ -291,9 +292,18 @@ class RerollEffectAction(Action):
         if not active_character.effect.reroll_dice_available:
             raise GameException("No reroll effect available")
 
-        # Remove bouncing_arrow from active_abilities (consumes the reroll)
-        if ABILITY_BOUNCING_ARROW in active_character.active_abilities:
+        # Consume the reroll ability and handle L2 second reroll
+        if ABILITY_BOUNCING_ARROW_L2 in active_character.active_abilities:
+            # First reroll for L2 archer: consume ability and prepare second reroll with no-damage
+            active_character.active_abilities.remove(ABILITY_BOUNCING_ARROW_L2)
+            active_character.effects.append(EFFECT_REROLL_DICE)
+            active_character.effects.append(EFFECT_NO_DAMAGE_ON_WIN)
+        elif ABILITY_BOUNCING_ARROW in active_character.active_abilities:
+            # Standard L1 reroll: consume ability
             active_character.active_abilities.remove(ABILITY_BOUNCING_ARROW)
+        elif EFFECT_REROLL_DICE in active_character.effects:
+            # Second reroll for L2 archer: consume the string effect (keep NO_DAMAGE_ON_WIN)
+            active_character.effects.remove(EFFECT_REROLL_DICE)
 
         # Use shared validation and reset logic
         return validate_and_reset_reroll(self.game, self.user)

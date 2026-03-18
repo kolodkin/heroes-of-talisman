@@ -60,6 +60,10 @@ const resources = {
           name: "חץ מקפץ",
           description: "מאפשר לגלגל את הקובייה מחדש",
         },
+        bouncing_arrow_l2: {
+          name: "חץ קופץ",
+          description: "אם מפסיד, מאפשר שני קרבות חוזרים - בשני הקשת לא מוריד חיים אם מנצח",
+        },
         freeze: {
           name: "הקפאה",
           description: "מונע מדמות לבחירתך להשתתף בסיבוב הבא",
