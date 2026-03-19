@@ -192,34 +192,37 @@ function extractTestScreenshots(data, tests, context = {}) {
  * Returns array of duplicate pairs with test context.
  */
 async function findConsecutiveDuplicates(tests) {
-  const duplicates = [];
   let totalScreenshots = 0;
-
   for (const test of tests) {
-    const { testTitle, testFile, testId, screenshots } = test;
-    totalScreenshots += screenshots.length;
-
-    if (screenshots.length < 2) continue;
-
-    // Compute hashes for all screenshots in this test
-    const hashes = await Promise.all(screenshots.map((s) => computePerceptualHashFromBuffer(s.buffer)));
-
-    // Compare consecutive screenshots
-    for (let i = 0; i < screenshots.length - 1; i++) {
-      if (hashes[i] === hashes[i + 1]) {
-        duplicates.push({
-          testTitle,
-          testFile,
-          testId,
-          first: screenshots[i].name,
-          second: screenshots[i + 1].name,
-          hash: hashes[i],
-          position: i + 1, // 1-indexed position of the duplicate
-        });
-      }
-    }
+    totalScreenshots += test.screenshots.length;
   }
 
+  // Process all tests in parallel
+  const perTestDuplicates = await Promise.all(
+    tests.map(async ({ testTitle, testFile, testId, screenshots }) => {
+      if (screenshots.length < 2) return [];
+
+      const hashes = await Promise.all(screenshots.map((s) => computePerceptualHashFromBuffer(s.buffer)));
+
+      const dupes = [];
+      for (let i = 0; i < screenshots.length - 1; i++) {
+        if (hashes[i] === hashes[i + 1]) {
+          dupes.push({
+            testTitle,
+            testFile,
+            testId,
+            first: screenshots[i].name,
+            second: screenshots[i + 1].name,
+            hash: hashes[i],
+            position: i + 1,
+          });
+        }
+      }
+      return dupes;
+    })
+  );
+
+  const duplicates = perTestDuplicates.flat();
   return { duplicates, totalScreenshots, totalTests: tests.length };
 }
 

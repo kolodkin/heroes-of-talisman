@@ -146,6 +146,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run e2e:compress
 
+      - name: Check for consecutive duplicate screenshots
+        if: ${{ !cancelled() }}
+        run: npm run e2e:check-dup
+
       - name: Check if Playwright report exists
         id: check-report
         if: ${{ !cancelled() }}
@@ -191,10 +195,6 @@ jobs:
           details_url: ${{ env.REPORT_URL }}
           output: |
             {"title":"${{ steps.test-outcome.outputs.outcome == 'success' && 'Tests passed' || 'Tests failed' }}","summary":"📊 **[View Full Playwright Report](${{ env.REPORT_URL }})**"}
-
-      - name: Check for consecutive duplicate screenshots
-        if: ${{ !cancelled() }}
-        run: npm run e2e:check-dup
 
       - name: Delete blob report artifacts
         if: always()
