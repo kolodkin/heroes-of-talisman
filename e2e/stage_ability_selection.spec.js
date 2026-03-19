@@ -390,7 +390,7 @@ test("ability_item_selection stage - shows target's items and allows selecting w
 
   // Both item cards should be visible
   const metalArmor = sharedArea.locator('[data-card="metal_armor"]');
-  const sacredSword = sharedArea.locator('[data-card="sacred_sword"]');
+  const sacredSword = sharedArea.locator('[data-card="sacred_sord"]');
   await expect(metalArmor).toBeVisible();
   await expect(sacredSword).toBeVisible();
   await screenshot(page, "item-selection-both-items-visible");

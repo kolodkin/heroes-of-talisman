@@ -2,7 +2,6 @@ from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
 from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH
-from .cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD
 from .effects import EFFECT_SKIP_TURN
 from .gameplay import (
     StageName,
@@ -209,6 +208,7 @@ def get_debug_preset(
     elif preset == "ability_item_selection_dragon_breath":
         # Ability item selection stage - player1 (mage L2) chose Dragon Breath and targeted player2's knight
         # Player2's knight has metal_armor and sacred_sword; player1 selects which item to neutralize
+        from .cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD
         characters1 = init_characters(level=2)
         characters2 = init_characters()
         characters2[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR, CARD_SACRED_SWORD]
