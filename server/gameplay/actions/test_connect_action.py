@@ -25,6 +25,7 @@ from ..gameplay import (
     CHARACTER_DEFAULT_STATS,
     ARCHER_L1_ATTACK,
     MAGE_L1_ATTACK,
+    init_characters,
 )
 
 
@@ -81,10 +82,7 @@ def test_connect_action_game_full():
     # Fill game to max capacity
     for i in range(MAX_PLAYERS):
         player_name = f"player{i+1}"
-        characters = {}
-        for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]:
-            characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-        game.players[player_name] = Player(name=player_name, characters=characters)
+        game.players[player_name] = Player(name=player_name, characters=init_characters())
 
     action = ConnectAction("player_overflow", game)
 
@@ -97,10 +95,7 @@ def test_connect_action_second_player():
     game = GamePlay()
     game.stage = STAGE_CHARACTER_SELECT
     game.active = ActivePlayer1(player="player1")
-    characters = {}
-    for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]:
-        characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players["player1"] = Player(name="player1", characters=characters)
+    game.players["player1"] = Player(name="player1", characters=init_characters())
 
     action = ConnectAction("player2", game)
     updated_game = action.run()

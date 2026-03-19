@@ -9,23 +9,19 @@ the only player leaving.
 import pytest
 
 from .connection import LeaveAction
-from ..common import GameException, CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE
+from ..common import GameException
 from ..gameplay import (
     GamePlay,
     Player,
-    Character,
-    CHARACTER_DEFAULT_STATS,
+    init_characters,
 )
 
 
 def test_leave_action_existing_player():
     """Test a player leaving the game"""
     game = GamePlay()
-    characters = {}
-    for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]:
-        characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players["player1"] = Player(name="player1", characters=characters)
-    game.players["player2"] = Player(name="player2", characters=characters)
+    game.players["player1"] = Player(name="player1", characters=init_characters())
+    game.players["player2"] = Player(name="player2", characters=init_characters())
 
     action = LeaveAction("player1", game)
     updated_game = action.run()
@@ -46,10 +42,7 @@ def test_leave_action_nonexistent_player():
 def test_leave_action_only_player():
     """Test the only player in the game leaving"""
     game = GamePlay()
-    characters = {}
-    for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]:
-        characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players["player1"] = Player(name="player1", characters=characters)
+    game.players["player1"] = Player(name="player1", characters=init_characters())
 
     action = LeaveAction("player1", game)
     updated_game = action.run()
