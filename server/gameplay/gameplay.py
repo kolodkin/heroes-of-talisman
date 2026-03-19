@@ -22,6 +22,7 @@ STAGE_CHARACTER_SELECT = "character_select"
 STAGE_CARD_DRAW = "card_draw"
 STAGE_ABILITY_SELECTION = "ability_selection"
 STAGE_ABILITY_OPPONENT_SELECTION = "ability_opponent_selection"
+STAGE_ABILITY_ITEM_SELECTION = "ability_item_selection"
 STAGE_OPPONENT_SELECTION = "opponent_selection"
 STAGE_BATTLE_DICE_ROLL = "battle_dice_roll"
 STAGE_BATTLE_END = "battle_end"
@@ -30,6 +31,7 @@ STAGES_NAMES = [
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
     STAGE_ABILITY_OPPONENT_SELECTION,
+    STAGE_ABILITY_ITEM_SELECTION,
     STAGE_OPPONENT_SELECTION,
     STAGE_BATTLE_DICE_ROLL,
     STAGE_BATTLE_END,
@@ -191,6 +193,14 @@ class AbilitySelectMeta(StrictModel):
     selected: Optional[str] = None  # Currently highlighted ability (None = no ability selected)
 
 
+class AbilityItemMeta(StrictModel):
+    """Stage metadata for ability item selection stage"""
+
+    target_player: str  # Player who owns the target character
+    target_character: str  # Target character whose items are shown
+    selected_item: Optional[str] = None  # Currently highlighted item card name
+
+
 class ActivePlayer1(StrictModel):
     """Selected character for battle"""
 
@@ -262,7 +272,7 @@ class GamePlay(StrictModel):
     ability: Optional[AbilityName] = None  # Turn-scoped, cleared by rotate_to_next_player
     ability_opponent: Optional[Opponent2] = None  # Turn-scoped, cleared by rotate_to_next_player
     opponent: Optional[Opponent] = None  # Turn-scoped, cleared by rotate_to_next_player
-    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | Opponent2] = None  # Within-stage, cleared after each press/select
+    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | AbilityItemMeta | Opponent2] = None  # Within-stage, cleared after each press/select
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""

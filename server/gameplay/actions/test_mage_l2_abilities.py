@@ -130,11 +130,12 @@ def test_dragon_breath_routes_to_ability_opponent_selection():
     assert updated_game.ability == ABILITY_DRAGON_BREATH
 
 
-def test_dragon_breath_removes_last_active_card():
-    """Dragon Breath removes the last active card from the target's inventory."""
+def test_dragon_breath_routes_to_ability_item_selection_when_target_has_items():
+    """Dragon Breath routes to ability_item_selection when target has active cards to choose from."""
+    from ..gameplay import STAGE_ABILITY_ITEM_SELECTION, AbilityItemMeta
+
     characters1 = init_characters(level=2)
     characters2 = init_characters(level=2)
-    # Give target knight two items
     characters2[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR, CARD_SACRED_SWORD]
 
     game = GamePlay(
@@ -151,39 +152,17 @@ def test_dragon_breath_removes_last_active_card():
     action = AbilityOpponentSelectAction("player1", game)
     updated_game = action.run()
 
+    assert updated_game.stage == STAGE_ABILITY_ITEM_SELECTION
+    assert isinstance(updated_game.stage_meta, AbilityItemMeta)
+    assert updated_game.stage_meta.target_player == "player2"
+    assert updated_game.stage_meta.target_character == CHARACTER_KNIGHT
+    # Items are preserved until the player selects which one to remove
     target_knight = updated_game.players["player2"].characters[CHARACTER_KNIGHT]
-    # One card should be removed (the last one)
-    assert len(target_knight.active_cards) == 1
-    assert CARD_METAL_ARMOR in target_knight.active_cards
-    assert CARD_SACRED_SWORD not in target_knight.active_cards
-
-
-def test_dragon_breath_removes_only_card_when_one_exists():
-    """Dragon Breath removes the only card if target has exactly one item."""
-    characters1 = init_characters(level=2)
-    characters2 = init_characters(level=2)
-    characters2[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR]
-
-    game = GamePlay(
-        stage=STAGE_ABILITY_OPPONENT_SELECTION,
-        active=ActivePlayer2(player="player1", character=CHARACTER_MAGE),
-        ability=ABILITY_DRAGON_BREATH,
-        stage_meta=Opponent2(player="player2", character=CHARACTER_KNIGHT),
-        players={
-            "player1": Player(name="player1", characters=characters1),
-            "player2": Player(name="player2", characters=characters2),
-        },
-    )
-
-    action = AbilityOpponentSelectAction("player1", game)
-    updated_game = action.run()
-
-    target_knight = updated_game.players["player2"].characters[CHARACTER_KNIGHT]
-    assert len(target_knight.active_cards) == 0
+    assert len(target_knight.active_cards) == 2
 
 
 def test_dragon_breath_no_crash_when_target_has_no_items():
-    """Dragon Breath does nothing (no crash) when target has no active cards."""
+    """Dragon Breath goes directly to opponent_selection when target has no active cards."""
     characters1 = init_characters(level=2)
     characters2 = init_characters(level=2)
     # Target has no active cards
@@ -207,8 +186,10 @@ def test_dragon_breath_no_crash_when_target_has_no_items():
     assert updated_game.stage == STAGE_OPPONENT_SELECTION
 
 
-def test_dragon_breath_transitions_to_opponent_selection():
-    """Dragon Breath transitions to opponent_selection after target is confirmed."""
+def test_dragon_breath_ability_opponent_is_set_when_routing_to_item_selection():
+    """ability_opponent is stored when Dragon Breath routes to ability_item_selection."""
+    from ..gameplay import STAGE_ABILITY_ITEM_SELECTION
+
     characters1 = init_characters(level=2)
     characters2 = init_characters(level=2)
     characters2[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR]
@@ -227,7 +208,7 @@ def test_dragon_breath_transitions_to_opponent_selection():
     action = AbilityOpponentSelectAction("player1", game)
     updated_game = action.run()
 
-    assert updated_game.stage == STAGE_OPPONENT_SELECTION
+    assert updated_game.stage == STAGE_ABILITY_ITEM_SELECTION
     assert updated_game.ability_opponent is not None
     assert updated_game.ability_opponent.player == "player2"
     assert updated_game.ability_opponent.character == CHARACTER_KNIGHT

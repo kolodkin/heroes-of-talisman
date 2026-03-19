@@ -10,7 +10,14 @@ from .action import Action
 from ..common import GameException, ReportedException
 from ..abilities import get_ability_effects
 from ..effects import NeutralizeItemEffect
-from ..gameplay import STAGE_ABILITY_OPPONENT_SELECTION, STAGE_OPPONENT_SELECTION, GamePlay, Opponent2
+from ..gameplay import (
+    STAGE_ABILITY_OPPONENT_SELECTION,
+    STAGE_ABILITY_ITEM_SELECTION,
+    STAGE_OPPONENT_SELECTION,
+    GamePlay,
+    AbilityItemMeta,
+    Opponent2,
+)
 
 
 class AbilityOpponentPressAction(Action):
@@ -101,20 +108,32 @@ class AbilityOpponentSelectAction(Action):
                 f"Opponent character {selected_opponent.character} is dead and can't be targeted"
             )
 
-        # Apply ability effects to target character
-        for effect in get_ability_effects(self.game.ability):
-            if isinstance(effect, NeutralizeItemEffect):
-                # Instant effect: remove the last active card from target's inventory
-                if target_character.active_cards:
-                    target_character.active_cards.pop()
-            else:
-                target_character.effects.append(effect.name)
+        # Check if any effect requires item selection
+        has_neutralize_item = any(
+            isinstance(effect, NeutralizeItemEffect)
+            for effect in get_ability_effects(self.game.ability)
+        )
 
-        # Store the ability opponent
-        self.game.ability_opponent = selected_opponent
+        if has_neutralize_item and target_character.active_cards:
+            # Route to item selection stage so active player can choose which item to neutralize
+            self.game.stage = STAGE_ABILITY_ITEM_SELECTION
+            self.game.stage_meta = AbilityItemMeta(
+                target_player=selected_opponent.player,
+                target_character=selected_opponent.character,
+            )
+            # Store the ability opponent now (used by item selection stage)
+            self.game.ability_opponent = selected_opponent
+        else:
+            # No items to select (or no NeutralizeItemEffect): apply remaining effects and proceed
+            for effect in get_ability_effects(self.game.ability):
+                if not isinstance(effect, NeutralizeItemEffect):
+                    target_character.effects.append(effect.name)
 
-        # Transition to opponent selection stage
-        self.game.stage = STAGE_OPPONENT_SELECTION
-        self.game.stage_meta = None  # Clear stage metadata
+            # Store the ability opponent
+            self.game.ability_opponent = selected_opponent
+
+            # Transition to opponent selection stage
+            self.game.stage = STAGE_OPPONENT_SELECTION
+            self.game.stage_meta = None
 
         return self.game
