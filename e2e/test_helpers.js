@@ -78,24 +78,24 @@ export async function joinGameViaUrl(page, playerName, gameName, waitForSelector
  * @param {number} options.timeout - Timeout in ms (default: 3000)
  * @returns {Promise<string>} The toast message text
  */
-export async function waitForToast(page, { type, message, timeout = 3000 } = {}) {
+export function waitForToast(page, { type, message, timeout = 3000 } = {}) {
   const prefix = type ? `toast.${type}` : "toast";
-  const consoleMsg = await page.waitForEvent("console", {
-    predicate: (msg) => msg.text().startsWith(prefix),
-    timeout,
-  });
-
-  const toastText = consoleMsg.text().slice(prefix.length).trim();
-
-  if (message) {
-    if (message instanceof RegExp) {
-      expect(toastText).toMatch(message);
-    } else {
-      expect(toastText).toContain(message);
-    }
-  }
-
-  return toastText;
+  return page
+    .waitForEvent("console", {
+      predicate: (msg) => msg.text().startsWith(prefix),
+      timeout,
+    })
+    .then((consoleMsg) => {
+      const toastText = consoleMsg.text().slice(prefix.length).trim();
+      if (message) {
+        if (message instanceof RegExp) {
+          expect(toastText).toMatch(message);
+        } else {
+          expect(toastText).toContain(message);
+        }
+      }
+      return toastText;
+    });
 }
 
 /**
