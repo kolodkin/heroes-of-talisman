@@ -29,6 +29,11 @@ from ..gameplay import (
 )
 
 
+def kill_character(characters, character_type):
+    characters[character_type].health = 0
+    characters[character_type].is_alive = False
+
+
 def test_opponent_press_action_valid():
     """Test pressing opponent's character highlights it in stage_meta"""
     game = GamePlay(stage=STAGE_OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT))
@@ -186,9 +191,7 @@ def test_opponent_press_action_dead_character():
     game = GamePlay(stage=STAGE_OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT))
     characters_p1 = init_characters()
     characters_p2 = init_characters()
-    # Kill opponent's knight
-    characters_p2[CHARACTER_KNIGHT].health = 0
-    characters_p2[CHARACTER_KNIGHT].is_alive = False
+    kill_character(characters_p2, CHARACTER_KNIGHT)
     game.players["player1"] = Player(name="player1", characters=characters_p1)
     game.players["player2"] = Player(name="player2", characters=characters_p2)
 
@@ -203,9 +206,7 @@ def test_opponent_select_action_dead_character():
     game = GamePlay(stage=STAGE_OPPONENT_SELECTION, active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT))
     characters_p1 = init_characters()
     characters_p2 = init_characters()
-    # Kill opponent's knight
-    characters_p2[CHARACTER_KNIGHT].health = 0
-    characters_p2[CHARACTER_KNIGHT].is_alive = False
+    kill_character(characters_p2, CHARACTER_KNIGHT)
     game.players["player1"] = Player(name="player1", characters=characters_p1)
     game.players["player2"] = Player(name="player2", characters=characters_p2)
 
