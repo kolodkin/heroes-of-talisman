@@ -78,7 +78,7 @@ export async function joinGameViaUrl(page, playerName, gameName, waitForSelector
  * @param {number} options.timeout - Timeout in ms (default: 3000)
  * @returns {Promise<string>} The toast message text
  */
-export function waitForToast(page, { type, message, timeout = 3000 } = {}) {
+export function expectToast(page, { type, message, timeout = 3000 } = {}) {
   const prefix = type ? `toast.${type}` : "toast";
   return page
     .waitForEvent("console", {
