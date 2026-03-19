@@ -1,7 +1,7 @@
 from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE, ABILITY_DISARM
+from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH
 from .effects import EFFECT_SKIP_TURN
 from .gameplay import (
     StageName,
@@ -30,6 +30,7 @@ PRESET_ABILITY_SELECTION_KNIGHT = "ability_selection_knight"
 PRESET_ABILITY_SELECTION_KNIGHT_L2 = "ability_selection_knight_l2"
 PRESET_ABILITY_SELECTION_ARCHER = "ability_selection_archer"
 PRESET_ABILITY_SELECTION_MAGE = "ability_selection_mage"
+PRESET_ABILITY_SELECTION_MAGE_L2 = "ability_selection_mage_l2"
 PRESET_EFFECT_REROLL = "effect_reroll"
 PRESET_ARCHER_NOT_ALIVE = "archer_not_alive"
 PRESET_BATTLE_DRAW = "battle_draw"
@@ -66,6 +67,7 @@ DebugPresetsType = Literal[
     "ability_selection_knight_l2",
     "ability_selection_archer",
     "ability_selection_mage",
+    "ability_selection_mage_l2",
     "archer_not_alive",
     "battle_draw",
     "battle_level_down",
@@ -183,6 +185,17 @@ def get_debug_preset(
             stage_meta=AbilitySelectMeta(selected=ABILITY_FREEZE),
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_selection_mage_l2":
+        # Ability selection stage - player1 has selected mage at level 2
+        # Mage L2 has FREEZE, STORM, and DRAGON_BREATH - three abilities, no auto-select
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=2)),
                 p2_name: Player(name=p2_name, characters=init_characters()),
             },
         )
