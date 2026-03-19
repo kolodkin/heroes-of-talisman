@@ -18,6 +18,7 @@ import { notify } from "../utils/notify";
 import { useScrollAlignment } from "../hooks/useScrollAlignment";
 import { SharedAreaContent } from "./SharedAreaContent";
 
+import Fade from "./Fade";
 import commonStyles from "./Common.module.css";
 import cardStyles from "./Card.module.css";
 import gamePlayCardStyles from "./GamePlayCard.module.css";
@@ -66,7 +67,7 @@ const StageAbilitySelection = ({ abilities, sendAction, active, selectedAbility 
 
   const content = (
     <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
-      <div ref={containerRef} className={className(commonStyles.cardsContainer, "mb-8")}>
+      <Fade ref={containerRef} className={className(commonStyles.cardsContainer, "mb-8")}>
         {abilities.map((ability) => (
           <AbilityCard
             key={ability.name}
@@ -90,7 +91,7 @@ const StageAbilitySelection = ({ abilities, sendAction, active, selectedAbility 
             <p className={gamePlayCardStyles.name}>{t("ability_selection.no_ability")}</p>
           </div>
         </div>
-      </div>
+      </Fade>
     </div>
   );
 

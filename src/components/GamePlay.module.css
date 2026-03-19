@@ -77,34 +77,6 @@
   justify-content: flex-start;
 }
 
-.stage-transition-overlay {
-  position: absolute;
-  inset: 0;
-  background: #0d0d0d;
-  pointer-events: none;
-  z-index: 100;
-  border-radius: 8px;
-  clip-path: circle(0% at 50% 50%);
-}
-
-.stage-transition-overlay-covering {
-  animation: stage-blob-cover 0.35s ease-in forwards;
-}
-
-.stage-transition-overlay-revealing {
-  animation: stage-blob-reveal 0.35s ease-out forwards;
-}
-
-@keyframes stage-blob-cover {
-  from { clip-path: circle(0% at 50% 50%); }
-  to   { clip-path: circle(150% at 50% 50%); }
-}
-
-@keyframes stage-blob-reveal {
-  from { clip-path: circle(150% at 50% 50%); }
-  to   { clip-path: circle(0% at 50% 50%); }
-}
-
 .stage-title {
   font-size: 1.3rem;
   font-weight: bold;

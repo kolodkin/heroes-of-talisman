@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { SharedAreaContent } from "./SharedAreaContent";
 import GameplayCard from "./GameplayCard";
 import DeckCard from "./DeckCard";
+import Fade from "./Fade";
 
 import commonStyles from "./Common.module.css";
 
@@ -33,13 +34,9 @@ const StageCardDraw = ({ drawnCard, sendAction, active }) => {
 
   const content = (
     <div className="flex max-w-full self-center">
-      <div className={commonStyles.cardsContainer}>
-        {!drawnCard ? (
-          <DeckCard />
-        ) : (
-          <GameplayCard cardName={drawnCard} isSelected={true} onClick={() => {}} />
-        )}
-      </div>
+      <Fade className={commonStyles.cardsContainer}>
+        {!drawnCard ? <DeckCard /> : <GameplayCard cardName={drawnCard} isSelected={true} onClick={() => {}} />}
+      </Fade>
     </div>
   );
 

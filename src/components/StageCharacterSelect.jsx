@@ -20,6 +20,7 @@ import { useScrollAlignment } from "../hooks/useScrollAlignment";
 
 import { SharedAreaContent } from "./SharedAreaContent";
 import CharacterCard from "./CharacterCard";
+import Fade from "./Fade";
 import commonStyles from "./Common.module.css";
 
 const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacter = null }) => {
@@ -86,7 +87,7 @@ const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacte
 
   const content = (
     <div className={className("flex w-full", hasScroll ? "justify-start" : "justify-center")}>
-      <div ref={containerRef} className={className(commonStyles.cardsContainer, "mb-8")}>
+      <Fade ref={containerRef} className={className(commonStyles.cardsContainer, "mb-8")}>
         {Object.entries(characters).map(([name, character]) => (
           <CharacterCard
             key={name}
@@ -97,7 +98,7 @@ const StageCharacterSelect = ({ characters, sendAction, active, selectedCharacte
             size="normal"
           />
         ))}
-      </div>
+      </Fade>
     </div>
   );
 

@@ -17,6 +17,7 @@ import CharacterCard from "./CharacterCard";
 import Dice from "./Dice";
 import { RerollIcon } from "./Icons";
 import { SharedAreaContent } from "./SharedAreaContent";
+import Fade from "./Fade";
 import styles from "./StageBattle.module.css";
 
 const BattleParticipant = ({
@@ -241,7 +242,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
   });
 
   const content = (
-    <div className={styles.battleContainer}>
+    <Fade className={styles.battleContainer}>
       <BattleParticipant
         playerName={activePlayerName}
         characterName={activeCharacterName}
@@ -264,7 +265,7 @@ const StageBattle = ({ gamePlay, sendAction, active, currentUser }) => {
         winner={showWinner && opponentIsWinner}
         showScore={showResults}
       />
-    </div>
+    </Fade>
   );
 
   return (
