@@ -68,6 +68,14 @@ const resources = {
           name: "פריקת נשק",
           description: "במקום לתקוף, שלוף קלף נוסף",
         },
+        storm: {
+          name: "סופה",
+          description: "-2 להתקפות היריב הנבחר בקרב",
+        },
+        dragon_breath: {
+          name: "נשימת דרקון",
+          description: "מנטרל חפץ אחד מהיריב הנבחר",
+        },
         no_ability: {
           name: "ללא יכולת",
           description: "דלג על בחירת יכולת",
