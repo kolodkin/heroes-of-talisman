@@ -1,5 +1,5 @@
 import { createGameViaAPI } from "./api_helpers.js";
-import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame, dismissConnectionToast } from "./test_helpers.js";
+import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame } from "./test_helpers.js";
 
 test("players menu minimized by default on desktop with expand minimize and collapse", async ({
   page,
@@ -46,9 +46,6 @@ test("players menu minimized by default on desktop with expand minimize and coll
   await expect(playerDiv.getByText(/קשת/)).toBeVisible(); // archer in Hebrew
   await expect(playerDiv.getByText(/קוסם/)).toBeVisible(); // mage in Hebrew
   await expect(playerDiv.getByText(/דרגה 1/).first()).toBeVisible(); // level 1
-
-  // Dismiss any lingering connection toast before clicking
-  await dismissConnectionToast(page);
 
   // Click expand/minimize button to expand all players
   await expandMinimizeButton.click();

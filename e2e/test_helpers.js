@@ -56,33 +56,6 @@ export async function joinGame(page, playerName, gameName) {
   await expect(page).toHaveURL(new RegExp(`/games/${encodeURIComponent(gameName)}/`));
   const connectedText = await connectedLog.args()[2].jsonValue();
   await test.info().attach(`${playerName}-connection-message`, { body: connectedText, contentType: "text/plain" });
-
-  // Dismiss connection toast to keep screenshots clean
-  await dismissConnectionToast(page);
-}
-
-/**
- * Dismiss the connection toast notification
- * Waits for the toast to appear and clicks the close button
- * @param {Page} page - Playwright page object
- */
-export async function dismissConnectionToast(page) {
-  // Check if toast exists without throwing on timeout
-  const toastLocator = page.locator(".Toastify__toast").first();
-  const isVisible = await toastLocator.isVisible().catch(() => false);
-
-  if (isVisible) {
-    // Click the close button (× button) with force to avoid actionability issues
-    const closeButton = toastLocator.locator(".Toastify__close-button");
-    if (await closeButton.isVisible()) {
-      await closeButton.click({ force: true, timeout: 1000 }).catch(() => {});
-    }
-    // Wait for toast to be fully removed from DOM (not just hidden)
-    await toastLocator.waitFor({ state: "detached", timeout: 5000 }).catch(() => {});
-  }
-
-  // The container div stays in DOM but is inert when no toasts are present.
-  // We already waited for the individual toast element to detach above.
 }
 
 /**
@@ -93,34 +66,36 @@ export async function dismissConnectionToast(page) {
 export async function joinGameViaUrl(page, playerName, gameName, waitForSelector = "[data-battle-participant]") {
   await page.goto(`/games/${encodeURIComponent(gameName)}/${encodeURIComponent(playerName)}`);
   await page.waitForSelector(waitForSelector, { timeout: 5000 });
-
-  // Dismiss connection toast to keep screenshots clean
-  await dismissConnectionToast(page);
 }
 
 /**
- * Wait for a toast notification to appear and optionally verify its content
+ * Wait for a toast notification to appear and optionally verify its content.
+ * In E2E mode, toasts are stubbed to console.log so this listens for console events.
  * @param {Page} page - Playwright page object
  * @param {Object} options - Options object
- * @param {string} options.type - Toast type: 'error', 'success', 'info', 'warning' (optional)
+ * @param {string} options.type - Toast type: 'error', 'success' (optional, defaults to any toast)
  * @param {string|RegExp} options.message - Expected message content (optional)
  * @param {number} options.timeout - Timeout in ms (default: 3000)
  * @returns {Promise<string>} The toast message text
  */
-export async function waitForToast(page, { type, message, timeout = 3000 } = {}) {
-  const selector = type ? `.Toastify__toast--${type}` : ".Toastify__toast";
-  const toast = await page.waitForSelector(selector, { timeout, state: "visible" });
-  const toastText = await toast.textContent();
-
-  if (message) {
-    if (message instanceof RegExp) {
-      expect(toastText).toMatch(message);
-    } else {
-      expect(toastText).toContain(message);
-    }
-  }
-
-  return toastText;
+export function expectToast(page, { type, message, timeout = 3000 } = {}) {
+  const prefix = type ? `toast.${type}` : "toast";
+  return page
+    .waitForEvent("console", {
+      predicate: (msg) => msg.text().startsWith(prefix),
+      timeout,
+    })
+    .then((consoleMsg) => {
+      const toastText = consoleMsg.text().slice(prefix.length).trim();
+      if (message) {
+        if (message instanceof RegExp) {
+          expect(toastText).toMatch(message);
+        } else {
+          expect(toastText).toContain(message);
+        }
+      }
+      return toastText;
+    });
 }
 
 /**

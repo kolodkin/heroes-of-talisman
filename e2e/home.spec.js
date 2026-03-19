@@ -1,5 +1,5 @@
 import { createGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
-import { test, expect, setupHomePage, screenshot, waitForToast } from "./test_helpers.js";
+import { test, expect, setupHomePage, screenshot, expectToast } from "./test_helpers.js";
 
 test("should show error toast when username is empty", async ({ page, gameName }) => {
   // Setup: Create test game
@@ -13,15 +13,12 @@ test("should show error toast when username is empty", async ({ page, gameName }
 
   await screenshot(page, "empty-username");
 
-  // Try to join game with empty username
+  // Try to join game with empty username - start listening before click to avoid missing the event
   const gameButton = page.getByRole("button", { name: gameName });
-  await gameButton.click();
-
-  // Wait for error toast to appear
-  const toastMessage = await waitForToast(page, {
-    type: "error",
-    message: "אנא הזן שם",
-  });
+  const [toastMessage] = await Promise.all([
+    expectToast(page, { type: "error", message: "אנא הזן שם" }),
+    gameButton.click(),
+  ]);
 
   await screenshot(page, "empty-username-error-toast");
 
@@ -47,15 +44,12 @@ test("should show error toast when username is only whitespace", async ({ page, 
 
   await screenshot(page, "whitespace-username");
 
-  // Try to join game with whitespace-only username
+  // Try to join game with whitespace-only username - start listening before click
   const gameButton = page.getByRole("button", { name: gameName });
-  await gameButton.click();
-
-  // Wait for error toast to appear
-  const toastMessage = await waitForToast(page, {
-    type: "error",
-    message: "אנא הזן שם",
-  });
+  const [toastMessage] = await Promise.all([
+    expectToast(page, { type: "error", message: "אנא הזן שם" }),
+    gameButton.click(),
+  ]);
 
   await screenshot(page, "whitespace-username-error-toast");
 
