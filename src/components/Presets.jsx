@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Presets.module.css";
-import { toast } from "react-toastify";
+import { toast } from "../utils/toast";
 import { useNavigate } from "react-router-dom";
 
 const formatPresetLabel = (value) =>
