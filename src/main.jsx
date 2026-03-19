@@ -4,16 +4,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import "./i18n";
 
-if (import.meta.env.VITE_E2E === "true") {
-  import("./e2e_patches.css");
-}
 import HomePage from "./components/HomePage.jsx";
 import GameHandler from "./components/GameHandler.jsx";
 import DiceView from "./components/DiceView.jsx";
 import Presets from "./components/Presets.jsx";
 import IconGallery from "./components/IconGallery.jsx";
 import NotFound from "./components/NotFound.jsx";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer } from "./utils/toast";
 
 const isDev = import.meta.env.DEV;
 

@@ -14,14 +14,11 @@ test("should show error toast when username is empty", async ({ page, gameName }
   await screenshot(page, "empty-username");
 
   // Try to join game with empty username
+  // Register listener before click so we never miss the event
   const gameButton = page.getByRole("button", { name: gameName });
+  const toastPromise = waitForToast(page, { type: "error", message: "אנא הזן שם" });
   await gameButton.click();
-
-  // Wait for error toast to appear
-  const toastMessage = await waitForToast(page, {
-    type: "error",
-    message: "אנא הזן שם",
-  });
+  const toastMessage = await toastPromise;
 
   await screenshot(page, "empty-username-error-toast");
 
@@ -48,14 +45,11 @@ test("should show error toast when username is only whitespace", async ({ page, 
   await screenshot(page, "whitespace-username");
 
   // Try to join game with whitespace-only username
+  // Register listener before click so we never miss the event
   const gameButton = page.getByRole("button", { name: gameName });
+  const toastPromise = waitForToast(page, { type: "error", message: "אנא הזן שם" });
   await gameButton.click();
-
-  // Wait for error toast to appear
-  const toastMessage = await waitForToast(page, {
-    type: "error",
-    message: "אנא הזן שם",
-  });
+  const toastMessage = await toastPromise;
 
   await screenshot(page, "whitespace-username-error-toast");
 
