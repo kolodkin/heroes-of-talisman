@@ -1,66 +1,36 @@
 import { createGameViaAPI, deleteGameViaAPI } from "./api_helpers.js";
 import { test, expect, setupHomePage, screenshot, waitForToast } from "./test_helpers.js";
 
-test("should show error toast when username is empty", async ({ page, gameName }) => {
+test("should show error toast when username is empty or whitespace-only", async ({ page, gameName }) => {
   // Setup: Create test game
   await createGameViaAPI(gameName);
 
   await setupHomePage(page);
 
-  // Clear the username field
   const usernameInput = page.getByLabel("Enter your name:");
-  await usernameInput.clear();
+  const gameButton = page.getByRole("button", { name: gameName });
 
+  // Test 1: empty username
+  await usernameInput.clear();
   await screenshot(page, "empty-username");
 
-  // Try to join game with empty username
-  // Register listener before click so we never miss the event
-  const gameButton = page.getByRole("button", { name: gameName });
-  const toastPromise = waitForToast(page, { type: "error", message: "אנא הזן שם" });
+  let toastPromise = waitForToast(page, { type: "error", message: "אנא הזן שם" });
   await gameButton.click();
-  const toastMessage = await toastPromise;
-
+  const emptyToast = await toastPromise;
   await screenshot(page, "empty-username-error-toast");
-
-  // Verify we didn't navigate away from home page
   await expect(page).toHaveURL("/");
+  await test.info().attach("toast-message-empty", { body: emptyToast, contentType: "text/plain" });
 
-  // Attach toast message to test report
-  await test.info().attach("toast-message", {
-    body: toastMessage,
-    contentType: "text/plain",
-  });
-});
-
-test("should show error toast when username is only whitespace", async ({ page, gameName }) => {
-  // Setup: Create test game
-  await createGameViaAPI(gameName);
-
-  await setupHomePage(page);
-
-  // Fill username with only spaces
-  const usernameInput = page.getByLabel("Enter your name:");
+  // Test 2: whitespace-only username
   await usernameInput.fill("   ");
-
   await screenshot(page, "whitespace-username");
 
-  // Try to join game with whitespace-only username
-  // Register listener before click so we never miss the event
-  const gameButton = page.getByRole("button", { name: gameName });
-  const toastPromise = waitForToast(page, { type: "error", message: "אנא הזן שם" });
+  toastPromise = waitForToast(page, { type: "error", message: "אנא הזן שם" });
   await gameButton.click();
-  const toastMessage = await toastPromise;
-
+  const whitespaceToast = await toastPromise;
   await screenshot(page, "whitespace-username-error-toast");
-
-  // Verify we didn't navigate away from home page
   await expect(page).toHaveURL("/");
-
-  // Attach toast message to test report
-  await test.info().attach("toast-message", {
-    body: toastMessage,
-    contentType: "text/plain",
-  });
+  await test.info().attach("toast-message-whitespace", { body: whitespaceToast, contentType: "text/plain" });
 });
 
 test("should allow joining game with valid username", async ({ page, gameName }) => {

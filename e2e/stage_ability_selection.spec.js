@@ -118,11 +118,12 @@ test("ability_selection stage - mage (FREEZE) goes to ability_opponent_selection
   // Cleanup
   await page2.close();
 });
-test("ability_selection stage - knight L2 shows both abilities (battle_howl and disarm)", async ({
+test("ability_selection stage - knight L2 disarm: shows both abilities, routes to card_draw, turn ends", async ({
   page,
   gameName,
 }) => {
   // Knight L2 has two abilities: battle_howl and disarm (no auto-select)
+  // Selects disarm → card_draw → draws second card → turn ends (character_select for player2)
   await createPresetGameViaAPI(gameName, "ability_selection_knight_l2");
 
   // Player1 joins
@@ -132,7 +133,6 @@ test("ability_selection stage - knight L2 shows both abilities (battle_howl and 
   const page2 = await page.context().newPage();
   await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
 
-  // Verify we're in ability_selection stage
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 
   // Both ability cards should be visible
@@ -147,60 +147,14 @@ test("ability_selection stage - knight L2 shows both abilities (battle_howl and 
 
   await screenshot(page, "knight-l2-both-abilities-visible");
 
-  // Cleanup
-  await page2.close();
-});
-
-test("ability_selection stage - knight L2 selects disarm, goes to card_draw", async ({ page, gameName }) => {
-  // Knight L2 selects disarm → instead of attacking, draw another card (card_draw stage)
-  await createPresetGameViaAPI(gameName, "ability_selection_knight_l2");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
-
-  const sharedArea = page.locator('[data-shared-area-active="true"]');
-
-  // Click the disarm ability card
-  const disarmAbility = sharedArea.locator('[data-ability="disarm"]');
+  // Click the disarm ability card and confirm
   await disarmAbility.click();
   await screenshot(page, "disarm-ability-selected");
 
-  // Confirm ability selection
   const selectButton = page.getByRole("button", { name: "בחר" });
   await selectButton.click();
 
   // Should go to card_draw stage (disarm draws extra card instead of attacking)
-  await waitForStage(page, "card_draw", 5000);
-  await screenshot(page, "disarm-routes-to-card-draw");
-
-  // Cleanup
-  await page2.close();
-});
-
-test("ability_selection stage - disarm full flow: draw second card then turn ends", async ({ page, gameName }) => {
-  // Knight L2 selects disarm → card_draw → draws second card → turn ends (character_select for player2)
-  await createPresetGameViaAPI(gameName, "ability_selection_knight_l2");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
-
-  const sharedArea = page.locator('[data-shared-area-active="true"]');
-
-  // Select disarm and confirm
-  const disarmAbility = sharedArea.locator('[data-ability="disarm"]');
-  await disarmAbility.click();
-  const selectButton = page.getByRole("button", { name: "בחר" });
-  await selectButton.click();
-
-  // Wait for second card_draw stage
   await waitForStage(page, "card_draw", 10 * TIMEOUT);
   await screenshot(page, "disarm-second-card-draw-stage");
 
