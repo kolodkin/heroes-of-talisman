@@ -398,21 +398,21 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": KNIGHT_L2_MAX_HEALTH,
             "dice": KNIGHT_L2_DICE,
             "attack": KNIGHT_L2_ATTACK,
-            "abilities": [ABILITIES_MAP[KNIGHT_L1_ABILITY], ABILITIES_MAP[KNIGHT_L2_ABILITY]],
+            "abilities": [ABILITIES_MAP[KNIGHT_L2_ABILITY]],
         },
         "archer": {
             "health": ARCHER_L2_DEFAULT_HEALTH,
             "max_health": ARCHER_L2_MAX_HEALTH,
             "dice": ARCHER_L2_DICE,
             "attack": ARCHER_L2_ATTACK,
-            "abilities": [ABILITIES_MAP[ARCHER_L1_ABILITY], ABILITIES_MAP[ARCHER_L2_ABILITY]],
+            "abilities": [ABILITIES_MAP[ARCHER_L2_ABILITY]],
         },
         "mage": {
             "health": MAGE_L2_DEFAULT_HEALTH,
             "max_health": MAGE_L2_MAX_HEALTH,
             "dice": MAGE_L2_DICE,
             "attack": MAGE_L2_ATTACK,
-            "abilities": [ABILITIES_MAP[MAGE_L1_ABILITY]],
+            "abilities": [],
         },
     },
     3: {
@@ -421,21 +421,21 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": KNIGHT_L3_MAX_HEALTH,
             "dice": KNIGHT_L3_DICE,
             "attack": KNIGHT_L3_ATTACK,
-            "abilities": [ABILITIES_MAP[KNIGHT_L1_ABILITY]],
+            "abilities": [],
         },
         "archer": {
             "health": ARCHER_L3_DEFAULT_HEALTH,
             "max_health": ARCHER_L3_MAX_HEALTH,
             "dice": ARCHER_L3_DICE,
             "attack": ARCHER_L3_ATTACK,
-            "abilities": [ABILITIES_MAP[ARCHER_L1_ABILITY]],
+            "abilities": [],
         },
         "mage": {
             "health": MAGE_L3_DEFAULT_HEALTH,
             "max_health": MAGE_L3_MAX_HEALTH,
             "dice": MAGE_L3_DICE,
             "attack": MAGE_L3_ATTACK,
-            "abilities": [ABILITIES_MAP[MAGE_L1_ABILITY]],
+            "abilities": [],
         },
     },
     4: {
@@ -444,21 +444,21 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": KNIGHT_L4_MAX_HEALTH,
             "dice": KNIGHT_L4_DICE,
             "attack": KNIGHT_L4_ATTACK,
-            "abilities": [ABILITIES_MAP[KNIGHT_L1_ABILITY]],
+            "abilities": [],
         },
         "archer": {
             "health": ARCHER_L4_DEFAULT_HEALTH,
             "max_health": ARCHER_L4_MAX_HEALTH,
             "dice": ARCHER_L4_DICE,
             "attack": ARCHER_L4_ATTACK,
-            "abilities": [ABILITIES_MAP[ARCHER_L1_ABILITY]],
+            "abilities": [],
         },
         "mage": {
             "health": MAGE_L4_DEFAULT_HEALTH,
             "max_health": MAGE_L4_MAX_HEALTH,
             "dice": MAGE_L4_DICE,
             "attack": MAGE_L4_ATTACK,
-            "abilities": [ABILITIES_MAP[MAGE_L1_ABILITY]],
+            "abilities": [],
         },
     },
 }
@@ -467,10 +467,22 @@ CHARACTER_STATS_BY_LEVEL = {
 CHARACTER_DEFAULT_STATS = CHARACTER_STATS_BY_LEVEL[1]
 
 
+def get_abilities_for_level(character_type: ChatacterType, level: int) -> list[Ability]:
+    """Get abilities for a character at a given level, falling back to previous levels if none defined."""
+    for lvl in range(level, 0, -1):
+        abilities = CHARACTER_STATS_BY_LEVEL.get(lvl, {}).get(character_type, {}).get("abilities", [])
+        if abilities:
+            return abilities
+    return []
+
+
 def init_characters(level: int = 1) -> Dict[ChatacterType, Character]:
     """Initialize all character types with stats based on level"""
     level_stats = CHARACTER_STATS_BY_LEVEL.get(level, CHARACTER_STATS_BY_LEVEL[1])
     return {
-        char_type: Character(level=level, **level_stats[char_type])
+        char_type: Character(
+            level=level,
+            **{**level_stats[char_type], "abilities": get_abilities_for_level(char_type, level)},
+        )
         for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]
     }

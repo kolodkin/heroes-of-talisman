@@ -39,13 +39,13 @@ from ..presets import (
 )
 
 
-def test_archer_l2_has_two_abilities():
-    """Test that archer at level 2 has both bouncing_arrow and bouncing_arrow_l2 abilities"""
+def test_archer_l2_has_bouncing_arrow_l2_ability():
+    """Test that archer at level 2 shows only its own level skill: bouncing_arrow_l2"""
     characters = init_characters(level=2)
     archer = characters[CHARACTER_ARCHER]
     ability_names = [a.name for a in archer.abilities]
-    assert ABILITY_BOUNCING_ARROW in ability_names
     assert ABILITY_BOUNCING_ARROW_L2 in ability_names
+    assert ABILITY_BOUNCING_ARROW not in ability_names
 
 
 def test_archer_l2_ability_selection_preset():
@@ -53,8 +53,8 @@ def test_archer_l2_ability_selection_preset():
     game = get_debug_preset(PRESET_ABILITY_SELECTION_ARCHER_L2)
     archer = game.players["player1"].characters[CHARACTER_ARCHER]
     ability_names = [a.name for a in archer.abilities]
-    assert ABILITY_BOUNCING_ARROW in ability_names
     assert ABILITY_BOUNCING_ARROW_L2 in ability_names
+    assert ABILITY_BOUNCING_ARROW not in ability_names
 
 
 def test_bouncing_arrow_l2_first_reroll_adds_second_reroll_state():

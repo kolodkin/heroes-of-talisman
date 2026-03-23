@@ -683,7 +683,7 @@ def get_debug_preset(
         )
     elif preset == "ability_selection_archer_l2":
         # Ability selection stage - player1 has selected archer at level 2
-        # Archer L2 has BOUNCING_ARROW and BOUNCING_ARROW_L2 - two abilities, no auto-select
+        # Archer L2 has BOUNCING_ARROW_L2 as its own level skill, no auto-select
         ret = GamePlay(
             stage=STAGE_ABILITY_SELECTION,
             active=ActivePlayer2(player=p1_name, character=CHARACTER_ARCHER),
