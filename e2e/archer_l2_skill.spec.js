@@ -49,7 +49,7 @@ async function verifyWinner(page, winnerRole) {
   });
 }
 
-test("archer L2 ability selection shows both bouncing_arrow and bouncing_arrow_l2", async ({ page, gameName }) => {
+test("archer L2 ability selection shows only bouncing_arrow_l2", async ({ page, gameName }) => {
   await createPresetGameViaAPI(gameName, "ability_selection_archer_l2");
 
   // Player1 joins (archer L2)
@@ -61,17 +61,17 @@ test("archer L2 ability selection shows both bouncing_arrow and bouncing_arrow_l
 
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 
-  // Both ability cards should be visible
+  // Only L2 skill should be visible, not L1
   const bouncingArrowAbility = sharedArea.locator('[data-ability="bouncing_arrow"]');
   const bouncingArrowL2Ability = sharedArea.locator('[data-ability="bouncing_arrow_l2"]');
-  await expect(bouncingArrowAbility).toBeVisible();
   await expect(bouncingArrowL2Ability).toBeVisible();
+  await expect(bouncingArrowAbility).not.toBeVisible();
 
   // No-ability card should also be visible
   const noAbilityCard = sharedArea.locator('[data-ability="no_ability"]');
   await expect(noAbilityCard).toBeVisible();
 
-  await screenshot(page, "archer-l2-both-abilities-visible");
+  await screenshot(page, "archer-l2-own-ability-visible");
 
   await page2.close();
 });

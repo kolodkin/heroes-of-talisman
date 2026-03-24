@@ -118,11 +118,11 @@ test("ability_selection stage - mage (FREEZE) goes to ability_opponent_selection
   // Cleanup
   await page2.close();
 });
-test("ability_selection stage - knight L2 shows both abilities (battle_howl and disarm)", async ({
+test("ability_selection stage - knight L2 shows only disarm ability", async ({
   page,
   gameName,
 }) => {
-  // Knight L2 has two abilities: battle_howl and disarm (no auto-select)
+  // Knight L2 has its own skill: disarm only (not L1's battle_howl)
   await createPresetGameViaAPI(gameName, "ability_selection_knight_l2");
 
   // Player1 joins
@@ -135,17 +135,17 @@ test("ability_selection stage - knight L2 shows both abilities (battle_howl and 
   // Verify we're in ability_selection stage
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 
-  // Both ability cards should be visible
+  // Only L2 skill (disarm) should be visible, not L1 (battle_howl)
   const battleHowlAbility = sharedArea.locator('[data-ability="battle_howl"]');
   const disarmAbility = sharedArea.locator('[data-ability="disarm"]');
-  await expect(battleHowlAbility).toBeVisible();
   await expect(disarmAbility).toBeVisible();
+  await expect(battleHowlAbility).not.toBeVisible();
 
   // No-ability card should also be visible
   const noAbilityCard = sharedArea.locator('[data-ability="no_ability"]');
   await expect(noAbilityCard).toBeVisible();
 
-  await screenshot(page, "knight-l2-both-abilities-visible");
+  await screenshot(page, "knight-l2-own-ability-visible");
 
   // Cleanup
   await page2.close();
