@@ -23,12 +23,15 @@ from ..gameplay import (
     STAGE_BATTLE_DICE_ROLL,
     GamePlay,
     Player,
-    Character,
     ActivePlayer1,
     ActivePlayer2,
-    CHARACTER_DEFAULT_STATS,
     init_characters,
 )
+
+
+def kill_character(characters, character_type):
+    characters[character_type].health = 0
+    characters[character_type].is_alive = False
 
 
 def test_character_press_action_valid():
@@ -138,9 +141,7 @@ def test_character_press_action_dead_character():
     """Test pressing a dead character raises error"""
     game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
-    # Kill the knight
-    characters[CHARACTER_KNIGHT].health = 0
-    characters[CHARACTER_KNIGHT].is_alive = False
+    kill_character(characters, CHARACTER_KNIGHT)
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = CharacterPressAction("player1", game)
@@ -153,9 +154,7 @@ def test_character_select_action_dead_character():
     """Test confirming selection of a dead character raises error"""
     game = GamePlay(stage=STAGE_CHARACTER_SELECT, active=ActivePlayer1(player="player1"))
     characters = init_characters()
-    # Kill the knight
-    characters[CHARACTER_KNIGHT].health = 0
-    characters[CHARACTER_KNIGHT].is_alive = False
+    kill_character(characters, CHARACTER_KNIGHT)
     game.players["player1"] = Player(name="player1", characters=characters)
 
     action = CharacterSelectAction("player1", game)
@@ -251,10 +250,8 @@ def test_skip_turn_action_with_available_character_fails():
     characters = init_characters()
 
     # Knight and archer dead, but mage is alive and has no skip turn
-    characters[CHARACTER_KNIGHT].health = 0
-    characters[CHARACTER_KNIGHT].is_alive = False
-    characters[CHARACTER_ARCHER].health = 0
-    characters[CHARACTER_ARCHER].is_alive = False
+    kill_character(characters, CHARACTER_KNIGHT)
+    kill_character(characters, CHARACTER_ARCHER)
     # Mage is alive with no effects - should be available
 
     game.players["player1"] = Player(name="player1", characters=characters)
@@ -283,10 +280,8 @@ def test_skip_turn_action_disposes_effects():
     characters = init_characters()
 
     # No selectable characters: knight and archer are dead, mage has skip turn
-    characters[CHARACTER_KNIGHT].health = 0
-    characters[CHARACTER_KNIGHT].is_alive = False
-    characters[CHARACTER_ARCHER].health = 0
-    characters[CHARACTER_ARCHER].is_alive = False
+    kill_character(characters, CHARACTER_KNIGHT)
+    kill_character(characters, CHARACTER_ARCHER)
     characters[CHARACTER_MAGE].effects = [EFFECT_SKIP_TURN]
 
     game.players["player1"] = Player(name="player1", characters=characters)
@@ -308,10 +303,8 @@ def test_skip_turn_action_circular_rotation():
     characters_p2 = init_characters()
 
     # Player 2 has no available characters
-    characters_p2[CHARACTER_KNIGHT].health = 0
-    characters_p2[CHARACTER_KNIGHT].is_alive = False
-    characters_p2[CHARACTER_ARCHER].health = 0
-    characters_p2[CHARACTER_ARCHER].is_alive = False
+    kill_character(characters_p2, CHARACTER_KNIGHT)
+    kill_character(characters_p2, CHARACTER_ARCHER)
     characters_p2[CHARACTER_MAGE].effects = [EFFECT_SKIP_TURN]
 
     game.players["player1"] = Player(name="player1", characters=characters_p1)

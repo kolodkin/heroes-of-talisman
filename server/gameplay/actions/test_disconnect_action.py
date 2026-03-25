@@ -10,27 +10,20 @@ import pytest
 from .connection import DisconnectAction
 from ..common import (
     GameException,
-    CHARACTER_KNIGHT,
-    CHARACTER_ARCHER,
-    CHARACTER_MAGE,
     STATUS_CONNECTED,
     STATUS_DISCONNECTED,
 )
 from ..gameplay import (
     GamePlay,
     Player,
-    Character,
-    CHARACTER_DEFAULT_STATS,
+    init_characters,
 )
 
 
 def test_disconnect_action_existing_player():
     """Test disconnecting an existing connected player"""
     game = GamePlay()
-    characters = {}
-    for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]:
-        characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players["player1"] = Player(name="player1", status=STATUS_CONNECTED, characters=characters)
+    game.players["player1"] = Player(name="player1", status=STATUS_CONNECTED, characters=init_characters())
 
     action = DisconnectAction("player1", game)
     updated_game = action.run()
@@ -51,10 +44,7 @@ def test_disconnect_action_nonexistent_player():
 def test_disconnect_action_already_disconnected():
     """Test disconnecting a player who is already disconnected"""
     game = GamePlay()
-    characters = {}
-    for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]:
-        characters[char_type] = Character(level=1, **CHARACTER_DEFAULT_STATS[char_type])
-    game.players["player1"] = Player(name="player1", status=STATUS_DISCONNECTED, characters=characters)
+    game.players["player1"] = Player(name="player1", status=STATUS_DISCONNECTED, characters=init_characters())
 
     action = DisconnectAction("player1", game)
     updated_game = action.run()
