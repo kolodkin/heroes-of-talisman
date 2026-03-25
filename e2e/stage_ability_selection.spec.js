@@ -145,8 +145,6 @@ test("ability_selection stage - knight L2 disarm: shows only disarm ability, rou
   const noAbilityCard = sharedArea.locator('[data-ability="no_ability"]');
   await expect(noAbilityCard).toBeVisible();
 
-  await screenshot(page, "knight-l2-own-ability-visible");
-
   // Click the disarm ability card and confirm
   await disarmAbility.click();
   await screenshot(page, "disarm-ability-selected");
