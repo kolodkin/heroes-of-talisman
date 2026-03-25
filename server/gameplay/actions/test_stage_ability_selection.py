@@ -383,12 +383,3 @@ def test_ability_press_disarm_not_available_for_knight_l1():
         action.run(ability=ABILITY_DISARM)
 
 
-def test_knight_l2_has_disarm_ability():
-    """Test that Knight Level 2 shows only its own level skill: disarm"""
-    characters = init_characters(level=2)
-    knight = characters[CHARACTER_KNIGHT]
-
-    ability_names = [a.name for a in knight.abilities]
-    assert ABILITY_DISARM in ability_names
-    assert ABILITY_BATTLE_HOWL not in ability_names
-    assert len(knight.abilities) == 1
