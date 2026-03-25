@@ -80,11 +80,13 @@ To implement a new action, subclass `Action` and implement the `run` method. Use
 
 Abilities and cards are stored as **string literal names** on the character (`active_abilities`, `cards`, `effects`). The `effect` computed property aggregates these into an `EffectTotal` with hardcoded values per name. Self-targeted abilities (`apply_to = "self"`) are applied directly; opponent-targeted (`apply_to = "selected_opponent"`) require `ability_opponent_selection` stage.
 
-| Ability          | Effect                  | `apply_to`          | When Applied                  | When Cleared                               |
-| ---------------- | ----------------------- | ------------------- | ----------------------------- | ------------------------------------------ |
-| `BATTLE_HOWL`    | `AttackBonusEffect(+2)` | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
-| `BOUNCING_ARROW` | `RerollDiceEffect`      | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
-| `FREEZE`         | `SkipTurnEffect`        | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction` |
+| Ability              | Effect                       | `apply_to`          | When Applied                  | When Cleared                               |
+| -------------------- | ---------------------------- | ------------------- | ----------------------------- | ------------------------------------------ |
+| `BATTLE_HOWL`        | `AttackBonusEffect(+2)`      | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `BOUNCING_ARROW`     | `RerollDiceEffect`           | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `BOUNCING_ARROW_L2`  | `RerollDiceEffect` (×2)      | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `FREEZE`             | `SkipTurnEffect`             | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction` |
+| `DISARM`             | `DrawCardEffect`             | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
 
 # Cards
 
@@ -105,11 +107,11 @@ Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when
 
 Actions clean up abilities and effects from characters inline when they're no longer relevant. Each action clears the specific list directly:
 
-| Action                  | What is cleared                                     |
-| ----------------------- | --------------------------------------------------- |
-| `BattleEndAction`       | `active_abilities = []` on both active and opponent |
-| `CharacterSelectAction` | `effects = []` on all active player's characters    |
-| `SkipTurnAction`        | `effects = []` on all active player's characters    |
+| Action                  | What is cleared                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------- |
+| `BattleEndAction`       | `active_abilities = []` on both active and opponent; `no_damage_on_win` from `effects` on active |
+| `CharacterSelectAction` | `effects = []` on all active player's characters                                      |
+| `SkipTurnAction`        | `effects = []` on all active player's characters                                      |
 
 **Note:** Persistent cards (`metal_armor`, `sacred_sword`, `talisman`) are never disposed.
 
@@ -192,13 +194,17 @@ The battle stage handles dice rolling for both the active player and opponent, f
   When both players have rolled, scores are calculated using the [battle score formula](/docs/gameplay_spec.md#turn-stages) and stored in `active.result.score` / `opponent.result.score`.
 
 - **`RerollAction`**: Resets dice rolls when both players rolled and the result is a draw. Downgrades `ActivePlayer4`/`Opponent4` back to `ActivePlayer2`/`Opponent2` for re-rolling.
-- **`RerollEffectAction`**: Allows the active player to use a reroll ability (`BOUNCING_ARROW`) after losing a battle. Clears `active_abilities` on the active character and resets dice for re-rolling. Only available in `battle_dice_roll` stage when the loser has `reroll_dice_available`.
+- **`RerollEffectAction`**: Allows the active player to use a reroll ability after losing a battle. Only available in `battle_dice_roll` stage when the loser has `reroll_dice_available`. Handles two variants:
+  - **`BOUNCING_ARROW` (L1)**: Removes the ability from `active_abilities` and resets dice for one reroll.
+  - **`BOUNCING_ARROW_L2` (first reroll)**: Removes the ability from `active_abilities`, appends `EFFECT_REROLL_DICE` and `EFFECT_NO_DAMAGE_ON_WIN` to `character.effects`, and resets dice. The second reroll is now available.
+  - **`EFFECT_REROLL_DICE` in effects (second reroll for L2)**: Removes `EFFECT_REROLL_DICE` from `character.effects` (keeps `EFFECT_NO_DAMAGE_ON_WIN`) and resets dice.
 - **`BattleEndAction`**: Ends the battle after both players have rolled. Uses the pre-calculated scores to determine the winner, reduces the loser's health by 1 with level-based death handling:
   - **Winner has talisman and opponent at 0 health**: Opponent dies regardless of level (`is_alive=False`)
   - **Level 2+ character at 0 health** (no talisman): Reduces level by 1 and restores health to new level's max_health (character survives)
   - **Level 1 character at 0 health**: Character dies (`is_alive=False`)
+  - **Active player wins with `no_damage_on_win` effect**: Damage to opponent is skipped entirely (Archer L2 second reroll)
 
-  Also clears `active_abilities` from both active and opponent characters, clears battle state, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
+  Also clears `active_abilities` from both active and opponent characters, clears `EFFECT_NO_DAMAGE_ON_WIN` from active character's `effects`, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
 
 **Stage Transition Logic:**
 

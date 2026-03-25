@@ -18,9 +18,10 @@ from .effects import (
 ########################################################
 ABILITY_BATTLE_HOWL = "battle_howl"
 ABILITY_BOUNCING_ARROW = "bouncing_arrow"
+ABILITY_BOUNCING_ARROW_L2 = "bouncing_arrow_l2"
 ABILITY_FREEZE = "freeze"
 ABILITY_DISARM = "disarm"
-ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE, ABILITY_DISARM]
+ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_FREEZE, ABILITY_DISARM]
 AbilityName = Literal[*ABILITIES_NAMES]
 
 
@@ -38,6 +39,12 @@ ABILITIES_MAP: dict[AbilityName, Ability] = {
     ),
     ABILITY_BOUNCING_ARROW: Ability(
         name=ABILITY_BOUNCING_ARROW,
+        effects=[
+            RerollDiceEffect(),
+        ],
+    ),
+    ABILITY_BOUNCING_ARROW_L2: Ability(
+        name=ABILITY_BOUNCING_ARROW_L2,
         effects=[
             RerollDiceEffect(),
         ],
