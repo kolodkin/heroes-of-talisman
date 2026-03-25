@@ -218,13 +218,13 @@ def test_dragon_breath_ability_opponent_is_set_when_routing_to_item_selection():
 # Mage L2 character has correct abilities
 # ──────────────────────────────────────────────
 
-def test_mage_l2_has_three_abilities():
-    """Level 2 mage has freeze (L1), storm, and dragon_breath."""
+def test_mage_l2_has_two_abilities():
+    """Level 2 mage has storm and dragon_breath (not freeze)."""
     characters = init_characters(level=2)
     mage = characters[CHARACTER_MAGE]
 
     ability_names = [a.name for a in mage.abilities]
-    assert ABILITY_FREEZE in ability_names
     assert ABILITY_STORM in ability_names
     assert ABILITY_DRAGON_BREATH in ability_names
-    assert len(mage.abilities) == 3
+    assert ABILITY_FREEZE not in ability_names
+    assert len(mage.abilities) == 2

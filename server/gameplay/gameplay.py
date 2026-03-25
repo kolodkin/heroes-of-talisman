@@ -433,7 +433,7 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": MAGE_L2_MAX_HEALTH,
             "dice": MAGE_L2_DICE,
             "attack": MAGE_L2_ATTACK,
-            "abilities": [ABILITIES_MAP[MAGE_L1_ABILITY], ABILITIES_MAP[MAGE_L2_ABILITY_1], ABILITIES_MAP[MAGE_L2_ABILITY_2]],
+            "abilities": [ABILITIES_MAP[MAGE_L2_ABILITY_1], ABILITIES_MAP[MAGE_L2_ABILITY_2]],
         },
     },
     3: {

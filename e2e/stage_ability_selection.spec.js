@@ -217,11 +217,8 @@ test("ability_selection stage - no ability option skips to opponent_selection", 
   await page2.close();
 });
 
-test("ability_selection stage - mage L2 shows all three abilities (freeze, storm, dragon_breath)", async ({
-  page,
-  gameName,
-}) => {
-  // Mage L2 has three abilities: freeze, storm, and dragon_breath
+test("ability_selection stage - mage L2 shows two abilities (storm, dragon_breath)", async ({ page, gameName }) => {
+  // Mage L2 has two abilities: storm and dragon_breath
   await createPresetGameViaAPI(gameName, "ability_selection_mage_l2");
 
   // Player1 joins
@@ -234,19 +231,21 @@ test("ability_selection stage - mage L2 shows all three abilities (freeze, storm
   // Verify we're in ability_selection stage
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 
-  // All three ability cards should be visible
-  const freezeAbility = sharedArea.locator('[data-ability="freeze"]');
+  // Both L2 ability cards should be visible
   const stormAbility = sharedArea.locator('[data-ability="storm"]');
   const dragonBreathAbility = sharedArea.locator('[data-ability="dragon_breath"]');
-  await expect(freezeAbility).toBeVisible();
   await expect(stormAbility).toBeVisible();
   await expect(dragonBreathAbility).toBeVisible();
+
+  // Freeze (L1 ability) should NOT be visible
+  const freezeAbility = sharedArea.locator('[data-ability="freeze"]');
+  await expect(freezeAbility).not.toBeVisible();
 
   // No-ability card should also be visible
   const noAbilityCard = sharedArea.locator('[data-ability="no_ability"]');
   await expect(noAbilityCard).toBeVisible();
 
-  await screenshot(page, "mage-l2-all-three-abilities-visible");
+  await screenshot(page, "mage-l2-two-abilities-visible");
 
   // Cleanup
   await page2.close();
