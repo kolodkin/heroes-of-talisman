@@ -7,11 +7,12 @@ This module implements actions for the character selection stage:
 - SkipTurnAction: Skips turn when no character is available (all dead or have skip_turn effect)
 """
 
-from .action import Action, rotate_to_next_player
+from .action import Action, apply_damage_with_level_check, rotate_to_next_player
 from ..common import (
     GameException,
     ReportedException,
 )
+from ..effects import EFFECT_BURNING_ARROW
 from ..gameplay import (
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
@@ -22,6 +23,19 @@ from ..gameplay import (
     AbilitySelectMeta,
     ActivePlayer2,
 )
+
+
+def _apply_burning_arrow_effects(game: GamePlay, active_player: str) -> None:
+    """Apply and consume any pending burning arrow effects on active player's characters."""
+    player = game.players[active_player]
+    for char in player.characters.values():
+        for eff_name in list(char.effects):
+            if eff_name.startswith(EFFECT_BURNING_ARROW + ":"):
+                _, target_player, target_char_type = eff_name.split(":")
+                if target_player in game.players:
+                    target_char = game.players[target_player].characters.get(target_char_type)
+                    if target_char and target_char.is_alive:
+                        apply_damage_with_level_check(target_char, target_char_type, 2)
 
 
 class CharacterPressAction(Action):
@@ -90,6 +104,9 @@ class CharacterSelectAction(Action):
         if not player.characters[character].is_alive:
             raise ReportedException(f"Character {character} is dead and can't be selected")
 
+        # Apply pending burning arrow damage before clearing effects
+        _apply_burning_arrow_effects(self.game, self.user)
+
         # Clear effects (e.g., skip_turn) from active player's characters
         for char in player.characters.values():
             char.effects = []
@@ -142,6 +159,9 @@ class SkipTurnAction(Action):
             raise ReportedException(
                 "Cannot skip turn: available characters exist"
             )
+
+        # Apply pending burning arrow damage before clearing effects
+        _apply_burning_arrow_effects(self.game, self.user)
 
         # Clear effects (e.g., skip_turn) from active player's characters
         for char in player.characters.values():
