@@ -346,8 +346,9 @@ test("ability_item_selection stage - shows target's items and allows selecting w
   await expect(sacredSword).toBeVisible();
   await screenshot(page, "item-selection-both-items-visible");
 
-  // Click to select metal_armor
+  // Click to select metal_armor and wait for selection to be reflected in UI
   await metalArmor.click();
+  await expect(metalArmor).toHaveClass(/selected/);
   await screenshot(page, "item-selection-metal-armor-selected");
 
   // Confirm item selection
