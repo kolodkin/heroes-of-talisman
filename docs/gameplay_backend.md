@@ -80,13 +80,17 @@ To implement a new action, subclass `Action` and implement the `run` method. Use
 
 Abilities and cards are stored as **string literal names** on the character (`active_abilities`, `cards`, `effects`). The `effect` computed property aggregates these into an `EffectTotal` with hardcoded values per name. Self-targeted abilities (`apply_to = "self"`) are applied directly; opponent-targeted (`apply_to = "selected_opponent"`) require `ability_opponent_selection` stage.
 
-| Ability             | Effect                  | `apply_to`          | When Applied                  | When Cleared                               |
-| ------------------- | ----------------------- | ------------------- | ----------------------------- | ------------------------------------------ |
-| `BATTLE_HOWL`       | `AttackBonusEffect(+2)` | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
-| `BOUNCING_ARROW`    | `RerollDiceEffect`      | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
-| `BOUNCING_ARROW_L2` | `RerollDiceEffect` (×2) | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
-| `FREEZE`            | `SkipTurnEffect`        | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction` |
-| `DISARM`            | `DrawCardEffect`        | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+Each character level has exactly one set of abilities — higher-level abilities **replace** lower-level ones, they do not stack. A character only has the abilities for their current level (e.g., a level 2 Mage has `storm` and `dragon_breath`, not `freeze`).
+
+| Ability             | Character | Level | Effect                     | `apply_to`          | When Applied                  | When Cleared                               |
+| ------------------- | --------- | ----- | -------------------------- | ------------------- | ----------------------------- | ------------------------------------------ |
+| `BATTLE_HOWL`       | Knight    | 1     | `AttackBonusEffect(+2)`    | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `DISARM`            | Knight    | 2     | `DrawCardEffect`           | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `BOUNCING_ARROW`    | Archer    | 1     | `RerollDiceEffect`         | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `BOUNCING_ARROW_L2` | Archer    | 2     | `RerollDiceEffect` (×2)    | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `FREEZE`            | Mage      | 1     | `SkipTurnEffect`           | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction` |
+| `STORM`             | Mage      | 2     | `AttackNegBonusEffect(-2)` | `battle_opponent`   | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `DRAGON_BREATH`     | Mage      | 2     | `NeutralizeItemEffect`     | `selected_opponent` | `AbilityItemSelectAction`     | instant (no persist)                       |
 
 # Cards
 
@@ -165,12 +169,27 @@ The ability selection stage allows players to choose which ability to use from t
 The ability opponent selection stage allows players to choose which opponent character to apply the selected ability's effects to. **This stage is only used for abilities with effects that require target selection (e.g., `SkipTurnEffect`).** Other abilities skip this stage entirely.
 
 - **`AbilityOpponentPressAction`**: Sets `stage_meta` to an `Opponent2` object with the selected opponent player name and character. Validates that the player is active, the stage is `ability_opponent_selection`, the opponent exists, is not the current player, has the selected character, and the character is alive (`is_alive=True`).
-- **`AbilityOpponentSelectAction`**: Confirms the ability target selection by reading from `stage_meta`, applying the ability's effects to the target character (e.g., `FREEZE` appends `skip_turn` to target's `effects`), storing the target in `GamePlay.ability_opponent`, clearing `stage_meta`, and transitioning the game stage from `ability_opponent_selection` to `opponent_selection`. Validates that the opponent character is still alive.
+- **`AbilityOpponentSelectAction`**: Confirms the ability target selection by reading from `stage_meta`, storing the target in `GamePlay.ability_opponent`, and transitioning based on the ability's effects:
+  - If the ability has a `NeutralizeItemEffect` (e.g., `DRAGON_BREATH`) **and** the target character has active item cards → transitions to `ability_item_selection` stage with `AbilityItemMeta` set.
+  - Otherwise → applies effects to the target character (e.g., `FREEZE` appends `skip_turn` to target's `effects`) and transitions directly to `opponent_selection`.
+    Validates that the opponent character is still alive.
 
 **Actions:**
 
 - [x] `ability_opponent_press` – highlight selected opponent and character in stage_meta (`AbilityOpponentPressAction`)
-- [x] `ability_opponent_select` – confirm ability target, apply effects to target character, store in GamePlay.ability_opponent, and transition to opponent_selection (`AbilityOpponentSelectAction`)
+- [x] `ability_opponent_select` – confirm ability target, apply effects to target character, store in GamePlay.ability_opponent, and transition to ability_item_selection or opponent_selection (`AbilityOpponentSelectAction`)
+
+## Stage: Ability Item Selection
+
+The ability item selection stage allows the active player to choose which of the target character's item cards to neutralize. **This stage is only used for abilities with `NeutralizeItemEffect` (e.g., `DRAGON_BREATH`) when the target character has active item cards.**
+
+- **`AbilityItemPressAction`**: Sets `stage_meta.selected_item` to the item card name pressed by the active player. Validates that the player is active, the stage is `ability_item_selection`, and the item is in the target character's `active_cards`.
+- **`AbilityItemSelectAction`**: Confirms the item selection by removing `selected_item` from the target character's `active_cards`, clearing `stage_meta`, and transitioning to `opponent_selection`.
+
+**Actions:**
+
+- [x] `ability_item_press` – highlight selected item card in stage_meta (`AbilityItemPressAction`)
+- [x] `ability_item_select` – confirm item selection, remove from target's active_cards, transition to opponent_selection (`AbilityItemSelectAction`)
 
 ## Stage: Opponent Selection
 
