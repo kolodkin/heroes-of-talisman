@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import { toast } from "./toast";
 import i18n from "../i18n";
 
 export const notify = (key) => {

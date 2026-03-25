@@ -22,6 +22,7 @@ EFFECT_TALISMAN = "talisman"
 EFFECT_DARKNESS_RISE = "darkness_rise"
 EFFECT_FOG = "fog"
 EFFECT_NEUTRALIZE_ITEM = "neutralize_item"
+EFFECT_NO_DAMAGE_ON_WIN = "no_damage_on_win"
 
 ########################################################
 # Effect apply_to targets
@@ -217,3 +218,4 @@ class EffectTotal(StrictModel):
     reroll_dice_available: bool = False
     draw_card_count: int = 0
     has_talisman: bool = False
+    no_damage_on_win: bool = False

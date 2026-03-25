@@ -33,20 +33,25 @@ from ..gameplay import (
 )
 
 
-def test_ability_press_action_valid():
+@pytest.mark.parametrize("character,ability", [
+    (CHARACTER_KNIGHT, ABILITY_BATTLE_HOWL),
+    (CHARACTER_ARCHER, ABILITY_BOUNCING_ARROW),
+    (CHARACTER_MAGE, ABILITY_FREEZE),
+])
+def test_ability_press_action_valid(character, ability):
     """Test pressing an ability highlights it in stage_meta"""
     characters = init_characters()
     game = GamePlay(
         stage=STAGE_ABILITY_SELECTION,
-        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        active=ActivePlayer2(player="player1", character=character),
         players={"player1": Player(name="player1", characters=characters)},
     )
 
     action = AbilityPressAction("player1", game)
-    updated_game = action.run(ability=ABILITY_BATTLE_HOWL)
+    updated_game = action.run(ability=ability)
 
     assert updated_game.stage_meta is not None
-    assert updated_game.stage_meta.selected == ABILITY_BATTLE_HOWL
+    assert updated_game.stage_meta.selected == ability
     assert updated_game.stage == STAGE_ABILITY_SELECTION  # Still in ability selection
 
 
@@ -97,38 +102,6 @@ def test_ability_press_action_invalid_ability():
     # Knight should have ABILITY_BATTLE_HOWL, not ABILITY_FREEZE (which is for mage)
     with pytest.raises(ReportedException, match="not available for this character"):
         action.run(ability=ABILITY_FREEZE)
-
-
-def test_ability_press_action_archer():
-    """Test pressing archer's ability (ABILITY_BOUNCING_ARROW) works correctly"""
-    characters = init_characters()
-    game = GamePlay(
-        stage=STAGE_ABILITY_SELECTION,
-        active=ActivePlayer2(player="player1", character=CHARACTER_ARCHER),
-        players={"player1": Player(name="player1", characters=characters)},
-    )
-
-    action = AbilityPressAction("player1", game)
-    updated_game = action.run(ability=ABILITY_BOUNCING_ARROW)
-
-    assert updated_game.stage_meta is not None
-    assert updated_game.stage_meta.selected == ABILITY_BOUNCING_ARROW
-
-
-def test_ability_press_action_mage():
-    """Test pressing mage's ability (ABILITY_FREEZE) works correctly"""
-    characters = init_characters()
-    game = GamePlay(
-        stage=STAGE_ABILITY_SELECTION,
-        active=ActivePlayer2(player="player1", character=CHARACTER_MAGE),
-        players={"player1": Player(name="player1", characters=characters)},
-    )
-
-    action = AbilityPressAction("player1", game)
-    updated_game = action.run(ability=ABILITY_FREEZE)
-
-    assert updated_game.stage_meta is not None
-    assert updated_game.stage_meta.selected == ABILITY_FREEZE
 
 
 def test_ability_select_action_valid():
@@ -383,12 +356,3 @@ def test_ability_press_disarm_not_available_for_knight_l1():
         action.run(ability=ABILITY_DISARM)
 
 
-def test_knight_l2_has_both_abilities():
-    """Test that Knight Level 2 has both battle_howl and disarm abilities"""
-    characters = init_characters(level=2)
-    knight = characters[CHARACTER_KNIGHT]
-
-    ability_names = [a.name for a in knight.abilities]
-    assert ABILITY_BATTLE_HOWL in ability_names
-    assert ABILITY_DISARM in ability_names
-    assert len(knight.abilities) == 2

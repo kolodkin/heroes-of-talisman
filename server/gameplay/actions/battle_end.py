@@ -8,6 +8,7 @@ At level 1, dropping to 0 health means the character dies.
 
 from .action import Action, rotate_to_next_player
 from ..common import GameException, ReportedException, ChatacterType
+from ..effects import EFFECT_NO_DAMAGE_ON_WIN
 from ..gameplay import (
     STAGE_BATTLE_END,
     GamePlay,
@@ -93,13 +94,14 @@ class BattleEndAction(Action):
 
         # Determine loser and reduce health by 1
         if active_score > opponent_score:
-            # Active player wins, opponent loses health
-            apply_damage_with_level_check(
-                opponent_character,
-                self.game.opponent.character,
-                1,
-                winner_has_talisman=active_character.effect.has_talisman,
-            )
+            # Active player wins, opponent loses health (unless archer used no-damage reroll)
+            if not active_character.effect.no_damage_on_win:
+                apply_damage_with_level_check(
+                    opponent_character,
+                    self.game.opponent.character,
+                    1,
+                    winner_has_talisman=active_character.effect.has_talisman,
+                )
         elif opponent_score > active_score:
             # Opponent wins, active player loses health
             apply_damage_with_level_check(
@@ -113,6 +115,10 @@ class BattleEndAction(Action):
         # Clear active abilities from both characters at battle end
         active_character.active_abilities = []
         opponent_character.active_abilities = []
+
+        # Clear no_damage_on_win effect from active character
+        if EFFECT_NO_DAMAGE_ON_WIN in active_character.effects:
+            active_character.effects.remove(EFFECT_NO_DAMAGE_ON_WIN)
 
         # Rotate to next player's turn
         rotate_to_next_player(self.game)

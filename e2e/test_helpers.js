@@ -99,28 +99,40 @@ export async function joinGameViaUrl(page, playerName, gameName, waitForSelector
 }
 
 /**
- * Wait for a toast notification to appear and optionally verify its content
+ * Wait for a toast notification to appear and optionally verify its content.
+ * In E2E mode, toasts are stubbed to console.log so this listens for console events.
+ *
+ * IMPORTANT: Call this function BEFORE the action that triggers the toast, then await
+ * the returned promise after the action. This ensures the listener is registered before
+ * the toast fires, avoiding any race conditions.
+ *
  * @param {Page} page - Playwright page object
  * @param {Object} options - Options object
- * @param {string} options.type - Toast type: 'error', 'success', 'info', 'warning' (optional)
+ * @param {string} options.type - Toast type: 'error', 'success' (optional, defaults to any toast)
  * @param {string|RegExp} options.message - Expected message content (optional)
  * @param {number} options.timeout - Timeout in ms (default: 3000)
  * @returns {Promise<string>} The toast message text
  */
-export async function waitForToast(page, { type, message, timeout = 3000 } = {}) {
-  const selector = type ? `.Toastify__toast--${type}` : ".Toastify__toast";
-  const toast = await page.waitForSelector(selector, { timeout, state: "visible" });
-  const toastText = await toast.textContent();
+export function waitForToast(page, { type, message, timeout = 3000 } = {}) {
+  const prefix = type ? `toast.${type}` : "toast";
+  const consolePromise = page.waitForEvent("console", {
+    predicate: (msg) => msg.text().startsWith(prefix),
+    timeout,
+  });
 
-  if (message) {
-    if (message instanceof RegExp) {
-      expect(toastText).toMatch(message);
-    } else {
-      expect(toastText).toContain(message);
+  return consolePromise.then((consoleMsg) => {
+    const toastText = consoleMsg.text().slice(prefix.length).trim();
+
+    if (message) {
+      if (message instanceof RegExp) {
+        expect(toastText).toMatch(message);
+      } else {
+        expect(toastText).toContain(message);
+      }
     }
-  }
 
-  return toastText;
+    return toastText;
+  });
 }
 
 /**

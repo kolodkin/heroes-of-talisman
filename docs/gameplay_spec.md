@@ -97,7 +97,15 @@ A character dies only when their health hits 0 while at **level 1**. Characters 
 
 Each character has abilities that trigger effects (attack bonus, skip turn, reroll dice) targeting self, battle opponent, or a selected opponent. Effects persist until disposed by specific game actions.
 
-See [Backend GamePlay - Abilities & Effects](/docs/gameplay_backend.md#abilities--effects) for the abilities table and implementation details.
+| Ability             | Character | Level | Description                                                                                             |
+| ------------------- | --------- | ----- | ------------------------------------------------------------------------------------------------------- |
+| `battle_howl`       | Knight    | 1+    | +2 attack bonus for the current battle                                                                  |
+| `disarm`            | Knight    | 2+    | Draw an extra card instead of attacking                                                                 |
+| `bouncing_arrow`    | Archer    | 1     | Reroll dice once after losing a battle                                                                  |
+| `bouncing_arrow_l2` | Archer    | 2+    | Reroll dice twice after losing; on the second reroll, archer deals **no damage** to opponent if winning |
+| `freeze`            | Mage      | 1+    | Skip a selected opponent character's next turn                                                          |
+
+See [Backend GamePlay - Abilities & Effects](/docs/gameplay_backend.md#abilities--effects) for implementation details.
 
 # Cards
 
