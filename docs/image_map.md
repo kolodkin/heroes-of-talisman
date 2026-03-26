@@ -16,8 +16,8 @@ Path: `public/images/effects/`
 | `freeze` | `freeze.jpg` | הקפאה |
 | `disarm` | `disarm.jpg` | פריקת נשק |
 | `storm` | `storm.jpg` | |
-| | `נשיפת דרקון.png` | נשיפת דרקון |
-| | `חץ בוער.jpg` | חץ בוער |
+| `dragon_breath` | `dragon_breath.png` | נשיפת דרקון |
+| `burning_arrow` | `burning_arrow.jpg` | חץ בוער |
 
 ## Characters
 
