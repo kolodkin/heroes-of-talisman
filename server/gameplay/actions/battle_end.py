@@ -58,10 +58,8 @@ class BattleEndAction(Action):
         if active_score > opponent_score:
             # Active player wins
             if has_burning_arrow:
-                # Burning arrow: store delayed 2-damage on active character for next turn
-                target_player = self.game.opponent.player
-                target_char = self.game.opponent.character
-                active_character.effects.append(f"{EFFECT_BURNING_ARROW}:{target_player}:{target_char}")
+                # Burning arrow: store countdown on opponent's character for visualization
+                opponent_character.effects.append(f"{EFFECT_BURNING_ARROW}:2")
             elif not active_character.effect.no_damage_on_win:
                 apply_damage_with_level_check(
                     opponent_character,

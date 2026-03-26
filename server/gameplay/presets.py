@@ -780,13 +780,12 @@ def get_debug_preset(
             },
         )
     elif preset == "burning_arrow_next_turn":
-        # Archer L3 already stored burning arrow effect, it's now their next turn
-        # Player 1: archer L3 has burning_arrow:player2:mage stored in effects
-        # Stage: CHARACTER_SELECT — selecting archer will apply 2 damage to mage
+        # One decrement already happened (opponent's turn). Mage has burning_arrow:1.
+        # Stage: CHARACTER_SELECT (archer's turn) — selecting any character decrements to 0, fires 2 damage on mage.
         characters_p1 = init_characters(level=3)
-        characters_p1[CHARACTER_ARCHER].effects = [f"{EFFECT_BURNING_ARROW}:{p2_name}:{CHARACTER_MAGE}"]
 
         characters_p2 = init_characters()
+        characters_p2[CHARACTER_MAGE].effects = [f"{EFFECT_BURNING_ARROW}:1"]
 
         ret = GamePlay(
             stage=STAGE_CHARACTER_SELECT,

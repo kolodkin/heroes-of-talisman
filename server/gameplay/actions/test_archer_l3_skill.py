@@ -1,17 +1,15 @@
 """
 Tests for Archer Level 3 skills:
   1. bouncing_arrow_l2 (חץ קופץ) — same behavior as Archer L2
-  2. burning_arrow (חץ בוער) — no damage this turn, 2 damage to target on archer's next turn
+  2. burning_arrow (חץ בוער) — no damage this turn, 2 damage to target after 2 turn starts
 
 Burning Arrow flow:
   1. Archer L3 selects burning_arrow ability
-  2. Archer wins battle → burning_arrow:player2:mage stored on archer's effects (no damage this turn)
+  2. Archer wins battle → burning_arrow:2 stored on OPPONENT's character (for visualization)
   3. Archer loses battle → normal loss damage to archer, no burning effect stored
-  4. Archer's next turn (CharacterSelectAction) → 2 damage applied to mage, effect cleared
-  5. Archer's next turn (SkipTurnAction) → 2 damage applied to mage, effect cleared
+  4. Opponent's turn start (CharacterSelectAction/SkipTurnAction) → burning_arrow:2 → burning_arrow:1
+  5. Archer's next turn start → burning_arrow:1 → 0 → 2 damage applied to opponent character, effect cleared
 """
-
-import pytest
 
 from .battle_end import BattleEndAction
 from .stage_character_select import CharacterSelectAction, SkipTurnAction
@@ -21,7 +19,6 @@ from ..effects import EFFECT_BURNING_ARROW, EFFECT_SKIP_TURN
 from ..gameplay import (
     STAGE_BATTLE_END,
     STAGE_CHARACTER_SELECT,
-    STAGE_BATTLE_DICE_ROLL,
     GamePlay,
     Player,
     ActivePlayer1,
@@ -56,24 +53,25 @@ def test_archer_l3_ability_selection_preset():
     assert ABILITY_BURNING_ARROW in ability_names
 
 
-def test_burning_arrow_win_stores_delayed_effect():
-    """When archer wins with burning arrow, no damage is dealt and delayed effect is stored."""
+def test_burning_arrow_win_stores_countdown_on_opponent():
+    """When archer wins with burning arrow, no damage is dealt and burning_arrow:2 is stored on opponent's character."""
     game = get_debug_preset(PRESET_BURNING_ARROW_WIN)
 
-    mage = game.players["player2"].characters[CHARACTER_MAGE]
-    original_mage_health = mage.health
+    mage_before_health = game.players["player2"].characters[CHARACTER_MAGE].health
 
     action = BattleEndAction("player1", game)
     updated_game = action.run()
 
     # Mage should NOT take damage this turn
     mage_after = updated_game.players["player2"].characters[CHARACTER_MAGE]
-    assert mage_after.health == original_mage_health
+    assert mage_after.health == mage_before_health
 
-    # Burning arrow effect should be stored on archer's character
+    # Countdown stored on the opponent's (mage's) character
+    assert f"{EFFECT_BURNING_ARROW}:2" in mage_after.effects
+
+    # Archer's effects should be clean
     archer_after = updated_game.players["player1"].characters[CHARACTER_ARCHER]
-    burning_effect = f"{EFFECT_BURNING_ARROW}:player2:{CHARACTER_MAGE}"
-    assert burning_effect in archer_after.effects
+    assert not any(e.startswith(EFFECT_BURNING_ARROW + ":") for e in archer_after.effects)
 
 
 def test_burning_arrow_loss_deals_normal_damage_to_archer():
@@ -107,45 +105,71 @@ def test_burning_arrow_loss_deals_normal_damage_to_archer():
     archer_after = updated_game.players["player1"].characters[CHARACTER_ARCHER]
     assert archer_after.health == archer_before_health - 1
 
-    # Mage should NOT take any damage (mage won)
+    # Mage should NOT take any damage (mage won), and no burning arrow stored
     mage_after = updated_game.players["player2"].characters[CHARACTER_MAGE]
     assert mage_after.health == mage_before_health
-
-    # No burning arrow effect stored (only stored on win)
-    assert not any(e.startswith(EFFECT_BURNING_ARROW + ":") for e in archer_after.effects)
+    assert not any(e.startswith(EFFECT_BURNING_ARROW + ":") for e in mage_after.effects)
 
 
-def test_burning_arrow_next_turn_applies_2_damage():
-    """CharacterSelectAction applies 2 damage to target and clears burning arrow effect."""
-    game = get_debug_preset(PRESET_BURNING_ARROW_NEXT_TURN)
+def test_burning_arrow_countdown_decrements_on_turn_start():
+    """burning_arrow:2 on opponent's character decrements to burning_arrow:1 when any player starts their turn."""
+    characters_p1 = init_characters(level=3)
 
-    mage = game.players["player2"].characters[CHARACTER_MAGE]
-    original_mage_health = mage.health
+    characters_p2 = init_characters()
+    characters_p2[CHARACTER_MAGE].effects = [f"{EFFECT_BURNING_ARROW}:2"]
+
+    game = GamePlay(
+        stage=STAGE_CHARACTER_SELECT,
+        active=ActivePlayer1(player="player1"),
+        players={
+            "player1": Player(name="player1", characters=characters_p1),
+            "player2": Player(name="player2", characters=characters_p2),
+        },
+    )
+
+    mage_before_health = game.players["player2"].characters[CHARACTER_MAGE].health
 
     action = CharacterSelectAction("player1", game)
     updated_game = action.run(CHARACTER_ARCHER)
 
-    # Mage should take 2 damage from burning arrow
+    # Mage health unchanged — arrow has not fired yet
     mage_after = updated_game.players["player2"].characters[CHARACTER_MAGE]
-    assert mage_after.health == original_mage_health - 2
+    assert mage_after.health == mage_before_health
 
-    # Burning arrow effect should be cleared from archer
-    archer_after = updated_game.players["player1"].characters[CHARACTER_ARCHER]
-    assert not any(e.startswith(EFFECT_BURNING_ARROW + ":") for e in archer_after.effects)
+    # Countdown decremented to 1
+    assert f"{EFFECT_BURNING_ARROW}:1" in mage_after.effects
+    assert f"{EFFECT_BURNING_ARROW}:2" not in mage_after.effects
 
 
-def test_burning_arrow_next_turn_skip_turn_applies_2_damage():
-    """SkipTurnAction also applies 2 damage when all characters are unavailable."""
+def test_burning_arrow_fires_after_two_turn_starts():
+    """burning_arrow:1 fires on the next turn start, applying 2 damage."""
+    game = get_debug_preset(PRESET_BURNING_ARROW_NEXT_TURN)
+
+    mage_before_health = game.players["player2"].characters[CHARACTER_MAGE].health
+
+    action = CharacterSelectAction("player1", game)
+    updated_game = action.run(CHARACTER_ARCHER)
+
+    # Mage takes 2 damage
+    mage_after = updated_game.players["player2"].characters[CHARACTER_MAGE]
+    assert mage_after.health == mage_before_health - 2
+
+    # Burning arrow effect consumed
+    assert not any(e.startswith(EFFECT_BURNING_ARROW + ":") for e in mage_after.effects)
+
+
+def test_burning_arrow_skip_turn_also_decrements():
+    """SkipTurnAction also decrements burning arrow countdown."""
     characters_p1 = init_characters(level=3)
-    # Store burning arrow effect on archer
-    characters_p1[CHARACTER_ARCHER].effects = [f"{EFFECT_BURNING_ARROW}:player2:{CHARACTER_MAGE}", EFFECT_SKIP_TURN]
-    # Make all other characters unavailable
+    # All p1 chars unavailable
+    characters_p1[CHARACTER_ARCHER].effects = [EFFECT_SKIP_TURN]
     characters_p1[CHARACTER_KNIGHT].health = 0
     characters_p1[CHARACTER_KNIGHT].is_alive = False
     characters_p1[CHARACTER_MAGE].health = 0
     characters_p1[CHARACTER_MAGE].is_alive = False
 
     characters_p2 = init_characters()
+    characters_p2[CHARACTER_MAGE].effects = [f"{EFFECT_BURNING_ARROW}:1"]
 
     game = GamePlay(
         stage=STAGE_CHARACTER_SELECT,
@@ -161,20 +185,20 @@ def test_burning_arrow_next_turn_skip_turn_applies_2_damage():
     action = SkipTurnAction("player1", game)
     updated_game = action.run()
 
-    # Mage should take 2 damage from burning arrow
+    # Mage takes 2 damage when burning_arrow:1 fires
     mage_after = updated_game.players["player2"].characters[CHARACTER_MAGE]
     assert mage_after.health == mage_before_health - 2
+    assert not any(e.startswith(EFFECT_BURNING_ARROW + ":") for e in mage_after.effects)
 
 
-def test_burning_arrow_dead_target_no_damage():
+def test_burning_arrow_dead_target_not_damaged():
     """Burning arrow does not apply damage to a dead target character."""
     characters_p1 = init_characters(level=3)
-    characters_p1[CHARACTER_ARCHER].effects = [f"{EFFECT_BURNING_ARROW}:player2:{CHARACTER_MAGE}"]
 
     characters_p2 = init_characters()
-    # Target is already dead
     characters_p2[CHARACTER_MAGE].health = 0
     characters_p2[CHARACTER_MAGE].is_alive = False
+    characters_p2[CHARACTER_MAGE].effects = [f"{EFFECT_BURNING_ARROW}:1"]
 
     game = GamePlay(
         stage=STAGE_CHARACTER_SELECT,
@@ -188,7 +212,6 @@ def test_burning_arrow_dead_target_no_damage():
     action = CharacterSelectAction("player1", game)
     updated_game = action.run(CHARACTER_ARCHER)
 
-    # Dead mage should not be affected (health stays at 0)
     mage_after = updated_game.players["player2"].characters[CHARACTER_MAGE]
     assert mage_after.health == 0
     assert mage_after.is_alive is False
@@ -197,11 +220,10 @@ def test_burning_arrow_dead_target_no_damage():
 def test_burning_arrow_causes_level_down():
     """Burning arrow 2-damage can trigger level-down on target at 1 HP."""
     characters_p1 = init_characters(level=3)
-    characters_p1[CHARACTER_ARCHER].effects = [f"{EFFECT_BURNING_ARROW}:player2:{CHARACTER_MAGE}"]
 
     characters_p2 = init_characters(level=2)
-    # Mage L2 at 1 HP — burning arrow will deal 2 damage, forcing level-down
     characters_p2[CHARACTER_MAGE].health = 1
+    characters_p2[CHARACTER_MAGE].effects = [f"{EFFECT_BURNING_ARROW}:1"]
 
     game = GamePlay(
         stage=STAGE_CHARACTER_SELECT,
@@ -215,7 +237,7 @@ def test_burning_arrow_causes_level_down():
     action = CharacterSelectAction("player1", game)
     updated_game = action.run(CHARACTER_ARCHER)
 
-    # Mage L2 at 1 HP takes 2 damage → health=0 → level down to L1, restored to L1 max_health
+    # Mage L2 at 1 HP takes 2 damage → level down to L1, restored to L1 max_health
     mage_after = updated_game.players["player2"].characters[CHARACTER_MAGE]
     assert mage_after.level == 1
     assert mage_after.health == mage_after.max_health
@@ -223,7 +245,7 @@ def test_burning_arrow_causes_level_down():
 
 
 def test_burning_arrow_draw_no_delayed_effect():
-    """In a draw, burning arrow active ability is cleared but no burning effect is stored."""
+    """In a draw, burning arrow active ability is cleared but no countdown is stored."""
     characters_p1 = init_characters(level=3)
     characters_p1[CHARACTER_ARCHER].active_abilities = [ABILITY_BURNING_ARROW]
 
@@ -248,10 +270,6 @@ def test_burning_arrow_draw_no_delayed_effect():
     action = BattleEndAction("player1", game)
     updated_game = action.run()
 
-    # No damage on draw
     mage_after = updated_game.players["player2"].characters[CHARACTER_MAGE]
     assert mage_after.health == mage_before_health
-
-    # No burning arrow effect stored (only on win)
-    archer_after = updated_game.players["player1"].characters[CHARACTER_ARCHER]
-    assert not any(e.startswith(EFFECT_BURNING_ARROW + ":") for e in archer_after.effects)
+    assert not any(e.startswith(EFFECT_BURNING_ARROW + ":") for e in mage_after.effects)

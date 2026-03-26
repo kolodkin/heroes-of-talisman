@@ -25,17 +25,27 @@ from ..gameplay import (
 )
 
 
-def _apply_burning_arrow_effects(game: GamePlay, active_player: str) -> None:
-    """Apply and consume any pending burning arrow effects on active player's characters."""
-    player = game.players[active_player]
-    for char in player.characters.values():
-        for eff_name in list(char.effects):
-            if eff_name.startswith(EFFECT_BURNING_ARROW + ":"):
-                _, target_player, target_char_type = eff_name.split(":")
-                if target_player in game.players:
-                    target_char = game.players[target_player].characters.get(target_char_type)
-                    if target_char and target_char.is_alive:
-                        apply_damage_with_level_check(target_char, target_char_type, 2)
+def _decrement_burning_arrow(eff: str, char_type: str, char) -> str | None:
+    """Decrement a burning_arrow:N effect. Returns updated effect string, or None if it fired."""
+    count = int(eff.split(":")[1]) - 1
+    if count <= 0:
+        if char.is_alive:
+            apply_damage_with_level_check(char, char_type, 2)
+        return None
+    return f"{EFFECT_BURNING_ARROW}:{count}"
+
+
+def _process_burning_arrow_effects(game: GamePlay) -> None:
+    """Decrement burning_arrow countdowns on ALL characters. Apply 2 damage when count reaches 0."""
+    prefix = EFFECT_BURNING_ARROW + ":"
+    for player in game.players.values():
+        for char_type, char in player.characters.items():
+            char.effects = [
+                result
+                for eff in char.effects
+                for result in [_decrement_burning_arrow(eff, char_type, char) if eff.startswith(prefix) else eff]
+                if result is not None
+            ]
 
 
 class CharacterPressAction(Action):
@@ -104,12 +114,12 @@ class CharacterSelectAction(Action):
         if not player.characters[character].is_alive:
             raise ReportedException(f"Character {character} is dead and can't be selected")
 
-        # Apply pending burning arrow damage before clearing effects
-        _apply_burning_arrow_effects(self.game, self.user)
+        # Decrement burning arrow countdowns across all characters, fire if count reaches 0
+        _process_burning_arrow_effects(self.game)
 
-        # Clear effects (e.g., skip_turn) from active player's characters
+        # Clear effects (e.g., skip_turn) from active player's characters, preserving burning_arrow
         for char in player.characters.values():
-            char.effects = []
+            char.effects = [e for e in char.effects if e.startswith(EFFECT_BURNING_ARROW + ":")]
 
         # Update active player with selected character
         self.game.active = ActivePlayer2(player=self.user, character=character)
@@ -160,12 +170,12 @@ class SkipTurnAction(Action):
                 "Cannot skip turn: available characters exist"
             )
 
-        # Apply pending burning arrow damage before clearing effects
-        _apply_burning_arrow_effects(self.game, self.user)
+        # Decrement burning arrow countdowns across all characters, fire if count reaches 0
+        _process_burning_arrow_effects(self.game)
 
-        # Clear effects (e.g., skip_turn) from active player's characters
+        # Clear effects (e.g., skip_turn) from active player's characters, preserving burning_arrow
         for char in player.characters.values():
-            char.effects = []
+            char.effects = [e for e in char.effects if e.startswith(EFFECT_BURNING_ARROW + ":")]
 
         # Rotate to next player's turn
         rotate_to_next_player(self.game)
