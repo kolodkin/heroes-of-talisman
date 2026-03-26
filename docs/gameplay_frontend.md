@@ -249,7 +249,7 @@ Displays a character ability with image, name, and description (`src/components/
 **Features:**
 
 - Uses common card styles from `Card.module.css`
-- Displays ability image from `/images/effects/{ability.name}.jpg`
+- Displays ability image from `/images/abilities/{ability.name}.jpg`
 - Shows translated ability name and description via i18next
 
 ## GameplayCard
