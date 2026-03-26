@@ -184,8 +184,8 @@ test("archer L3 burning_arrow fires after 2 turn starts: mage loses 2 HP", async
   await expect(selectButton).toBeVisible();
   await selectButton.click();
 
-  // After character select the stage advances
-  await waitForStage(page, "ability_selection");
+  // After character select the stage advances to card_draw
+  await waitForStage(page, "card_draw");
   await screenshot(page, "archer-l3-burning-arrow-after-fire");
 
   // Expand players to check mage health — should be reduced by 2
