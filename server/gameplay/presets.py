@@ -1,7 +1,7 @@
 from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM
+from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM
 from .effects import EFFECT_SKIP_TURN, EFFECT_NO_DAMAGE_ON_WIN, EFFECT_REROLL_DICE, EFFECT_BURNING_ARROW
 from .gameplay import (
     StageName,
@@ -747,7 +747,7 @@ def get_debug_preset(
         )
     elif preset == "ability_selection_archer_l3":
         # Ability selection stage - player1 has selected archer at level 3
-        # Archer L3 has BOUNCING_ARROW_L2 and BURNING_ARROW - two abilities, no auto-select
+        # Archer L3 has BOUNCING_ARROW_L3 and BURNING_ARROW - two abilities, no auto-select
         ret = GamePlay(
             stage=STAGE_ABILITY_SELECTION,
             active=ActivePlayer2(player=p1_name, character=CHARACTER_ARCHER),

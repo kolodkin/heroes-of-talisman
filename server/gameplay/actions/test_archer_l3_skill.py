@@ -1,6 +1,6 @@
 """
 Tests for Archer Level 3 skills:
-  1. bouncing_arrow_l2 (חץ קופץ) — same behavior as Archer L2
+  1. bouncing_arrow_l3 (חץ קופץ) — same behavior as Archer L2
   2. burning_arrow (חץ בוער) — no damage this turn, 2 damage to target after 2 turn starts
 
 Burning Arrow flow:
@@ -14,7 +14,7 @@ Burning Arrow flow:
 from .battle_end import BattleEndAction
 from .stage_character_select import CharacterSelectAction, SkipTurnAction
 from ..common import CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE
-from ..abilities import ABILITY_BOUNCING_ARROW_L2, ABILITY_BURNING_ARROW
+from ..abilities import ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW
 from ..effects import EFFECT_BURNING_ARROW, EFFECT_SKIP_TURN
 from ..gameplay import (
     STAGE_BATTLE_END,
@@ -40,7 +40,7 @@ def test_archer_l3_has_bouncing_arrow_l2_and_burning_arrow():
     characters = init_characters(level=3)
     archer = characters[CHARACTER_ARCHER]
     ability_names = [a.name for a in archer.abilities]
-    assert ABILITY_BOUNCING_ARROW_L2 in ability_names
+    assert ABILITY_BOUNCING_ARROW_L3 in ability_names
     assert ABILITY_BURNING_ARROW in ability_names
 
 
@@ -49,7 +49,7 @@ def test_archer_l3_ability_selection_preset():
     game = get_debug_preset(PRESET_ABILITY_SELECTION_ARCHER_L3)
     archer = game.players["player1"].characters[CHARACTER_ARCHER]
     ability_names = [a.name for a in archer.abilities]
-    assert ABILITY_BOUNCING_ARROW_L2 in ability_names
+    assert ABILITY_BOUNCING_ARROW_L3 in ability_names
     assert ABILITY_BURNING_ARROW in ability_names
 
 
