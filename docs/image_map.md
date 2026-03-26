@@ -21,7 +21,6 @@ Images are loaded dynamically in `AbilityCard.jsx` as `/images/effects/{ability.
 | Image File | Notes |
 |---|---|
 | `public/images/effects/storm.jpg` | No matching ability defined |
-| `public/images/effects/3c59d25a-207e-4721-89c8-f09a359dc763.jpg` | UUID-named, unknown purpose |
 
 ## Characters
 
