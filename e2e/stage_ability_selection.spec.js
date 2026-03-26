@@ -195,7 +195,6 @@ test("ability_selection stage - no ability option skips to opponent_selection", 
   const noAbilityCard = sharedArea.locator('[data-ability="no_ability"]');
   await expect(noAbilityCard).toBeVisible();
   await expect(noAbilityCard).toContainText("ללא יכולת");
-  await screenshot(page, "no-ability-card-visible");
 
   // Click no ability card
   await noAbilityCard.click();
