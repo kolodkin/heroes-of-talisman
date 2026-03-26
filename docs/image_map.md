@@ -4,9 +4,7 @@ This document maps game entity names to their corresponding image files.
 
 ## Abilities
 
-Path: `public/images/effects/`
-
-> **Note:** The folder is named `effects/` but contains ability images. Consider renaming to `abilities/` for clarity, since "effects" in the codebase refers to the game mechanic types (`AttackBonusEffect`, `RerollDiceEffect`, etc.), not abilities.
+Path: `public/images/abilities/`
 
 | Ability Name | Image File | Hebrew Name |
 |---|---|---|

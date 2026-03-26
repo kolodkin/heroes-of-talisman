@@ -7,7 +7,7 @@ const AbilityCard = ({ ability, isSelected, onClick, size = "normal" }) => {
   const { t } = useTranslation();
   const abilityName = t(`abilities.${ability.name}.name`);
   const abilityDescription = t(`abilities.${ability.name}.description`);
-  const imagePath = `/images/effects/${ability.name}.jpg`;
+  const imagePath = `/images/abilities/${ability.name}.jpg`;
 
   const cardClass = size === "normal" ? styles["card-normal"] : styles["card-small"];
 
