@@ -176,7 +176,8 @@ test("archer L3 burning_arrow fires after 2 turn starts: mage loses 2 HP", async
   await minimizeButton.click();
 
   // Select archer to trigger turn start (decrement fires, 2 damage on mage)
-  const archerCard = page.locator('[data-character="archer"]');
+  const sharedArea = page.locator('[data-shared-area-active="true"]');
+  const archerCard = sharedArea.locator('[data-character="archer"]');
   await archerCard.click();
 
   const selectButton = page.locator("[data-action-button]");
