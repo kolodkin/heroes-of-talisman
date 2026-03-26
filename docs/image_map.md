@@ -16,6 +16,7 @@ Path: `public/images/effects/`
 | `freeze` | `freeze.jpg` | הקפאה |
 | `disarm` | `disarm.jpg` | פריקת נשק |
 | `storm` | `storm.jpg` | |
+| | `נשיפת דרקון.png` | נשיפת דרקון |
 
 ## Characters
 
