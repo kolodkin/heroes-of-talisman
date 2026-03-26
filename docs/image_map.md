@@ -17,6 +17,7 @@ Path: `public/images/effects/`
 | `disarm` | `disarm.jpg` | פריקת נשק |
 | `storm` | `storm.jpg` | |
 | | `נשיפת דרקון.png` | נשיפת דרקון |
+| | `חץ בוער.jpg` | חץ בוער |
 
 ## Characters
 
