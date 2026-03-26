@@ -467,6 +467,13 @@ Use dedicated data attributes (e.g., `data-battle-participant`, `data-character`
 - **Avoid**: `page.locator('div.container > span')`
 - **Avoid**: `page.getByText(/אביר/)` (text-based selectors break with translations)
 
+### Coverage Requirements
+
+Each of the following must have a dedicated preset (in `server/gameplay/presets.py`) and a dedicated E2E test:
+
+- **Every game card** (e.g., `metal_armor`, `sacred_sword`, `golden_apple`, `magic_ball`, `talisman`, `devils_fork`, `fog`) — one preset + test per card
+- **Every character ability at every level** (e.g., archer L1 `bouncing_arrow`, archer L2 `bouncing_arrow_l2`, archer L3 `bouncing_arrow_l3` + `burning_arrow`, knight L2 `disarm`, mage `freeze`) — one preset + test per ability per level
+
 ### Best Practices
 
 - Write tests in a flat structure using function-based test definitions (avoid class-based grouping).
