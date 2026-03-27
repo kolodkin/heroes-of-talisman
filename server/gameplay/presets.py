@@ -208,7 +208,7 @@ def get_debug_preset(
         )
     elif preset == "ability_selection_mage_l2":
         # Ability selection stage - player1 has selected mage at level 2
-        # Mage L2 has FREEZE, STORM, and DRAGON_BREATH - three abilities, no auto-select
+        # Mage L2 has STORM and DRAGON_BREATH - two abilities, no auto-select
         ret = GamePlay(
             stage=STAGE_ABILITY_SELECTION,
             active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
