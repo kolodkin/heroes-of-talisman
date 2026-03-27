@@ -1,8 +1,8 @@
 from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH
-from .effects import EFFECT_SKIP_TURN, EFFECT_NO_DAMAGE_ON_WIN, EFFECT_REROLL_DICE
+from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH
+from .effects import EFFECT_SKIP_TURN, EFFECT_NO_DAMAGE_ON_WIN, EFFECT_REROLL_DICE, EFFECT_BURNING_ARROW
 from .gameplay import (
     StageName,
     STAGE_ABILITY_SELECTION,
@@ -69,6 +69,9 @@ PRESET_CARD_DRAW_FOG_MIXED_LEVEL = "card_draw_fog_mixed_level"
 PRESET_ABILITY_SELECTION_ARCHER_L2 = "ability_selection_archer_l2"
 PRESET_EFFECT_REROLL_L2_FIRST = "effect_reroll_l2_first"
 PRESET_EFFECT_REROLL_L2_SECOND = "effect_reroll_l2_second"
+PRESET_ABILITY_SELECTION_ARCHER_L3 = "ability_selection_archer_l3"
+PRESET_BURNING_ARROW_WIN = "burning_arrow_win"
+PRESET_BURNING_ARROW_NEXT_TURN = "burning_arrow_next_turn"
 DebugPresetsType = Literal[
     "default",
     "ability_selection_knight",
@@ -100,6 +103,9 @@ DebugPresetsType = Literal[
     "ability_selection_archer_l2",
     "effect_reroll_l2_first",
     "effect_reroll_l2_second",
+    "ability_selection_archer_l3",
+    "burning_arrow_win",
+    "burning_arrow_next_turn",
     "effect_attack_bonus",
     "effect_reroll",
     "effect_skip_turn",
@@ -774,6 +780,56 @@ def get_debug_preset(
             opponent=Opponent4(
                 player=p2_name, character=CHARACTER_MAGE, dice_roll=[3], result=BattleResult(winner=False, score=3)
             ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "ability_selection_archer_l3":
+        # Ability selection stage - player1 has selected archer at level 3
+        # Archer L3 has BOUNCING_ARROW_L3 and BURNING_ARROW - two abilities, no auto-select
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_ARCHER),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=3)),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "burning_arrow_win":
+        # Archer L3 wins battle with BURNING_ARROW active (ready for BattleEndAction)
+        # Player 1: archer L3 (dice=[6], attack=0) with BURNING_ARROW = 6
+        # Player 2: mage (dice=[3], attack=0) = 3
+        # Result: archer wins (6 > 3), BURNING_ARROW stores delayed 2-damage on mage
+        characters_p1 = init_characters(level=3)
+        characters_p1[CHARACTER_ARCHER].active_abilities = [ABILITY_BURNING_ARROW]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=STAGE_BATTLE_END,
+            active=ActivePlayer4(
+                player=p1_name, character=CHARACTER_ARCHER, dice_roll=[6], result=BattleResult(winner=True, score=6)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=CHARACTER_MAGE, dice_roll=[3], result=BattleResult(winner=False, score=3)
+            ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "burning_arrow_next_turn":
+        # One decrement already happened (opponent's turn). Mage has burning_arrow:1.
+        # Stage: CHARACTER_SELECT (archer's turn) — selecting any character decrements to 0, fires 2 damage on mage.
+        characters_p1 = init_characters(level=3)
+
+        characters_p2 = init_characters()
+        characters_p2[CHARACTER_MAGE].effects = [f"{EFFECT_BURNING_ARROW}:1"]
+
+        ret = GamePlay(
+            stage=STAGE_CHARACTER_SELECT,
+            active=ActivePlayer1(player=p1_name),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),

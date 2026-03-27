@@ -23,6 +23,7 @@ EFFECT_DARKNESS_RISE = "darkness_rise"
 EFFECT_FOG = "fog"
 EFFECT_NEUTRALIZE_ITEM = "neutralize_item"
 EFFECT_NO_DAMAGE_ON_WIN = "no_damage_on_win"
+EFFECT_BURNING_ARROW = "burning_arrow"
 
 ########################################################
 # Effect apply_to targets
@@ -196,9 +197,22 @@ class NeutralizeItemEffect(Effect):
     apply_to: ApplyToTarget = APPLY_TO_SELECTED_OPPONENT
 
 
+class BurningArrowEffect(Effect):
+    """
+    Marker effect for the burning arrow ability (Archer L3).
+    Applied to self (active player's character).
+    At battle end (if archer wins), stores a delayed 2-damage effect on the active
+    character targeting the opponent. The damage is applied at the start of the
+    archer's next turn via CharacterSelectAction or SkipTurnAction.
+    """
+
+    name: Literal[EFFECT_BURNING_ARROW] = EFFECT_BURNING_ARROW
+    apply_to: ApplyToTarget = APPLY_TO_SELF
+
+
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, HealEffect, LevelDownEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect, DarknessRiseEffect, FogEffect, NeutralizeItemEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, BurningArrowEffect, DefenseBonusEffect, HealEffect, LevelDownEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect, DarknessRiseEffect, FogEffect, NeutralizeItemEffect],
     Field(discriminator="name"),
 ]
 
