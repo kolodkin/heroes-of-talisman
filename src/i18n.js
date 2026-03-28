@@ -33,6 +33,7 @@ const resources = {
         card_draw: "שליפת קלף",
         ability_selection: "בחירת יכולת",
         ability_opponent_selection: "בחירת יעד ליכולת",
+        ability_item_selection: "בחירת חפץ לנטרול",
         opponent_selection: "בחירת יריב",
         battle_dice_roll: "גלגול קוביות",
         battle_end: "תוצאות קרב",
@@ -42,6 +43,7 @@ const resources = {
         card_draw: "שלוף קלף",
         ability_selection: "בחר יכולת",
         ability_opponent_selection: "בחר יריב ודמות להחלת היכולת",
+        ability_item_selection: "בחר חפץ לנטרול",
         opponent_selection: "בחר את יריבך",
         battle_dice_roll: "גלגל את הקוביות",
         battle_end: "תוצאות הקרב",
@@ -71,6 +73,14 @@ const resources = {
         disarm: {
           name: "פריקת נשק",
           description: "במקום לתקוף, שלוף קלף נוסף",
+        },
+        storm: {
+          name: "סופה",
+          description: "-2 להתקפות היריב הנבחר בקרב",
+        },
+        dragon_breath: {
+          name: "נשימת דרקון",
+          description: "מנטרל חפץ אחד מהיריב הנבחר",
         },
         no_ability: {
           name: "ללא יכולת",
@@ -132,6 +142,10 @@ const resources = {
       ability_opponent_selection: {
         submit: "בחר",
         select_opponent: "בחר יריב ודמות בבקשה",
+      },
+      ability_item_selection: {
+        submit: "בחר",
+        select_item: "בחר חפץ לנטרול בבקשה",
       },
       opponent_selection: {
         select_opponent: "בחר יריב ודמות בבקשה",

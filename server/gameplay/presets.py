@@ -1,11 +1,13 @@
 from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM
+from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH
 from .effects import EFFECT_SKIP_TURN, EFFECT_NO_DAMAGE_ON_WIN, EFFECT_REROLL_DICE, EFFECT_BURNING_ARROW
 from .gameplay import (
     StageName,
     STAGE_ABILITY_SELECTION,
+    STAGE_ABILITY_ITEM_SELECTION,
+    STAGE_ABILITY_OPPONENT_SELECTION,
     STAGE_BATTLE_DICE_ROLL,
     STAGE_BATTLE_END,
     STAGE_CARD_DRAW,
@@ -18,10 +20,12 @@ from .gameplay import (
     ActivePlayer2,
     ActivePlayer3,
     ActivePlayer4,
+    Opponent2,
     Opponent3,
     Opponent4,
     BattleResult,
     AbilitySelectMeta,
+    AbilityItemMeta,
     CardDrawMeta,
     init_characters,
 )
@@ -30,6 +34,8 @@ PRESET_ABILITY_SELECTION_KNIGHT = "ability_selection_knight"
 PRESET_ABILITY_SELECTION_KNIGHT_L2 = "ability_selection_knight_l2"
 PRESET_ABILITY_SELECTION_ARCHER = "ability_selection_archer"
 PRESET_ABILITY_SELECTION_MAGE = "ability_selection_mage"
+PRESET_ABILITY_SELECTION_MAGE_L2 = "ability_selection_mage_l2"
+PRESET_ABILITY_ITEM_SELECTION_DRAGON_BREATH = "ability_item_selection_dragon_breath"
 PRESET_EFFECT_REROLL = "effect_reroll"
 PRESET_ARCHER_NOT_ALIVE = "archer_not_alive"
 PRESET_BATTLE_DRAW = "battle_draw"
@@ -72,6 +78,7 @@ DebugPresetsType = Literal[
     "ability_selection_knight_l2",
     "ability_selection_archer",
     "ability_selection_mage",
+    "ability_selection_mage_l2",
     "archer_not_alive",
     "battle_draw",
     "battle_level_down",
@@ -106,6 +113,7 @@ DebugPresetsType = Literal[
     "health_1",
     "knight_not_alive",
     "mage_not_alive",
+    "ability_item_selection_dragon_breath",
     "opponent_selection_preset",
     "single_player",
 ]
@@ -196,6 +204,38 @@ def get_debug_preset(
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_selection_mage_l2":
+        # Ability selection stage - player1 has selected mage at level 2
+        # Mage L2 has STORM and DRAGON_BREATH - two abilities, no auto-select
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=2)),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_item_selection_dragon_breath":
+        # Ability item selection stage - player1 (mage L2) chose Dragon Breath and targeted player2's knight
+        # Player2's knight has metal_armor and sacred_sword; player1 selects which item to neutralize
+        from .cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD
+        characters1 = init_characters(level=2)
+        characters2 = init_characters()
+        characters2[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR, CARD_SACRED_SWORD]
+        ret = GamePlay(
+            stage=STAGE_ABILITY_ITEM_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
+            ability=ABILITY_DRAGON_BREATH,
+            ability_opponent=Opponent2(player=p2_name, character=CHARACTER_KNIGHT),
+            stage_meta=AbilityItemMeta(
+                target_player=p2_name,
+                target_character=CHARACTER_KNIGHT,
+            ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters1),
+                p2_name: Player(name=p2_name, characters=characters2),
             },
         )
     elif preset == "health_1":

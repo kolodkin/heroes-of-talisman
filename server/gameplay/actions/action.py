@@ -9,6 +9,7 @@ from ..gameplay import (
     Player,
     Character,
     CHARACTER_STATS_BY_LEVEL,
+    AbilityItemMeta,
     ActivePlayer1,
     ActivePlayer2,
     ActivePlayer3,
@@ -85,6 +86,20 @@ class Action(ABC):
     @opponent.setter
     def opponent(self, value: Optional[Opponent2 | Opponent3 | Opponent4]):
         self.game.opponent = value
+
+    @property
+    def ability_item_target_character(self) -> Character:
+        """
+        Get the target character for ability item selection.
+
+        Provides validation that stage_meta is an AbilityItemMeta with valid target.
+
+        Raises:
+            GameException: If stage_meta is not set or is not an AbilityItemMeta
+        """
+        if not self.stage_meta or not isinstance(self.stage_meta, AbilityItemMeta):
+            raise GameException("No ability item target set")
+        return self.game.players[self.stage_meta.target_player].characters[self.stage_meta.target_character]
 
     @property
     def opponent_character(self) -> Character:

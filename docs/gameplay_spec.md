@@ -69,6 +69,8 @@ The game features three distinct character types:
 
 Characters can progress through levels, gaining improved stats at higher levels.
 
+**Level Abilities Rule**: At each level, a character has only the abilities for that level. Higher-level abilities **replace** lower-level ones — they do not stack. For example, a Mage at level 2 has `storm` and `dragon_breath` but no longer has `freeze`.
+
 | Character | Level | Max Health | Dice | Attack |
 | --------- | ----- | ---------- | ---- | ------ |
 | Knight    | 1     | 2          | 1    | 1      |
@@ -97,13 +99,15 @@ A character dies only when their health hits 0 while at **level 1**. Characters 
 
 Each character has abilities that trigger effects (attack bonus, skip turn, reroll dice) targeting self, battle opponent, or a selected opponent. Effects persist until disposed by specific game actions.
 
-| Ability             | Character      | Level | Description                                                                                              |
-| ------------------- | -------------- | ----- | -------------------------------------------------------------------------------------------------------- |
-| `battle_howl`       | Knight         | 1+    | +2 attack bonus for the current battle                                                                   |
-| `disarm`            | Knight         | 2+    | Draw an extra card instead of attacking                                                                  |
-| `bouncing_arrow`    | Archer         | 1     | Reroll dice once after losing a battle                                                                   |
-| `bouncing_arrow_l2` | Archer         | 2+    | Reroll dice twice after losing; on the second reroll, archer deals **no damage** to opponent if winning  |
-| `freeze`            | Mage           | 1+    | Skip a selected opponent character's next turn                                                           |
+| Ability             | Character | Level | Description                                                                                             |
+| ------------------- | --------- | ----- | ------------------------------------------------------------------------------------------------------- |
+| `battle_howl`       | Knight    | 1     | +2 attack bonus for the current battle                                                                  |
+| `disarm`            | Knight    | 2     | Draw an extra card instead of attacking                                                                 |
+| `bouncing_arrow`    | Archer    | 1     | Reroll dice once after losing a battle                                                                  |
+| `bouncing_arrow_l2` | Archer    | 2     | Reroll dice twice after losing; on the second reroll, archer deals **no damage** to opponent if winning |
+| `freeze`            | Mage      | 1     | Skip a selected opponent character's next turn                                                          |
+| `storm`             | Mage      | 2     | Apply -2 attack penalty to the battle opponent                                                          |
+| `dragon_breath`     | Mage      | 2     | Remove one item card from a selected opponent character                                                 |
 
 See [Backend GamePlay - Abilities & Effects](/docs/gameplay_backend.md#abilities--effects) for implementation details.
 

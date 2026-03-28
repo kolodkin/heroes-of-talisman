@@ -12,6 +12,8 @@ from ..common import (
     ACTION_ABILITY_SELECT,
     ACTION_ABILITY_OPPONENT_PRESS,
     ACTION_ABILITY_OPPONENT_SELECT,
+    ACTION_ABILITY_ITEM_PRESS,
+    ACTION_ABILITY_ITEM_SELECT,
     ACTION_OPPONENT_PRESS,
     ACTION_OPPONENT_SELECT,
     ACTION_ACTIVE_PLAYER_ROLL,
@@ -29,6 +31,7 @@ from .stage_character_select import CharacterPressAction, CharacterSelectAction,
 from .stage_card_draw import CardDrawAction, CardSelectAction, DebugSetDrawnCardAction
 from .stage_ability_selection import AbilityPressAction, AbilitySelectAction
 from .stage_ability_opponent_selection import AbilityOpponentPressAction, AbilityOpponentSelectAction
+from .stage_ability_item_selection import AbilityItemPressAction, AbilityItemSelectAction
 from .stage_opponent_selection import OpponentPressAction, OpponentSelectAction
 from .stage_battle import ActivePlayerRollAction, OpponentRollAction, RerollAction, RerollEffectAction, DebugSetBattleDiceRollsAction
 from .battle_end import BattleEndAction
@@ -46,6 +49,8 @@ ACTION_MAP: Dict[str, type[Action]] = {
     ACTION_ABILITY_SELECT: AbilitySelectAction,
     ACTION_ABILITY_OPPONENT_PRESS: AbilityOpponentPressAction,
     ACTION_ABILITY_OPPONENT_SELECT: AbilityOpponentSelectAction,
+    ACTION_ABILITY_ITEM_PRESS: AbilityItemPressAction,
+    ACTION_ABILITY_ITEM_SELECT: AbilityItemSelectAction,
     ACTION_OPPONENT_PRESS: OpponentPressAction,
     ACTION_OPPONENT_SELECT: OpponentSelectAction,
     ACTION_ACTIVE_PLAYER_ROLL: ActivePlayerRollAction,

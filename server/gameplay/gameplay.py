@@ -22,6 +22,7 @@ STAGE_CHARACTER_SELECT = "character_select"
 STAGE_CARD_DRAW = "card_draw"
 STAGE_ABILITY_SELECTION = "ability_selection"
 STAGE_ABILITY_OPPONENT_SELECTION = "ability_opponent_selection"
+STAGE_ABILITY_ITEM_SELECTION = "ability_item_selection"
 STAGE_OPPONENT_SELECTION = "opponent_selection"
 STAGE_BATTLE_DICE_ROLL = "battle_dice_roll"
 STAGE_BATTLE_END = "battle_end"
@@ -30,6 +31,7 @@ STAGES_NAMES = [
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
     STAGE_ABILITY_OPPONENT_SELECTION,
+    STAGE_ABILITY_ITEM_SELECTION,
     STAGE_OPPONENT_SELECTION,
     STAGE_BATTLE_DICE_ROLL,
     STAGE_BATTLE_END,
@@ -51,6 +53,8 @@ from .abilities import (
     ABILITY_BURNING_ARROW,
     ABILITY_FREEZE,
     ABILITY_DISARM,
+    ABILITY_STORM,
+    ABILITY_DRAGON_BREATH,
 )
 from .effects import (
     EffectTotal,
@@ -160,6 +164,13 @@ class Character(StrictModel):
                 total.no_damage_on_win = True
             elif eff_name == EFFECT_REROLL_DICE:
                 total.reroll_dice_available = True
+            else:
+                # Try as ability name for value-based effects applied by opponents
+                ability = ABILITIES_MAP.get(eff_name)
+                if ability:
+                    for eff in ability.effects:
+                        if isinstance(eff, AttackNegBonusEffect):
+                            total.attack_neg_bonus += eff.attack_neg_bonus
 
         return total
 
@@ -189,6 +200,14 @@ class AbilitySelectMeta(StrictModel):
     """Stage metadata for ability selection stage"""
 
     selected: Optional[str] = None  # Currently highlighted ability (None = no ability selected)
+
+
+class AbilityItemMeta(StrictModel):
+    """Stage metadata for ability item selection stage"""
+
+    target_player: str  # Player who owns the target character
+    target_character: str  # Target character whose items are shown
+    selected_item: Optional[str] = None  # Currently highlighted item card name
 
 
 class ActivePlayer1(StrictModel):
@@ -262,7 +281,7 @@ class GamePlay(StrictModel):
     ability: Optional[AbilityName] = None  # Turn-scoped, cleared by rotate_to_next_player
     ability_opponent: Optional[Opponent2] = None  # Turn-scoped, cleared by rotate_to_next_player
     opponent: Optional[Opponent] = None  # Turn-scoped, cleared by rotate_to_next_player
-    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | Opponent2] = None  # Within-stage, cleared after each press/select
+    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | AbilityItemMeta | Opponent2] = None  # Within-stage, cleared after each press/select
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""
@@ -355,6 +374,8 @@ MAGE_L1_ATTACK = 0
 MAGE_L1_ABILITY = ABILITY_FREEZE
 
 # Mage Level 2
+MAGE_L2_ABILITY_1 = ABILITY_STORM
+MAGE_L2_ABILITY_2 = ABILITY_DRAGON_BREATH
 MAGE_L2_DEFAULT_HEALTH = 3
 MAGE_L2_MAX_HEALTH = 3
 MAGE_L2_DICE = 1
@@ -416,7 +437,7 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": MAGE_L2_MAX_HEALTH,
             "dice": MAGE_L2_DICE,
             "attack": MAGE_L2_ATTACK,
-            "abilities": [],
+            "abilities": [ABILITIES_MAP[MAGE_L2_ABILITY_1], ABILITIES_MAP[MAGE_L2_ABILITY_2]],
         },
     },
     3: {

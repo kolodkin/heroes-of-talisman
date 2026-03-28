@@ -105,10 +105,7 @@ test("archer L2 selects bouncing_arrow_l2, skips to opponent_selection", async (
   await page2.close();
 });
 
-test("archer L2 - first reroll: bouncing_arrow_l2 sets up second reroll with no-damage", async ({
-  page,
-  gameName,
-}) => {
+test("archer L2 - first reroll: bouncing_arrow_l2 sets up second reroll with no-damage", async ({ page, gameName }) => {
   // Preset: archer L2 with bouncing_arrow_l2 active ability, lost to mage (score 4 < 5)
   // Stage stays in battle_dice_roll because reroll is available
   await createPresetGameViaAPI(gameName, "effect_reroll");
