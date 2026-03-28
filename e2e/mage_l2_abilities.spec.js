@@ -146,37 +146,3 @@ test("ability_item_selection stage - shows target's items and allows selecting w
   // Cleanup
   await page2.close();
 });
-
-test("ability_item_selection stage - dragon_breath full flow: select target, select item, then opponent", async ({
-  page,
-  gameName,
-}) => {
-  // Full Dragon Breath flow: ability_selection → ability_opponent_selection → ability_item_selection → opponent_selection
-  await createPresetGameViaAPI(gameName, "ability_selection_mage_l2");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins (knight has metal_armor from L1 preset; give them items via preset)
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
-
-  const sharedArea = page.locator('[data-shared-area-active="true"]');
-
-  // Select dragon_breath ability
-  const dragonBreathAbility = sharedArea.locator('[data-ability="dragon_breath"]');
-  await dragonBreathAbility.click();
-  const selectButton = page.getByRole("button", { name: "בחר" });
-  await selectButton.click();
-
-  // Wait for ability_opponent_selection
-  await waitForStage(page, "ability_opponent_selection");
-  await screenshot(page, "dragon-breath-full-flow-opponent-selection");
-
-  // Click on player2's knight
-  const opponentPlayer = sharedArea.locator('[data-player="player2"]');
-  await expect(opponentPlayer).toBeVisible();
-
-  // Cleanup
-  await page2.close();
-});

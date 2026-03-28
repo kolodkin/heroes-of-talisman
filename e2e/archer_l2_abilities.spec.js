@@ -6,6 +6,8 @@ import {
   joinGameViaUrl,
   waitForStage,
   expandPlayersMenuIfCollapsed,
+  getScore,
+  verifyWinner,
 } from "./test_helpers.js";
 
 /**
@@ -23,31 +25,6 @@ import {
  *   5. If archer loses second reroll → battle ends, archer loses normally
  */
 
-/**
- * Helper to get score from battle row
- */
-async function getScore(page, role) {
-  const scoreElement = page.locator(`[data-battle-role="${role}"] [data-score]`);
-  await expect(scoreElement).toBeVisible();
-  const scoreText = await scoreElement.textContent();
-  return parseInt(scoreText.trim());
-}
-
-/**
- * Helper to verify winner badge for the given role
- */
-async function verifyWinner(page, winnerRole) {
-  const winnerBadge = page.locator(`[data-battle-role="${winnerRole}"] [data-winner-badge]`);
-  await expect(winnerBadge).toBeVisible();
-
-  await winnerBadge.evaluate((element) => {
-    const animations = element.getAnimations();
-    const appearAnimation = animations.find((anim) =>
-      anim.effect?.getKeyframes().some((frame) => frame.opacity !== undefined),
-    );
-    return appearAnimation ? appearAnimation.finished : Promise.resolve();
-  });
-}
 
 test("archer L2 ability selection shows only bouncing_arrow_l2", async ({ page, gameName }) => {
   await createPresetGameViaAPI(gameName, "ability_selection_archer_l2");
