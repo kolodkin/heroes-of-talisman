@@ -2,8 +2,8 @@
 
 This document outlines the gameplay architecture and component hierarchy for the game engine, detailing main components.
 
-- [FrontEnd GamePlay](/docs/gameplay_frontend.md)
-- [BackEnd GamePlay](/docs/gameplay_backend.md)
+- [FrontEnd GamePlay](/docs/frontend.md)
+- [BackEnd GamePlay](/docs/backend.md)
 
 # Overview
 
@@ -19,7 +19,7 @@ The game supports internationalization via react-i18next, currently configured f
 
 # Backend Alignment
 
-Frontend components are designed to work seamlessly with the backend models outlined in [gameplay backend](/docs/gameplay_backend.md).
+Frontend components are designed to work seamlessly with the backend models outlined in [gameplay backend](/docs/backend.md).
 
 # Core Architecture
 
@@ -109,7 +109,7 @@ Each character has abilities that trigger effects (attack bonus, skip turn, rero
 | `storm`             | Mage      | 2     | Apply -2 attack penalty to the battle opponent                                                          |
 | `dragon_breath`     | Mage      | 2     | Remove one item card from a selected opponent character                                                 |
 
-See [Backend GamePlay - Abilities & Effects](/docs/gameplay_backend.md#abilities--effects) for implementation details.
+See [Backend GamePlay - Abilities & Effects](/docs/backend.md#abilities--effects) for implementation details.
 
 # Cards
 

@@ -4,8 +4,8 @@ A React-based UI engine for visualizing and interacting with game states represe
 
 related specs:
 
-- [gameplay spec](/docs/gameplay_spec.md)
-- [gameplay backend spec](/docs/gameplay_backend.md)
+- [gameplay spec](/docs/gameplay.md)
+- [gameplay backend spec](/docs/backend.md)
 
 # Overview
 
@@ -186,7 +186,7 @@ Character cards represent individual characters belonging to players. Each chara
 
 **Data Model** (from backend):
 
-- `level`: Character level (1 or 2). Higher levels have improved stats. See [Character Levels](/docs/gameplay_spec.md#character-levels) for stats per level.
+- `level`: Character level (1 or 2). Higher levels have improved stats. See [Character Levels](/docs/gameplay.md#character-levels) for stats per level.
 - `health`: Current health points
 - `max_health`: Maximum health points (varies by level)
 - `dice`: Number of dice to roll in battle (varies by level)
@@ -233,7 +233,7 @@ Characters that hold cards display small icons in their stats row, based on `cha
 
 ## AbilityCard
 
-Displays a character ability with image, name, and description (`src/components/AbilityCard.jsx`). See [Abilities & Effects](/docs/gameplay_spec.md#abilities--effects) for the full ability list.
+Displays a character ability with image, name, and description (`src/components/AbilityCard.jsx`). See [Abilities & Effects](/docs/gameplay.md#abilities--effects) for the full ability list.
 
 **Props:**
 
@@ -254,7 +254,7 @@ Displays a character ability with image, name, and description (`src/components/
 
 ## GameplayCard
 
-Displays a game card with image, name, and description (`src/components/GameplayCard.jsx`). See [Cards](/docs/gameplay_spec.md#cards) for the full card list.
+Displays a game card with image, name, and description (`src/components/GameplayCard.jsx`). See [Cards](/docs/gameplay.md#cards) for the full card list.
 
 **Props:**
 

@@ -16,9 +16,9 @@ For services and ports, see [dev-services.md](.ai/rules/dev-services.md).
 
 ## Main Doc
 
-- [Gameplay Specification](docs/gameplay_spec.md)
-- [Gameplay Backend](docs/gameplay_backend.md)
-- [Gameplay Frontend](docs/gameplay_frontend.md)
+- [Gameplay Specification](docs/gameplay.md)
+- [Gameplay Backend](docs/backend.md)
+- [Gameplay Frontend](docs/frontend.md)
 
 ## License
 

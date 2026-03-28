@@ -4,8 +4,8 @@ A Pydantic-based engine for updating game state through [actions](#actions).
 
 related specs:
 
-- [gameplay spec](/docs/gameplay_spec.md)
-- [gameplay frontend spec](/docs/gameplay_frontend.md)
+- [gameplay spec](/docs/gameplay.md)
+- [gameplay frontend spec](/docs/frontend.md)
 
 # Overview
 
@@ -82,7 +82,7 @@ Abilities and cards are stored as **string literal names** on the character (`ac
 
 Each character level has exactly one set of abilities — higher-level abilities **replace** lower-level ones, they do not stack. A character only has the abilities for their current level (e.g., a level 2 Mage has `storm` and `dragon_breath`, not `freeze`).
 
-See [Abilities & Effects](/docs/gameplay_spec.md#abilities--effects) for the full ability list with character, level, and descriptions.
+See [Abilities & Effects](/docs/gameplay.md#abilities--effects) for the full ability list with character, level, and descriptions.
 
 | Ability             | Effect                     | `apply_to`          | When Applied                  | When Cleared                               |
 | ------------------- | -------------------------- | ------------------- | ----------------------------- | ------------------------------------------ |
@@ -98,7 +98,7 @@ See [Abilities & Effects](/docs/gameplay_spec.md#abilities--effects) for the ful
 
 Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when empty. Instant cards are applied immediately. Persistent cards are stored in `character.cards`. Restricted characters skip the card.
 
-See [Cards](/docs/gameplay_spec.md#cards) for the full card list with types, descriptions, and restrictions.
+See [Cards](/docs/gameplay.md#cards) for the full card list with types, descriptions, and restrictions.
 
 | Card            | Implementation Effect                                                                 |
 | --------------- | ------------------------------------------------------------------------------------- |
@@ -214,7 +214,7 @@ The battle stage handles dice rolling for both the active player and opponent, f
 - **`ActivePlayerRollAction`**: Rolls dice for the active player based on their character's dice value and sets `active.dice_roll` to a list of rolled values. Validates that the player is active and the stage is `battle_dice_roll`.
 - **`OpponentRollAction`**: Rolls dice for the opponent based on their character's dice value and sets `opponent.dice_roll` to a list of rolled values. Validates that the stage is `battle_dice_roll`. Note: This action can be invoked by the opponent player (not the active player), as the opponent needs to roll their own dice.
 
-  When both players have rolled, scores are calculated using the [battle score formula](/docs/gameplay_spec.md#turn-stages) and stored in `active.result.score` / `opponent.result.score`.
+  When both players have rolled, scores are calculated using the [battle score formula](/docs/gameplay.md#turn-stages) and stored in `active.result.score` / `opponent.result.score`.
 
 - **`RerollAction`**: Resets dice rolls when both players rolled and the result is a draw. Downgrades `ActivePlayer4`/`Opponent4` back to `ActivePlayer2`/`Opponent2` for re-rolling.
 - **`RerollEffectAction`**: Allows the active player to use a reroll ability after losing a battle. Only available in `battle_dice_roll` stage when the loser has `reroll_dice_available`. Handles two variants:
