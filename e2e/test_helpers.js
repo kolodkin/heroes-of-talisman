@@ -181,3 +181,35 @@ export async function validateCardHoverEffect(cardLocator) {
   await expect(cardLocator).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -4)");
   await expect(cardLocator).toHaveCSS("box-shadow", "rgba(0, 0, 0, 0.3) 0px 4px 8px 0px");
 }
+
+/**
+ * Helper to get score from battle row
+ * @param {Page} page - Playwright page object
+ * @param {string} role - Battle role: 'active' or 'opponent'
+ * @returns {Promise<number>} The score value
+ */
+export async function getScore(page, role) {
+  const scoreElement = page.locator(`[data-battle-role="${role}"] [data-score]`);
+  await expect(scoreElement).toBeVisible();
+  const scoreText = await scoreElement.textContent();
+  return parseInt(scoreText.trim());
+}
+
+/**
+ * Helper to verify winner badge is shown for the correct role
+ * Waits for the initial appearance animation to complete
+ * @param {Page} page - Playwright page object
+ * @param {string} winnerRole - Battle role of the winner: 'active' or 'opponent'
+ */
+export async function verifyWinner(page, winnerRole) {
+  const winnerBadge = page.locator(`[data-battle-role="${winnerRole}"] [data-winner-badge]`);
+  await expect(winnerBadge).toBeVisible();
+
+  await winnerBadge.evaluate((element) => {
+    const animations = element.getAnimations();
+    const appearAnimation = animations.find((anim) =>
+      anim.effect?.getKeyframes().some((frame) => frame.opacity !== undefined),
+    );
+    return appearAnimation ? appearAnimation.finished : Promise.resolve();
+  });
+}

@@ -6,6 +6,8 @@ import {
   joinGameViaUrl,
   waitForStage,
   expandPlayersMenuIfCollapsed,
+  getScore,
+  verifyWinner,
 } from "./test_helpers.js";
 
 /**
@@ -42,33 +44,6 @@ async function verifyBattleStage(page, activePlayer, opponentPlayer, activeChar,
   await expect(opponentDice.first()).toBeVisible();
 }
 
-/**
- * Helper to get score from battle row
- */
-async function getScore(page, role) {
-  const scoreElement = page.locator(`[data-battle-role="${role}"] [data-score]`);
-  await expect(scoreElement).toBeVisible();
-  const scoreText = await scoreElement.textContent();
-  return parseInt(scoreText.trim());
-}
-
-/**
- * Helper to verify winner badge is shown for the correct role
- * Waits for the initial appearance animation to complete
- */
-async function verifyWinner(page, winnerRole) {
-  const winnerBadge = page.locator(`[data-battle-role="${winnerRole}"] [data-winner-badge]`);
-  await expect(winnerBadge).toBeVisible();
-
-  // Wait for winnerAppear animation to complete (ignoring infinite pulse animation)
-  await winnerBadge.evaluate((element) => {
-    const animations = element.getAnimations();
-    const appearAnimation = animations.find((anim) =>
-      anim.effect?.getKeyframes().some((frame) => frame.opacity !== undefined),
-    );
-    return appearAnimation ? appearAnimation.finished : Promise.resolve();
-  });
-}
 
 test("battle stage - player 1 wins", async ({ page, gameName }) => {
   // Create preset game with player 1 winning

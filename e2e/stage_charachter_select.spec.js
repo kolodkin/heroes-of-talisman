@@ -25,9 +25,6 @@ async function verifyCharacterNotClickable(page, characterName, screenshotName) 
   // Try to click the character
   await character.click({ force: true });
 
-  // Wait a bit to see if any selection happens
-  await page.waitForTimeout(100);
-
   // Verify the character has "not-alive" class and is not selected
   await expect(character).toHaveClass(/not-alive/);
 }
@@ -47,65 +44,29 @@ async function verifyCharacterClickable(page, characterName) {
   // Click the character
   await character.click();
 
-  // Wait for selection to register
-  await page.waitForTimeout(100);
-
   // Verify character is now selected
   await expect(character).toHaveClass(/selected/);
 }
 
-test("character_select stage - knight not alive", async ({ page, gameName }) => {
-  // Create preset game with knight dead
-  await createPresetGameViaAPI(gameName, "knight_not_alive");
+const notAliveTestCases = [
+  { preset: "knight_not_alive", deadChar: "knight", aliveChar: "mage" },
+  { preset: "mage_not_alive", deadChar: "mage", aliveChar: "knight" },
+  { preset: "archer_not_alive", deadChar: "archer", aliveChar: "knight" },
+];
 
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
+for (const { preset, deadChar, aliveChar } of notAliveTestCases) {
+  test(`character_select stage - ${deadChar} not alive`, async ({ page, gameName }) => {
+    await createPresetGameViaAPI(gameName, preset);
 
-  // Verify we're in character_select stage
-  await expect(page.locator('[data-character="knight"]').first()).toBeVisible();
-  await expect(page.locator('[data-character="mage"]').first()).toBeVisible();
-  await expect(page.locator('[data-character="archer"]').first()).toBeVisible();
+    await joinGameViaUrl(page, "player1", gameName, "[data-character]");
 
-  // Verify knight is dead and not clickable
-  await verifyCharacterNotClickable(page, "knight", "knight-not-alive-before-click");
+    await verifyCharacterNotClickable(page, deadChar, `${deadChar}-not-alive-before-click`);
 
-  // Verify mage is alive and clickable
-  await verifyCharacterClickable(page, "mage");
+    await verifyCharacterClickable(page, aliveChar);
 
-  await screenshot(page, "knight-not-alive-after-select");
-});
-
-test("character_select stage - mage not alive", async ({ page, gameName }) => {
-  // Create preset game with mage dead
-  await createPresetGameViaAPI(gameName, "mage_not_alive");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
-
-  // Verify mage is dead and not clickable
-  await verifyCharacterNotClickable(page, "mage", "mage-not-alive-before-click");
-
-  // Verify knight is alive and clickable
-  await verifyCharacterClickable(page, "knight");
-
-  await screenshot(page, "mage-not-alive-after-select");
-});
-
-test("character_select stage - archer not alive", async ({ page, gameName }) => {
-  // Create preset game with archer dead
-  await createPresetGameViaAPI(gameName, "archer_not_alive");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
-
-  // Verify archer is dead and not clickable
-  await verifyCharacterNotClickable(page, "archer", "archer-not-alive-before-click");
-
-  // Verify knight is alive and clickable
-  await verifyCharacterClickable(page, "knight");
-
-  await screenshot(page, "archer-not-alive-after-select");
-});
+    await screenshot(page, `${deadChar}-not-alive-after-select`);
+  });
+}
 
 test("character_select stage - knight has skip_turn effect", async ({ page, gameName }) => {
   // Create preset game with knight having skip_turn effect
