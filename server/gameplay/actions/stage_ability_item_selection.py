@@ -34,8 +34,7 @@ class AbilityItemPressAction(Action):
             raise GameException("Invalid stage metadata for item selection")
 
         # Validate the item exists in the target's active_cards
-        target_player = self.game.players[self.game.stage_meta.target_player]
-        target_character = target_player.characters[self.game.stage_meta.target_character]
+        target_character = self.ability_item_target_character
         if item not in target_character.active_cards:
             raise ReportedException(f"Item {item} is not in target's active cards")
 
@@ -71,8 +70,7 @@ class AbilityItemSelectAction(Action):
             raise ReportedException("No item selected")
 
         selected_item = self.game.stage_meta.selected_item
-        target_player = self.game.players[self.game.stage_meta.target_player]
-        target_character = target_player.characters[self.game.stage_meta.target_character]
+        target_character = self.ability_item_target_character
 
         # Validate the item is still in the target's active_cards
         if selected_item not in target_character.active_cards:

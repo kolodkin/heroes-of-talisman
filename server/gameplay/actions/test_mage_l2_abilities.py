@@ -1,8 +1,8 @@
 """
 Tests for Mage Level 2 abilities: Storm and Dragon Breath.
 
-Storm (סופה): Causes the battle opponent to lose 2 attack bonuses (-2 to opponent's attacks).
-Dragon Breath (נשימת דרקון): Removes one active card from a selected opponent.
+Storm: Causes the battle opponent to lose 2 attack bonuses (-2 to opponent's attacks).
+Dragon Breath: Removes one active card from a selected opponent.
 """
 
 import pytest
