@@ -124,7 +124,7 @@ Cards are drawn from a shared deck (auto-reset when empty) after character selec
 | Card            | Type       | Effect                                                                                                           | Restrictions |
 | --------------- | ---------- | ---------------------------------------------------------------------------------------------------------------- | ------------ |
 | `metal_armor`   | Equipment  | +2 defense bonus (persistent)                                                                                    | None         |
-| `sacred_sword`  | Equipment  | +3 attack bonus (persistent)                                                                                     | Archer       |
+| `sacred_sord`  | Equipment  | +3 attack bonus (persistent)                                                                                     | Archer       |
 | `golden_apple`  | Instant    | +1 heal (capped at max health)                                                                                   | None         |
 | `magic_ball`    | Instant    | +1 level up, restores health to new max                                                                          | None         |
 | `devils_fork`   | Instant    | -1 level down, no effect at level 1                                                                              | None         |

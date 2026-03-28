@@ -105,7 +105,7 @@ See [Cards](/docs/gameplay.md#cards) for the full card list with types, descript
 | Card            | Implementation Effect                                                                 |
 | --------------- | ------------------------------------------------------------------------------------- |
 | `metal_armor`   | `defense_bonus += 2`                                                                  |
-| `sacred_sword`  | `attack_bonus += 3`                                                                   |
+| `sacred_sord`  | `attack_bonus += 3`                                                                   |
 | `golden_apple`  | `health += 1` (capped at max)                                                         |
 | `magic_ball`    | Level up (+1 level, heal to max)                                                      |
 | `devils_fork`   | Level down (-1 level), no effect at L1                                                |
@@ -123,7 +123,7 @@ Actions clean up abilities and effects from characters inline when they're no lo
 | `CharacterSelectAction` | First decrements `burning_arrow:N` countdowns on ALL characters (applies 2 damage when countdown hits 0); then clears `effects` on active player's characters (preserving any remaining `burning_arrow:N` entries) |
 | `SkipTurnAction`        | Same burning_arrow decrement + damage as above; then clears `effects` on active player's characters (preserving remaining `burning_arrow:N` entries)                 |
 
-**Note:** Persistent cards (`metal_armor`, `sacred_sword`, `talisman`) are never disposed.
+**Note:** Persistent cards (`metal_armor`, `sacred_sord`, `talisman`) are never disposed.
 
 # Stages
 
@@ -162,8 +162,8 @@ The card draw stage allows players to draw a card from the deck and add it to th
 
 The ability selection stage allows players to choose which ability to use from their selected character's available abilities.
 
-- **`AbilityPressAction`**: Sets `stage_meta['selected']` to the ability name pressed by the active player. Validates that the player is active, the stage is `ability_selection`, and the ability is available for the selected character.
-- **`AbilitySelectAction`**: Confirms the ability selection by storing the selected ability name in `GamePlay.ability`. Self-targeted abilities (`apply_to = "self"`) are appended to `character.active_abilities`. Transitions to `ability_opponent_selection` if any effect has `apply_to = "selected_opponent"` (e.g., `FREEZE`), otherwise transitions directly to `opponent_selection`. Clears `stage_meta` after confirmation. Validates that the ability is available for the character.
+- **`AbilityPressAction`**: Sets `stage_meta['selected']` to the ability name (or `None` for "no ability") pressed by the active player. Validates that the player is active, the stage is `ability_selection`, and the ability is available for the selected character.
+- **`AbilitySelectAction`**: Confirms the ability selection. If `ability=None` ("no ability" option), transitions directly to `opponent_selection`. Otherwise stores the selected ability name in `GamePlay.ability`, appends self-targeted abilities to `character.active_abilities`, transitions to `ability_opponent_selection` if any effect has `apply_to = "selected_opponent"` (e.g., `FREEZE`), routes to `card_draw` if `DrawCardEffect` (DISARM), otherwise transitions to `opponent_selection`. Clears `stage_meta` after confirmation.
 
 **Actions:**
 
@@ -219,8 +219,9 @@ The battle stage handles dice rolling for both the active player and opponent, f
   When both players have rolled, scores are calculated using the [battle score formula](/docs/gameplay.md#turn-stages) and stored in `active.result.score` / `opponent.result.score`.
 
 - **`RerollAction`**: Resets dice rolls when both players rolled and the result is a draw. Downgrades `ActivePlayer4`/`Opponent4` back to `ActivePlayer2`/`Opponent2` for re-rolling.
-- **`RerollEffectAction`**: Allows the active player to use a reroll ability after losing a battle. Only available in `battle_dice_roll` stage when the loser has `reroll_dice_available`. Handles two variants:
+- **`RerollEffectAction`**: Allows the active player to use a reroll ability after losing a battle. Only available in `battle_dice_roll` stage when the loser has `reroll_dice_available`. Handles three variants:
   - **`BOUNCING_ARROW` (L1)**: Removes the ability from `active_abilities` and resets dice for one reroll.
+  - **`BOUNCING_ARROW_L3` (L3)**: Same as L1 — removes the ability from `active_abilities` and resets dice for one reroll.
   - **`BOUNCING_ARROW_L2` (first reroll)**: Removes the ability from `active_abilities`, appends `EFFECT_REROLL_DICE` and `EFFECT_NO_DAMAGE_ON_WIN` to `character.effects`, and resets dice. The second reroll is now available.
   - **`EFFECT_REROLL_DICE` in effects (second reroll for L2)**: Removes `EFFECT_REROLL_DICE` from `character.effects` (keeps `EFFECT_NO_DAMAGE_ON_WIN`) and resets dice.
 - **`BattleEndAction`**: Ends the battle after both players have rolled. Uses the pre-calculated scores to determine the winner, reduces the loser's health by 1 with level-based death handling:

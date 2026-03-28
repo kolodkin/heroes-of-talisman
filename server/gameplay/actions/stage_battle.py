@@ -11,7 +11,7 @@ This module implements actions for the battle stage:
 import random
 from .action import Action
 from ..common import GameException, ReportedException
-from ..abilities import ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2
+from ..abilities import ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3
 from ..effects import EFFECT_NO_DAMAGE_ON_WIN, EFFECT_REROLL_DICE
 from ..gameplay import (
     STAGE_BATTLE_DICE_ROLL,
@@ -301,6 +301,9 @@ class RerollEffectAction(Action):
         elif ABILITY_BOUNCING_ARROW in active_character.active_abilities:
             # Standard L1 reroll: consume ability
             active_character.active_abilities.remove(ABILITY_BOUNCING_ARROW)
+        elif ABILITY_BOUNCING_ARROW_L3 in active_character.active_abilities:
+            # L3 reroll: same as L1, consume ability
+            active_character.active_abilities.remove(ABILITY_BOUNCING_ARROW_L3)
         elif EFFECT_REROLL_DICE in active_character.effects:
             # Second reroll for L2 archer: consume the string effect (keep NO_DAMAGE_ON_WIN)
             active_character.effects.remove(EFFECT_REROLL_DICE)

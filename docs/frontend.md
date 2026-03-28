@@ -152,8 +152,9 @@ Each game stage has its own dedicated component that renders the appropriate UI 
     - Appears after both players have rolled AND there is a winner
     - Only active player can click
     - Invokes `battle_end` action → reduces loser's health by 1 → transitions to `character_select` stage with next player (circular rotation) as new active player
+  - **Reroll Effect Button**: Appears when active player lost and has `reroll_dice_available` (bouncing_arrow ability). Only active player can click. Invokes `action_reroll_effect` → consumes the reroll ability and resets dice for another roll.
   - All connected players see synchronized battle state
-  - Actions: `active_player_roll`, `opponent_roll`, `action_reroll`, `battle_end`
+  - Actions: `active_player_roll`, `opponent_roll`, `action_reroll`, `action_reroll_effect`, `battle_end`
 
 # Key Components
 
