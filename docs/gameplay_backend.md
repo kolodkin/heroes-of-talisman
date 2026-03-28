@@ -82,30 +82,34 @@ Abilities and cards are stored as **string literal names** on the character (`ac
 
 Each character level has exactly one set of abilities — higher-level abilities **replace** lower-level ones, they do not stack. A character only has the abilities for their current level (e.g., a level 2 Mage has `storm` and `dragon_breath`, not `freeze`).
 
-| Ability             | Character | Level | Effect                     | `apply_to`          | When Applied                  | When Cleared                               |
-| ------------------- | --------- | ----- | -------------------------- | ------------------- | ----------------------------- | ------------------------------------------ |
-| `BATTLE_HOWL`       | Knight    | 1     | `AttackBonusEffect(+2)`    | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
-| `DISARM`            | Knight    | 2     | `DrawCardEffect`           | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
-| `BOUNCING_ARROW`    | Archer    | 1     | `RerollDiceEffect`         | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
-| `BOUNCING_ARROW_L2` | Archer    | 2     | `RerollDiceEffect` (×2)    | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
-| `FREEZE`            | Mage      | 1     | `SkipTurnEffect`           | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction` |
-| `STORM`             | Mage      | 2     | `AttackNegBonusEffect(-2)` | `battle_opponent`   | `AbilitySelectAction`         | `BattleEndAction`                          |
-| `DRAGON_BREATH`     | Mage      | 2     | `NeutralizeItemEffect`     | `selected_opponent` | `AbilityItemSelectAction`     | instant (no persist)                       |
+See [Abilities & Effects](/docs/gameplay_spec.md#abilities--effects) for the full ability list with character, level, and descriptions.
+
+| Ability             | Effect                     | `apply_to`          | When Applied                  | When Cleared                               |
+| ------------------- | -------------------------- | ------------------- | ----------------------------- | ------------------------------------------ |
+| `BATTLE_HOWL`       | `AttackBonusEffect(+2)`    | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `DISARM`            | `DrawCardEffect`           | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `BOUNCING_ARROW`    | `RerollDiceEffect`         | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `BOUNCING_ARROW_L2` | `RerollDiceEffect` (×2)    | `self`              | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `FREEZE`            | `SkipTurnEffect`           | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction` |
+| `STORM`             | `AttackNegBonusEffect(-2)` | `battle_opponent`   | `AbilitySelectAction`         | `BattleEndAction`                          |
+| `DRAGON_BREATH`     | `NeutralizeItemEffect`     | `selected_opponent` | `AbilityItemSelectAction`     | instant (no persist)                       |
 
 # Cards
 
 Generic `Deck[T]` with `draw()` method that auto-resets with shuffled cards when empty. Instant cards are applied immediately. Persistent cards are stored in `character.cards`. Restricted characters skip the card.
 
-| Card            | Effect                                                                                | Type       | Restrictions |
-| --------------- | ------------------------------------------------------------------------------------- | ---------- | ------------ |
-| `metal_armor`   | `defense_bonus += 2`                                                                  | Persistent | None         |
-| `sacred_sword`  | `attack_bonus += 3`                                                                   | Persistent | Archer       |
-| `golden_apple`  | `health += 1` (capped at max)                                                         | Instant    | None         |
-| `magic_ball`    | Level up (+1 level, heal to max)                                                      | Instant    | None         |
-| `devils_fork`   | Level down (-1 level), no effect at L1                                                | Instant    | None         |
-| `darkness_rise` | Skip turn for all alive chars above L1                                                | Instant    | None         |
-| `talisman`      | `has_talisman = True`                                                                 | Persistent | None         |
-| `fog`           | Skip active player's turn unless ALL their alive chars are level 3+ (they resist fog) | Instant    | None         |
+See [Cards](/docs/gameplay_spec.md#cards) for the full card list with types, descriptions, and restrictions.
+
+| Card            | Implementation Effect                                                                 |
+| --------------- | ------------------------------------------------------------------------------------- |
+| `metal_armor`   | `defense_bonus += 2`                                                                  |
+| `sacred_sword`  | `attack_bonus += 3`                                                                   |
+| `golden_apple`  | `health += 1` (capped at max)                                                         |
+| `magic_ball`    | Level up (+1 level, heal to max)                                                      |
+| `devils_fork`   | Level down (-1 level), no effect at L1                                                |
+| `darkness_rise` | Skip turn for all alive chars above L1                                                |
+| `talisman`      | `has_talisman = True`                                                                 |
+| `fog`           | Skip active player's turn unless ALL their alive chars are level 3+ (they resist fog) |
 
 # Action Cleanup
 

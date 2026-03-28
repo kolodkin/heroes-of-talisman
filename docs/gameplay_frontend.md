@@ -233,7 +233,7 @@ Characters that hold cards display small icons in their stats row, based on `cha
 
 ## AbilityCard
 
-Displays a character ability with image, name, and description (`src/components/AbilityCard.jsx`).
+Displays a character ability with image, name, and description (`src/components/AbilityCard.jsx`). See [Abilities & Effects](/docs/gameplay_spec.md#abilities--effects) for the full ability list.
 
 **Props:**
 
@@ -254,7 +254,7 @@ Displays a character ability with image, name, and description (`src/components/
 
 ## GameplayCard
 
-Displays a game card with image, name, and description (`src/components/GameplayCard.jsx`).
+Displays a game card with image, name, and description (`src/components/GameplayCard.jsx`). See [Cards](/docs/gameplay_spec.md#cards) for the full card list.
 
 **Props:**
 
