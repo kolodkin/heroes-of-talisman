@@ -186,7 +186,7 @@ Character cards represent individual characters belonging to players. Each chara
 
 **Data Model** (from backend):
 
-- `level`: Character level (1 or 2). Higher levels have improved stats. See [Character Levels](/docs/gameplay.md#character-levels) for stats per level.
+- `level`: Character level (1 to 4). Higher levels have improved stats. See [Character Levels](/docs/gameplay.md#character-levels) for stats per level.
 - `health`: Current health points
 - `max_health`: Maximum health points (varies by level)
 - `dice`: Number of dice to roll in battle (varies by level)

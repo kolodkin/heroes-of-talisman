@@ -87,7 +87,7 @@ See [Abilities & Effects](/docs/gameplay.md#abilities--effects) for the full abi
 | Ability             | Effect                                                              | `apply_to`          | When Applied                  | When Cleared                                       |
 | ------------------- | ------------------------------------------------------------------- | ------------------- | ----------------------------- | -------------------------------------------------- |
 | `BATTLE_HOWL`       | `AttackBonusEffect(+2)`                                             | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                  |
-| `DISARM`            | `DrawCardEffect` — routes to `card_draw` stage instead of battle   | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                  |
+| `DISARM`            | `DrawCardEffect` — routes to `card_draw` stage; after card drawn, turn ends (rotates to next player, skips battle entirely) | `self` | `AbilitySelectAction` | `CardSelectAction` (turn rotation, no `BattleEndAction`) |
 | `BOUNCING_ARROW`    | `RerollDiceEffect`                                                  | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                  |
 | `BOUNCING_ARROW_L2` | `RerollDiceEffect` (×2)                                             | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                  |
 | `BOUNCING_ARROW_L3` | `RerollDiceEffect`                                                  | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                  |
