@@ -1,5 +1,7 @@
 import { test as base, expect } from "@playwright/test";
 
+import { createPresetGameViaAPI } from "./api_helpers.js";
+
 export const FRONTEND_URL = `http://localhost:${process.env.WWW_PORT ?? "5173"}`;
 export const TIMEOUT = 1000;
 
@@ -169,6 +171,74 @@ export async function expandPlayersMenuIfCollapsed(page) {
   if (await gamePlay.isVisible().catch(() => false)) {
     const expandButton = page.locator("[data-expand-button]");
     await expandButton.click();
+  }
+}
+
+/**
+ * Set up a two-player preset game and join both players.
+ * Returns page2 which must be closed after the test completes.
+ * @param {Page} page - Playwright page for player1
+ * @param {string} gameName - Game name (from gameName fixture)
+ * @param {string} presetName - Preset name (e.g., "battle_player_1_win")
+ * @param {string} p1Selector - Selector to wait for after player1 joins (default: '[data-battle-participant]')
+ * @param {string} p2Selector - Selector to wait for after player2 joins (default: '[data-game-stage]')
+ * @returns {Promise<Page>} page2 - The second player's page
+ */
+export async function setupPresetGame(
+  page,
+  gameName,
+  presetName,
+  p1Selector = "[data-battle-participant]",
+  p2Selector = "[data-game-stage]",
+) {
+  await createPresetGameViaAPI(gameName, presetName);
+  await joinGameViaUrl(page, "player1", gameName, p1Selector);
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName, p2Selector);
+  return page2;
+}
+
+/**
+ * Expand the players menu (if collapsed) and expand all character cards.
+ * @param {Page} page - Playwright page object
+ */
+export async function expandAllPlayers(page) {
+  await expandPlayersMenuIfCollapsed(page);
+  await page.getByRole("button", { name: "Expand all players" }).click();
+}
+
+/**
+ * Collapse all character cards by clicking "Minimize all players".
+ * @param {Page} page - Playwright page object
+ */
+export async function collapseAllPlayers(page) {
+  await page.getByRole("button", { name: "Minimize all players" }).click();
+}
+
+/**
+ * Get a character card locator for a specific player and character.
+ * @param {Page} page - Playwright page object
+ * @param {string} playerName - Player name (e.g., "player1")
+ * @param {string} characterName - Character name (e.g., "knight")
+ * @returns {Locator} Playwright locator for the character card
+ */
+export function getCharacterCard(page, playerName, characterName) {
+  return page.locator(`[data-player="${playerName}"] [data-player-cards] [data-character="${characterName}"]`);
+}
+
+/**
+ * Assert the level and/or health of a character card.
+ * @param {Locator} card - Playwright locator for the character card
+ * @param {Object} state - Expected state
+ * @param {string|number} [state.level] - Expected data-level attribute value
+ * @param {string} [state.health] - Expected health text (e.g., "[1/2]")
+ */
+export async function expectCharacterState(card, { level, health } = {}) {
+  if (level !== undefined) {
+    await expect(card).toHaveAttribute("data-level", String(level));
+  }
+  if (health !== undefined) {
+    await expect(card).toContainText(health);
   }
 }
 

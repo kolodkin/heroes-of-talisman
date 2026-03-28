@@ -1,11 +1,12 @@
-import { createPresetGameViaAPI } from "./api_helpers.js";
 import {
   test,
   expect,
   screenshot,
-  joinGameViaUrl,
   waitForStage,
-  expandPlayersMenuIfCollapsed,
+  setupPresetGame,
+  expandAllPlayers,
+  collapseAllPlayers,
+  getCharacterCard,
   getScore,
   verifyWinner,
 } from "./test_helpers.js";
@@ -27,14 +28,7 @@ import {
 
 
 test("archer L2 ability selection shows only bouncing_arrow_l2", async ({ page, gameName }) => {
-  await createPresetGameViaAPI(gameName, "ability_selection_archer_l2");
-
-  // Player1 joins (archer L2)
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "ability_selection_archer_l2", "[data-ability]");
 
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 
@@ -54,12 +48,7 @@ test("archer L2 ability selection shows only bouncing_arrow_l2", async ({ page, 
 });
 
 test("archer L2 selects bouncing_arrow_l2, skips to opponent_selection", async ({ page, gameName }) => {
-  await createPresetGameViaAPI(gameName, "ability_selection_archer_l2");
-
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "ability_selection_archer_l2", "[data-ability]");
 
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 
@@ -85,12 +74,7 @@ test("archer L2 selects bouncing_arrow_l2, skips to opponent_selection", async (
 test("archer L2 - first reroll: bouncing_arrow_l2 sets up second reroll with no-damage", async ({ page, gameName }) => {
   // Preset: archer L2 with bouncing_arrow_l2 active ability, lost to mage (score 4 < 5)
   // Stage stays in battle_dice_roll because reroll is available
-  await createPresetGameViaAPI(gameName, "effect_reroll");
-
-  await joinGameViaUrl(page, "player1", gameName);
-
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName);
+  const page2 = await setupPresetGame(page, gameName, "effect_reroll");
 
   // Verify archer has reroll_dice effect
   const activeCharacterCard = page.locator('[data-battle-role="active"] [data-character="archer"]');
@@ -121,12 +105,7 @@ test("archer L2 - second reroll state: reroll_dice and no_damage_on_win effects 
   gameName,
 }) => {
   // Preset: archer L2 in second-reroll state (EFFECT_REROLL_DICE + EFFECT_NO_DAMAGE_ON_WIN in effects)
-  await createPresetGameViaAPI(gameName, "effect_reroll_l2_first");
-
-  await joinGameViaUrl(page, "player1", gameName);
-
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName);
+  const page2 = await setupPresetGame(page, gameName, "effect_reroll_l2_first");
 
   // Archer should have both reroll_dice and no_damage_on_win effects
   const activeCharacterCard = page.locator('[data-battle-role="active"] [data-character="archer"]');
@@ -164,12 +143,7 @@ test("archer L2 - wins on second reroll: opponent takes no damage", async ({ pag
   // Preset: archer L2 wins battle_end with no_damage_on_win effect active
   // Archer: dice=[6], attack=2, score=8 > Mage: dice=[3], score=3
   // Mage health should NOT decrease
-  await createPresetGameViaAPI(gameName, "effect_reroll_l2_second");
-
-  await joinGameViaUrl(page, "player1", gameName);
-
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName);
+  const page2 = await setupPresetGame(page, gameName, "effect_reroll_l2_second");
 
   // Verify we're in battle_end stage, archer has no_damage_on_win
   await expect(page.locator('[data-game-stage="battle_end"]')).toBeVisible();
@@ -181,18 +155,14 @@ test("archer L2 - wins on second reroll: opponent takes no damage", async ({ pag
   await screenshot(page, "archer-l2-second-reroll-win-no-damage-before");
 
   // Expand players to read mage health before
-  await expandPlayersMenuIfCollapsed(page);
-  const expandButton = page.getByRole("button", { name: "Expand all players" });
-  await expandButton.click();
+  await expandAllPlayers(page);
 
-  const player2Div = page.locator('[data-player="player2"]');
-  const mageCard = player2Div.locator('[data-player-cards] [data-character="mage"]');
+  const mageCard = getCharacterCard(page, "player2", "mage");
   // Mage L1 has health=2/2 (default) - no damage taken yet
   await expect(mageCard).toContainText("[2/2]");
 
   // Minimize players and click continue
-  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
-  await minimizeButton.click();
+  await collapseAllPlayers(page);
 
   const continueButton = page.locator("[data-continue-button]");
   await expect(continueButton).toBeVisible();
@@ -202,17 +172,14 @@ test("archer L2 - wins on second reroll: opponent takes no damage", async ({ pag
   await waitForStage(page, "character_select");
 
   // Expand players to verify mage health UNCHANGED
-  await expandPlayersMenuIfCollapsed(page);
-  const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
-  await expandButtonAfter.click();
+  await expandAllPlayers(page);
 
   // Mage should still have 2/2 health - no damage from archer's win
   await expect(mageCard).toContainText("[2/2]");
   await screenshot(page, "archer-l2-second-reroll-win-no-damage-after");
 
   // no_damage_on_win effect should be cleared from archer
-  const player1Div = page.locator('[data-player="player1"]');
-  const archerCard = player1Div.locator('[data-player-cards] [data-character="archer"]');
+  const archerCard = getCharacterCard(page, "player1", "archer");
   await expect(archerCard).not.toHaveAttribute("data-effects", /no_damage_on_win/);
 
   await page2.close();

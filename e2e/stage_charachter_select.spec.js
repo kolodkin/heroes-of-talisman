@@ -6,6 +6,7 @@ import {
   joinGameViaUrl,
   waitForStage,
   expandPlayersMenuIfCollapsed,
+  setupPresetGame,
 } from "./test_helpers.js";
 
 /**
@@ -92,14 +93,7 @@ test("character_select stage - knight has skip_turn effect", async ({ page, game
 test("character_select stage - skip_turn effect removed after character selection", async ({ page, gameName }) => {
   // Use ability_selection_mage preset which is already past character_select (and card_draw)
   // This preset has mage selected, and any skip_turn effects should have been disposed
-  await createPresetGameViaAPI(gameName, "ability_selection_mage");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "ability_selection_mage", "[data-ability]");
 
   // We should be at ability_selection stage
   await waitForStage(page, "ability_selection");
@@ -147,14 +141,7 @@ test("character_select stage - no character available shows Skip Turn button", a
 
 test("character_select stage - Skip Turn button passes turn to next player", async ({ page, gameName }) => {
   // Create preset game where all characters are unavailable
-  await createPresetGameViaAPI(gameName, "skip_turn_no_character");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
-
-  // Player2 joins in a new page
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-character]");
+  const page2 = await setupPresetGame(page, gameName, "skip_turn_no_character", "[data-character]", "[data-character]");
 
   // Verify player1 is initially active
   await waitForStage(page, "character_select");

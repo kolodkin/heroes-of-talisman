@@ -1,11 +1,13 @@
-import { createPresetGameViaAPI } from "./api_helpers.js";
 import {
   test,
   expect,
   screenshot,
-  joinGameViaUrl,
   waitForStage,
-  expandPlayersMenuIfCollapsed,
+  setupPresetGame,
+  expandAllPlayers,
+  collapseAllPlayers,
+  getCharacterCard,
+  expectCharacterState,
   getScore,
   verifyWinner,
 } from "./test_helpers.js";
@@ -47,14 +49,7 @@ async function verifyBattleStage(page, activePlayer, opponentPlayer, activeChar,
 
 test("battle stage - player 1 wins", async ({ page, gameName }) => {
   // Create preset game with player 1 winning
-  await createPresetGameViaAPI(gameName, "battle_player_1_win");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName);
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName);
+  const page2 = await setupPresetGame(page, gameName, "battle_player_1_win");
 
   // Verify battle stage
   await verifyBattleStage(page, "player1", "player2", "knight", "mage");
@@ -83,14 +78,7 @@ test("battle stage - player 1 wins", async ({ page, gameName }) => {
 
 test("battle stage - player 2 wins", async ({ page, gameName }) => {
   // Create preset game with player 2 winning
-  await createPresetGameViaAPI(gameName, "battle_player_2_win");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName);
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName);
+  const page2 = await setupPresetGame(page, gameName, "battle_player_2_win");
 
   // Verify battle stage
   await verifyBattleStage(page, "player1", "player2", "mage", "knight");
@@ -119,14 +107,7 @@ test("battle stage - player 2 wins", async ({ page, gameName }) => {
 
 test("battle stage - draw with reroll", async ({ page, gameName }) => {
   // Create preset game with draw
-  await createPresetGameViaAPI(gameName, "battle_draw");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName);
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName);
+  const page2 = await setupPresetGame(page, gameName, "battle_draw");
 
   // Verify battle stage
   await verifyBattleStage(page, "player1", "player2", "knight", "archer");
@@ -177,14 +158,7 @@ test("battle stage - draw with reroll", async ({ page, gameName }) => {
 
 test("battle stage - reroll effect after loss", async ({ page, gameName }) => {
   // Create preset game with reroll effect (archer with reroll vs mage, archer loses)
-  await createPresetGameViaAPI(gameName, "effect_reroll");
-
-  // Player1 joins (archer with reroll effect)
-  await joinGameViaUrl(page, "player1", gameName);
-
-  // Player2 joins (mage)
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName);
+  const page2 = await setupPresetGame(page, gameName, "effect_reroll");
 
   // Verify battle stage
   await verifyBattleStage(page, "player1", "player2", "archer", "mage");
@@ -250,14 +224,7 @@ test("battle stage - draw with attack bonus effect", async ({ page, gameName }) 
   // Player 1: knight with attack_bonus (+2) -> dice=[4] + attack=1 + bonus=2 = 7
   // Player 2: knight with no effects -> dice=[6] + attack=1 = 7
   // Result: Draw (7 == 7)
-  await createPresetGameViaAPI(gameName, "effect_attack_bonus");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName);
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName);
+  const page2 = await setupPresetGame(page, gameName, "effect_attack_bonus");
 
   // Verify battle stage
   await verifyBattleStage(page, "player1", "player2", "knight", "knight");
@@ -296,35 +263,23 @@ test("battle stage - draw with attack bonus effect", async ({ page, gameName }) 
 
 test("battle stage - level 2 knight loses and drops to level 1", async ({ page, gameName }) => {
   // Create preset game at battle_end stage with level 2 knight about to lose
-  await createPresetGameViaAPI(gameName, "battle_level_down");
-
-  // Player1 joins (knight L2)
-  await joinGameViaUrl(page, "player1", gameName);
-
-  // Player2 joins (mage L1)
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName);
+  const page2 = await setupPresetGame(page, gameName, "battle_level_down");
 
   // Verify we're in battle_end stage
   await expect(page.locator('[data-game-stage="battle_end"]')).toBeVisible();
 
   // Expand players to see knight's stats before level down
-  await expandPlayersMenuIfCollapsed(page);
-  const expandButton = page.getByRole("button", { name: "Expand all players" });
-  await expandButton.click();
+  await expandAllPlayers(page);
 
   // Verify knight starts at level 2 with 1 health (about to trigger level down)
-  const player1Div = page.locator('[data-player="player1"]');
-  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
-  await expect(knightCard).toHaveAttribute("data-level", "2");
-  await expect(knightCard).toContainText("[1/3]");
+  const knightCard = getCharacterCard(page, "player1", "knight");
+  await expectCharacterState(knightCard, { level: 2, health: "[1/3]" });
 
   // Screenshot with knight at level 2 before battle ends
   await screenshot(page, "level-down-knight-before-battle-end");
 
   // Minimize players before clicking continue
-  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
-  await minimizeButton.click();
+  await collapseAllPlayers(page);
 
   // Click continue button to end battle (knight loses and should drop level)
   const continueButton = page.locator("[data-continue-button]");
@@ -335,12 +290,10 @@ test("battle stage - level 2 knight loses and drops to level 1", async ({ page, 
   await waitForStage(page, "character_select");
 
   // Expand players to see knight's stats after level down
-  const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
-  await expandButtonAfter.click();
+  await expandAllPlayers(page);
 
   // Verify knight dropped to level 1 with L1 stats (health=2/2, restored to max)
-  await expect(knightCard).toHaveAttribute("data-level", "1");
-  await expect(knightCard).toContainText("[2/2]");
+  await expectCharacterState(knightCard, { level: 1, health: "[2/2]" });
   await screenshot(page, "level-down-knight-after-battle-end");
 
   // Verify knight is still alive (didn't die because was at L2)
@@ -353,14 +306,7 @@ test("battle stage - level 2 knight loses and drops to level 1", async ({ page, 
 test("battle stage - talisman kills opponent at level 2 instead of level down", async ({ page, gameName }) => {
   // Create preset game: knight L2 with talisman wins against mage L2 with 1 health
   // Without talisman, mage would level down to L1. With talisman, mage dies.
-  await createPresetGameViaAPI(gameName, "battle_talisman_kill");
-
-  // Player1 joins (knight L2 with talisman)
-  await joinGameViaUrl(page, "player1", gameName);
-
-  // Player2 joins (mage L2 with 1 health)
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName);
+  const page2 = await setupPresetGame(page, gameName, "battle_talisman_kill");
 
   // Verify we're in battle_end stage
   await expect(page.locator('[data-game-stage="battle_end"]')).toBeVisible();
@@ -375,21 +321,16 @@ test("battle stage - talisman kills opponent at level 2 instead of level down", 
   await waitForStage(page, "character_select");
 
   // Expand players to see character stats after battle end
-  await expandPlayersMenuIfCollapsed(page);
-  const expandButton = page.getByRole("button", { name: "Expand all players" });
-  await expandButton.click();
+  await expandAllPlayers(page);
 
   // Verify knight has talisman icon and is at level 2
-  const player1Div = page.locator('[data-player="player1"]');
-  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
-  await expect(knightCard).toHaveAttribute("data-level", "2");
+  const knightCard = getCharacterCard(page, "player1", "knight");
+  await expectCharacterState(knightCard, { level: 2 });
   await expect(knightCard.locator("[data-icon-talisman]")).toBeVisible();
 
   // Verify mage is DEAD (not level-downed) - level stays at 2, health is 0
-  const player2Div = page.locator('[data-player="player2"]');
-  const mageCard = player2Div.locator('[data-player-cards] [data-character="mage"]');
-  await expect(mageCard).toHaveAttribute("data-level", "2");
-  await expect(mageCard).toContainText("[0/3]");
+  const mageCard = getCharacterCard(page, "player2", "mage");
+  await expectCharacterState(mageCard, { level: 2, health: "[0/3]" });
 
   // Verify mage is marked as dead via data attribute
   await expect(mageCard).toHaveAttribute("data-is-alive", "false");
