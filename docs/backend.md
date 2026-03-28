@@ -117,11 +117,11 @@ See [Cards](/docs/gameplay.md#cards) for the full card list with types, descript
 
 Actions clean up abilities and effects from characters inline when they're no longer relevant. Each action clears the specific list directly:
 
-| Action                  | What is cleared                                                                                  |
-| ----------------------- | ------------------------------------------------------------------------------------------------ |
-| `BattleEndAction`       | `active_abilities = []` on both active and opponent; `no_damage_on_win` from `effects` on active |
-| `CharacterSelectAction` | `effects = []` on all active player's characters                                                 |
-| `SkipTurnAction`        | `effects = []` on all active player's characters                                                 |
+| Action                  | What is cleared                                                                                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BattleEndAction`       | `active_abilities = []` on both active and opponent; `no_damage_on_win` from `effects` on active                                                                    |
+| `CharacterSelectAction` | First decrements `burning_arrow:N` countdowns on ALL characters (applies 2 damage when countdown hits 0); then clears `effects` on active player's characters (preserving any remaining `burning_arrow:N` entries) |
+| `SkipTurnAction`        | Same burning_arrow decrement + damage as above; then clears `effects` on active player's characters (preserving remaining `burning_arrow:N` entries)                 |
 
 **Note:** Persistent cards (`metal_armor`, `sacred_sword`, `talisman`) are never disposed.
 
@@ -132,8 +132,8 @@ Actions clean up abilities and effects from characters inline when they're no lo
 The character selection stage allows players to choose which character will act during their turn. Dead characters (`is_alive=False`) and characters with `SkipTurnEffect` cannot be selected. The `Character.is_available` computed field encapsulates this check (`is_alive and not skip_turn`).
 
 - **`CharacterPressAction`**: Sets `stage_meta['selected']` to the character name pressed by the active player. Validates that the player is active, the stage is `character_select`, the character exists for this player, and the character is alive (`is_alive=True`).
-- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name, **clears `effects`** from all active player's characters, and transitioning the game stage from `character_select` to `ability_selection`. Validates that the selected character is alive. **Auto-selects ability**: If the selected character has only one ability, `stage_meta.selected` is automatically set to that ability's name for the ability selection stage; otherwise `stage_meta` is cleared.
-- **`SkipTurnAction`**: Skips the current player's turn when no character is available for selection (all characters are either dead or have `skip_turn` effect). **Clears `effects`** from all active player's characters, rotates to the next player (circular rotation), and stays in `character_select` stage for the next player's turn.
+- **`CharacterSelectAction`**: Confirms the character selection by setting `selected_character` to the chosen character name, and transitioning the game stage from `character_select` to `ability_selection`. Validates that the selected character is alive. **At turn start**: decrements `burning_arrow:N` countdowns on ALL characters and applies 2 damage when a countdown reaches 0. Then **clears `effects`** from all active player's characters (preserving remaining `burning_arrow:N` entries). **Auto-selects ability**: If the selected character has only one ability, `stage_meta.selected` is automatically set to that ability's name for the ability selection stage; otherwise `stage_meta` is cleared.
+- **`SkipTurnAction`**: Skips the current player's turn when no character is available for selection (all characters are either dead or have `skip_turn` effect). **At turn start**: same burning_arrow countdown processing as `CharacterSelectAction`. Then **clears `effects`** from all active player's characters (preserving remaining `burning_arrow:N` entries), rotates to the next player (circular rotation), and stays in `character_select` stage for the next player's turn.
 
 **Actions:**
 
@@ -146,7 +146,7 @@ The character selection stage allows players to choose which character will act 
 The card draw stage allows players to draw a card from the deck and add it to their character.
 
 - **`CardDrawAction`**: Draws a random card from the deck and stores it in `stage_meta.drawn_card`. The deck auto-resets when empty.
-- **`CardSelectAction`**: Confirms the card selection. Instant cards are applied immediately (see [Available Cards](#available-cards)). Persistent cards are stored in `character.cards`. Restricted characters skip the card. Transitions to `ability_selection` stage.
+- **`CardSelectAction`**: Confirms the card selection. Instant cards are applied immediately (see [Available Cards](#available-cards)). Persistent cards are stored in `character.cards`. Restricted characters skip the card. Transitions to `ability_selection` stage. **Exception (DISARM)**: If the DISARM ability was used this turn (`GamePlay.ability == ABILITY_DISARM`), this is the second card draw — the turn ends immediately via `rotate_to_next_player()` instead of transitioning to `ability_selection`.
 
 **Card Restrictions:**
 
@@ -224,10 +224,11 @@ The battle stage handles dice rolling for both the active player and opponent, f
   - **`BOUNCING_ARROW_L2` (first reroll)**: Removes the ability from `active_abilities`, appends `EFFECT_REROLL_DICE` and `EFFECT_NO_DAMAGE_ON_WIN` to `character.effects`, and resets dice. The second reroll is now available.
   - **`EFFECT_REROLL_DICE` in effects (second reroll for L2)**: Removes `EFFECT_REROLL_DICE` from `character.effects` (keeps `EFFECT_NO_DAMAGE_ON_WIN`) and resets dice.
 - **`BattleEndAction`**: Ends the battle after both players have rolled. Uses the pre-calculated scores to determine the winner, reduces the loser's health by 1 with level-based death handling:
+  - **Active player wins with `burning_arrow` ability**: No direct damage is dealt; instead appends `burning_arrow:2` to the opponent's effects. The 2 damage fires at the start of the active player's next turn via `CharacterSelectAction`.
+  - **Active player wins with `no_damage_on_win` effect**: Damage to opponent is skipped entirely (Archer L2 second reroll)
   - **Winner has talisman and opponent at 0 health**: Opponent dies regardless of level (`is_alive=False`)
   - **Level 2+ character at 0 health** (no talisman): Reduces level by 1 and restores health to new level's max_health (character survives)
   - **Level 1 character at 0 health**: Character dies (`is_alive=False`)
-  - **Active player wins with `no_damage_on_win` effect**: Damage to opponent is skipped entirely (Archer L2 second reroll)
 
   Also clears `active_abilities` from both active and opponent characters, clears `EFFECT_NO_DAMAGE_ON_WIN` from active character's `effects`, sets the next player (circular rotation) as the new active player, and transitions back to `character_select` stage.
 

@@ -238,6 +238,7 @@ Active effects applied to characters should be displayed visually on character c
 - **AttackNegBonusEffect**: Value subtracted from attack stat, make attack text color red
 - **RerollDiceEffect**: Display reroll icon
 - **DefenseBonusEffect**: Defense value applied (no separate icon, armor icon shown via card)
+- **BurningArrowEffect** (`burning_arrow:N`): Stored as string in effects array on the opponent's character; no dedicated icon — tracked internally but not shown to players as a distinct visual indicator
 
 ### Card Icons
 

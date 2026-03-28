@@ -95,6 +95,8 @@ Characters can progress through levels, gaining improved stats at higher levels.
 
 A character dies only when their health hits 0 while at **level 1**. Characters at level 2 or higher will instead lose a level and have their health restored (see Level Progression above). **Exception**: If the winning character holds a **Talisman**, the defeated opponent dies regardless of their level. A dead character can no longer be selected neither as an active player character nor as an opponent.
 
+**No-damage wins**: When Archer L2 uses their second reroll and wins, the `no_damage_on_win` effect is active — no damage is dealt to the opponent that round. Separately, when the `burning_arrow` ability (Archer L3) is used and the archer wins, direct damage is also skipped in favor of a delayed 2-damage effect that fires at the start of the archer's next turn.
+
 # Abilities & Effects
 
 Each character has abilities that trigger effects (attack bonus, skip turn, reroll dice) targeting self, battle opponent, or a selected opponent. Effects persist until disposed by specific game actions.
