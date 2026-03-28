@@ -66,6 +66,14 @@ const resources = {
           name: "חץ קופץ",
           description: "אם מפסיד, מאפשר שני קרבות חוזרים - בשני הקשת לא מוריד חיים אם מנצח",
         },
+        bouncing_arrow_l3: {
+          name: "חץ קופץ",
+          description: "אם מפסיד, מאפשר שני קרבות חוזרים - בשני הקשת לא מוריד חיים אם מנצח",
+        },
+        burning_arrow: {
+          name: "חץ בוער",
+          description: "אם מנצח, לא גורם נזק בתור זה - יגרום 2 נזק ליריב לאחר שני תחילות תור",
+        },
         freeze: {
           name: "הקפאה",
           description: "מונע מדמות לבחירתך להשתתף בסיבוב הבא",
@@ -158,6 +166,7 @@ const resources = {
         continue: "המשך",
         reroll: "גלגל מחדש",
       },
+      loading: "טוען...",
       errors: {
         game_not_found: "המשחק '{{gamename}}' לא נמצא. בדוק את שם המשחק ונסה שוב.",
         connection_failed: "נכשל בהתחברות למשחק. נסה שוב מאוחר יותר.",
