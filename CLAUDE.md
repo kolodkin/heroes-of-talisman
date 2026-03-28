@@ -1,8 +1,8 @@
 # Related Documentation
 
-- [Gameplay Spec](docs/gameplay_spec.md) - Game mechanics and rules
-- [Gameplay Frontend](docs/gameplay_frontend.md) - Frontend implementation details
-- [Gameplay Backend](docs/gameplay_backend.md) - Backend implementation details
+- [Gameplay Spec](docs/gameplay.md) - Game mechanics and rules
+- [Gameplay Frontend](docs/frontend.md) - Frontend implementation details
+- [Gameplay Backend](docs/backend.md) - Backend implementation details
 
 # Git Workflow
 
