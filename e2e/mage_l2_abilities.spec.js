@@ -146,3 +146,53 @@ test("ability_item_selection stage - shows target's items and allows selecting w
   // Cleanup
   await page2.close();
 });
+
+test("ability_item_selection stage - dragon_breath full flow: select target, select item, then opponent", async ({
+  page,
+  gameName,
+}) => {
+  // Full Dragon Breath flow: ability_selection → ability_opponent_selection → ability_item_selection → opponent_selection
+  // Player2's knight has metal_armor and sacred_sword so dragon_breath triggers item selection
+  await createPresetGameViaAPI(gameName, "ability_selection_mage_l2_with_items");
+
+  // Player1 joins
+  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
+
+  // Player2 joins
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+
+  const sharedArea = page.locator('[data-shared-area-active="true"]');
+
+  // Select dragon_breath ability and confirm
+  const dragonBreathAbility = sharedArea.locator('[data-ability="dragon_breath"]');
+  await dragonBreathAbility.click();
+  const selectButton = page.getByRole("button", { name: "בחר" });
+  await selectButton.click();
+
+  // Wait for ability_opponent_selection
+  await waitForStage(page, "ability_opponent_selection");
+  await screenshot(page, "dragon-breath-full-flow-opponent-selection");
+
+  // Click on player2's knight and confirm
+  const knightChar = sharedArea.locator('[data-player="player2"] [data-character="knight"]');
+  await knightChar.click();
+  await selectButton.click();
+
+  // Player2's knight has items → should go to ability_item_selection
+  await waitForStage(page, "ability_item_selection");
+  await screenshot(page, "dragon-breath-full-flow-item-selection");
+
+  // Select metal_armor and confirm
+  const metalArmor = sharedArea.locator('[data-card="metal_armor"]');
+  await metalArmor.click();
+  await expect(metalArmor).toHaveClass(/selected/);
+  await selectButton.click();
+
+  // Should transition to opponent_selection
+  await waitForStage(page, "opponent_selection");
+  await screenshot(page, "dragon-breath-full-flow-complete");
+
+  // Cleanup
+  await page2.close();
+});

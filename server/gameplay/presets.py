@@ -72,6 +72,7 @@ PRESET_EFFECT_REROLL_L2_SECOND = "effect_reroll_l2_second"
 PRESET_ABILITY_SELECTION_ARCHER_L3 = "ability_selection_archer_l3"
 PRESET_BURNING_ARROW_WIN = "burning_arrow_win"
 PRESET_BURNING_ARROW_NEXT_TURN = "burning_arrow_next_turn"
+PRESET_ABILITY_SELECTION_MAGE_L2_WITH_ITEMS = "ability_selection_mage_l2_with_items"
 DebugPresetsType = Literal[
     "default",
     "ability_selection_knight",
@@ -79,6 +80,7 @@ DebugPresetsType = Literal[
     "ability_selection_archer",
     "ability_selection_mage",
     "ability_selection_mage_l2",
+    "ability_selection_mage_l2_with_items",
     "archer_not_alive",
     "battle_draw",
     "battle_level_down",
@@ -215,6 +217,21 @@ def get_debug_preset(
             players={
                 p1_name: Player(name=p1_name, characters=init_characters(level=2)),
                 p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_selection_mage_l2_with_items":
+        # Ability selection stage - player1 has selected mage at level 2
+        # Player2's knight has metal_armor and sacred_sword (for dragon_breath full flow testing)
+        from .cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD
+        characters1 = init_characters(level=2)
+        characters2 = init_characters()
+        characters2[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR, CARD_SACRED_SWORD]
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
+            players={
+                p1_name: Player(name=p1_name, characters=characters1),
+                p2_name: Player(name=p2_name, characters=characters2),
             },
         )
     elif preset == "ability_item_selection_dragon_breath":
