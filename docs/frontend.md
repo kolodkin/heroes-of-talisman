@@ -60,7 +60,7 @@ The application supports both RTL (Hebrew) and LTR layouts using CSS logical pro
 
 # State and API Integration
 
-Game State and API interactions are handled within the [GameHandler](./GameHandler.jsx) component wrapping [GamePlay](./GamePlay.jsx) Component.
+Game State and API interactions are handled within the `src/components/GameHandler.jsx` component wrapping `src/components/GamePlay.jsx`.
 
 # Interactive
 
@@ -97,7 +97,23 @@ Each game stage has its own dedicated component that renders the appropriate UI 
   - After draw action, displays `GameplayCard` with card details
   - Actions: `card_draw` (draw from deck), `card_select` (confirm selection)
   - Non-active players see disabled interactions
-  - Transitions to: `ability_selection`
+  - Transitions to: `ability_selection` (normal), or ends turn (if DISARM ability was used)
+
+- **StageAbilitySelection** (`ability_selection` stage): Player selects which ability to use
+  - Displays ability cards for the selected character plus a "no ability" option
+  - Actions: `ability_press` (highlight), `ability_select` (confirm)
+  - Transitions to: `ability_opponent_selection` (targeted abilities), `card_draw` (DISARM), or `opponent_selection` (self/battle-targeted abilities)
+
+- **StageAbilityOpponentSelection** (`ability_opponent_selection` stage): Player selects an opponent character to apply the ability to
+  - Displays all opponents with their characters (same layout as opponent selection)
+  - Arrow keys cycle through all alive opponent characters
+  - Actions: `ability_opponent_press` (highlight), `ability_opponent_select` (confirm)
+  - Transitions to: `ability_item_selection` (dragon_breath with target holding items) or `opponent_selection`
+
+- **StageAbilityItemSelection** (`ability_item_selection` stage): Player selects which item card to remove from the target character (dragon_breath only)
+  - Displays target character's active item cards as selectable `GameplayCard` components
+  - Actions: `ability_item_press` (highlight), `ability_item_select` (confirm)
+  - Transitions to: `opponent_selection`
 
 - **StageOpponentSelection** (`opponent_selection` stage): Player selects opponent and their character
   - Displays all opponents with their characters (starting minimized)

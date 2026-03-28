@@ -139,9 +139,10 @@ The game progresses through distinct stages during each player's turn. Upon comp
 ## Turn Stages
 
 1. **Character Select** (`character_select`) - Player chooses which character will act during this turn. If no character is available (all dead or have skip turn effect), the player must skip their turn.
-2. **Card Draw** (`card_draw`) - Player draws a card from the deck and decides whether to keep it
+2. **Card Draw** (`card_draw`) - Player draws a card from the deck and decides whether to keep it. _(Exception: if DISARM ability was used, this is a second card draw and the turn ends immediately after — no battle occurs.)_
 3. **Ability Selection** (`ability_selection`) - Player selects which ability to use from the character's available abilities
 4. **Ability Opponent Selection** (`ability_opponent_selection`) - _(Only for effects requiring target selection, e.g., SkipTurnEffect)_ Player selects an opponent character to apply the ability to
-5. **Opponent Selection** (`opponent_selection`) - Player selects an opponent and one of the opponent's characters for battle
-6. **Battle Dice Roll** (`battle_dice_roll`) - Both players roll dice for combat. Battle score = `sum(dice_roll) + attack + attack_bonus + attack_neg_bonus - opponent_defense_bonus`
-7. **Battle End** (`battle_end`) - Combat results (damage) are applied to the loser
+5. **Ability Item Selection** (`ability_item_selection`) - _(Only for `dragon_breath` when the target character holds item cards)_ Player selects which item card to neutralize
+6. **Opponent Selection** (`opponent_selection`) - Player selects an opponent and one of the opponent's characters for battle
+7. **Battle Dice Roll** (`battle_dice_roll`) - Both players roll dice for combat. Battle score = `sum(dice_roll) + attack + attack_bonus + attack_neg_bonus - opponent_defense_bonus`
+8. **Battle End** (`battle_end`) - Combat results (damage) are applied to the loser
