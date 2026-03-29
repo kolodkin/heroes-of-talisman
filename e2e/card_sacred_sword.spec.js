@@ -1,23 +1,17 @@
-import { createPresetGameViaAPI } from "./api_helpers.js";
 import {
   test,
   expect,
   screenshot,
-  joinGameViaUrl,
   waitForStage,
-  expandPlayersMenuIfCollapsed,
+  setupPresetGame,
+  expandAllPlayers,
+  collapseAllPlayers,
+  getCharacterCard,
 } from "./test_helpers.js";
 
 test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, gameName }) => {
   // Create preset game at card_draw stage with archer having drawn sacred_sword
-  await createPresetGameViaAPI(gameName, "card_draw_archer_sacred_sword");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "card_draw_archer_sacred_sword", "[data-card]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
@@ -42,13 +36,10 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
   await waitForStage(page, "ability_selection");
 
   // Expand players to see character cards
-  await expandPlayersMenuIfCollapsed(page);
-  const expandButton = page.getByRole("button", { name: "Expand all players" });
-  await expandButton.click();
+  await expandAllPlayers(page);
 
   // Verify archer does NOT have attack bonus effect (card was restricted)
-  const player1Div = page.locator('[data-player="player1"]');
-  const archerCard = player1Div.locator('[data-player-cards] [data-character="archer"]');
+  const archerCard = getCharacterCard(page, "player1", "archer");
   // Archer should not have attack_bonus effect from sacred_sword
   const effectsAttr = await archerCard.getAttribute("data-effects");
   if (effectsAttr) {
@@ -62,8 +53,7 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
   await screenshot(page, "restricted-card-transition-to-ability");
 
   // Minimize players after check
-  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
-  await minimizeButton.click();
+  await collapseAllPlayers(page);
 
   // Cleanup
   await page2.close();
@@ -71,14 +61,7 @@ test("card_draw stage - archer draws sacred_sword (restricted)", async ({ page, 
 
 test("card_draw stage - knight draws sacred_sword successfully", async ({ page, gameName }) => {
   // Create preset game at card_draw stage with knight having drawn sacred_sword
-  await createPresetGameViaAPI(gameName, "card_draw_knight_sacred_sword");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "card_draw_knight_sacred_sword", "[data-card]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
@@ -103,13 +86,10 @@ test("card_draw stage - knight draws sacred_sword successfully", async ({ page, 
   await waitForStage(page, "ability_selection");
 
   // Expand players to see character cards with sword icon
-  await expandPlayersMenuIfCollapsed(page);
-  const expandButton = page.getByRole("button", { name: "Expand all players" });
-  await expandButton.click();
+  await expandAllPlayers(page);
 
   // Verify knight has the attack bonus effect applied
-  const player1Div = page.locator('[data-player="player1"]');
-  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
+  const knightCard = getCharacterCard(page, "player1", "knight");
   await expect(knightCard).toHaveAttribute("data-effects", /attack_bonus/);
 
   // Verify sword icon is visible on knight card
@@ -119,8 +99,7 @@ test("card_draw stage - knight draws sacred_sword successfully", async ({ page, 
   await screenshot(page, "card-selected-knight-with-sword");
 
   // Minimize players after check
-  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
-  await minimizeButton.click();
+  await collapseAllPlayers(page);
 
   // Cleanup
   await page2.close();

@@ -1,23 +1,17 @@
-import { createPresetGameViaAPI } from "./api_helpers.js";
 import {
   test,
   expect,
   screenshot,
-  joinGameViaUrl,
   waitForStage,
-  expandPlayersMenuIfCollapsed,
+  setupPresetGame,
+  expandAllPlayers,
+  collapseAllPlayers,
+  getCharacterCard,
 } from "./test_helpers.js";
 
 test("card_draw stage - knight draws talisman", async ({ page, gameName }) => {
   // Create preset game at card_draw stage with knight having drawn talisman
-  await createPresetGameViaAPI(gameName, "card_draw_knight_talisman");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "card_draw_knight_talisman", "[data-card]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
@@ -42,13 +36,10 @@ test("card_draw stage - knight draws talisman", async ({ page, gameName }) => {
   await waitForStage(page, "ability_selection");
 
   // Expand players to see character cards with talisman icon
-  await expandPlayersMenuIfCollapsed(page);
-  const expandButton = page.getByRole("button", { name: "Expand all players" });
-  await expandButton.click();
+  await expandAllPlayers(page);
 
   // Verify knight has the talisman effect applied
-  const player1Div = page.locator('[data-player="player1"]');
-  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
+  const knightCard = getCharacterCard(page, "player1", "knight");
   await expect(knightCard).toHaveAttribute("data-effects", /talisman/);
 
   // Verify talisman icon is visible on knight card
@@ -58,8 +49,7 @@ test("card_draw stage - knight draws talisman", async ({ page, gameName }) => {
   await screenshot(page, "card-selected-knight-with-talisman");
 
   // Minimize players after check
-  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
-  await minimizeButton.click();
+  await collapseAllPlayers(page);
 
   // Cleanup
   await page2.close();

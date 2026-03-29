@@ -1,36 +1,28 @@
-import { createPresetGameViaAPI } from "./api_helpers.js";
 import {
   test,
   expect,
   screenshot,
-  joinGameViaUrl,
   waitForStage,
-  expandPlayersMenuIfCollapsed,
+  setupPresetGame,
+  expandAllPlayers,
+  collapseAllPlayers,
+  getCharacterCard,
+  expectCharacterState,
 } from "./test_helpers.js";
 
 test("card_draw stage - knight draws golden_apple and heals", async ({ page, gameName }) => {
   // Create preset game at card_draw stage with damaged knight having drawn golden_apple
-  await createPresetGameViaAPI(gameName, "card_draw_knight_golden_apple");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "card_draw_knight_golden_apple", "[data-card]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
 
   // Expand players to see knight's health before healing
-  await expandPlayersMenuIfCollapsed(page);
-  const expandButton = page.getByRole("button", { name: "Expand all players" });
-  await expandButton.click();
+  await expandAllPlayers(page);
 
   // Verify knight starts at 1 health
-  const player1Div = page.locator('[data-player="player1"]');
-  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
-  await expect(knightCard).toContainText("[1/2]");
+  const knightCard = getCharacterCard(page, "player1", "knight");
+  await expectCharacterState(knightCard, { health: "[1/2]" });
 
   // Verify golden_apple card is visible
   const sharedArea = page.locator('[data-shared-area-active="true"]');
@@ -45,8 +37,7 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
   await screenshot(page, "golden-apple-knight-before-heal");
 
   // Minimize players before card selection so we can expand again after
-  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
-  await minimizeButton.click();
+  await collapseAllPlayers(page);
 
   // Confirm card selection
   const selectButton = page.getByRole("button", { name: "שלוף" });
@@ -58,11 +49,10 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
   await waitForStage(page, "ability_selection");
 
   // Expand players to see knight's health after healing
-  const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
-  await expandButtonAfter.click();
+  await expandAllPlayers(page);
 
   // Verify knight healed to 2 health
-  await expect(knightCard).toContainText("[2/2]");
+  await expectCharacterState(knightCard, { health: "[2/2]" });
   await screenshot(page, "golden-apple-knight-after-heal");
 
   // Cleanup
@@ -71,27 +61,17 @@ test("card_draw stage - knight draws golden_apple and heals", async ({ page, gam
 
 test("card_draw stage - knight at max health draws golden_apple (no overheal)", async ({ page, gameName }) => {
   // Create preset game at card_draw stage with knight at max health having drawn golden_apple
-  await createPresetGameViaAPI(gameName, "card_draw_golden_apple_max_health");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "card_draw_golden_apple_max_health", "[data-card]");
 
   // Verify we're in card_draw stage
   await expect(page.locator('[data-game-stage="card_draw"]')).toBeVisible();
 
   // Expand players to see knight's health before card
-  await expandPlayersMenuIfCollapsed(page);
-  const expandButton = page.getByRole("button", { name: "Expand all players" });
-  await expandButton.click();
+  await expandAllPlayers(page);
 
   // Verify knight starts at max health (2/2)
-  const player1Div = page.locator('[data-player="player1"]');
-  const knightCard = player1Div.locator('[data-player-cards] [data-character="knight"]');
-  await expect(knightCard).toContainText("[2/2]");
+  const knightCard = getCharacterCard(page, "player1", "knight");
+  await expectCharacterState(knightCard, { health: "[2/2]" });
 
   // Verify golden_apple card is visible
   const sharedArea = page.locator('[data-shared-area-active="true"]');
@@ -102,8 +82,7 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
   await screenshot(page, "golden-apple-knight-max-health-before");
 
   // Minimize players before card selection so we can expand again after
-  const minimizeButton = page.getByRole("button", { name: "Minimize all players" });
-  await minimizeButton.click();
+  await collapseAllPlayers(page);
 
   // Confirm card selection
   const selectButton = page.getByRole("button", { name: "שלוף" });
@@ -115,12 +94,10 @@ test("card_draw stage - knight at max health draws golden_apple (no overheal)", 
   await waitForStage(page, "ability_selection");
 
   // Expand players to see knight's health after card
-  const expandButtonAfter = page.getByRole("button", { name: "Expand all players" });
-  await expect(expandButtonAfter).toBeVisible();
-  await expandButtonAfter.click();
+  await expandAllPlayers(page);
 
   // Verify knight is still at max health (no overheal)
-  await expect(knightCard).toContainText("[2/2]");
+  await expectCharacterState(knightCard, { health: "[2/2]" });
   await screenshot(page, "golden-apple-knight-max-health-after");
 
   // Cleanup

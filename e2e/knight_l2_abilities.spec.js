@@ -1,5 +1,4 @@
-import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, joinGameViaUrl, waitForStage, TIMEOUT } from "./test_helpers.js";
+import { test, expect, screenshot, waitForStage, setupPresetGame, TIMEOUT } from "./test_helpers.js";
 
 test("ability_selection stage - knight L2 disarm: shows only disarm ability, routes to card_draw, turn ends", async ({
   page,
@@ -7,14 +6,7 @@ test("ability_selection stage - knight L2 disarm: shows only disarm ability, rou
 }) => {
   // Knight L2 has its own skill: disarm only (not L1's battle_howl)
   // Selects disarm → card_draw → draws second card → turn ends (character_select for player2)
-  await createPresetGameViaAPI(gameName, "ability_selection_knight_l2");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "ability_selection_knight_l2", "[data-ability]");
 
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 

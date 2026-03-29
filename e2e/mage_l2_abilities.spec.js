@@ -1,16 +1,8 @@
-import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, joinGameViaUrl, waitForStage } from "./test_helpers.js";
+import { test, expect, screenshot, waitForStage, setupPresetGame } from "./test_helpers.js";
 
 test("ability_selection stage - mage L2 shows two abilities (storm, dragon_breath)", async ({ page, gameName }) => {
   // Mage L2 has two abilities: storm and dragon_breath
-  await createPresetGameViaAPI(gameName, "ability_selection_mage_l2");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "ability_selection_mage_l2", "[data-ability]");
 
   // Verify we're in ability_selection stage
   const sharedArea = page.locator('[data-shared-area-active="true"]');
@@ -37,14 +29,7 @@ test("ability_selection stage - mage L2 shows two abilities (storm, dragon_breat
 
 test("ability_selection stage - mage L2 selects storm, goes to opponent_selection", async ({ page, gameName }) => {
   // Storm has APPLY_TO_BATTLE_OPPONENT → goes directly to opponent_selection (no target pre-selection)
-  await createPresetGameViaAPI(gameName, "ability_selection_mage_l2");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "ability_selection_mage_l2", "[data-ability]");
 
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 
@@ -74,14 +59,7 @@ test("ability_selection stage - mage L2 selects dragon_breath, goes to ability_o
   gameName,
 }) => {
   // Dragon Breath has APPLY_TO_SELECTED_OPPONENT → requires target selection first
-  await createPresetGameViaAPI(gameName, "ability_selection_mage_l2");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "ability_selection_mage_l2", "[data-ability]");
 
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 
@@ -112,14 +90,7 @@ test("ability_item_selection stage - shows target's items and allows selecting w
 }) => {
   // Start at ability_item_selection stage: player1 used Dragon Breath on player2's knight
   // Player2's knight has metal_armor and sacred_sword
-  await createPresetGameViaAPI(gameName, "ability_item_selection_dragon_breath");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-card]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "ability_item_selection_dragon_breath", "[data-card]");
 
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 
@@ -153,14 +124,7 @@ test("ability_item_selection stage - dragon_breath full flow: select target, sel
 }) => {
   // Full Dragon Breath flow: ability_selection → ability_opponent_selection → ability_item_selection → opponent_selection
   // Player2's knight has metal_armor and sacred_sword so dragon_breath triggers item selection
-  await createPresetGameViaAPI(gameName, "ability_selection_mage_l2_with_items");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "ability_selection_mage_l2_with_items", "[data-ability]");
 
   const sharedArea = page.locator('[data-shared-area-active="true"]');
 
