@@ -142,8 +142,9 @@ class CardSelectAction(Action):
                         for char in alive_chars:
                             char.effects.append(EFFECT_SKIP_TURN)
                 else:
-                    # Persistent card effect - add card name to active_cards
-                    character.active_cards.append(drawn_card_name)
+                    # Persistent card effect - add card name to active_cards (no duplicates)
+                    if drawn_card_name not in character.active_cards:
+                        character.active_cards.append(drawn_card_name)
                     break  # Only add card name once
 
             # Add the card to the character's card list

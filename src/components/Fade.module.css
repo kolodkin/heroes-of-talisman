@@ -1,10 +1,10 @@
 .item {
-  animation: fadeIn 3s ease-out both;
+  animation: fadeIn 2s ease-out both;
   animation-delay: var(--enter-delay, 0s);
 }
 
 .itemLeaving {
-  animation: fadeOut 0.5s ease-in both;
+  animation: fadeOut 0.333s ease-in both;
   animation-delay: var(--enter-delay, 0s);
 }
 
@@ -23,5 +23,12 @@
   }
   to {
     opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .itemLeaving {
+    animation: none;
   }
 }
