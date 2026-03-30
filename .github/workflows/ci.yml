@@ -30,6 +30,8 @@ jobs:
           --health-timeout=5s --health-retries=5
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -37,8 +39,6 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
-
-      - uses: actions/checkout@v4
 
       - name: Run setup
         run: ./scripts/setup --no-docker
@@ -83,6 +83,8 @@ jobs:
           --health-cmd="redis-cli ping" --health-interval=10s
           --health-timeout=5s --health-retries=5
     steps:
+      - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -94,8 +96,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-
-      - uses: actions/checkout@v4
 
       - name: Run setup
         run: ./scripts/setup --no-docker
