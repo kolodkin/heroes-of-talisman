@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   pull_request:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_RUNNER_NODE_VERSION: node24
+
 jobs:
   test-backend:
     runs-on: ubuntu-latest
