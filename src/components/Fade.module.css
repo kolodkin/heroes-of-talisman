@@ -4,7 +4,7 @@
 }
 
 .itemLeaving {
-  animation: fadeOut 0.333s ease-in both;
+  animation: fadeOut 333ms ease-in both;
   animation-delay: var(--enter-delay, 0s);
   pointer-events: none;
 }

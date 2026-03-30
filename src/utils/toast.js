@@ -1,6 +1,6 @@
 import { toast as realToast, ToastContainer as RealToastContainer } from "react-toastify";
 
-const isE2E = import.meta.env.VITE_E2E === "true";
+import { isE2E } from "./env";
 
 export const toast = isE2E
   ? Object.assign((msg) => console.log("toast", msg), {

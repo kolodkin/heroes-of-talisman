@@ -2,7 +2,8 @@ import React, { createContext, forwardRef, useContext } from "react";
 
 import styles from "./Fade.module.css";
 
-const DELAY_STEP = 0.07;
+export const FADE_OUT_MS = 333;
+export const DELAY_STEP = 0.07;
 
 const FadeContext = createContext(false);
 

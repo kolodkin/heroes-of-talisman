@@ -13,7 +13,8 @@ import StageOpponentSelection from "./StageOpponentSelection";
 import StageBattle from "./StageBattle";
 import Player from "./Player";
 import { StatusIndicator } from "./StatusIndicator";
-import { FadeProvider } from "./Fade";
+import { FadeProvider, FADE_OUT_MS } from "./Fade";
+import { isE2E } from "../utils/env";
 import {
   CHARACTER_SELECT,
   CARD_DRAW,
@@ -67,10 +68,13 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
     if (gamePlay.stage !== prevStageRef.current) {
       prevStageRef.current = gamePlay.stage;
       setLeaving(true);
-      const timer = setTimeout(() => {
-        setDisplayedGamePlay(gamePlay);
-        setLeaving(false);
-      }, 500);
+      const timer = setTimeout(
+        () => {
+          setDisplayedGamePlay(gamePlay);
+          setLeaving(false);
+        },
+        isE2E ? 0 : FADE_OUT_MS,
+      );
       return () => clearTimeout(timer);
     } else {
       setDisplayedGamePlay(gamePlay);
