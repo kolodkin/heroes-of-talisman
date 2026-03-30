@@ -1,5 +1,5 @@
 import { createGameViaAPI } from "./api_helpers.js";
-import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame, dismissConnectionToast } from "./test_helpers.js";
+import { test, expect, TIMEOUT, screenshot, setupHomePage, joinGame, dismissToasts } from "./test_helpers.js";
 
 test("players menu minimized by default on desktop with expand minimize and collapse", async ({
   page,
@@ -48,7 +48,7 @@ test("players menu minimized by default on desktop with expand minimize and coll
   await expect(playerDiv.getByText(/דרגה 1/).first()).toBeVisible(); // level 1
 
   // Dismiss any lingering connection toast before clicking
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
 
   // Click expand/minimize button to expand all players
   await expandMinimizeButton.click();

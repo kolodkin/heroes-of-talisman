@@ -219,7 +219,7 @@ async function findConsecutiveDuplicates(tests) {
         }
       }
       return dupes;
-    })
+    }),
   );
 
   const duplicates = perTestDuplicates.flat();

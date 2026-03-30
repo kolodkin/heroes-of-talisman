@@ -59,6 +59,9 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
 
+    /* Disable CSS animations/transitions for stable screenshots */
+    reducedMotion: "reduce",
+
     /* Launch options for browsers - configured via PLAYWRIGHT_BROWSER_ARGS env var */
     launchOptions: {
       args: browserArgs,

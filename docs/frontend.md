@@ -156,6 +156,29 @@ Each game stage has its own dedicated component that renders the appropriate UI 
   - All connected players see synchronized battle state
   - Actions: `active_player_roll`, `opponent_roll`, `action_reroll`, `action_reroll_effect`, `battle_end`
 
+# Stage Transitions (Fade)
+
+When the game stage changes, content fades out then fades in sequentially (no crossfade).
+
+**Files:** `Fade.jsx`, `Fade.module.css`, `GamePlay.jsx`
+
+**Flow:**
+
+1. `GamePlay.jsx` detects `gamePlay.stage` change
+2. Sets `leaving=true` → `FadeProvider` propagates to all `<Fade>` children
+3. Children get `.itemLeaving` class (fade-out: `FADE_OUT_MS` = 333ms)
+4. After `FADE_OUT_MS` timeout, swaps content and sets `leaving=false`
+5. Children get `.item` class (fade-in: 2s, staggered by `DELAY_STEP` = 0.07s per child)
+
+**E2E:** When `VITE_E2E=true`, the transition timeout is 0 (instant swap, no waiting).
+
+**Constants (from `Fade.jsx`):**
+
+- `FADE_OUT_MS` — fade-out duration in ms, used by both CSS and JS timeout
+- `DELAY_STEP` — stagger delay per child element in seconds
+
+**Accessibility:** `prefers-reduced-motion: reduce` disables all animations.
+
 # Key Components
 
 ## Navbar

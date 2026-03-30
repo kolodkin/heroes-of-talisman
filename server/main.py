@@ -306,7 +306,13 @@ async def game_update_loop(websocket: WebSocket, redis_meta: RedisMeta, pubsub):
                 event_action = data.get("event_action", "unknown")
                 logger.info(f"User '{redis_meta.username}' received game_update event from action '{event_action}'")
                 async with AsyncSessionLocal() as session:
-                    game_engine = await from_database(session, redis_meta)
+                    try:
+                        game_engine = await from_database(session, redis_meta)
+                    except HTTPException:
+                        logger.info(f"Game '{redis_meta.gamename}' no longer exists, closing connection for '{redis_meta.username}'")
+                        await websocket.send_json({"error": "Game not found"})
+                        await websocket.close()
+                        return
                     try:
                         await websocket.send_json(
                             {
@@ -361,6 +367,28 @@ async def actions_loop(websocket: WebSocket, redis_meta: RedisMeta):
         await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update", event_action=action_name)))
 
 
+async def handle_disconnect(redis_meta: RedisMeta, gamename: str, username: str):
+    """Handle WebSocket disconnect by running disconnect action and notifying clients.
+    Gracefully handles the case where the game was already deleted."""
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(select(GameTable).where(GameTable.name == redis_meta.gamename).with_for_update())
+        game_db = result.scalar_one_or_none()
+
+        if game_db is None:
+            logger.info(f"Game '{gamename}' no longer exists during disconnect for '{username}'")
+            return
+
+        game_model = GamePlay.model_validate(game_db.data)
+        game_engine = GameEngine(redis_meta.gamename, redis_meta.username, game_model)
+        game_engine.run_action("disconnect")
+
+        game_db.data = game_engine.game.db_model_dump()
+        await session.commit()
+
+    await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
+    logger.info(f"Client '{username}' disconnected from game '{gamename}'")
+
+
 @app.websocket("/ws/{gamename}/{username}")
 async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
     redis_meta = RedisMeta(gamename, username)
@@ -391,18 +419,7 @@ async def ws_game_endpoint(websocket: WebSocket, gamename: str, username: str):
             actions_loop(websocket, redis_meta),
         )
     except WebSocketDisconnect:
-        async with AsyncSessionLocal() as session:
-            game_engine, game_db = await from_database_locked(session, redis_meta)
-            game_engine.run_action("disconnect")
-
-            # Save to database
-            game_db.data = game_engine.game.db_model_dump()
-            await session.commit()
-
-            # Notify connected clients
-            await redis_client.publish(redis_meta.channel, json.dumps(dict(event="game_update")))
-
-        logger.info(f"Client '{username}' disconnected from game '{gamename}'")
+        await handle_disconnect(redis_meta, gamename, username)
     finally:
         # Perform any cleanup actions here
         logger.info(f"Connection to game '{gamename}' closed for user '{username}'")

@@ -371,29 +371,53 @@ poll_checks() {
     echo ""
 
     # Watch until all checks complete
+    # Exit codes: 0 = all passed, 1 = some failed, 8 = still pending
     echo -e "${BLUE}⏳ Watching checks until completion...${NC}"
-    if timeout 1200 gh pr checks "$PR_NUMBER" --repo "$REPO" --watch 2>/dev/null; then
+    POLL_START=$(date +%s)
+    POLL_TIMEOUT=1200
+
+    while true; do
+        ELAPSED=$(( $(date +%s) - POLL_START ))
+        REMAINING=$(( POLL_TIMEOUT - ELAPSED ))
+        if [ "$REMAINING" -le 0 ]; then
+            echo -e "${RED}⏰ Timeout — checks still pending after ${POLL_TIMEOUT}s${NC}"
+            gh pr checks "$PR_NUMBER" --repo "$REPO" 2>/dev/null || true
+            exit 1
+        fi
+
+        set +e
+        timeout "$REMAINING" gh pr checks "$PR_NUMBER" --repo "$REPO" --watch 2>/dev/null
+        WATCH_EXIT=$?
+        set -e
+
+        # Exit 8 = checks still pending — retry
+        if [ "$WATCH_EXIT" -eq 8 ]; then
+            echo -e "${YELLOW}  ⏳ Checks still pending (${ELAPSED}s elapsed), retrying...${NC}"
+            sleep 5
+            continue
+        fi
+
+        break
+    done
+
+    if [ "$WATCH_EXIT" -eq 0 ]; then
         echo ""
         echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo -e "${GREEN}STATUS: SUCCESS${NC}"
         echo -e "${GREEN}PR: #$PR_NUMBER${NC}"
         echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-        # Print artifacts link
         RUN_ID=$(gh run list --repo "$REPO" --branch "$BRANCH" --limit 1 --json databaseId -q '.[0].databaseId' 2>/dev/null)
         print_artifacts_link "$RUN_ID"
 
-        # Check for PR review comments after CI passes
         check_review_comments
         exit 0
     fi
 
-    # --watch exited non-zero: could be actual CI failure or just review-required status
-    # Check if any CI checks actually failed
+    # Non-zero, non-pending: check if it's a real CI failure or just review-required
     FAILED_CHECKS=$(gh pr checks "$PR_NUMBER" --repo "$REPO" 2>/dev/null | grep -c "fail" || true)
 
     if [ "$FAILED_CHECKS" -eq 0 ]; then
-        # All checks passed - likely review-required or pending status
         echo ""
         echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
         echo -e "${GREEN}STATUS: ALL CI CHECKS PASSED${NC}"
@@ -402,7 +426,6 @@ poll_checks() {
         echo ""
         gh pr checks "$PR_NUMBER" --repo "$REPO" 2>/dev/null || true
 
-        # Print artifacts link
         RUN_ID=$(gh run list --repo "$REPO" --branch "$BRANCH" --limit 1 --json databaseId -q '.[0].databaseId' 2>/dev/null)
         print_artifacts_link "$RUN_ID"
 
