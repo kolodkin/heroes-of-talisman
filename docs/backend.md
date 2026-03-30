@@ -84,17 +84,17 @@ Each character level has exactly one set of abilities — higher-level abilities
 
 See [Abilities & Effects](/docs/gameplay.md#abilities--effects) for the full ability list with character, level, and descriptions.
 
-| Ability             | Effect                                                              | `apply_to`          | When Applied                  | When Cleared                                       |
-| ------------------- | ------------------------------------------------------------------- | ------------------- | ----------------------------- | -------------------------------------------------- |
-| `BATTLE_HOWL`       | `AttackBonusEffect(+2)`                                             | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                  |
-| `DISARM`            | `DrawCardEffect` — routes to `card_draw` stage; after card drawn, turn ends (rotates to next player, skips battle entirely) | `self` | `AbilitySelectAction` | `CardSelectAction` (turn rotation, no `BattleEndAction`) |
-| `BOUNCING_ARROW`    | `RerollDiceEffect`                                                  | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                  |
-| `BOUNCING_ARROW_L2` | `RerollDiceEffect` (×2)                                             | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                  |
-| `BOUNCING_ARROW_L3` | `RerollDiceEffect`                                                  | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                  |
-| `BURNING_ARROW`     | `BurningArrowEffect` — on win, appends `burning_arrow:2` to opponent's effects; `CharacterSelectAction` decrements countdown and applies 2 damage when it reaches 0 | `self` | `AbilitySelectAction` | countdown auto-removed by `CharacterSelectAction` |
-| `FREEZE`            | `SkipTurnEffect`                                                    | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction`         |
-| `STORM`             | `AttackNegBonusEffect(-2)`                                          | `battle_opponent`   | `AbilitySelectAction`         | `BattleEndAction`                                  |
-| `DRAGON_BREATH`     | `NeutralizeItemEffect`                                              | `selected_opponent` | `AbilityItemSelectAction`     | instant (no persist)                               |
+| Ability             | Effect                                                                                                                                                              | `apply_to`          | When Applied                  | When Cleared                                             |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ----------------------------- | -------------------------------------------------------- |
+| `BATTLE_HOWL`       | `AttackBonusEffect(+2)`                                                                                                                                             | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                        |
+| `DISARM`            | `DrawCardEffect` — routes to `card_draw` stage; after card drawn, turn ends (rotates to next player, skips battle entirely)                                         | `self`              | `AbilitySelectAction`         | `CardSelectAction` (turn rotation, no `BattleEndAction`) |
+| `BOUNCING_ARROW`    | `RerollDiceEffect`                                                                                                                                                  | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                        |
+| `BOUNCING_ARROW_L2` | `RerollDiceEffect` (×2)                                                                                                                                             | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                        |
+| `BOUNCING_ARROW_L3` | `RerollDiceEffect`                                                                                                                                                  | `self`              | `AbilitySelectAction`         | `BattleEndAction`                                        |
+| `BURNING_ARROW`     | `BurningArrowEffect` — on win, appends `burning_arrow:2` to opponent's effects; `CharacterSelectAction` decrements countdown and applies 2 damage when it reaches 0 | `self`              | `AbilitySelectAction`         | countdown auto-removed by `CharacterSelectAction`        |
+| `FREEZE`            | `SkipTurnEffect`                                                                                                                                                    | `selected_opponent` | `AbilityOpponentSelectAction` | `CharacterSelectAction` / `SkipTurnAction`               |
+| `STORM`             | `AttackNegBonusEffect(-2)`                                                                                                                                          | `battle_opponent`   | `AbilitySelectAction`         | `BattleEndAction`                                        |
+| `DRAGON_BREATH`     | `NeutralizeItemEffect`                                                                                                                                              | `selected_opponent` | `AbilityItemSelectAction`     | instant (no persist)                                     |
 
 # Cards
 
@@ -105,7 +105,7 @@ See [Cards](/docs/gameplay.md#cards) for the full card list with types, descript
 | Card            | Implementation Effect                                                                 |
 | --------------- | ------------------------------------------------------------------------------------- |
 | `metal_armor`   | `defense_bonus += 2`                                                                  |
-| `sacred_sord`  | `attack_bonus += 3`                                                                   |
+| `sacred_sord`   | `attack_bonus += 3`                                                                   |
 | `golden_apple`  | `health += 1` (capped at max)                                                         |
 | `magic_ball`    | Level up (+1 level, heal to max)                                                      |
 | `devils_fork`   | Level down (-1 level), no effect at L1                                                |
@@ -117,11 +117,11 @@ See [Cards](/docs/gameplay.md#cards) for the full card list with types, descript
 
 Actions clean up abilities and effects from characters inline when they're no longer relevant. Each action clears the specific list directly:
 
-| Action                  | What is cleared                                                                                                                                                     |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `BattleEndAction`       | `active_abilities = []` on both active and opponent; `no_damage_on_win` from `effects` on active                                                                    |
+| Action                  | What is cleared                                                                                                                                                                                                    |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `BattleEndAction`       | `active_abilities = []` on both active and opponent; `no_damage_on_win` from `effects` on active                                                                                                                   |
 | `CharacterSelectAction` | First decrements `burning_arrow:N` countdowns on ALL characters (applies 2 damage when countdown hits 0); then clears `effects` on active player's characters (preserving any remaining `burning_arrow:N` entries) |
-| `SkipTurnAction`        | Same burning_arrow decrement + damage as above; then clears `effects` on active player's characters (preserving remaining `burning_arrow:N` entries)                 |
+| `SkipTurnAction`        | Same burning_arrow decrement + damage as above; then clears `effects` on active player's characters (preserving remaining `burning_arrow:N` entries)                                                               |
 
 **Note:** Persistent cards (`metal_armor`, `sacred_sord`, `talisman`) are never disposed.
 

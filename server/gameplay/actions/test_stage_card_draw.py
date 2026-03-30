@@ -604,3 +604,49 @@ def test_card_select_without_disarm_goes_to_ability_selection():
     updated_game = action.run()
 
     assert updated_game.stage == STAGE_ABILITY_SELECTION
+
+
+def test_duplicate_persistent_card_not_added_to_active_cards():
+    """Test that drawing a duplicate persistent card does not add it to active_cards again"""
+    characters = init_characters()
+    # Pre-equip knight with sacred_sword
+    characters[CHARACTER_KNIGHT].active_cards = [CARD_SACRED_SWORD]
+
+    game = GamePlay(
+        stage=STAGE_CARD_DRAW,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        stage_meta=CardDrawMeta(drawn_card=CARD_SACRED_SWORD),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    # Should still have only one sacred_sword in active_cards
+    assert knight.active_cards.count(CARD_SACRED_SWORD) == 1
+    # Attack bonus should be +3 (not +6)
+    assert knight.effect.attack_bonus == 3
+    # Card should still be added to cards history
+    assert CARD_SACRED_SWORD in knight.cards
+
+
+def test_duplicate_metal_armor_not_added_to_active_cards():
+    """Test that drawing a duplicate metal_armor does not stack"""
+    characters = init_characters()
+    # Pre-equip knight with metal_armor
+    characters[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR]
+
+    game = GamePlay(
+        stage=STAGE_CARD_DRAW,
+        active=ActivePlayer2(player="player1", character=CHARACTER_KNIGHT),
+        stage_meta=CardDrawMeta(drawn_card=CARD_METAL_ARMOR),
+        players={"player1": Player(name="player1", characters=characters)},
+    )
+
+    action = CardSelectAction("player1", game)
+    updated_game = action.run()
+
+    knight = updated_game.players["player1"].characters[CHARACTER_KNIGHT]
+    assert knight.active_cards.count(CARD_METAL_ARMOR) == 1
+    assert knight.effect.defense_bonus == 2

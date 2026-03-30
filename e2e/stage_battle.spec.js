@@ -46,7 +46,6 @@ async function verifyBattleStage(page, activePlayer, opponentPlayer, activeChar,
   await expect(opponentDice.first()).toBeVisible();
 }
 
-
 test("battle stage - player 1 wins", async ({ page, gameName }) => {
   // Create preset game with player 1 winning
   const page2 = await setupPresetGame(page, gameName, "battle_player_1_win");

@@ -213,6 +213,7 @@ dist-ssr
 .claude/*
 !.claude/skills/
 !.claude/commands/
+!.claude/settings.json
 AGENTS.md
 .skill-example/
 

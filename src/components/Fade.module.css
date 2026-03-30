@@ -1,0 +1,35 @@
+.item {
+  animation: fadeIn 2s ease-out both;
+  animation-delay: var(--enter-delay, 0s);
+}
+
+.itemLeaving {
+  animation: fadeOut 333ms ease-in both;
+  animation-delay: var(--enter-delay, 0s);
+  pointer-events: none;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item,
+  .itemLeaving {
+    animation: none;
+  }
+}

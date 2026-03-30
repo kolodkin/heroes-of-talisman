@@ -12,7 +12,7 @@ export const TIMEOUT = 1000;
 export const test = base.extend({
   gameName: async ({}, use) => {
     const testInfo = base.info();
-    const gameName = `test ${testInfo.project.name} ${testInfo.title}`;
+    const gameName = `test ${testInfo.project.name} ${testInfo.title} ${testInfo.parallelIndex}-${testInfo.repeatEachIndex}`;
 
     // Provide the game name to the test
     await use(gameName);
@@ -60,31 +60,28 @@ export async function joinGame(page, playerName, gameName) {
   await test.info().attach(`${playerName}-connection-message`, { body: connectedText, contentType: "text/plain" });
 
   // Dismiss connection toast to keep screenshots clean
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
 }
 
 /**
- * Dismiss the connection toast notification
- * Waits for the toast to appear and clicks the close button
+ * Dismiss all visible toast notifications.
+ * Closes each toast and waits for full detach from DOM.
+ * Works both with and without VITE_E2E (real toasts or stubbed toasts).
  * @param {Page} page - Playwright page object
  */
-export async function dismissConnectionToast(page) {
-  // Check if toast exists without throwing on timeout
-  const toastLocator = page.locator(".Toastify__toast").first();
-  const isVisible = await toastLocator.isVisible().catch(() => false);
+export async function dismissToasts(page) {
+  // Dismiss all toasts present in the DOM (visible or animating out).
+  // Uses count() instead of isVisible() because a toast mid-fade-out
+  // may return isVisible=false while still blocking clicks.
+  // Cap at 10 iterations to prevent infinite loops if toasts keep re-appearing.
+  for (let i = 0; i < 10; i++) {
+    const toastLocator = page.locator(".Toastify__toast").first();
+    if ((await toastLocator.count()) === 0) break;
 
-  if (isVisible) {
-    // Click the close button (× button) with force to avoid actionability issues
     const closeButton = toastLocator.locator(".Toastify__close-button");
-    if (await closeButton.isVisible()) {
-      await closeButton.click({ force: true, timeout: 1000 }).catch(() => {});
-    }
-    // Wait for toast to be fully removed from DOM (not just hidden)
+    await closeButton.click({ force: true, timeout: 1000 }).catch(() => {});
     await toastLocator.waitFor({ state: "detached", timeout: 5000 }).catch(() => {});
   }
-
-  // The container div stays in DOM but is inert when no toasts are present.
-  // We already waited for the individual toast element to detach above.
 }
 
 /**
@@ -97,12 +94,14 @@ export async function joinGameViaUrl(page, playerName, gameName, waitForSelector
   await page.waitForSelector(waitForSelector, { timeout: 5000 });
 
   // Dismiss connection toast to keep screenshots clean
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
 }
 
 /**
  * Wait for a toast notification to appear and optionally verify its content.
- * In E2E mode, toasts are stubbed to console.log so this listens for console events.
+ * Works in two modes:
+ * - VITE_E2E=true: toasts are stubbed to console.log, listens for console events
+ * - Without VITE_E2E: waits for real toast DOM element and reads its text
  *
  * IMPORTANT: Call this function BEFORE the action that triggers the toast, then await
  * the returned promise after the action. This ensures the listener is registered before
@@ -117,14 +116,22 @@ export async function joinGameViaUrl(page, playerName, gameName, waitForSelector
  */
 export function waitForToast(page, { type, message, timeout = 3000 } = {}) {
   const prefix = type ? `toast.${type}` : "toast";
-  const consolePromise = page.waitForEvent("console", {
-    predicate: (msg) => msg.text().startsWith(prefix),
-    timeout,
-  });
 
-  return consolePromise.then((consoleMsg) => {
-    const toastText = consoleMsg.text().slice(prefix.length).trim();
+  // Race: console-based (VITE_E2E) vs DOM-based (real toasts)
+  const consolePromise = page
+    .waitForEvent("console", {
+      predicate: (msg) => msg.text().startsWith(prefix),
+      timeout,
+    })
+    .then((consoleMsg) => consoleMsg.text().slice(prefix.length).trim());
 
+  const domPromise = page
+    .locator(".Toastify__toast")
+    .first()
+    .waitFor({ state: "visible", timeout })
+    .then(() => page.locator(".Toastify__toast").first().innerText());
+
+  return Promise.race([consolePromise, domPromise]).then((toastText) => {
     if (message) {
       if (message instanceof RegExp) {
         expect(toastText).toMatch(message);
@@ -132,7 +139,6 @@ export function waitForToast(page, { type, message, timeout = 3000 } = {}) {
         expect(toastText).toContain(message);
       }
     }
-
     return toastText;
   });
 }
@@ -167,10 +173,21 @@ export async function waitForGameUpdate(page, timeout = TIMEOUT) {
  * @param {Page} page - Playwright page object
  */
 export async function expandPlayersMenuIfCollapsed(page) {
-  const gamePlay = page.locator('[data-players-menu-state="collapsed"]');
-  if (await gamePlay.isVisible().catch(() => false)) {
+  // Wait for the game stage to be rendered before checking menu state
+  await page
+    .locator("[data-players-menu-state]")
+    .waitFor({ state: "visible", timeout: 5000 })
+    .catch(() => {});
+  const collapsed = page.locator('[data-players-menu-state="collapsed"]');
+  if ((await collapsed.count()) > 0) {
     const expandButton = page.locator("[data-expand-button]");
     await expandButton.click();
+    // Wait for player elements to appear after expansion
+    await page
+      .locator("[data-player]")
+      .first()
+      .waitFor({ state: "visible", timeout: 5000 })
+      .catch(() => {});
   }
 }
 
@@ -195,6 +212,8 @@ export async function setupPresetGame(
   await joinGameViaUrl(page, "player1", gameName, p1Selector);
   const page2 = await page.context().newPage();
   await joinGameViaUrl(page2, "player2", gameName, p2Selector);
+  // Dismiss any toasts on page1 that may have appeared from player2 joining
+  await dismissToasts(page);
   return page2;
 }
 

@@ -480,3 +480,5 @@ Each of the following must have a dedicated preset (in `server/gameplay/presets.
 - Use descriptive test names that clearly indicate the user flow or feature being tested.
 - Prefer colocating test files with the components or features they cover, or group related tests in the same directory.
 - Avoid `waitForTimeout()` - use `expect(element).toBeVisible()` to wait for DOM elements.
+- Use `dismissToasts(page)` from `test_helpers.js` to dismiss all visible toasts before interacting with the page. This is especially important on mobile viewports where toasts can overlay interactive elements. The helper dismisses up to 10 toasts and waits for each to fully detach from the DOM.
+- Use `waitForToast(page, { type, message })` to assert toast content. Works both with and without `VITE_E2E` by racing console-based and DOM-based detection.

@@ -1,13 +1,5 @@
 import { createGameViaAPI } from "./api_helpers.js";
-import {
-  test,
-  expect,
-  TIMEOUT,
-  screenshot,
-  setupHomePage,
-  joinGame,
-  expandPlayersMenuIfCollapsed,
-} from "./test_helpers.js";
+import { test, expect, screenshot, setupHomePage, joinGame, expandPlayersMenuIfCollapsed } from "./test_helpers.js";
 
 test("disconnected player overlay in players menu", async ({ page, gameName }) => {
   // Setup: Create game via API
@@ -21,7 +13,7 @@ test("disconnected player overlay in players menu", async ({ page, gameName }) =
   await expandPlayersMenuIfCollapsed(page);
 
   // Wait for player1 to appear in players menu
-  await page.waitForSelector('[data-player="player1"]', { timeout: TIMEOUT });
+  await expect(page.locator('[data-player="player1"]')).toBeVisible();
   await screenshot(page, "player1-joined");
 
   // Player 2 joins in a new session
@@ -30,7 +22,7 @@ test("disconnected player overlay in players menu", async ({ page, gameName }) =
   await joinGame(page2, "player2", gameName);
 
   // Wait for player2 to appear in player1's players menu
-  await page.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
+  await expect(page.locator('[data-player="player2"]')).toBeVisible();
 
   // Verify player2 is connected in players menu
   const player2MenuCard = page.locator('[data-player="player2"]').first();
@@ -46,9 +38,6 @@ test("disconnected player overlay in players menu", async ({ page, gameName }) =
   await page2.close();
 
   // Wait for disconnection to propagate
-  await page.waitForTimeout(500);
-
-  // Verify player2 has disconnected status
   await expect(player2MenuCard).toHaveAttribute("data-status", "disconnected");
 
   // Verify disconnected overlay appears in players menu

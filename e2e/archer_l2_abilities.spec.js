@@ -26,7 +26,6 @@ import {
  *   5. If archer loses second reroll → battle ends, archer loses normally
  */
 
-
 test("archer L2 ability selection shows only bouncing_arrow_l2", async ({ page, gameName }) => {
   const page2 = await setupPresetGame(page, gameName, "ability_selection_archer_l2", "[data-ability]");
 

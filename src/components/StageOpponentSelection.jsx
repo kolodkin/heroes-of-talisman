@@ -17,6 +17,7 @@ import { notify } from "../utils/notify";
 import { useScrollAlignment } from "../hooks/useScrollAlignment";
 import { SharedAreaContent } from "./SharedAreaContent";
 
+import Fade from "./Fade";
 import styles from "./StageOpponentSelection.module.css";
 import Opponent from "./Opponent";
 
@@ -95,7 +96,7 @@ const StageOpponentSelection = ({ players, activePlayer, sendAction, active, sel
 
   const content = (
     <div className={className("flex max-w-full", hasScroll ? "self-start" : "self-center")}>
-      <div ref={containerRef} className={styles["opponents-container"]}>
+      <Fade ref={containerRef} className={styles["opponents-container"]}>
         {opponents.map(([playerName, player]) => (
           <Opponent
             key={playerName}
@@ -105,7 +106,7 @@ const StageOpponentSelection = ({ players, activePlayer, sendAction, active, sel
             onCharacterClick={handleCharacterClick}
           />
         ))}
-      </div>
+      </Fade>
     </div>
   );
 

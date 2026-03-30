@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import className from "classnames";
 import styles from "./GamePlay.module.css";
@@ -13,6 +13,8 @@ import StageOpponentSelection from "./StageOpponentSelection";
 import StageBattle from "./StageBattle";
 import Player from "./Player";
 import { StatusIndicator } from "./StatusIndicator";
+import { FadeProvider, FADE_OUT_MS } from "./Fade";
+import { isE2E } from "../utils/env";
 import {
   CHARACTER_SELECT,
   CARD_DRAW,
@@ -57,6 +59,27 @@ const MOBILE_QUERY = "(max-height: 500px) and (orientation: landscape)";
 const GamePlay = ({ username, gamePlay, sendAction }) => {
   const { t } = useTranslation();
   const isRtl = t("direction") === "rtl";
+
+  const [displayedGamePlay, setDisplayedGamePlay] = useState(gamePlay);
+  const [leaving, setLeaving] = useState(false);
+  const prevStageRef = useRef(gamePlay.stage);
+
+  useEffect(() => {
+    if (gamePlay.stage !== prevStageRef.current) {
+      prevStageRef.current = gamePlay.stage;
+      setLeaving(true);
+      const timer = setTimeout(
+        () => {
+          setDisplayedGamePlay(gamePlay);
+          setLeaving(false);
+        },
+        isE2E ? 0 : FADE_OUT_MS,
+      );
+      return () => clearTimeout(timer);
+    } else {
+      setDisplayedGamePlay(gamePlay);
+    }
+  }, [gamePlay]);
 
   // Three states: "collapsed" | "minimized" | "expanded"
   const [playersMenuState, setPlayersMenuState] = useState(() => {
@@ -184,84 +207,86 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
             {isRtl ? ">" : "<"}
           </button>
         )}
-        <div className={styles["shared-area-content"]}>
-          <h2 className={styles["stage-title"]}>{t(`stageInstructions.${gamePlay.stage}`)}</h2>
-          {(() => {
-            const activePlayer = gamePlay.players[gamePlay.active?.player];
-            const isActivePlayer = gamePlay.active?.player === username;
+        <FadeProvider value={leaving}>
+          <div className={styles["shared-area-content"]}>
+            <h2 className={styles["stage-title"]}>{t(`stageInstructions.${displayedGamePlay.stage}`)}</h2>
+            {(() => {
+              const activePlayer = displayedGamePlay.players[displayedGamePlay.active?.player];
+              const isActivePlayer = displayedGamePlay.active?.player === username;
 
-            switch (gamePlay.stage) {
-              case CHARACTER_SELECT:
-                return (
-                  <StageCharacterSelect
-                    characters={activePlayer?.characters || {}}
-                    sendAction={sendAction}
-                    active={isActivePlayer}
-                    selectedCharacter={gamePlay.stage_meta?.selected}
-                  />
-                );
-              case CARD_DRAW:
-                return (
-                  <StageCardDraw
-                    drawnCard={gamePlay.stage_meta?.drawn_card}
-                    sendAction={sendAction}
-                    active={isActivePlayer}
-                  />
-                );
-              case ABILITY_SELECTION:
-                const selectedCharacter = activePlayer?.characters?.[gamePlay.active?.character];
-                return (
-                  <StageAbilitySelection
-                    abilities={selectedCharacter?.abilities || []}
-                    sendAction={sendAction}
-                    active={isActivePlayer}
-                    selectedAbility={gamePlay.stage_meta?.selected}
-                  />
-                );
-              case ABILITY_OPPONENT_SELECTION:
-                return (
-                  <StageAbilityOpponentSelection
-                    players={gamePlay.players}
-                    activePlayer={gamePlay.active?.player}
-                    sendAction={sendAction}
-                    active={isActivePlayer}
-                    selectedOpponent={gamePlay.stage_meta}
-                  />
-                );
-              case ABILITY_ITEM_SELECTION:
-                return (
-                  <StageAbilityItemSelection
-                    stageMeta={gamePlay.stage_meta}
-                    players={gamePlay.players}
-                    sendAction={sendAction}
-                    active={isActivePlayer}
-                  />
-                );
-              case OPPONENT_SELECTION:
-                return (
-                  <StageOpponentSelection
-                    players={gamePlay.players}
-                    activePlayer={gamePlay.active?.player}
-                    sendAction={sendAction}
-                    active={isActivePlayer}
-                    selectedOpponent={gamePlay.stage_meta}
-                  />
-                );
-              case BATTLE_DICE_ROLL:
-              case BATTLE_END:
-                return (
-                  <StageBattle
-                    gamePlay={gamePlay}
-                    sendAction={sendAction}
-                    active={isActivePlayer}
-                    currentUser={username}
-                  />
-                );
-              default:
-                return <div>Stage: {gamePlay.stage}</div>;
-            }
-          })()}
-        </div>
+              switch (displayedGamePlay.stage) {
+                case CHARACTER_SELECT:
+                  return (
+                    <StageCharacterSelect
+                      characters={activePlayer?.characters || {}}
+                      sendAction={sendAction}
+                      active={isActivePlayer}
+                      selectedCharacter={displayedGamePlay.stage_meta?.selected}
+                    />
+                  );
+                case CARD_DRAW:
+                  return (
+                    <StageCardDraw
+                      drawnCard={displayedGamePlay.stage_meta?.drawn_card}
+                      sendAction={sendAction}
+                      active={isActivePlayer}
+                    />
+                  );
+                case ABILITY_SELECTION:
+                  const selectedCharacter = activePlayer?.characters?.[displayedGamePlay.active?.character];
+                  return (
+                    <StageAbilitySelection
+                      abilities={selectedCharacter?.abilities || []}
+                      sendAction={sendAction}
+                      active={isActivePlayer}
+                      selectedAbility={displayedGamePlay.stage_meta?.selected}
+                    />
+                  );
+                case ABILITY_OPPONENT_SELECTION:
+                  return (
+                    <StageAbilityOpponentSelection
+                      players={displayedGamePlay.players}
+                      activePlayer={displayedGamePlay.active?.player}
+                      sendAction={sendAction}
+                      active={isActivePlayer}
+                      selectedOpponent={displayedGamePlay.stage_meta}
+                    />
+                  );
+                case ABILITY_ITEM_SELECTION:
+                  return (
+                    <StageAbilityItemSelection
+                      stageMeta={displayedGamePlay.stage_meta}
+                      players={displayedGamePlay.players}
+                      sendAction={sendAction}
+                      active={isActivePlayer}
+                    />
+                  );
+                case OPPONENT_SELECTION:
+                  return (
+                    <StageOpponentSelection
+                      players={displayedGamePlay.players}
+                      activePlayer={displayedGamePlay.active?.player}
+                      sendAction={sendAction}
+                      active={isActivePlayer}
+                      selectedOpponent={displayedGamePlay.stage_meta}
+                    />
+                  );
+                case BATTLE_DICE_ROLL:
+                case BATTLE_END:
+                  return (
+                    <StageBattle
+                      gamePlay={displayedGamePlay}
+                      sendAction={sendAction}
+                      active={isActivePlayer}
+                      currentUser={username}
+                    />
+                  );
+                default:
+                  return <div>Stage: {displayedGamePlay.stage}</div>;
+              }
+            })()}
+          </div>
+        </FadeProvider>
       </div>
     </div>
   );
