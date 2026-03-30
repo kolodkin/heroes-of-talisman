@@ -71,3 +71,20 @@ def selected_opponent_meta(self) -> Opponent2:
 
 - `server/gameplay/actions/stage_opponent_selection.py` line 91: `selected_opponent = self.game.stage_meta`
 - `server/gameplay/actions/stage_ability_opponent_selection.py` line 101: `selected_opponent = self.game.stage_meta`
+
+---
+
+## GitHub Actions — Forced Node.js 24 via Environment Variable
+
+**Context:** Several actions (`actions/checkout@v4`, `astral-sh/setup-uv@v6`, etc.) still run on
+Node.js 20, which GitHub has deprecated. There is no Node.js 22/24 release of these actions yet.
+
+As a workaround, `.github/workflows/ci.yml` sets:
+
+```yaml
+env:
+  FORCE_JAVASCRIPT_ACTIONS_RUNNER_NODE_VERSION: node24
+```
+
+**Resolution:** Once upstream actions publish Node.js 24-based releases, remove this env var and
+pin to the updated action versions instead.
