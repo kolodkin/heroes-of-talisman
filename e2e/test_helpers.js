@@ -70,12 +70,13 @@ export async function joinGame(page, playerName, gameName) {
  * @param {Page} page - Playwright page object
  */
 export async function dismissToasts(page) {
-  // Dismiss all visible toasts one by one.
+  // Dismiss all toasts present in the DOM (visible or animating out).
+  // Uses count() instead of isVisible() because a toast mid-fade-out
+  // may return isVisible=false while still blocking clicks.
   // Cap at 10 iterations to prevent infinite loops if toasts keep re-appearing.
   for (let i = 0; i < 10; i++) {
     const toastLocator = page.locator(".Toastify__toast").first();
-    const isVisible = await toastLocator.isVisible().catch(() => false);
-    if (!isVisible) break;
+    if ((await toastLocator.count()) === 0) break;
 
     const closeButton = toastLocator.locator(".Toastify__close-button");
     await closeButton.click({ force: true, timeout: 1000 }).catch(() => {});
