@@ -1,5 +1,5 @@
 import { createPresetGameViaAPI } from "./api_helpers.js";
-import { test, expect, screenshot, FRONTEND_URL, dismissConnectionToast } from "./test_helpers.js";
+import { test, expect, screenshot, FRONTEND_URL, dismissToasts } from "./test_helpers.js";
 
 test("shared area dynamic alignment - character selection stage", async ({ page, gameName }) => {
   const playerName = "player1";
@@ -163,7 +163,7 @@ test("Enter key triggers action button on character_select stage", async ({ page
   await page.setViewportSize({ width: 1200, height: 900 });
   await page.goto(`${FRONTEND_URL}/games/${gameName}/${playerName}`);
   await page.waitForSelector('[data-game-stage="character_select"]', { timeout: 5000 });
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
   await screenshot(page, "enter-key-character-select-loaded");
 
   // Select knight character by clicking it
@@ -190,7 +190,7 @@ test("Enter key triggers action button on card_draw stage", async ({ page, gameN
   await page.setViewportSize({ width: 1200, height: 900 });
   await page.goto(`${FRONTEND_URL}/games/${gameName}/${playerName}`);
   await page.waitForSelector('[data-game-stage="card_draw"]', { timeout: 5000 });
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
 
   // Verify card is visible
   const metalArmorCard = page.locator('[data-shared-area-active="true"] [data-card="metal_armor"]');
@@ -215,7 +215,7 @@ test("Enter key triggers action button on ability_selection stage", async ({ pag
   await page.setViewportSize({ width: 1200, height: 900 });
   await page.goto(`${FRONTEND_URL}/games/${gameName}/${playerName}`);
   await page.waitForSelector('[data-game-stage="ability_selection"]', { timeout: 5000 });
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
 
   // Verify ability is auto-selected
   const abilityCard = page.locator('[data-shared-area-active="true"] [data-ability="battle_howl"]');
@@ -239,7 +239,7 @@ test("Enter key triggers action button on opponent_selection stage", async ({ pa
   await page.setViewportSize({ width: 1200, height: 900 });
   await page.goto(`${FRONTEND_URL}/games/${gameName}/${playerName}`);
   await page.waitForSelector('[data-game-stage="opponent_selection"]', { timeout: 5000 });
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
 
   // Click on opponent's character to select them
   const opponentChar = page.locator('[data-shared-area-active="true"] [data-player="player2"] [data-character="mage"]');
@@ -266,7 +266,7 @@ test("Enter key triggers action button on battle_end stage", async ({ page, game
   await page.setViewportSize({ width: 1200, height: 900 });
   await page.goto(`${FRONTEND_URL}/games/${gameName}/${playerName}`);
   await page.waitForSelector('[data-game-stage="battle_end"]', { timeout: 5000 });
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
 
   // Wait for continue button to appear (dice animation must finish and winner determined)
   const continueButton = page.locator("[data-continue-button]");

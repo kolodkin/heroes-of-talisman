@@ -60,7 +60,7 @@ export async function joinGame(page, playerName, gameName) {
   await test.info().attach(`${playerName}-connection-message`, { body: connectedText, contentType: "text/plain" });
 
   // Dismiss connection toast to keep screenshots clean
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
 }
 
 /**
@@ -69,7 +69,7 @@ export async function joinGame(page, playerName, gameName) {
  * Works both with and without VITE_E2E (real toasts or stubbed toasts).
  * @param {Page} page - Playwright page object
  */
-export async function dismissConnectionToast(page) {
+export async function dismissToasts(page) {
   // Dismiss all visible toasts one by one.
   // Cap at 10 iterations to prevent infinite loops if toasts keep re-appearing.
   for (let i = 0; i < 10; i++) {
@@ -93,7 +93,7 @@ export async function joinGameViaUrl(page, playerName, gameName, waitForSelector
   await page.waitForSelector(waitForSelector, { timeout: 5000 });
 
   // Dismiss connection toast to keep screenshots clean
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
 }
 
 /**
@@ -200,6 +200,8 @@ export async function setupPresetGame(
   await joinGameViaUrl(page, "player1", gameName, p1Selector);
   const page2 = await page.context().newPage();
   await joinGameViaUrl(page2, "player2", gameName, p2Selector);
+  // Dismiss any toasts on page1 that may have appeared from player2 joining
+  await dismissToasts(page);
   return page2;
 }
 

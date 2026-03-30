@@ -7,7 +7,7 @@ import {
   setupHomePage,
   joinGame,
   waitForStage,
-  dismissConnectionToast,
+  dismissToasts,
   validateCardHoverEffect,
   expandPlayersMenuIfCollapsed,
 } from "./test_helpers.js";
@@ -48,7 +48,7 @@ async function validatePlayerCharacters(page, playerName) {
   await expect(playerDiv).toBeVisible();
 
   // Dismiss any toasts that might be overlaying the expand button
-  await dismissConnectionToast(page);
+  await dismissToasts(page);
 
   // Expand player cards if minimized (click + button to show full cards with images)
   const expandButton = page.getByRole("button", { name: "Expand all players" });
@@ -327,8 +327,8 @@ test("basic game flow", async ({ page, gameName }) => {
   await page.waitForSelector('[data-player="player2"]', { timeout: TIMEOUT });
 
   // Dismiss any remaining toasts before screenshots
-  await dismissConnectionToast(page);
-  await dismissConnectionToast(page2);
+  await dismissToasts(page);
+  await dismissToasts(page2);
 
   await screenshot(page, "player2-joined-game-page1");
   await screenshot(page2, "player2-joined-game-page2");
