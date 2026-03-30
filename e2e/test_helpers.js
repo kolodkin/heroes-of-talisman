@@ -12,7 +12,7 @@ export const TIMEOUT = 1000;
 export const test = base.extend({
   gameName: async ({}, use) => {
     const testInfo = base.info();
-    const gameName = `test ${testInfo.project.name} ${testInfo.title}`;
+    const gameName = `test ${testInfo.project.name} ${testInfo.title} ${testInfo.parallelIndex}-${testInfo.repeatEachIndex}`;
 
     // Provide the game name to the test
     await use(gameName);
@@ -173,10 +173,21 @@ export async function waitForGameUpdate(page, timeout = TIMEOUT) {
  * @param {Page} page - Playwright page object
  */
 export async function expandPlayersMenuIfCollapsed(page) {
-  const gamePlay = page.locator('[data-players-menu-state="collapsed"]');
-  if (await gamePlay.isVisible().catch(() => false)) {
+  // Wait for the game stage to be rendered before checking menu state
+  await page
+    .locator("[data-players-menu-state]")
+    .waitFor({ state: "visible", timeout: 5000 })
+    .catch(() => {});
+  const collapsed = page.locator('[data-players-menu-state="collapsed"]');
+  if ((await collapsed.count()) > 0) {
     const expandButton = page.locator("[data-expand-button]");
     await expandButton.click();
+    // Wait for player elements to appear after expansion
+    await page
+      .locator("[data-player]")
+      .first()
+      .waitFor({ state: "visible", timeout: 5000 })
+      .catch(() => {});
   }
 }
 
