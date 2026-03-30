@@ -1,5 +1,7 @@
 import { test as base, expect } from "@playwright/test";
 
+import { createPresetGameViaAPI } from "./api_helpers.js";
+
 export const FRONTEND_URL = `http://localhost:${process.env.WWW_PORT ?? "5173"}`;
 export const TIMEOUT = 1000;
 
@@ -99,28 +101,40 @@ export async function joinGameViaUrl(page, playerName, gameName, waitForSelector
 }
 
 /**
- * Wait for a toast notification to appear and optionally verify its content
+ * Wait for a toast notification to appear and optionally verify its content.
+ * In E2E mode, toasts are stubbed to console.log so this listens for console events.
+ *
+ * IMPORTANT: Call this function BEFORE the action that triggers the toast, then await
+ * the returned promise after the action. This ensures the listener is registered before
+ * the toast fires, avoiding any race conditions.
+ *
  * @param {Page} page - Playwright page object
  * @param {Object} options - Options object
- * @param {string} options.type - Toast type: 'error', 'success', 'info', 'warning' (optional)
+ * @param {string} options.type - Toast type: 'error', 'success' (optional, defaults to any toast)
  * @param {string|RegExp} options.message - Expected message content (optional)
  * @param {number} options.timeout - Timeout in ms (default: 3000)
  * @returns {Promise<string>} The toast message text
  */
-export async function waitForToast(page, { type, message, timeout = 3000 } = {}) {
-  const selector = type ? `.Toastify__toast--${type}` : ".Toastify__toast";
-  const toast = await page.waitForSelector(selector, { timeout, state: "visible" });
-  const toastText = await toast.textContent();
+export function waitForToast(page, { type, message, timeout = 3000 } = {}) {
+  const prefix = type ? `toast.${type}` : "toast";
+  const consolePromise = page.waitForEvent("console", {
+    predicate: (msg) => msg.text().startsWith(prefix),
+    timeout,
+  });
 
-  if (message) {
-    if (message instanceof RegExp) {
-      expect(toastText).toMatch(message);
-    } else {
-      expect(toastText).toContain(message);
+  return consolePromise.then((consoleMsg) => {
+    const toastText = consoleMsg.text().slice(prefix.length).trim();
+
+    if (message) {
+      if (message instanceof RegExp) {
+        expect(toastText).toMatch(message);
+      } else {
+        expect(toastText).toContain(message);
+      }
     }
-  }
 
-  return toastText;
+    return toastText;
+  });
 }
 
 /**
@@ -161,6 +175,74 @@ export async function expandPlayersMenuIfCollapsed(page) {
 }
 
 /**
+ * Set up a two-player preset game and join both players.
+ * Returns page2 which must be closed after the test completes.
+ * @param {Page} page - Playwright page for player1
+ * @param {string} gameName - Game name (from gameName fixture)
+ * @param {string} presetName - Preset name (e.g., "battle_player_1_win")
+ * @param {string} p1Selector - Selector to wait for after player1 joins (default: '[data-battle-participant]')
+ * @param {string} p2Selector - Selector to wait for after player2 joins (default: '[data-game-stage]')
+ * @returns {Promise<Page>} page2 - The second player's page
+ */
+export async function setupPresetGame(
+  page,
+  gameName,
+  presetName,
+  p1Selector = "[data-battle-participant]",
+  p2Selector = "[data-game-stage]",
+) {
+  await createPresetGameViaAPI(gameName, presetName);
+  await joinGameViaUrl(page, "player1", gameName, p1Selector);
+  const page2 = await page.context().newPage();
+  await joinGameViaUrl(page2, "player2", gameName, p2Selector);
+  return page2;
+}
+
+/**
+ * Expand the players menu (if collapsed) and expand all character cards.
+ * @param {Page} page - Playwright page object
+ */
+export async function expandAllPlayers(page) {
+  await expandPlayersMenuIfCollapsed(page);
+  await page.getByRole("button", { name: "Expand all players" }).click();
+}
+
+/**
+ * Collapse all character cards by clicking "Minimize all players".
+ * @param {Page} page - Playwright page object
+ */
+export async function collapseAllPlayers(page) {
+  await page.getByRole("button", { name: "Minimize all players" }).click();
+}
+
+/**
+ * Get a character card locator for a specific player and character.
+ * @param {Page} page - Playwright page object
+ * @param {string} playerName - Player name (e.g., "player1")
+ * @param {string} characterName - Character name (e.g., "knight")
+ * @returns {Locator} Playwright locator for the character card
+ */
+export function getCharacterCard(page, playerName, characterName) {
+  return page.locator(`[data-player="${playerName}"] [data-player-cards] [data-character="${characterName}"]`);
+}
+
+/**
+ * Assert the level and/or health of a character card.
+ * @param {Locator} card - Playwright locator for the character card
+ * @param {Object} state - Expected state
+ * @param {string|number} [state.level] - Expected data-level attribute value
+ * @param {string} [state.health] - Expected health text (e.g., "[1/2]")
+ */
+export async function expectCharacterState(card, { level, health } = {}) {
+  if (level !== undefined) {
+    await expect(card).toHaveAttribute("data-level", String(level));
+  }
+  if (health !== undefined) {
+    await expect(card).toContainText(health);
+  }
+}
+
+/**
  * Validate card hover effects (translateY and box-shadow)
  * @param {Locator} cardLocator - Playwright locator for the card element
  */
@@ -168,4 +250,36 @@ export async function validateCardHoverEffect(cardLocator) {
   await cardLocator.hover();
   await expect(cardLocator).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -4)");
   await expect(cardLocator).toHaveCSS("box-shadow", "rgba(0, 0, 0, 0.3) 0px 4px 8px 0px");
+}
+
+/**
+ * Helper to get score from battle row
+ * @param {Page} page - Playwright page object
+ * @param {string} role - Battle role: 'active' or 'opponent'
+ * @returns {Promise<number>} The score value
+ */
+export async function getScore(page, role) {
+  const scoreElement = page.locator(`[data-battle-role="${role}"] [data-score]`);
+  await expect(scoreElement).toBeVisible();
+  const scoreText = await scoreElement.textContent();
+  return parseInt(scoreText.trim());
+}
+
+/**
+ * Helper to verify winner badge is shown for the correct role
+ * Waits for the initial appearance animation to complete
+ * @param {Page} page - Playwright page object
+ * @param {string} winnerRole - Battle role of the winner: 'active' or 'opponent'
+ */
+export async function verifyWinner(page, winnerRole) {
+  const winnerBadge = page.locator(`[data-battle-role="${winnerRole}"] [data-winner-badge]`);
+  await expect(winnerBadge).toBeVisible();
+
+  await winnerBadge.evaluate((element) => {
+    const animations = element.getAnimations();
+    const appearAnimation = animations.find((anim) =>
+      anim.effect?.getKeyframes().some((frame) => frame.opacity !== undefined),
+    );
+    return appearAnimation ? appearAnimation.finished : Promise.resolve();
+  });
 }

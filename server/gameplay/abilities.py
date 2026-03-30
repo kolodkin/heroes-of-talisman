@@ -8,7 +8,10 @@ from .common import StrictModel
 from .effects import (
     EffectUnion,
     AttackBonusEffect,
+    AttackNegBonusEffect,
+    BurningArrowEffect,
     DrawCardEffect,
+    NeutralizeItemEffect,
     RerollDiceEffect,
     SkipTurnEffect,
 )
@@ -18,9 +21,14 @@ from .effects import (
 ########################################################
 ABILITY_BATTLE_HOWL = "battle_howl"
 ABILITY_BOUNCING_ARROW = "bouncing_arrow"
+ABILITY_BOUNCING_ARROW_L2 = "bouncing_arrow_l2"
+ABILITY_BOUNCING_ARROW_L3 = "bouncing_arrow_l3"
+ABILITY_BURNING_ARROW = "burning_arrow"
 ABILITY_FREEZE = "freeze"
 ABILITY_DISARM = "disarm"
-ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE, ABILITY_DISARM]
+ABILITY_STORM = "storm"
+ABILITY_DRAGON_BREATH = "dragon_breath"
+ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH]
 AbilityName = Literal[*ABILITIES_NAMES]
 
 
@@ -42,6 +50,24 @@ ABILITIES_MAP: dict[AbilityName, Ability] = {
             RerollDiceEffect(),
         ],
     ),
+    ABILITY_BOUNCING_ARROW_L2: Ability(
+        name=ABILITY_BOUNCING_ARROW_L2,
+        effects=[
+            RerollDiceEffect(),
+        ],
+    ),
+    ABILITY_BOUNCING_ARROW_L3: Ability(
+        name=ABILITY_BOUNCING_ARROW_L3,
+        effects=[
+            RerollDiceEffect(),
+        ],
+    ),
+    ABILITY_BURNING_ARROW: Ability(
+        name=ABILITY_BURNING_ARROW,
+        effects=[
+            BurningArrowEffect(),
+        ],
+    ),
     ABILITY_FREEZE: Ability(
         name=ABILITY_FREEZE,
         effects=[
@@ -52,6 +78,18 @@ ABILITIES_MAP: dict[AbilityName, Ability] = {
         name=ABILITY_DISARM,
         effects=[
             DrawCardEffect(),
+        ],
+    ),
+    ABILITY_STORM: Ability(
+        name=ABILITY_STORM,
+        effects=[
+            AttackNegBonusEffect(attack_neg_bonus=-2),
+        ],
+    ),
+    ABILITY_DRAGON_BREATH: Ability(
+        name=ABILITY_DRAGON_BREATH,
+        effects=[
+            NeutralizeItemEffect(),
         ],
     ),
 }

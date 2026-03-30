@@ -6,57 +6,18 @@ At level 2+, dropping to 0 health reduces level instead of dying.
 At level 1, dropping to 0 health means the character dies.
 """
 
-from .action import Action, rotate_to_next_player
-from ..common import GameException, ReportedException, ChatacterType
+from .action import Action, apply_damage_with_level_check, rotate_to_next_player
+from ..common import GameException, ReportedException
+from ..abilities import ABILITY_BURNING_ARROW
+from ..effects import EFFECT_NO_DAMAGE_ON_WIN, EFFECT_BURNING_ARROW
 from ..gameplay import (
     STAGE_BATTLE_END,
     GamePlay,
-    Character,
     ActivePlayer3,
     ActivePlayer4,
     Opponent3,
     Opponent4,
-    CHARACTER_STATS_BY_LEVEL,
 )
-
-
-def apply_damage_with_level_check(
-    character: Character,
-    character_type: ChatacterType,
-    damage: int,
-    winner_has_talisman: bool = False,
-) -> None:
-    """
-    Apply damage to a character with level-based death mechanic.
-
-    If character health drops to 0 or below:
-    - If winner has talisman: Character dies regardless of level
-    - At level 2+: Reduce level by 1 and restore health to new level's max_health
-    - At level 1: Character dies (health stays at 0)
-    """
-    character.health = max(0, character.health - damage)
-
-    # Check if character "died" (health reached 0)
-    if character.health <= 0:
-        if winner_has_talisman:
-            # Talisman kills regardless of level
-            character.is_alive = False
-        elif character.level > 1:
-            # Reduce level by 1
-            new_level = character.level - 1
-            level_stats = CHARACTER_STATS_BY_LEVEL.get(new_level, CHARACTER_STATS_BY_LEVEL[1])
-            char_stats = level_stats[character_type]
-
-            # Update character to new level stats
-            character.level = new_level
-            character.max_health = char_stats["max_health"]
-            character.dice = char_stats["dice"]
-            character.attack = char_stats["attack"]
-            # Restore health to new max_health
-            character.health = character.max_health
-        else:
-            # Level 1, character dies
-            character.is_alive = False
 
 
 class BattleEndAction(Action):
@@ -92,14 +53,20 @@ class BattleEndAction(Action):
         opponent_score = self.game.opponent.result.score
 
         # Determine loser and reduce health by 1
+        has_burning_arrow = ABILITY_BURNING_ARROW in active_character.active_abilities
+
         if active_score > opponent_score:
-            # Active player wins, opponent loses health
-            apply_damage_with_level_check(
-                opponent_character,
-                self.game.opponent.character,
-                1,
-                winner_has_talisman=active_character.effect.has_talisman,
-            )
+            # Active player wins
+            if has_burning_arrow:
+                # Burning arrow: store countdown on opponent's character for visualization
+                opponent_character.effects.append(f"{EFFECT_BURNING_ARROW}:2")
+            elif not active_character.effect.no_damage_on_win:
+                apply_damage_with_level_check(
+                    opponent_character,
+                    self.game.opponent.character,
+                    1,
+                    winner_has_talisman=active_character.effect.has_talisman,
+                )
         elif opponent_score > active_score:
             # Opponent wins, active player loses health
             apply_damage_with_level_check(
@@ -113,6 +80,10 @@ class BattleEndAction(Action):
         # Clear active abilities from both characters at battle end
         active_character.active_abilities = []
         opponent_character.active_abilities = []
+
+        # Clear no_damage_on_win effect from active character
+        if EFFECT_NO_DAMAGE_ON_WIN in active_character.effects:
+            active_character.effects.remove(EFFECT_NO_DAMAGE_ON_WIN)
 
         # Rotate to next player's turn
         rotate_to_next_player(self.game)

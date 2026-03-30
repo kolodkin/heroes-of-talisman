@@ -5,7 +5,7 @@ import { notify, enotify } from "../utils/notify";
 import AppWebSocket from "../utils/ws";
 import styles from "./GameHandler.module.css";
 
-import { toast } from "react-toastify";
+import { toast } from "../utils/toast";
 
 import GamePlay from "./GamePlay";
 import Navbar from "./Navbar";

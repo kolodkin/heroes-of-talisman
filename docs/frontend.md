@@ -4,8 +4,8 @@ A React-based UI engine for visualizing and interacting with game states represe
 
 related specs:
 
-- [gameplay spec](/docs/gameplay_spec.md)
-- [gameplay backend spec](/docs/gameplay_backend.md)
+- [gameplay spec](/docs/gameplay.md)
+- [gameplay backend spec](/docs/backend.md)
 
 # Overview
 
@@ -60,7 +60,7 @@ The application supports both RTL (Hebrew) and LTR layouts using CSS logical pro
 
 # State and API Integration
 
-Game State and API interactions are handled within the [GameHandler](./GameHandler.jsx) component wrapping [GamePlay](./GamePlay.jsx) Component.
+Game State and API interactions are handled within the `src/components/GameHandler.jsx` component wrapping `src/components/GamePlay.jsx`.
 
 # Interactive
 
@@ -97,7 +97,23 @@ Each game stage has its own dedicated component that renders the appropriate UI 
   - After draw action, displays `GameplayCard` with card details
   - Actions: `card_draw` (draw from deck), `card_select` (confirm selection)
   - Non-active players see disabled interactions
-  - Transitions to: `ability_selection`
+  - Transitions to: `ability_selection` (normal), or ends turn (if DISARM ability was used)
+
+- **StageAbilitySelection** (`ability_selection` stage): Player selects which ability to use
+  - Displays ability cards for the selected character plus a "no ability" option
+  - Actions: `ability_press` (highlight), `ability_select` (confirm)
+  - Transitions to: `ability_opponent_selection` (targeted abilities), `card_draw` (DISARM), or `opponent_selection` (self/battle-targeted abilities)
+
+- **StageAbilityOpponentSelection** (`ability_opponent_selection` stage): Player selects an opponent character to apply the ability to
+  - Displays all opponents with their characters (same layout as opponent selection)
+  - Arrow keys cycle through all alive opponent characters
+  - Actions: `ability_opponent_press` (highlight), `ability_opponent_select` (confirm)
+  - Transitions to: `ability_item_selection` (dragon_breath with target holding items) or `opponent_selection`
+
+- **StageAbilityItemSelection** (`ability_item_selection` stage): Player selects which item card to remove from the target character (dragon_breath only)
+  - Displays target character's active item cards as selectable `GameplayCard` components
+  - Actions: `ability_item_press` (highlight), `ability_item_select` (confirm)
+  - Transitions to: `opponent_selection`
 
 - **StageOpponentSelection** (`opponent_selection` stage): Player selects opponent and their character
   - Displays all opponents with their characters (starting minimized)
@@ -136,8 +152,9 @@ Each game stage has its own dedicated component that renders the appropriate UI 
     - Appears after both players have rolled AND there is a winner
     - Only active player can click
     - Invokes `battle_end` action → reduces loser's health by 1 → transitions to `character_select` stage with next player (circular rotation) as new active player
+  - **Reroll Effect Button**: Appears when active player lost and has `reroll_dice_available` (bouncing_arrow ability). Only active player can click. Invokes `action_reroll_effect` → consumes the reroll ability and resets dice for another roll.
   - All connected players see synchronized battle state
-  - Actions: `active_player_roll`, `opponent_roll`, `action_reroll`, `battle_end`
+  - Actions: `active_player_roll`, `opponent_roll`, `action_reroll`, `action_reroll_effect`, `battle_end`
 
 # Key Components
 
@@ -186,7 +203,7 @@ Character cards represent individual characters belonging to players. Each chara
 
 **Data Model** (from backend):
 
-- `level`: Character level (1 or 2). Higher levels have improved stats. See [Character Levels](/docs/gameplay_spec.md#character-levels) for stats per level.
+- `level`: Character level (1 to 4). Higher levels have improved stats. See [Character Levels](/docs/gameplay.md#character-levels) for stats per level.
 - `health`: Current health points
 - `max_health`: Maximum health points (varies by level)
 - `dice`: Number of dice to roll in battle (varies by level)
@@ -222,6 +239,7 @@ Active effects applied to characters should be displayed visually on character c
 - **AttackNegBonusEffect**: Value subtracted from attack stat, make attack text color red
 - **RerollDiceEffect**: Display reroll icon
 - **DefenseBonusEffect**: Defense value applied (no separate icon, armor icon shown via card)
+- **BurningArrowEffect** (`burning_arrow:N`): Stored as string in effects array on the opponent's character; no dedicated icon — tracked internally but not shown to players as a distinct visual indicator
 
 ### Card Icons
 
@@ -233,7 +251,7 @@ Characters that hold cards display small icons in their stats row, based on `cha
 
 ## AbilityCard
 
-Displays a character ability with image, name, and description (`src/components/AbilityCard.jsx`).
+Displays a character ability with image, name, and description (`src/components/AbilityCard.jsx`). See [Abilities & Effects](/docs/gameplay.md#abilities--effects) for the full ability list.
 
 **Props:**
 
@@ -249,12 +267,12 @@ Displays a character ability with image, name, and description (`src/components/
 **Features:**
 
 - Uses common card styles from `Card.module.css`
-- Displays ability image from `/images/effects/{ability.name}.jpg`
+- Displays ability image from `/images/abilities/{ability.name}.jpg`
 - Shows translated ability name and description via i18next
 
 ## GameplayCard
 
-Displays a game card with image, name, and description (`src/components/GameplayCard.jsx`).
+Displays a game card with image, name, and description (`src/components/GameplayCard.jsx`). See [Cards](/docs/gameplay.md#cards) for the full card list.
 
 **Props:**
 

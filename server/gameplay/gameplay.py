@@ -22,6 +22,7 @@ STAGE_CHARACTER_SELECT = "character_select"
 STAGE_CARD_DRAW = "card_draw"
 STAGE_ABILITY_SELECTION = "ability_selection"
 STAGE_ABILITY_OPPONENT_SELECTION = "ability_opponent_selection"
+STAGE_ABILITY_ITEM_SELECTION = "ability_item_selection"
 STAGE_OPPONENT_SELECTION = "opponent_selection"
 STAGE_BATTLE_DICE_ROLL = "battle_dice_roll"
 STAGE_BATTLE_END = "battle_end"
@@ -30,6 +31,7 @@ STAGES_NAMES = [
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
     STAGE_ABILITY_OPPONENT_SELECTION,
+    STAGE_ABILITY_ITEM_SELECTION,
     STAGE_OPPONENT_SELECTION,
     STAGE_BATTLE_DICE_ROLL,
     STAGE_BATTLE_END,
@@ -46,12 +48,19 @@ from .abilities import (
     AbilityName,
     ABILITY_BATTLE_HOWL,
     ABILITY_BOUNCING_ARROW,
+    ABILITY_BOUNCING_ARROW_L2,
+    ABILITY_BOUNCING_ARROW_L3,
+    ABILITY_BURNING_ARROW,
     ABILITY_FREEZE,
     ABILITY_DISARM,
+    ABILITY_STORM,
+    ABILITY_DRAGON_BREATH,
 )
 from .effects import (
     EffectTotal,
     EFFECT_SKIP_TURN,
+    EFFECT_NO_DAMAGE_ON_WIN,
+    EFFECT_REROLL_DICE,
     AttackBonusEffect,
     AttackNegBonusEffect,
     DefenseBonusEffect,
@@ -151,6 +160,17 @@ class Character(StrictModel):
         for eff_name in self.effects:
             if eff_name == EFFECT_SKIP_TURN:
                 total.skip_next_turn = True
+            elif eff_name == EFFECT_NO_DAMAGE_ON_WIN:
+                total.no_damage_on_win = True
+            elif eff_name == EFFECT_REROLL_DICE:
+                total.reroll_dice_available = True
+            else:
+                # Try as ability name for value-based effects applied by opponents
+                ability = ABILITIES_MAP.get(eff_name)
+                if ability:
+                    for eff in ability.effects:
+                        if isinstance(eff, AttackNegBonusEffect):
+                            total.attack_neg_bonus += eff.attack_neg_bonus
 
         return total
 
@@ -180,6 +200,14 @@ class AbilitySelectMeta(StrictModel):
     """Stage metadata for ability selection stage"""
 
     selected: Optional[str] = None  # Currently highlighted ability (None = no ability selected)
+
+
+class AbilityItemMeta(StrictModel):
+    """Stage metadata for ability item selection stage"""
+
+    target_player: str  # Player who owns the target character
+    target_character: str  # Target character whose items are shown
+    selected_item: Optional[str] = None  # Currently highlighted item card name
 
 
 class ActivePlayer1(StrictModel):
@@ -253,7 +281,7 @@ class GamePlay(StrictModel):
     ability: Optional[AbilityName] = None  # Turn-scoped, cleared by rotate_to_next_player
     ability_opponent: Optional[Opponent2] = None  # Turn-scoped, cleared by rotate_to_next_player
     opponent: Optional[Opponent] = None  # Turn-scoped, cleared by rotate_to_next_player
-    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | Opponent2] = None  # Within-stage, cleared after each press/select
+    stage_meta: Optional[Ability | CharacterSelectMeta | CardDrawMeta | AbilitySelectMeta | AbilityItemMeta | Opponent2] = None  # Within-stage, cleared after each press/select
 
     def reorder_players(self, username: str):
         """Reorder players dict in-place with username first (circular shift)"""
@@ -322,12 +350,15 @@ ARCHER_L2_DEFAULT_HEALTH = 4
 ARCHER_L2_MAX_HEALTH = 4
 ARCHER_L2_DICE = 1
 ARCHER_L2_ATTACK = 2
+ARCHER_L2_ABILITY = ABILITY_BOUNCING_ARROW_L2
 
 # Archer Level 3
 ARCHER_L3_DEFAULT_HEALTH = 5
 ARCHER_L3_MAX_HEALTH = 5
 ARCHER_L3_DICE = 2
 ARCHER_L3_ATTACK = 0
+ARCHER_L3_ABILITY_1 = ABILITY_BOUNCING_ARROW_L3
+ARCHER_L3_ABILITY_2 = ABILITY_BURNING_ARROW
 
 # Archer Level 4
 ARCHER_L4_DEFAULT_HEALTH = 6
@@ -343,6 +374,8 @@ MAGE_L1_ATTACK = 0
 MAGE_L1_ABILITY = ABILITY_FREEZE
 
 # Mage Level 2
+MAGE_L2_ABILITY_1 = ABILITY_STORM
+MAGE_L2_ABILITY_2 = ABILITY_DRAGON_BREATH
 MAGE_L2_DEFAULT_HEALTH = 3
 MAGE_L2_MAX_HEALTH = 3
 MAGE_L2_DICE = 1
@@ -390,21 +423,21 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": KNIGHT_L2_MAX_HEALTH,
             "dice": KNIGHT_L2_DICE,
             "attack": KNIGHT_L2_ATTACK,
-            "abilities": [ABILITIES_MAP[KNIGHT_L1_ABILITY], ABILITIES_MAP[KNIGHT_L2_ABILITY]],
+            "abilities": [ABILITIES_MAP[KNIGHT_L2_ABILITY]],
         },
         "archer": {
             "health": ARCHER_L2_DEFAULT_HEALTH,
             "max_health": ARCHER_L2_MAX_HEALTH,
             "dice": ARCHER_L2_DICE,
             "attack": ARCHER_L2_ATTACK,
-            "abilities": [ABILITIES_MAP[ARCHER_L1_ABILITY]],
+            "abilities": [ABILITIES_MAP[ARCHER_L2_ABILITY]],
         },
         "mage": {
             "health": MAGE_L2_DEFAULT_HEALTH,
             "max_health": MAGE_L2_MAX_HEALTH,
             "dice": MAGE_L2_DICE,
             "attack": MAGE_L2_ATTACK,
-            "abilities": [ABILITIES_MAP[MAGE_L1_ABILITY]],
+            "abilities": [ABILITIES_MAP[MAGE_L2_ABILITY_1], ABILITIES_MAP[MAGE_L2_ABILITY_2]],
         },
     },
     3: {
@@ -413,21 +446,21 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": KNIGHT_L3_MAX_HEALTH,
             "dice": KNIGHT_L3_DICE,
             "attack": KNIGHT_L3_ATTACK,
-            "abilities": [ABILITIES_MAP[KNIGHT_L1_ABILITY]],
+            "abilities": [],
         },
         "archer": {
             "health": ARCHER_L3_DEFAULT_HEALTH,
             "max_health": ARCHER_L3_MAX_HEALTH,
             "dice": ARCHER_L3_DICE,
             "attack": ARCHER_L3_ATTACK,
-            "abilities": [ABILITIES_MAP[ARCHER_L1_ABILITY]],
+            "abilities": [ABILITIES_MAP[ARCHER_L3_ABILITY_1], ABILITIES_MAP[ARCHER_L3_ABILITY_2]],
         },
         "mage": {
             "health": MAGE_L3_DEFAULT_HEALTH,
             "max_health": MAGE_L3_MAX_HEALTH,
             "dice": MAGE_L3_DICE,
             "attack": MAGE_L3_ATTACK,
-            "abilities": [ABILITIES_MAP[MAGE_L1_ABILITY]],
+            "abilities": [],
         },
     },
     4: {
@@ -436,21 +469,21 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": KNIGHT_L4_MAX_HEALTH,
             "dice": KNIGHT_L4_DICE,
             "attack": KNIGHT_L4_ATTACK,
-            "abilities": [ABILITIES_MAP[KNIGHT_L1_ABILITY]],
+            "abilities": [],
         },
         "archer": {
             "health": ARCHER_L4_DEFAULT_HEALTH,
             "max_health": ARCHER_L4_MAX_HEALTH,
             "dice": ARCHER_L4_DICE,
             "attack": ARCHER_L4_ATTACK,
-            "abilities": [ABILITIES_MAP[ARCHER_L1_ABILITY]],
+            "abilities": [],
         },
         "mage": {
             "health": MAGE_L4_DEFAULT_HEALTH,
             "max_health": MAGE_L4_MAX_HEALTH,
             "dice": MAGE_L4_DICE,
             "attack": MAGE_L4_ATTACK,
-            "abilities": [ABILITIES_MAP[MAGE_L1_ABILITY]],
+            "abilities": [],
         },
     },
 }
@@ -459,10 +492,22 @@ CHARACTER_STATS_BY_LEVEL = {
 CHARACTER_DEFAULT_STATS = CHARACTER_STATS_BY_LEVEL[1]
 
 
+def get_abilities_for_level(character_type: ChatacterType, level: int) -> list[Ability]:
+    """Get abilities for a character at a given level, falling back to previous levels if none defined."""
+    for lvl in range(level, 0, -1):
+        abilities = CHARACTER_STATS_BY_LEVEL.get(lvl, {}).get(character_type, {}).get("abilities", [])
+        if abilities:
+            return abilities
+    return []
+
+
 def init_characters(level: int = 1) -> Dict[ChatacterType, Character]:
     """Initialize all character types with stats based on level"""
     level_stats = CHARACTER_STATS_BY_LEVEL.get(level, CHARACTER_STATS_BY_LEVEL[1])
     return {
-        char_type: Character(level=level, **level_stats[char_type])
+        char_type: Character(
+            level=level,
+            **{**level_stats[char_type], "abilities": get_abilities_for_level(char_type, level)},
+        )
         for char_type in [CHARACTER_KNIGHT, CHARACTER_ARCHER, CHARACTER_MAGE]
     }

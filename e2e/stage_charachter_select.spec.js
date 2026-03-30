@@ -6,6 +6,7 @@ import {
   joinGameViaUrl,
   waitForStage,
   expandPlayersMenuIfCollapsed,
+  setupPresetGame,
 } from "./test_helpers.js";
 
 /**
@@ -24,9 +25,6 @@ async function verifyCharacterNotClickable(page, characterName, screenshotName) 
 
   // Try to click the character
   await character.click({ force: true });
-
-  // Wait a bit to see if any selection happens
-  await page.waitForTimeout(100);
 
   // Verify the character has "not-alive" class and is not selected
   await expect(character).toHaveClass(/not-alive/);
@@ -47,65 +45,29 @@ async function verifyCharacterClickable(page, characterName) {
   // Click the character
   await character.click();
 
-  // Wait for selection to register
-  await page.waitForTimeout(100);
-
   // Verify character is now selected
   await expect(character).toHaveClass(/selected/);
 }
 
-test("character_select stage - knight not alive", async ({ page, gameName }) => {
-  // Create preset game with knight dead
-  await createPresetGameViaAPI(gameName, "knight_not_alive");
+const notAliveTestCases = [
+  { preset: "knight_not_alive", deadChar: "knight", aliveChar: "mage" },
+  { preset: "mage_not_alive", deadChar: "mage", aliveChar: "knight" },
+  { preset: "archer_not_alive", deadChar: "archer", aliveChar: "knight" },
+];
 
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
+for (const { preset, deadChar, aliveChar } of notAliveTestCases) {
+  test(`character_select stage - ${deadChar} not alive`, async ({ page, gameName }) => {
+    await createPresetGameViaAPI(gameName, preset);
 
-  // Verify we're in character_select stage
-  await expect(page.locator('[data-character="knight"]').first()).toBeVisible();
-  await expect(page.locator('[data-character="mage"]').first()).toBeVisible();
-  await expect(page.locator('[data-character="archer"]').first()).toBeVisible();
+    await joinGameViaUrl(page, "player1", gameName, "[data-character]");
 
-  // Verify knight is dead and not clickable
-  await verifyCharacterNotClickable(page, "knight", "knight-not-alive-before-click");
+    await verifyCharacterNotClickable(page, deadChar, `${deadChar}-not-alive-before-click`);
 
-  // Verify mage is alive and clickable
-  await verifyCharacterClickable(page, "mage");
+    await verifyCharacterClickable(page, aliveChar);
 
-  await screenshot(page, "knight-not-alive-after-select");
-});
-
-test("character_select stage - mage not alive", async ({ page, gameName }) => {
-  // Create preset game with mage dead
-  await createPresetGameViaAPI(gameName, "mage_not_alive");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
-
-  // Verify mage is dead and not clickable
-  await verifyCharacterNotClickable(page, "mage", "mage-not-alive-before-click");
-
-  // Verify knight is alive and clickable
-  await verifyCharacterClickable(page, "knight");
-
-  await screenshot(page, "mage-not-alive-after-select");
-});
-
-test("character_select stage - archer not alive", async ({ page, gameName }) => {
-  // Create preset game with archer dead
-  await createPresetGameViaAPI(gameName, "archer_not_alive");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
-
-  // Verify archer is dead and not clickable
-  await verifyCharacterNotClickable(page, "archer", "archer-not-alive-before-click");
-
-  // Verify knight is alive and clickable
-  await verifyCharacterClickable(page, "knight");
-
-  await screenshot(page, "archer-not-alive-after-select");
-});
+    await screenshot(page, `${deadChar}-not-alive-after-select`);
+  });
+}
 
 test("character_select stage - knight has skip_turn effect", async ({ page, gameName }) => {
   // Create preset game with knight having skip_turn effect
@@ -131,14 +93,7 @@ test("character_select stage - knight has skip_turn effect", async ({ page, game
 test("character_select stage - skip_turn effect removed after character selection", async ({ page, gameName }) => {
   // Use ability_selection_mage preset which is already past character_select (and card_draw)
   // This preset has mage selected, and any skip_turn effects should have been disposed
-  await createPresetGameViaAPI(gameName, "ability_selection_mage");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-ability]");
-
-  // Player2 joins
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-game-stage]");
+  const page2 = await setupPresetGame(page, gameName, "ability_selection_mage", "[data-ability]");
 
   // We should be at ability_selection stage
   await waitForStage(page, "ability_selection");
@@ -186,14 +141,7 @@ test("character_select stage - no character available shows Skip Turn button", a
 
 test("character_select stage - Skip Turn button passes turn to next player", async ({ page, gameName }) => {
   // Create preset game where all characters are unavailable
-  await createPresetGameViaAPI(gameName, "skip_turn_no_character");
-
-  // Player1 joins
-  await joinGameViaUrl(page, "player1", gameName, "[data-character]");
-
-  // Player2 joins in a new page
-  const page2 = await page.context().newPage();
-  await joinGameViaUrl(page2, "player2", gameName, "[data-character]");
+  const page2 = await setupPresetGame(page, gameName, "skip_turn_no_character", "[data-character]", "[data-character]");
 
   // Verify player1 is initially active
   await waitForStage(page, "character_select");

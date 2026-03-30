@@ -21,6 +21,9 @@ EFFECT_LEVEL_DOWN = "level_down"
 EFFECT_TALISMAN = "talisman"
 EFFECT_DARKNESS_RISE = "darkness_rise"
 EFFECT_FOG = "fog"
+EFFECT_NEUTRALIZE_ITEM = "neutralize_item"
+EFFECT_NO_DAMAGE_ON_WIN = "no_damage_on_win"
+EFFECT_BURNING_ARROW = "burning_arrow"
 
 ########################################################
 # Effect apply_to targets
@@ -183,9 +186,33 @@ class FogEffect(Effect):
     apply_to: ApplyToTarget = APPLY_TO_SELF
 
 
+class NeutralizeItemEffect(Effect):
+    """
+    Removes one active card (item) from the target character.
+    Instant effect - processed at ability opponent selection and not persisted.
+    Applied to selected opponent (requires ability_opponent_selection stage).
+    """
+
+    name: Literal[EFFECT_NEUTRALIZE_ITEM] = EFFECT_NEUTRALIZE_ITEM
+    apply_to: ApplyToTarget = APPLY_TO_SELECTED_OPPONENT
+
+
+class BurningArrowEffect(Effect):
+    """
+    Marker effect for the burning arrow ability (Archer L3).
+    Applied to self (active player's character).
+    At battle end (if archer wins), stores a delayed 2-damage effect on the active
+    character targeting the opponent. The damage is applied at the start of the
+    archer's next turn via CharacterSelectAction or SkipTurnAction.
+    """
+
+    name: Literal[EFFECT_BURNING_ARROW] = EFFECT_BURNING_ARROW
+    apply_to: ApplyToTarget = APPLY_TO_SELF
+
+
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, DefenseBonusEffect, HealEffect, LevelDownEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect, DarknessRiseEffect, FogEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, BurningArrowEffect, DefenseBonusEffect, HealEffect, LevelDownEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect, DarknessRiseEffect, FogEffect, NeutralizeItemEffect],
     Field(discriminator="name"),
 ]
 
@@ -205,3 +232,4 @@ class EffectTotal(StrictModel):
     reroll_dice_available: bool = False
     draw_card_count: int = 0
     has_talisman: bool = False
+    no_damage_on_win: bool = False

@@ -33,6 +33,7 @@ const resources = {
         card_draw: "שליפת קלף",
         ability_selection: "בחירת יכולת",
         ability_opponent_selection: "בחירת יעד ליכולת",
+        ability_item_selection: "בחירת חפץ לנטרול",
         opponent_selection: "בחירת יריב",
         battle_dice_roll: "גלגול קוביות",
         battle_end: "תוצאות קרב",
@@ -42,6 +43,7 @@ const resources = {
         card_draw: "שלוף קלף",
         ability_selection: "בחר יכולת",
         ability_opponent_selection: "בחר יריב ודמות להחלת היכולת",
+        ability_item_selection: "בחר חפץ לנטרול",
         opponent_selection: "בחר את יריבך",
         battle_dice_roll: "גלגל את הקוביות",
         battle_end: "תוצאות הקרב",
@@ -60,6 +62,18 @@ const resources = {
           name: "חץ מקפץ",
           description: "מאפשר לגלגל את הקובייה מחדש",
         },
+        bouncing_arrow_l2: {
+          name: "חץ קופץ",
+          description: "אם מפסיד, מאפשר שני קרבות חוזרים - בשני הקשת לא מוריד חיים אם מנצח",
+        },
+        bouncing_arrow_l3: {
+          name: "חץ קופץ",
+          description: "אם מפסיד, מאפשר שני קרבות חוזרים - בשני הקשת לא מוריד חיים אם מנצח",
+        },
+        burning_arrow: {
+          name: "חץ בוער",
+          description: "אם מנצח, לא גורם נזק בתור זה - יגרום 2 נזק ליריב לאחר שני תחילות תור",
+        },
         freeze: {
           name: "הקפאה",
           description: "מונע מדמות לבחירתך להשתתף בסיבוב הבא",
@@ -67,6 +81,14 @@ const resources = {
         disarm: {
           name: "פריקת נשק",
           description: "במקום לתקוף, שלוף קלף נוסף",
+        },
+        storm: {
+          name: "סופה",
+          description: "-2 להתקפות היריב הנבחר בקרב",
+        },
+        dragon_breath: {
+          name: "נשימת דרקון",
+          description: "מנטרל חפץ אחד מהיריב הנבחר",
         },
         no_ability: {
           name: "ללא יכולת",
@@ -129,6 +151,10 @@ const resources = {
         submit: "בחר",
         select_opponent: "בחר יריב ודמות בבקשה",
       },
+      ability_item_selection: {
+        submit: "בחר",
+        select_item: "בחר חפץ לנטרול בבקשה",
+      },
       opponent_selection: {
         select_opponent: "בחר יריב ודמות בבקשה",
       },
@@ -140,6 +166,7 @@ const resources = {
         continue: "המשך",
         reroll: "גלגל מחדש",
       },
+      loading: "טוען...",
       errors: {
         game_not_found: "המשחק '{{gamename}}' לא נמצא. בדוק את שם המשחק ונסה שוב.",
         connection_failed: "נכשל בהתחברות למשחק. נסה שוב מאוחר יותר.",

@@ -110,10 +110,14 @@ class OpponentSelectAction(Action):
                         opponent_character.effects.append(effect.name)
 
         # Apply "battle_opponent" effects from ability to the opponent's character
+        # Store ability name (not effect name) to preserve value info for lookup in Character.effect
         if self.game.ability:
-            for effect in get_ability_effects(self.game.ability):
-                if effect.apply_to == APPLY_TO_BATTLE_OPPONENT:
-                    opponent_character.effects.append(effect.name)
+            has_battle_opponent_effect = any(
+                effect.apply_to == APPLY_TO_BATTLE_OPPONENT
+                for effect in get_ability_effects(self.game.ability)
+            )
+            if has_battle_opponent_effect:
+                opponent_character.effects.append(self.game.ability)
 
         # Transition to battle dice roll stage
         self.game.stage = STAGE_BATTLE_DICE_ROLL

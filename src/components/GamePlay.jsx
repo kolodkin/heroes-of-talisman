@@ -8,6 +8,7 @@ import StageCharacterSelect from "./StageCharacterSelect";
 import StageCardDraw from "./StageCardDraw";
 import StageAbilitySelection from "./StageAbilitySelection";
 import StageAbilityOpponentSelection from "./StageAbilityOpponentSelection";
+import StageAbilityItemSelection from "./StageAbilityItemSelection";
 import StageOpponentSelection from "./StageOpponentSelection";
 import StageBattle from "./StageBattle";
 import Player from "./Player";
@@ -18,6 +19,7 @@ import {
   CARD_DRAW,
   ABILITY_SELECTION,
   ABILITY_OPPONENT_SELECTION,
+  ABILITY_ITEM_SELECTION,
   OPPONENT_SELECTION,
   BATTLE_DICE_ROLL,
   BATTLE_END,
@@ -244,6 +246,15 @@ const GamePlay = ({ username, gamePlay, sendAction }) => {
                       sendAction={sendAction}
                       active={isActivePlayer}
                       selectedOpponent={displayedGamePlay.stage_meta}
+                    />
+                  );
+                case ABILITY_ITEM_SELECTION:
+                  return (
+                    <StageAbilityItemSelection
+                      stageMeta={displayedGamePlay.stage_meta}
+                      players={displayedGamePlay.players}
+                      sendAction={sendAction}
+                      active={isActivePlayer}
                     />
                   );
                 case OPPONENT_SELECTION:

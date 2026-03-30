@@ -1,11 +1,13 @@
 from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_FREEZE, ABILITY_DISARM
-from .effects import EFFECT_SKIP_TURN
+from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH
+from .effects import EFFECT_SKIP_TURN, EFFECT_NO_DAMAGE_ON_WIN, EFFECT_REROLL_DICE, EFFECT_BURNING_ARROW
 from .gameplay import (
     StageName,
     STAGE_ABILITY_SELECTION,
+    STAGE_ABILITY_ITEM_SELECTION,
+    STAGE_ABILITY_OPPONENT_SELECTION,
     STAGE_BATTLE_DICE_ROLL,
     STAGE_BATTLE_END,
     STAGE_CARD_DRAW,
@@ -18,10 +20,12 @@ from .gameplay import (
     ActivePlayer2,
     ActivePlayer3,
     ActivePlayer4,
+    Opponent2,
     Opponent3,
     Opponent4,
     BattleResult,
     AbilitySelectMeta,
+    AbilityItemMeta,
     CardDrawMeta,
     init_characters,
 )
@@ -30,6 +34,8 @@ PRESET_ABILITY_SELECTION_KNIGHT = "ability_selection_knight"
 PRESET_ABILITY_SELECTION_KNIGHT_L2 = "ability_selection_knight_l2"
 PRESET_ABILITY_SELECTION_ARCHER = "ability_selection_archer"
 PRESET_ABILITY_SELECTION_MAGE = "ability_selection_mage"
+PRESET_ABILITY_SELECTION_MAGE_L2 = "ability_selection_mage_l2"
+PRESET_ABILITY_ITEM_SELECTION_DRAGON_BREATH = "ability_item_selection_dragon_breath"
 PRESET_EFFECT_REROLL = "effect_reroll"
 PRESET_ARCHER_NOT_ALIVE = "archer_not_alive"
 PRESET_BATTLE_DRAW = "battle_draw"
@@ -60,12 +66,21 @@ PRESET_CARD_DRAW_KNIGHT_DEVILS_FORK_MIN_LEVEL = "card_draw_knight_devils_fork_mi
 PRESET_CARD_DRAW_KNIGHT_TALISMAN = "card_draw_knight_talisman"
 PRESET_CARD_DRAW_FOG_ALL_HIGH_LEVEL = "card_draw_fog_all_high_level"
 PRESET_CARD_DRAW_FOG_MIXED_LEVEL = "card_draw_fog_mixed_level"
+PRESET_ABILITY_SELECTION_ARCHER_L2 = "ability_selection_archer_l2"
+PRESET_EFFECT_REROLL_L2_FIRST = "effect_reroll_l2_first"
+PRESET_EFFECT_REROLL_L2_SECOND = "effect_reroll_l2_second"
+PRESET_ABILITY_SELECTION_ARCHER_L3 = "ability_selection_archer_l3"
+PRESET_BURNING_ARROW_WIN = "burning_arrow_win"
+PRESET_BURNING_ARROW_NEXT_TURN = "burning_arrow_next_turn"
+PRESET_ABILITY_SELECTION_MAGE_L2_WITH_ITEMS = "ability_selection_mage_l2_with_items"
 DebugPresetsType = Literal[
     "default",
     "ability_selection_knight",
     "ability_selection_knight_l2",
     "ability_selection_archer",
     "ability_selection_mage",
+    "ability_selection_mage_l2",
+    "ability_selection_mage_l2_with_items",
     "archer_not_alive",
     "battle_draw",
     "battle_level_down",
@@ -87,6 +102,12 @@ DebugPresetsType = Literal[
     "card_draw_knight_talisman",
     "card_draw_fog_all_high_level",
     "card_draw_fog_mixed_level",
+    "ability_selection_archer_l2",
+    "effect_reroll_l2_first",
+    "effect_reroll_l2_second",
+    "ability_selection_archer_l3",
+    "burning_arrow_win",
+    "burning_arrow_next_turn",
     "effect_attack_bonus",
     "effect_reroll",
     "effect_skip_turn",
@@ -94,6 +115,7 @@ DebugPresetsType = Literal[
     "health_1",
     "knight_not_alive",
     "mage_not_alive",
+    "ability_item_selection_dragon_breath",
     "opponent_selection_preset",
     "single_player",
 ]
@@ -184,6 +206,53 @@ def get_debug_preset(
             players={
                 p1_name: Player(name=p1_name, characters=init_characters()),
                 p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_selection_mage_l2":
+        # Ability selection stage - player1 has selected mage at level 2
+        # Mage L2 has STORM and DRAGON_BREATH - two abilities, no auto-select
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=2)),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_selection_mage_l2_with_items":
+        # Ability selection stage - player1 has selected mage at level 2
+        # Player2's knight has metal_armor and sacred_sword (for dragon_breath full flow testing)
+        from .cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD
+        characters1 = init_characters(level=2)
+        characters2 = init_characters()
+        characters2[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR, CARD_SACRED_SWORD]
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
+            players={
+                p1_name: Player(name=p1_name, characters=characters1),
+                p2_name: Player(name=p2_name, characters=characters2),
+            },
+        )
+    elif preset == "ability_item_selection_dragon_breath":
+        # Ability item selection stage - player1 (mage L2) chose Dragon Breath and targeted player2's knight
+        # Player2's knight has metal_armor and sacred_sword; player1 selects which item to neutralize
+        from .cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD
+        characters1 = init_characters(level=2)
+        characters2 = init_characters()
+        characters2[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR, CARD_SACRED_SWORD]
+        ret = GamePlay(
+            stage=STAGE_ABILITY_ITEM_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
+            ability=ABILITY_DRAGON_BREATH,
+            ability_opponent=Opponent2(player=p2_name, character=CHARACTER_KNIGHT),
+            stage_meta=AbilityItemMeta(
+                target_player=p2_name,
+                target_character=CHARACTER_KNIGHT,
+            ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters1),
+                p2_name: Player(name=p2_name, characters=characters2),
             },
         )
     elif preset == "health_1":
@@ -670,6 +739,114 @@ def get_debug_preset(
             stage=STAGE_CARD_DRAW,
             active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
             stage_meta=CardDrawMeta(drawn_card=CARD_FOG),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "ability_selection_archer_l2":
+        # Ability selection stage - player1 has selected archer at level 2
+        # Archer L2 has BOUNCING_ARROW_L2 as its own level skill, no auto-select
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_ARCHER),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=2)),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "effect_reroll_l2_first":
+        # Archer L2 loses to mage, used bouncing_arrow_l2 ability (first reroll consumed)
+        # Now has EFFECT_REROLL_DICE + EFFECT_NO_DAMAGE_ON_WIN in effects (second reroll state)
+        # Player 1: archer L2 (dice=[2], attack=2) with second reroll state = 4
+        # Player 2: mage (dice=[5], attack=0) = 5
+        # Result: archer loses (4 < 5), archer can use second reroll (no damage if wins)
+        characters_p1 = init_characters(level=2)
+        characters_p1[CHARACTER_ARCHER].effects = [EFFECT_REROLL_DICE, EFFECT_NO_DAMAGE_ON_WIN]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=STAGE_BATTLE_DICE_ROLL,
+            active=ActivePlayer4(
+                player=p1_name, character=CHARACTER_ARCHER, dice_roll=[2], result=BattleResult(winner=False, score=4)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=CHARACTER_MAGE, dice_roll=[5], result=BattleResult(winner=True, score=5)
+            ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "effect_reroll_l2_second":
+        # Archer L2 wins on second reroll but with no-damage effect active
+        # Player 1: archer L2 (dice=[6], attack=2) with EFFECT_NO_DAMAGE_ON_WIN = 8
+        # Player 2: mage (dice=[3], attack=0) = 3
+        # Result: archer wins (8 > 3) but deals NO damage (no_damage_on_win)
+        characters_p1 = init_characters(level=2)
+        characters_p1[CHARACTER_ARCHER].effects = [EFFECT_NO_DAMAGE_ON_WIN]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=STAGE_BATTLE_END,
+            active=ActivePlayer4(
+                player=p1_name, character=CHARACTER_ARCHER, dice_roll=[6], result=BattleResult(winner=True, score=8)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=CHARACTER_MAGE, dice_roll=[3], result=BattleResult(winner=False, score=3)
+            ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "ability_selection_archer_l3":
+        # Ability selection stage - player1 has selected archer at level 3
+        # Archer L3 has BOUNCING_ARROW_L3 and BURNING_ARROW - two abilities, no auto-select
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_ARCHER),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=3)),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "burning_arrow_win":
+        # Archer L3 wins battle with BURNING_ARROW active (ready for BattleEndAction)
+        # Player 1: archer L3 (dice=[6], attack=0) with BURNING_ARROW = 6
+        # Player 2: mage (dice=[3], attack=0) = 3
+        # Result: archer wins (6 > 3), BURNING_ARROW stores delayed 2-damage on mage
+        characters_p1 = init_characters(level=3)
+        characters_p1[CHARACTER_ARCHER].active_abilities = [ABILITY_BURNING_ARROW]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=STAGE_BATTLE_END,
+            active=ActivePlayer4(
+                player=p1_name, character=CHARACTER_ARCHER, dice_roll=[6], result=BattleResult(winner=True, score=6)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=CHARACTER_MAGE, dice_roll=[3], result=BattleResult(winner=False, score=3)
+            ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "burning_arrow_next_turn":
+        # One decrement already happened (opponent's turn). Mage has burning_arrow:1.
+        # Stage: CHARACTER_SELECT (archer's turn) — selecting any character decrements to 0, fires 2 damage on mage.
+        characters_p1 = init_characters(level=3)
+
+        characters_p2 = init_characters()
+        characters_p2[CHARACTER_MAGE].effects = [f"{EFFECT_BURNING_ARROW}:1"]
+
+        ret = GamePlay(
+            stage=STAGE_CHARACTER_SELECT,
+            active=ActivePlayer1(player=p1_name),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),

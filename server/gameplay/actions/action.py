@@ -1,13 +1,15 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-from ..common import GameException, ReportedException
+from ..common import GameException, ReportedException, ChatacterType
 from ..gameplay import (
     StageName,
     STAGE_CHARACTER_SELECT,
     GamePlay,
     Player,
     Character,
+    CHARACTER_STATS_BY_LEVEL,
+    AbilityItemMeta,
     ActivePlayer1,
     ActivePlayer2,
     ActivePlayer3,
@@ -86,6 +88,20 @@ class Action(ABC):
         self.game.opponent = value
 
     @property
+    def ability_item_target_character(self) -> Character:
+        """
+        Get the target character for ability item selection.
+
+        Provides validation that stage_meta is an AbilityItemMeta with valid target.
+
+        Raises:
+            GameException: If stage_meta is not set or is not an AbilityItemMeta
+        """
+        if not self.stage_meta or not isinstance(self.stage_meta, AbilityItemMeta):
+            raise GameException("No ability item target set")
+        return self.game.players[self.stage_meta.target_player].characters[self.stage_meta.target_character]
+
+    @property
     def opponent_character(self) -> Character:
         """
         Get the opponent's character card.
@@ -129,6 +145,39 @@ class Action(ABC):
     @abstractmethod
     def _run(self, *args, **kwargs) -> GamePlay:
         """Execute the action logic. Implemented by subclasses."""
+
+
+def apply_damage_with_level_check(
+    character: Character,
+    character_type: ChatacterType,
+    damage: int,
+    winner_has_talisman: bool = False,
+) -> None:
+    """
+    Apply damage to a character with level-based death mechanic.
+
+    If character health drops to 0 or below:
+    - If winner has talisman: Character dies regardless of level
+    - At level 2+: Reduce level by 1 and restore health to new level's max_health
+    - At level 1: Character dies (health stays at 0)
+    """
+    character.health = max(0, character.health - damage)
+
+    if character.health <= 0:
+        if winner_has_talisman:
+            character.is_alive = False
+        elif character.level > 1:
+            new_level = character.level - 1
+            level_stats = CHARACTER_STATS_BY_LEVEL.get(new_level, CHARACTER_STATS_BY_LEVEL[1])
+            char_stats = level_stats[character_type]
+
+            character.level = new_level
+            character.max_health = char_stats["max_health"]
+            character.dice = char_stats["dice"]
+            character.attack = char_stats["attack"]
+            character.health = character.max_health
+        else:
+            character.is_alive = False
 
 
 def rotate_to_next_player(game: GamePlay) -> None:

@@ -3,6 +3,7 @@ export const CHARACTER_SELECT = "character_select";
 export const CARD_DRAW = "card_draw";
 export const ABILITY_SELECTION = "ability_selection";
 export const ABILITY_OPPONENT_SELECTION = "ability_opponent_selection";
+export const ABILITY_ITEM_SELECTION = "ability_item_selection";
 export const OPPONENT_SELECTION = "opponent_selection";
 export const BATTLE_DICE_ROLL = "battle_dice_roll";
 export const BATTLE_END = "battle_end";

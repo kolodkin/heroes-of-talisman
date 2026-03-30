@@ -91,6 +91,7 @@
   .card-normal {
     padding: 1.5rem;
     gap: 0.8rem;
+    max-width: 220px;
   }
 
   .card-normal .image {

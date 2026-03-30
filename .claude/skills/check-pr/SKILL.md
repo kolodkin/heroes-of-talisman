@@ -59,6 +59,27 @@ When `--links` output is available, **do not show all test links**. Show only th
 
 Omit all other passing tests that are unrelated to the current change set. This keeps the output focused and actionable.
 
+## Output Format for Test Links
+
+Always present test links in a plain-text format suitable for copying to messaging apps (e.g. WhatsApp). Use this exact format:
+
+```
+✅ PR #<number> — All checks passed
+
+🧪 <Feature name> E2E Tests:
+
+1. <test title>
+<full URL with #?testId=...>
+
+2. <test title>
+<full URL with #?testId=...>
+```
+
+- Use `✅` for success, `❌` for failure
+- Number each test
+- Put the full URL on its own line (no markdown link syntax)
+- Group tests by spec file with a header if multiple spec files are shown
+
 ## On Failure
 
 1. **Get logs from failed runs:**
