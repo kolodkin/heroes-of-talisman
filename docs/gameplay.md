@@ -112,8 +112,10 @@ Each character has abilities that trigger effects (attack bonus, skip turn, rero
 | `freeze`            | Mage      | 1     | Skip a selected opponent character's next turn                                                                                       |
 | `storm`             | Mage      | 2     | Apply -2 attack penalty to the battle opponent                                                                                       |
 | `dragon_breath`     | Mage      | 2     | Remove one item card from a selected opponent character                                                                              |
+| `mind_reading`      | Mage      | 3     | Battle opponent cannot target the mage with abilities or attack the mage during their next turn                                      |
+| `drain`             | Mage      | 3     | Borrow one item card from any opponent character for the current turn (opponent loses the item until turn ends, then it is returned)  |
 
-**No-ability levels**: Knight and Mage have no abilities at L3 and L4. Archer has no abilities at L4. Characters at these levels still gain improved stats but cannot use abilities.
+**No-ability levels**: Knight and Mage have no abilities at L4. Archer has no abilities at L4. Characters at these levels still gain improved stats but cannot use abilities.
 
 See [Backend GamePlay - Abilities & Effects](/docs/backend.md#abilities--effects) for implementation details.
 
