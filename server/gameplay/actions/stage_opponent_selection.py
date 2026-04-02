@@ -10,7 +10,7 @@ from .action import Action
 from ..abilities import get_ability_effects
 from ..cards import CARDS_MAP
 from ..common import GameException, ReportedException
-from ..effects import APPLY_TO_BATTLE_OPPONENT
+from ..effects import APPLY_TO_BATTLE_OPPONENT, EFFECT_MIND_READING
 from ..gameplay import STAGE_BATTLE_DICE_ROLL, STAGE_OPPONENT_SELECTION, GamePlay, Opponent2
 
 
@@ -53,6 +53,11 @@ class OpponentPressAction(Action):
         # Validate character is alive
         if not opponent_player.characters[character].is_alive:
             raise ReportedException(f"Opponent character {character} is dead and can't be selected")
+
+        # Validate character is not protected by mind_reading against the active player
+        mind_reading_protection = f"{EFFECT_MIND_READING}:{self.user}"
+        if mind_reading_protection in opponent_player.characters[character].effects:
+            raise ReportedException(f"Character {character} is protected by mind reading")
 
         # Set selected opponent in stage metadata
         self.game.stage_meta = Opponent2(player=opponent, character=character)
@@ -97,6 +102,11 @@ class OpponentSelectAction(Action):
             raise ReportedException(
                 f"Opponent character {selected_opponent.character} is dead and can't be selected"
             )
+
+        # Validate character is not protected by mind_reading against the active player
+        mind_reading_protection = f"{EFFECT_MIND_READING}:{self.user}"
+        if mind_reading_protection in opponent_character.effects:
+            raise ReportedException(f"Character {selected_opponent.character} is protected by mind reading")
 
         # Set opponent in game metadata
         self.game.opponent = selected_opponent

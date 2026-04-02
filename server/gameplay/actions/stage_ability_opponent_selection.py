@@ -9,7 +9,7 @@ This module implements actions for the ability opponent selection stage:
 from .action import Action
 from ..common import GameException, ReportedException
 from ..abilities import get_ability_effects
-from ..effects import NeutralizeItemEffect
+from ..effects import EFFECT_MIND_READING, DrainEffect, NeutralizeItemEffect
 from ..gameplay import (
     STAGE_ABILITY_OPPONENT_SELECTION,
     STAGE_ABILITY_ITEM_SELECTION,
@@ -60,6 +60,11 @@ class AbilityOpponentPressAction(Action):
         if not opponent_player.characters[character].is_alive:
             raise ReportedException(f"Opponent character {character} is dead and can't be targeted")
 
+        # Validate character is not protected by mind_reading against the active player
+        mind_reading_protection = f"{EFFECT_MIND_READING}:{self.user}"
+        if mind_reading_protection in opponent_player.characters[character].effects:
+            raise ReportedException(f"Character {character} is protected by mind reading")
+
         # Set selected opponent in stage metadata
         self.game.stage_meta = Opponent2(player=opponent, character=character)
 
@@ -108,14 +113,23 @@ class AbilityOpponentSelectAction(Action):
                 f"Opponent character {selected_opponent.character} is dead and can't be targeted"
             )
 
+        # Validate character is not protected by mind_reading against the active player
+        mind_reading_protection = f"{EFFECT_MIND_READING}:{self.user}"
+        if mind_reading_protection in target_character.effects:
+            raise ReportedException(f"Character {selected_opponent.character} is protected by mind reading")
+
         # Check if any effect requires item selection
         has_neutralize_item = any(
             isinstance(effect, NeutralizeItemEffect)
             for effect in get_ability_effects(self.game.ability)
         )
+        has_drain = any(
+            isinstance(effect, DrainEffect)
+            for effect in get_ability_effects(self.game.ability)
+        )
 
-        if has_neutralize_item and target_character.active_cards:
-            # Route to item selection stage so active player can choose which item to neutralize
+        if (has_neutralize_item or has_drain) and target_character.active_cards:
+            # Route to item selection stage so active player can choose which item to neutralize/drain
             self.game.stage = STAGE_ABILITY_ITEM_SELECTION
             self.game.stage_meta = AbilityItemMeta(
                 target_player=selected_opponent.player,
@@ -124,9 +138,9 @@ class AbilityOpponentSelectAction(Action):
             # Store the ability opponent now (used by item selection stage)
             self.game.ability_opponent = selected_opponent
         else:
-            # No items to select (or no NeutralizeItemEffect): apply remaining effects and proceed
+            # No items to select (or no item-targeting effect): apply remaining effects and proceed
             for effect in get_ability_effects(self.game.ability):
-                if not isinstance(effect, NeutralizeItemEffect):
+                if not isinstance(effect, (NeutralizeItemEffect, DrainEffect)):
                     target_character.effects.append(effect.name)
 
             # Store the ability opponent

@@ -24,6 +24,8 @@ EFFECT_FOG = "fog"
 EFFECT_NEUTRALIZE_ITEM = "neutralize_item"
 EFFECT_NO_DAMAGE_ON_WIN = "no_damage_on_win"
 EFFECT_BURNING_ARROW = "burning_arrow"
+EFFECT_MIND_READING = "mind_reading"
+EFFECT_DRAIN = "drain"
 
 ########################################################
 # Effect apply_to targets
@@ -210,9 +212,36 @@ class BurningArrowEffect(Effect):
     apply_to: ApplyToTarget = APPLY_TO_SELF
 
 
+class MindReadingEffect(Effect):
+    """
+    Protects the mage from the battle opponent's next turn.
+    Applied to self (active player's character).
+    At battle end, stores 'mind_reading:{opponent_player}' in the mage's effects.
+    During the opponent's next turn, the mage cannot be targeted by abilities
+    or selected as a battle target. Cleared when that opponent's turn starts.
+    """
+
+    name: Literal[EFFECT_MIND_READING] = EFFECT_MIND_READING
+    apply_to: ApplyToTarget = APPLY_TO_SELF
+
+
+class DrainEffect(Effect):
+    """
+    Borrow one item card from any opponent character for the current turn.
+    Applied to selected opponent (requires ability_opponent_selection stage).
+    Routes to ability_item_selection to choose which item to borrow.
+    The item is removed from the opponent and added to the mage's active_cards.
+    At turn end (rotate_to_next_player), the item is returned to the original owner.
+    Tracked via 'drain:{player}:{character}:{card}' in the mage's effects.
+    """
+
+    name: Literal[EFFECT_DRAIN] = EFFECT_DRAIN
+    apply_to: ApplyToTarget = APPLY_TO_SELECTED_OPPONENT
+
+
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, BurningArrowEffect, DefenseBonusEffect, HealEffect, LevelDownEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect, DarknessRiseEffect, FogEffect, NeutralizeItemEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, BurningArrowEffect, DefenseBonusEffect, DrainEffect, HealEffect, LevelDownEffect, LevelUpEffect, MindReadingEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect, DarknessRiseEffect, FogEffect, NeutralizeItemEffect],
     Field(discriminator="name"),
 ]
 

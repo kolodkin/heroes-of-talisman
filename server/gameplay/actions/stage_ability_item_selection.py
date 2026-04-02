@@ -3,12 +3,15 @@ Ability Item Selection Stage Actions
 
 This module implements actions for the ability item selection stage:
 - AbilityItemPressAction: Highlights a selected item card from the target's active_cards
-- AbilityItemSelectAction: Removes the selected item from the target's active_cards and
-  transitions to opponent_selection stage
+- AbilityItemSelectAction: Removes the selected item from the target's active_cards
+  (dragon_breath) or borrows it for the current turn (drain), then transitions to
+  opponent_selection stage
 """
 
 from .action import Action
+from ..abilities import get_ability_effects, ABILITY_DRAIN
 from ..common import GameException, ReportedException
+from ..effects import DrainEffect, EFFECT_DRAIN
 from ..gameplay import STAGE_ABILITY_ITEM_SELECTION, STAGE_OPPONENT_SELECTION, GamePlay, AbilityItemMeta
 
 
@@ -76,8 +79,21 @@ class AbilityItemSelectAction(Action):
         if selected_item not in target_character.active_cards:
             raise ReportedException(f"Item {selected_item} is no longer in target's active cards")
 
-        # Remove the selected item
+        # Check if this is a drain ability (borrow) or neutralize (remove)
+        is_drain = self.game.ability == ABILITY_DRAIN
+
+        # Remove the selected item from the target
         target_character.active_cards.remove(selected_item)
+
+        if is_drain:
+            # Drain: borrow the item — add to mage's active_cards and track for return
+            active_character = self.active_character
+            active_character.active_cards.append(selected_item)
+            target_player = self.game.stage_meta.target_player
+            target_char_type = self.game.stage_meta.target_character
+            active_character.effects.append(
+                f"{EFFECT_DRAIN}:{target_player}:{target_char_type}:{selected_item}"
+            )
 
         # Transition to opponent selection stage
         self.game.stage = STAGE_OPPONENT_SELECTION

@@ -55,6 +55,8 @@ from .abilities import (
     ABILITY_DISARM,
     ABILITY_STORM,
     ABILITY_DRAGON_BREATH,
+    ABILITY_MIND_READING,
+    ABILITY_DRAIN,
 )
 from .effects import (
     EffectTotal,
@@ -386,6 +388,8 @@ MAGE_L3_DEFAULT_HEALTH = 4
 MAGE_L3_MAX_HEALTH = 4
 MAGE_L3_DICE = 2
 MAGE_L3_ATTACK = 0
+MAGE_L3_ABILITY_1 = ABILITY_MIND_READING
+MAGE_L3_ABILITY_2 = ABILITY_DRAIN
 
 # Mage Level 4
 MAGE_L4_DEFAULT_HEALTH = 5
@@ -460,7 +464,7 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": MAGE_L3_MAX_HEALTH,
             "dice": MAGE_L3_DICE,
             "attack": MAGE_L3_ATTACK,
-            "abilities": [],
+            "abilities": [ABILITIES_MAP[MAGE_L3_ABILITY_1], ABILITIES_MAP[MAGE_L3_ABILITY_2]],
         },
     },
     4: {

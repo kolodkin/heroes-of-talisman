@@ -10,7 +10,9 @@ from .effects import (
     AttackBonusEffect,
     AttackNegBonusEffect,
     BurningArrowEffect,
+    DrainEffect,
     DrawCardEffect,
+    MindReadingEffect,
     NeutralizeItemEffect,
     RerollDiceEffect,
     SkipTurnEffect,
@@ -28,7 +30,9 @@ ABILITY_FREEZE = "freeze"
 ABILITY_DISARM = "disarm"
 ABILITY_STORM = "storm"
 ABILITY_DRAGON_BREATH = "dragon_breath"
-ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH]
+ABILITY_MIND_READING = "mind_reading"
+ABILITY_DRAIN = "drain"
+ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH, ABILITY_MIND_READING, ABILITY_DRAIN]
 AbilityName = Literal[*ABILITIES_NAMES]
 
 
@@ -90,6 +94,18 @@ ABILITIES_MAP: dict[AbilityName, Ability] = {
         name=ABILITY_DRAGON_BREATH,
         effects=[
             NeutralizeItemEffect(),
+        ],
+    ),
+    ABILITY_MIND_READING: Ability(
+        name=ABILITY_MIND_READING,
+        effects=[
+            MindReadingEffect(),
+        ],
+    ),
+    ABILITY_DRAIN: Ability(
+        name=ABILITY_DRAIN,
+        effects=[
+            DrainEffect(),
         ],
     ),
 }

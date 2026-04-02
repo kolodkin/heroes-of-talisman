@@ -8,8 +8,8 @@ At level 1, dropping to 0 health means the character dies.
 
 from .action import Action, apply_damage_with_level_check, rotate_to_next_player
 from ..common import GameException, ReportedException
-from ..abilities import ABILITY_BURNING_ARROW
-from ..effects import EFFECT_NO_DAMAGE_ON_WIN, EFFECT_BURNING_ARROW
+from ..abilities import ABILITY_BURNING_ARROW, ABILITY_MIND_READING
+from ..effects import EFFECT_MIND_READING, EFFECT_NO_DAMAGE_ON_WIN, EFFECT_BURNING_ARROW
 from ..gameplay import (
     STAGE_BATTLE_END,
     GamePlay,
@@ -76,6 +76,10 @@ class BattleEndAction(Action):
                 winner_has_talisman=opponent_character.effect.has_talisman,
             )
         # If tied, no one loses health
+
+        # Store mind_reading protection before clearing abilities
+        if ABILITY_MIND_READING in active_character.active_abilities:
+            active_character.effects.append(f"{EFFECT_MIND_READING}:{self.game.opponent.player}")
 
         # Clear active abilities from both characters at battle end
         active_character.active_abilities = []

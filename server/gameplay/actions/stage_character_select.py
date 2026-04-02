@@ -12,7 +12,7 @@ from ..common import (
     GameException,
     ReportedException,
 )
-from ..effects import EFFECT_BURNING_ARROW
+from ..effects import EFFECT_BURNING_ARROW, EFFECT_DRAIN, EFFECT_MIND_READING
 from ..gameplay import (
     STAGE_CARD_DRAW,
     STAGE_ABILITY_SELECTION,
@@ -33,6 +33,14 @@ def _decrement_burning_arrow(eff: str, char_type: str, char) -> str | None:
             apply_damage_with_level_check(char, char_type, 2)
         return None
     return f"{EFFECT_BURNING_ARROW}:{count}"
+
+
+def _clear_mind_reading_for_player(game: GamePlay, player_name: str) -> None:
+    """Clear mind_reading:{player_name} effects from ALL characters across ALL players."""
+    prefix = f"{EFFECT_MIND_READING}:{player_name}"
+    for player in game.players.values():
+        for char in player.characters.values():
+            char.effects = [e for e in char.effects if e != prefix]
 
 
 def _process_burning_arrow_effects(game: GamePlay) -> None:
@@ -114,12 +122,16 @@ class CharacterSelectAction(Action):
         if not player.characters[character].is_alive:
             raise ReportedException(f"Character {character} is dead and can't be selected")
 
+        # Clear mind_reading protection that targeted this player
+        _clear_mind_reading_for_player(self.game, self.user)
+
         # Decrement burning arrow countdowns across all characters, fire if count reaches 0
         _process_burning_arrow_effects(self.game)
 
-        # Clear effects (e.g., skip_turn) from active player's characters, preserving burning_arrow
+        # Clear effects (e.g., skip_turn) from active player's characters, preserving persistent effects
+        persistent_prefixes = (EFFECT_BURNING_ARROW + ":", EFFECT_DRAIN + ":", EFFECT_MIND_READING + ":")
         for char in player.characters.values():
-            char.effects = [e for e in char.effects if e.startswith(EFFECT_BURNING_ARROW + ":")]
+            char.effects = [e for e in char.effects if e.startswith(persistent_prefixes)]
 
         # Update active player with selected character
         self.game.active = ActivePlayer2(player=self.user, character=character)
@@ -170,12 +182,16 @@ class SkipTurnAction(Action):
                 "Cannot skip turn: available characters exist"
             )
 
+        # Clear mind_reading protection that targeted this player
+        _clear_mind_reading_for_player(self.game, self.user)
+
         # Decrement burning arrow countdowns across all characters, fire if count reaches 0
         _process_burning_arrow_effects(self.game)
 
-        # Clear effects (e.g., skip_turn) from active player's characters, preserving burning_arrow
+        # Clear effects (e.g., skip_turn) from active player's characters, preserving persistent effects
+        persistent_prefixes = (EFFECT_BURNING_ARROW + ":", EFFECT_DRAIN + ":", EFFECT_MIND_READING + ":")
         for char in player.characters.values():
-            char.effects = [e for e in char.effects if e.startswith(EFFECT_BURNING_ARROW + ":")]
+            char.effects = [e for e in char.effects if e.startswith(persistent_prefixes)]
 
         # Rotate to next player's turn
         rotate_to_next_player(self.game)

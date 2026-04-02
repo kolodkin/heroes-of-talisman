@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
 from ..common import GameException, ReportedException, ChatacterType
+from ..effects import EFFECT_DRAIN
 from ..gameplay import (
     StageName,
     STAGE_CHARACTER_SELECT,
@@ -180,16 +181,46 @@ def apply_damage_with_level_check(
             character.is_alive = False
 
 
+def _return_drained_items(game: GamePlay) -> None:
+    """Return all borrowed (drained) items to their original owners."""
+    drain_prefix = EFFECT_DRAIN + ":"
+    for player in game.players.values():
+        for char in player.characters.values():
+            drain_effects = [e for e in char.effects if e.startswith(drain_prefix)]
+            for eff in drain_effects:
+                # Parse drain:{player}:{character}:{card}
+                parts = eff.split(":", 3)
+                target_player = parts[1]
+                target_character = parts[2]
+                card_name = parts[3]
+
+                # Remove borrowed card from the drainer's active_cards
+                if card_name in char.active_cards:
+                    char.active_cards.remove(card_name)
+
+                # Return card to original owner (if they still exist and character is alive)
+                if target_player in game.players:
+                    target_char = game.players[target_player].characters.get(target_character)
+                    if target_char and target_char.is_alive:
+                        target_char.active_cards.append(card_name)
+
+            # Clear drain effects
+            char.effects = [e for e in char.effects if not e.startswith(drain_prefix)]
+
+
 def rotate_to_next_player(game: GamePlay) -> None:
     """
     Rotate to the next player and reset game state for character selection.
 
-    Clears battle state (opponent, card, ability) and transitions to
-    CHARACTER_SELECT stage with the next player as active.
+    Clears battle state (opponent, card, ability), returns drained items,
+    and transitions to CHARACTER_SELECT stage with the next player as active.
 
     Args:
         game: The GamePlay instance to modify in place.
     """
+    # Return any drained items before rotating
+    _return_drained_items(game)
+
     player_names = list(game.players.keys())
     current_idx = player_names.index(game.active.player)
     next_player = player_names[(current_idx + 1) % len(player_names)]
