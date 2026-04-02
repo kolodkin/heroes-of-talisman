@@ -70,6 +70,7 @@ const CharacterCard = ({ name, character, isSelected, onClick, size = "small" })
       data-character={name}
       data-level={character.level}
       data-effects={effectNames}
+      data-active-cards={(character.active_cards || []).join(",")}
       data-is-alive={isAlive ? "true" : "false"}
     >
       <img className={styles["card-img"]} src={`/images/${name}.png`} alt={name} />
