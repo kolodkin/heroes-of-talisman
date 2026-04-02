@@ -6,11 +6,13 @@ from pydantic import Field
 
 from .common import StrictModel
 from .effects import (
+    APPLY_TO_BATTLE_OPPONENT,
     EffectUnion,
     AttackBonusEffect,
     AttackNegBonusEffect,
     BurningArrowEffect,
     DrawCardEffect,
+    NeutralizeAllItemsEffect,
     NeutralizeItemEffect,
     RerollDiceEffect,
     SkipTurnEffect,
@@ -28,7 +30,9 @@ ABILITY_FREEZE = "freeze"
 ABILITY_DISARM = "disarm"
 ABILITY_STORM = "storm"
 ABILITY_DRAGON_BREATH = "dragon_breath"
-ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH]
+ABILITY_BACKHAND_STRIKE = "backhand_strike"
+ABILITY_TRIPLE_STRIKE = "triple_strike"
+ABILITIES_NAMES: list[str] = [ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH, ABILITY_BACKHAND_STRIKE, ABILITY_TRIPLE_STRIKE]
 AbilityName = Literal[*ABILITIES_NAMES]
 
 
@@ -90,6 +94,18 @@ ABILITIES_MAP: dict[AbilityName, Ability] = {
         name=ABILITY_DRAGON_BREATH,
         effects=[
             NeutralizeItemEffect(),
+        ],
+    ),
+    ABILITY_BACKHAND_STRIKE: Ability(
+        name=ABILITY_BACKHAND_STRIKE,
+        effects=[
+            SkipTurnEffect(apply_to=APPLY_TO_BATTLE_OPPONENT),
+        ],
+    ),
+    ABILITY_TRIPLE_STRIKE: Ability(
+        name=ABILITY_TRIPLE_STRIKE,
+        effects=[
+            NeutralizeAllItemsEffect(),
         ],
     ),
 }

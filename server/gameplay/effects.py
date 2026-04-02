@@ -24,6 +24,7 @@ EFFECT_FOG = "fog"
 EFFECT_NEUTRALIZE_ITEM = "neutralize_item"
 EFFECT_NO_DAMAGE_ON_WIN = "no_damage_on_win"
 EFFECT_BURNING_ARROW = "burning_arrow"
+EFFECT_NEUTRALIZE_ALL_ITEMS = "neutralize_all_items"
 
 ########################################################
 # Effect apply_to targets
@@ -210,9 +211,20 @@ class BurningArrowEffect(Effect):
     apply_to: ApplyToTarget = APPLY_TO_SELF
 
 
+class NeutralizeAllItemsEffect(Effect):
+    """
+    Removes ALL active cards (items) from the target character.
+    Applied to battle opponent (no separate selection required).
+    Instant effect - processed at opponent selection and not persisted.
+    """
+
+    name: Literal[EFFECT_NEUTRALIZE_ALL_ITEMS] = EFFECT_NEUTRALIZE_ALL_ITEMS
+    apply_to: ApplyToTarget = APPLY_TO_BATTLE_OPPONENT
+
+
 # Define EffectUnion for discriminated union of all effect types (without base classes)
 EffectUnion = Annotated[
-    Union[AttackBonusEffect, AttackNegBonusEffect, BurningArrowEffect, DefenseBonusEffect, HealEffect, LevelDownEffect, LevelUpEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect, DarknessRiseEffect, FogEffect, NeutralizeItemEffect],
+    Union[AttackBonusEffect, AttackNegBonusEffect, BurningArrowEffect, DefenseBonusEffect, HealEffect, LevelDownEffect, LevelUpEffect, NeutralizeAllItemsEffect, RerollDiceEffect, SkipTurnEffect, DrawCardEffect, TalismanEffect, DarknessRiseEffect, FogEffect, NeutralizeItemEffect],
     Field(discriminator="name"),
 ]
 

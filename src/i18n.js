@@ -90,6 +90,14 @@ const resources = {
           name: "נשימת דרקון",
           description: "מנטרל חפץ אחד מהיריב הנבחר",
         },
+        backhand_strike: {
+          name: "מכה אחורית",
+          description: "היריב בקרב מאבד תור אחד",
+        },
+        triple_strike: {
+          name: "מכה משולשת",
+          description: "מנטרל את כל החפצים של היריב בקרב",
+        },
         no_ability: {
           name: "ללא יכולת",
           description: "דלג על בחירת יכולת",

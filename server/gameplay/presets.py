@@ -1,7 +1,7 @@
 from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH
+from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH, ABILITY_BACKHAND_STRIKE, ABILITY_TRIPLE_STRIKE
 from .effects import EFFECT_SKIP_TURN, EFFECT_NO_DAMAGE_ON_WIN, EFFECT_REROLL_DICE, EFFECT_BURNING_ARROW
 from .gameplay import (
     StageName,
@@ -73,6 +73,8 @@ PRESET_ABILITY_SELECTION_ARCHER_L3 = "ability_selection_archer_l3"
 PRESET_BURNING_ARROW_WIN = "burning_arrow_win"
 PRESET_BURNING_ARROW_NEXT_TURN = "burning_arrow_next_turn"
 PRESET_ABILITY_SELECTION_MAGE_L2_WITH_ITEMS = "ability_selection_mage_l2_with_items"
+PRESET_ABILITY_SELECTION_KNIGHT_L3 = "ability_selection_knight_l3"
+PRESET_ABILITY_SELECTION_KNIGHT_L3_WITH_ITEMS = "ability_selection_knight_l3_with_items"
 DebugPresetsType = Literal[
     "default",
     "ability_selection_knight",
@@ -81,6 +83,8 @@ DebugPresetsType = Literal[
     "ability_selection_mage",
     "ability_selection_mage_l2",
     "ability_selection_mage_l2_with_items",
+    "ability_selection_knight_l3",
+    "ability_selection_knight_l3_with_items",
     "archer_not_alive",
     "battle_draw",
     "battle_level_down",
@@ -849,6 +853,31 @@ def get_debug_preset(
             active=ActivePlayer1(player=p1_name),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "ability_selection_knight_l3":
+        # Ability selection stage - player1 has selected knight at level 3
+        # Knight L3 has BACKHAND_STRIKE and TRIPLE_STRIKE - two abilities, no auto-select
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=3)),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_selection_knight_l3_with_items":
+        # Ability selection stage - player1 has selected knight at level 3
+        # Opponent (player2) mage has active cards (items) to be neutralized by triple_strike
+        characters_p2 = init_characters()
+        characters_p2[CHARACTER_MAGE].active_cards = ["sacred_sword", "metal_armor"]
+
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_KNIGHT),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=3)),
                 p2_name: Player(name=p2_name, characters=characters_p2),
             },
         )
