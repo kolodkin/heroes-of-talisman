@@ -1,8 +1,8 @@
 from typing import Literal, Optional, get_args
 
 from .common import CHARACTER_KNIGHT, CHARACTER_MAGE, CHARACTER_ARCHER
-from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH
-from .effects import EFFECT_SKIP_TURN, EFFECT_NO_DAMAGE_ON_WIN, EFFECT_REROLL_DICE, EFFECT_BURNING_ARROW
+from .abilities import ABILITY_BATTLE_HOWL, ABILITY_BOUNCING_ARROW, ABILITY_BOUNCING_ARROW_L2, ABILITY_BOUNCING_ARROW_L3, ABILITY_BURNING_ARROW, ABILITY_FREEZE, ABILITY_DISARM, ABILITY_STORM, ABILITY_DRAGON_BREATH, ABILITY_MIND_READING, ABILITY_DRAIN
+from .effects import EFFECT_SKIP_TURN, EFFECT_NO_DAMAGE_ON_WIN, EFFECT_REROLL_DICE, EFFECT_BURNING_ARROW, EFFECT_MIND_READING
 from .gameplay import (
     StageName,
     STAGE_ABILITY_SELECTION,
@@ -73,6 +73,10 @@ PRESET_ABILITY_SELECTION_ARCHER_L3 = "ability_selection_archer_l3"
 PRESET_BURNING_ARROW_WIN = "burning_arrow_win"
 PRESET_BURNING_ARROW_NEXT_TURN = "burning_arrow_next_turn"
 PRESET_ABILITY_SELECTION_MAGE_L2_WITH_ITEMS = "ability_selection_mage_l2_with_items"
+PRESET_ABILITY_SELECTION_MAGE_L3 = "ability_selection_mage_l3"
+PRESET_ABILITY_SELECTION_MAGE_L3_WITH_ITEMS = "ability_selection_mage_l3_with_items"
+PRESET_MIND_READING_BATTLE_END = "mind_reading_battle_end"
+PRESET_MIND_READING_OPPONENT_BLOCKED = "mind_reading_opponent_blocked"
 DebugPresetsType = Literal[
     "default",
     "ability_selection_knight",
@@ -116,6 +120,10 @@ DebugPresetsType = Literal[
     "knight_not_alive",
     "mage_not_alive",
     "ability_item_selection_dragon_breath",
+    "ability_selection_mage_l3",
+    "ability_selection_mage_l3_with_items",
+    "mind_reading_battle_end",
+    "mind_reading_opponent_blocked",
     "opponent_selection_preset",
     "single_player",
 ]
@@ -847,6 +855,71 @@ def get_debug_preset(
         ret = GamePlay(
             stage=STAGE_CHARACTER_SELECT,
             active=ActivePlayer1(player=p1_name),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "ability_selection_mage_l3":
+        # Ability selection stage - player1 has selected mage at level 3
+        # Mage L3 has MIND_READING and DRAIN - two abilities, no auto-select
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
+            players={
+                p1_name: Player(name=p1_name, characters=init_characters(level=3)),
+                p2_name: Player(name=p2_name, characters=init_characters()),
+            },
+        )
+    elif preset == "ability_selection_mage_l3_with_items":
+        # Ability selection stage - player1 has selected mage at level 3
+        # Player2's knight has metal_armor and sacred_sword (for drain full flow testing)
+        from .cards import CARD_METAL_ARMOR, CARD_SACRED_SWORD
+        characters1 = init_characters(level=3)
+        characters2 = init_characters()
+        characters2[CHARACTER_KNIGHT].active_cards = [CARD_METAL_ARMOR, CARD_SACRED_SWORD]
+        ret = GamePlay(
+            stage=STAGE_ABILITY_SELECTION,
+            active=ActivePlayer2(player=p1_name, character=CHARACTER_MAGE),
+            players={
+                p1_name: Player(name=p1_name, characters=characters1),
+                p2_name: Player(name=p2_name, characters=characters2),
+            },
+        )
+    elif preset == "mind_reading_battle_end":
+        # Mage L3 wins battle with mind_reading active
+        # Player 1: mage L3 (dice=[6, 5], attack=0) with MIND_READING = 11
+        # Player 2: knight (dice=[3], attack=1) = 4
+        # Result: mage wins (11 > 4), mind_reading protection stored on mage
+        characters_p1 = init_characters(level=3)
+        characters_p1[CHARACTER_MAGE].active_abilities = [ABILITY_MIND_READING]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=STAGE_BATTLE_END,
+            active=ActivePlayer4(
+                player=p1_name, character=CHARACTER_MAGE, dice_roll=[6, 5], result=BattleResult(winner=True, score=11)
+            ),
+            opponent=Opponent4(
+                player=p2_name, character=CHARACTER_KNIGHT, dice_roll=[3], result=BattleResult(winner=False, score=4)
+            ),
+            players={
+                p1_name: Player(name=p1_name, characters=characters_p1),
+                p2_name: Player(name=p2_name, characters=characters_p2),
+            },
+        )
+    elif preset == "mind_reading_opponent_blocked":
+        # Player2's turn - player1's mage has mind_reading protection against player2
+        # Player2 at opponent_selection cannot select player1's mage as a battle target
+        characters_p1 = init_characters(level=3)
+        characters_p1[CHARACTER_MAGE].effects = [f"{EFFECT_MIND_READING}:{p2_name}"]
+
+        characters_p2 = init_characters()
+
+        ret = GamePlay(
+            stage=STAGE_OPPONENT_SELECTION,
+            active=ActivePlayer2(player=p2_name, character=CHARACTER_KNIGHT),
             players={
                 p1_name: Player(name=p1_name, characters=characters_p1),
                 p2_name: Player(name=p2_name, characters=characters_p2),
