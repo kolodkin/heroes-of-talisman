@@ -55,6 +55,8 @@ from .abilities import (
     ABILITY_DISARM,
     ABILITY_STORM,
     ABILITY_DRAGON_BREATH,
+    ABILITY_BACKHAND_STRIKE,
+    ABILITY_TRIPLE_STRIKE,
 )
 from .effects import (
     EffectTotal,
@@ -66,6 +68,7 @@ from .effects import (
     DefenseBonusEffect,
     RerollDiceEffect,
     DrawCardEffect,
+    SkipTurnEffect,
     TalismanEffect,
 )
 
@@ -171,6 +174,8 @@ class Character(StrictModel):
                     for eff in ability.effects:
                         if isinstance(eff, AttackNegBonusEffect):
                             total.attack_neg_bonus += eff.attack_neg_bonus
+                        elif isinstance(eff, SkipTurnEffect):
+                            total.skip_next_turn = True
 
         return total
 
@@ -331,6 +336,8 @@ KNIGHT_L3_DEFAULT_HEALTH = 4
 KNIGHT_L3_MAX_HEALTH = 4
 KNIGHT_L3_DICE = 2
 KNIGHT_L3_ATTACK = 1
+KNIGHT_L3_ABILITY_1 = ABILITY_BACKHAND_STRIKE
+KNIGHT_L3_ABILITY_2 = ABILITY_TRIPLE_STRIKE
 
 # Knight Level 4
 KNIGHT_L4_DEFAULT_HEALTH = 5
@@ -446,7 +453,7 @@ CHARACTER_STATS_BY_LEVEL = {
             "max_health": KNIGHT_L3_MAX_HEALTH,
             "dice": KNIGHT_L3_DICE,
             "attack": KNIGHT_L3_ATTACK,
-            "abilities": [],
+            "abilities": [ABILITIES_MAP[KNIGHT_L3_ABILITY_1], ABILITIES_MAP[KNIGHT_L3_ABILITY_2]],
         },
         "archer": {
             "health": ARCHER_L3_DEFAULT_HEALTH,

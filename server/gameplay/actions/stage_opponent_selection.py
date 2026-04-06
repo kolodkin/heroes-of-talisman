@@ -10,7 +10,7 @@ from .action import Action
 from ..abilities import get_ability_effects
 from ..cards import CARDS_MAP
 from ..common import GameException, ReportedException
-from ..effects import APPLY_TO_BATTLE_OPPONENT
+from ..effects import APPLY_TO_BATTLE_OPPONENT, NeutralizeAllItemsEffect
 from ..gameplay import STAGE_BATTLE_DICE_ROLL, STAGE_OPPONENT_SELECTION, GamePlay, Opponent2
 
 
@@ -112,12 +112,18 @@ class OpponentSelectAction(Action):
         # Apply "battle_opponent" effects from ability to the opponent's character
         # Store ability name (not effect name) to preserve value info for lookup in Character.effect
         if self.game.ability:
+            ability_effects = get_ability_effects(self.game.ability)
             has_battle_opponent_effect = any(
                 effect.apply_to == APPLY_TO_BATTLE_OPPONENT
-                for effect in get_ability_effects(self.game.ability)
+                for effect in ability_effects
             )
             if has_battle_opponent_effect:
                 opponent_character.effects.append(self.game.ability)
+
+            # Handle instant effects that don't persist as effects on the character
+            for effect in ability_effects:
+                if isinstance(effect, NeutralizeAllItemsEffect):
+                    opponent_character.active_cards = []
 
         # Transition to battle dice roll stage
         self.game.stage = STAGE_BATTLE_DICE_ROLL
